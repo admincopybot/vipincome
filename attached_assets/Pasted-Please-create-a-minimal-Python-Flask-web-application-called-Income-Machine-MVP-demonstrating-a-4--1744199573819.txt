@@ -1,0 +1,43 @@
+Please create a minimal Python/Flask web application called "Income Machine MVP," demonstrating a 4-step flow for an options-income strategy (covered calls) on major sector ETFs. This app will use the following context and requirements based on previous conversations:
+
+1. **Context / Goals**:
+   - We have 4 steps in our process:
+     - **Step 1**: Show a daily “scoreboard” comparing 7 sector ETFs (XLC, XLF, XLV, XLI, XLP, XLY, and XLE). Each ETF has a score (0–5) that might come from metrics like moving averages and RSI. For now, we’ll use **dummy data** for these scores and prices (End of Day).
+     - **Step 2**: After picking the best ETF from the scoreboard, the user selects that ETF to proceed.
+     - **Step 3**: The user then chooses an “Income Strategy” among Aggressive, Steady, or Passive (with different DTE, ROI, and strike criteria). For the MVP, we’ll again use **dummy data** to represent the “recommended trade.”
+     - **Step 4**: Display the final “recommended trade” (strike price, expiration, ROI, etc.).
+
+2. **Implementation Notes**:
+   - We are not integrating real APIs or databases in this MVP.
+   - We want a single file named `main.py`.
+   - The code should be written in Python using **Flask**.
+   - Please include simple inline HTML (using `render_template_string`) to demonstrate the basic UI for each step, rather than using external template files.
+   - Include some dummy data structures in Python for:
+     - ETF scores and prices (for Step 1).
+     - Option recommendations (for Step 3) keyed by ETF + strategy (Aggressive, Steady, Passive).
+   - We do not need user authentication or a separate trial vs. paid version in this MVP. We just want to showcase the basic flow.
+   - At runtime, the console should print a simple message like “Visit http://127.0.0.1:5000/ to view the Income Machine MVP.”
+
+3. **Flow**:
+   - **Root Page ("/")**: Display a table with the 7 ETFs, their dummy price, their dummy score, and a “Select” link that sends the user to Step 2.
+   - **Step 2 ("/step2")**: Display details of the chosen ETF (price, score), plus a link to Step 3.
+   - **Step 3 ("/step3")**: Provide 3 radio buttons (Aggressive, Steady, Passive), with brief text describing each, and a form that sends the user to Step 4 upon submission.
+   - **Step 4 ("/step4")**: Show the final recommended trade details from our dummy data for the chosen ETF & strategy.
+
+4. **Dummy Data**:
+   - Use dictionaries to store ETF data and recommended trades. For example:
+     - `etf_scores = {"XLC": {"score": 3, "price": 55.12}, "XLF": {...}, ...}`
+     - `recommended_trades = {"XLC": {"Aggressive": {"strike": 55, "expiration": "2023-04-20", "roi": "35%"}, ...}, ...}`
+   - You can make up any numbers you like—this is purely for demonstration.
+
+5. **Deliverable**:
+   - Provide the **complete `main.py` code** that we can run on Replit to see this flow in action.
+   - The app should run on `host="0.0.0.0"`, `port=5000`, and display a printed message in the console with the local URL.
+
+6. **No Additional Features Needed**:
+   - No database.
+   - No real-time data fetching.
+   - No AI/LLM integration.
+   - Just an illustrative MVP of the user flow.
+
+Thank you! Please generate the final `main.py` in a single code block.
