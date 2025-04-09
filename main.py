@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Initialize Flask application
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "income_machine_mvp")
+app.secret_key = os.environ.get("SESSION_SECRET", "income_machine_demo")
 
 # Create dummy data for ETF scoreboard
 etf_scores = {
@@ -75,7 +75,7 @@ def index():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Income Machine MVP - Daily ETF Scoreboard</title>
+        <title>Income Machine DEMO - Daily ETF Scoreboard</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
             .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
@@ -114,7 +114,7 @@ def index():
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
                 <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">MVP</span></h1>
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
                 </div>
             </header>
             
@@ -178,7 +178,7 @@ def index():
             </div>
             
             <footer class="pt-3 mt-4 text-body-secondary border-top">
-                &copy; 2023 Income Machine MVP
+                &copy; 2023 Income Machine DEMO
             </footer>
         </div>
     </body>
@@ -200,7 +200,7 @@ def step2():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Income Machine MVP - ETF Selection - {{ etf }}</title>
+        <title>Income Machine DEMO - ETF Selection - {{ etf }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
             .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
@@ -239,7 +239,7 @@ def step2():
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
                 <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">MVP</span></h1>
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
                 </div>
             </header>
             
@@ -313,7 +313,7 @@ def step2():
             </div>
             
             <footer class="pt-3 mt-4 text-body-secondary border-top">
-                &copy; 2023 Income Machine MVP
+                &copy; 2023 Income Machine DEMO
             </footer>
         </div>
     </body>
@@ -335,7 +335,7 @@ def step3():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Income Machine MVP - Strategy Selection for {{ etf }}</title>
+        <title>Income Machine DEMO - Strategy Selection for {{ etf }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
             .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
@@ -374,7 +374,7 @@ def step3():
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
                 <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">MVP</span></h1>
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
                 </div>
             </header>
             
@@ -484,7 +484,7 @@ def step3():
             </form>
             
             <footer class="pt-3 mt-4 text-body-secondary border-top">
-                &copy; 2023 Income Machine MVP
+                &copy; 2023 Income Machine DEMO
             </footer>
         </div>
     </body>
@@ -510,7 +510,7 @@ def step4():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Income Machine MVP - Trade Details - {{ etf }} {{ strategy }}</title>
+        <title>Income Machine DEMO - Trade Details - {{ etf }} {{ strategy }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
             .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
@@ -549,7 +549,7 @@ def step4():
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
                 <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">MVP</span></h1>
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
                 </div>
             </header>
             
@@ -677,7 +677,7 @@ def step4():
             </div>
             
             <footer class="pt-3 mt-4 text-body-secondary border-top">
-                &copy; 2023 Income Machine MVP
+                &copy; 2023 Income Machine DEMO
             </footer>
         </div>
     </body>
@@ -695,5 +695,5 @@ def step4():
 
 # Run the Flask application
 if __name__ == '__main__':
-    print("Visit http://127.0.0.1:5000/ to view the Income Machine MVP.")
+    print("Visit http://127.0.0.1:5000/ to view the Income Machine DEMO.")
     app.run(host="0.0.0.0", port=5000, debug=True)
