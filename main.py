@@ -417,10 +417,10 @@ def step3():
                             <div class="card-body">
                                 <h5 class="card-title text-light">Higher Risk, Higher Reward</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item text-dark"><strong>DTE:</strong> Approx. 7 days (weekly)</li>
-                                    <li class="list-group-item text-dark"><strong>Target ROI:</strong> 25-35% annually</li>
-                                    <li class="list-group-item text-dark"><strong>Strike Selection:</strong> 5-10% OTM</li>
-                                    <li class="list-group-item text-dark"><strong>Management:</strong> Weekly attention needed</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>DTE:</strong> Approx. 7 days (weekly)</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Target ROI:</strong> 25-35% annually</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Strike Selection:</strong> 5-10% OTM</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Management:</strong> Weekly attention needed</li>
                                 </ul>
                                 <p class="card-text text-light">{{ strategy_descriptions.Aggressive }}</p>
                             </div>
@@ -440,10 +440,10 @@ def step3():
                             <div class="card-body">
                                 <h5 class="card-title text-light">Balanced Approach</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item text-dark"><strong>DTE:</strong> 14-21 days (bi-weekly)</li>
-                                    <li class="list-group-item text-dark"><strong>Target ROI:</strong> 20-25% annually</li>
-                                    <li class="list-group-item text-dark"><strong>Strike Selection:</strong> 2-5% OTM</li>
-                                    <li class="list-group-item text-dark"><strong>Management:</strong> Bi-weekly attention</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>DTE:</strong> 14-21 days (bi-weekly)</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Target ROI:</strong> 20-25% annually</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Strike Selection:</strong> 2-5% OTM</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Management:</strong> Bi-weekly attention</li>
                                 </ul>
                                 <p class="card-text text-light">{{ strategy_descriptions.Steady }}</p>
                             </div>
@@ -463,10 +463,10 @@ def step3():
                             <div class="card-body">
                                 <h5 class="card-title text-light">Lower Risk, Consistent Income</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item text-dark"><strong>DTE:</strong> 30-60 days (monthly+)</li>
-                                    <li class="list-group-item text-dark"><strong>Target ROI:</strong> 15-20% annually</li>
-                                    <li class="list-group-item text-dark"><strong>Strike Selection:</strong> 1-3% OTM</li>
-                                    <li class="list-group-item text-dark"><strong>Management:</strong> Monthly attention</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>DTE:</strong> 30-60 days (monthly+)</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Target ROI:</strong> 15-20% annually</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Strike Selection:</strong> 1-3% OTM</li>
+                                    <li class="list-group-item bg-dark text-white"><strong>Management:</strong> Monthly attention</li>
                                 </ul>
                                 <p class="card-text text-light">{{ strategy_descriptions.Passive }}</p>
                             </div>
@@ -578,8 +578,8 @@ def step4():
             <div class="row">
                 <div class="col-md-6">
                     <div class="card mb-4">
-                        <div class="card-header bg-primary-subtle">
-                            <h4 class="text-light">ETF Information</h4>
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="text-white">ETF Information</h4>
                         </div>
                         <div class="card-body">
                             <h5 class="text-light">{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
@@ -597,8 +597,8 @@ def step4():
                 
                 <div class="col-md-6">
                     <div class="card mb-4">
-                        <div class="card-header {{ 'bg-danger-subtle' if strategy == 'Aggressive' else 'bg-warning-subtle' if strategy == 'Steady' else 'bg-success-subtle' }}">
-                            <h4 class="text-light">{{ strategy }} Strategy</h4>
+                        <div class="card-header {{ 'bg-danger text-white' if strategy == 'Aggressive' else 'bg-warning text-dark' if strategy == 'Steady' else 'bg-success text-white' }}">
+                            <h4 class="{{ 'text-white' if strategy == 'Aggressive' or strategy == 'Passive' else 'text-dark' }}">{{ strategy }} Strategy</h4>
                         </div>
                         <div class="card-body">
                             <p class="text-light">{{ strategy_descriptions[strategy] }}</p>
@@ -610,8 +610,8 @@ def step4():
             </div>
     
             <div class="card mb-4">
-                <div class="card-header bg-success-subtle">
-                    <h4 class="text-light">Recommended Covered Call Trade</h4>
+                <div class="card-header bg-success text-white">
+                    <h4 class="text-white">Recommended Covered Call Trade</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -619,19 +619,19 @@ def step4():
                             <div class="mb-3">
                                 <h5 class="text-light">Trade Setup</h5>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
                                         <span><strong>Action:</strong></span>
                                         <span>Sell 1 {{ etf }} Call Option</span>
                                     </li>
-                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
                                         <span><strong>Strike Price:</strong></span>
                                         <span>${{ "%.2f"|format(trade.strike) }}</span>
                                     </li>
-                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
                                         <span><strong>Expiration:</strong></span>
                                         <span>{{ trade.expiration }} ({{ trade.dte }} days)</span>
                                     </li>
-                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
                                         <span><strong>Premium:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium) }} per share</span>
                                     </li>
@@ -643,19 +643,19 @@ def step4():
                             <div class="mb-3">
                                 <h5 class="text-light">Trade Metrics</h5>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
                                         <span><strong>Strike Distance:</strong></span>
                                         <span>{{ trade.otm }} OTM</span>
                                     </li>
-                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
                                         <span><strong>Annualized ROI:</strong></span>
                                         <span>{{ trade.roi }}</span>
                                     </li>
-                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
                                         <span><strong>Total Premium:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium * 100) }} per contract</span>
                                     </li>
-                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
                                         <span><strong>Max Profit:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium * 100) }} per contract</span>
                                     </li>
