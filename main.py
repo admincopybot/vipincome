@@ -141,24 +141,24 @@ def index():
             </div>
     
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover table-dark">
                     <thead>
                         <tr>
-                            <th>ETF</th>
-                            <th>Sector</th>
-                            <th>Price</th>
-                            <th>Score</th>
-                            <th>Strength</th>
-                            <th>Action</th>
+                            <th class="text-light">ETF</th>
+                            <th class="text-light">Sector</th>
+                            <th class="text-light">Price</th>
+                            <th class="text-light">Score</th>
+                            <th class="text-light">Strength</th>
+                            <th class="text-light">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for etf, data in etfs.items() %}
                         <tr>
-                            <td><strong>{{ etf }}</strong></td>
-                            <td>{{ data.name }}</td>
-                            <td>${{ "%.2f"|format(data.price) }}</td>
-                            <td>{{ data.score }}/5</td>
+                            <td class="text-light"><strong>{{ etf }}</strong></td>
+                            <td class="text-light">{{ data.name }}</td>
+                            <td class="text-light">${{ "%.2f"|format(data.price) }}</td>
+                            <td class="text-light">{{ data.score }}/5</td>
                             <td>
                                 <div class="progress" style="height: 20px;">
                                     <div class="progress-bar progress-bar-score-{{ data.score }}" role="progressbar" 
@@ -269,13 +269,13 @@ def step2():
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h4>ETF Details</h4>
+                            <h4 class="text-light">ETF Details</h4>
                         </div>
                         <div class="card-body">
-                            <p><strong>Symbol:</strong> {{ etf }}</p>
-                            <p><strong>Sector:</strong> {{ etf_data.name }}</p>
-                            <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
-                            <p><strong>Score:</strong> {{ etf_data.score }}/5</p>
+                            <p class="text-light"><strong>Symbol:</strong> {{ etf }}</p>
+                            <p class="text-light"><strong>Sector:</strong> {{ etf_data.name }}</p>
+                            <p class="text-light"><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
+                            <p class="text-light"><strong>Score:</strong> {{ etf_data.score }}/5</p>
                             <div class="progress mb-3" style="height: 25px;">
                                 <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
                                      aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
@@ -289,14 +289,14 @@ def step2():
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h4>Income Potential</h4>
+                            <h4 class="text-light">Income Potential</h4>
                         </div>
                         <div class="card-body">
-                            <p>Based on the current score of <strong>{{ etf_data.score }}/5</strong>, 
+                            <p class="text-light">Based on the current score of <strong>{{ etf_data.score }}/5</strong>, 
                             {{ etf }} could be a {{ 'strong' if etf_data.score >= 4 else 'moderate' if etf_data.score >= 2 else 'weak' }} 
                             candidate for generating options income.</p>
                             
-                            <p>The higher the score, the more favorable market conditions are for selling covered calls.</p>
+                            <p class="text-light">The higher the score, the more favorable market conditions are for selling covered calls.</p>
                             
                             <div class="d-grid gap-2">
                                 <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-primary">
@@ -415,14 +415,14 @@ def step3():
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">Higher Risk, Higher Reward</h5>
+                                <h5 class="card-title text-light">Higher Risk, Higher Reward</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item"><strong>DTE:</strong> Approx. 7 days (weekly)</li>
-                                    <li class="list-group-item"><strong>Target ROI:</strong> 25-35% annually</li>
-                                    <li class="list-group-item"><strong>Strike Selection:</strong> 5-10% OTM</li>
-                                    <li class="list-group-item"><strong>Management:</strong> Weekly attention needed</li>
+                                    <li class="list-group-item text-dark"><strong>DTE:</strong> Approx. 7 days (weekly)</li>
+                                    <li class="list-group-item text-dark"><strong>Target ROI:</strong> 25-35% annually</li>
+                                    <li class="list-group-item text-dark"><strong>Strike Selection:</strong> 5-10% OTM</li>
+                                    <li class="list-group-item text-dark"><strong>Management:</strong> Weekly attention needed</li>
                                 </ul>
-                                <p class="card-text">{{ strategy_descriptions.Aggressive }}</p>
+                                <p class="card-text text-light">{{ strategy_descriptions.Aggressive }}</p>
                             </div>
                         </div>
                     </div>
@@ -438,14 +438,14 @@ def step3():
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">Balanced Approach</h5>
+                                <h5 class="card-title text-light">Balanced Approach</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item"><strong>DTE:</strong> 14-21 days (bi-weekly)</li>
-                                    <li class="list-group-item"><strong>Target ROI:</strong> 20-25% annually</li>
-                                    <li class="list-group-item"><strong>Strike Selection:</strong> 2-5% OTM</li>
-                                    <li class="list-group-item"><strong>Management:</strong> Bi-weekly attention</li>
+                                    <li class="list-group-item text-dark"><strong>DTE:</strong> 14-21 days (bi-weekly)</li>
+                                    <li class="list-group-item text-dark"><strong>Target ROI:</strong> 20-25% annually</li>
+                                    <li class="list-group-item text-dark"><strong>Strike Selection:</strong> 2-5% OTM</li>
+                                    <li class="list-group-item text-dark"><strong>Management:</strong> Bi-weekly attention</li>
                                 </ul>
-                                <p class="card-text">{{ strategy_descriptions.Steady }}</p>
+                                <p class="card-text text-light">{{ strategy_descriptions.Steady }}</p>
                             </div>
                         </div>
                     </div>
@@ -461,14 +461,14 @@ def step3():
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">Lower Risk, Consistent Income</h5>
+                                <h5 class="card-title text-light">Lower Risk, Consistent Income</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item"><strong>DTE:</strong> 30-60 days (monthly+)</li>
-                                    <li class="list-group-item"><strong>Target ROI:</strong> 15-20% annually</li>
-                                    <li class="list-group-item"><strong>Strike Selection:</strong> 1-3% OTM</li>
-                                    <li class="list-group-item"><strong>Management:</strong> Monthly attention</li>
+                                    <li class="list-group-item text-dark"><strong>DTE:</strong> 30-60 days (monthly+)</li>
+                                    <li class="list-group-item text-dark"><strong>Target ROI:</strong> 15-20% annually</li>
+                                    <li class="list-group-item text-dark"><strong>Strike Selection:</strong> 1-3% OTM</li>
+                                    <li class="list-group-item text-dark"><strong>Management:</strong> Monthly attention</li>
                                 </ul>
-                                <p class="card-text">{{ strategy_descriptions.Passive }}</p>
+                                <p class="card-text text-light">{{ strategy_descriptions.Passive }}</p>
                             </div>
                         </div>
                     </div>
@@ -579,12 +579,12 @@ def step4():
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-header bg-primary-subtle">
-                            <h4>ETF Information</h4>
+                            <h4 class="text-light">ETF Information</h4>
                         </div>
                         <div class="card-body">
-                            <h5>{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
-                            <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
-                            <p><strong>Strength Score:</strong> {{ etf_data.score }}/5</p>
+                            <h5 class="text-light">{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
+                            <p class="text-light"><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
+                            <p class="text-light"><strong>Strength Score:</strong> {{ etf_data.score }}/5</p>
                             <div class="progress mb-3" style="height: 20px;">
                                 <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
                                     aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
@@ -598,12 +598,12 @@ def step4():
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-header {{ 'bg-danger-subtle' if strategy == 'Aggressive' else 'bg-warning-subtle' if strategy == 'Steady' else 'bg-success-subtle' }}">
-                            <h4>{{ strategy }} Strategy</h4>
+                            <h4 class="text-light">{{ strategy }} Strategy</h4>
                         </div>
                         <div class="card-body">
-                            <p>{{ strategy_descriptions[strategy] }}</p>
-                            <p><strong>Days To Expiration:</strong> {{ trade.dte }} days</p>
-                            <p><strong>Target Annual ROI:</strong> {{ trade.roi }}</p>
+                            <p class="text-light">{{ strategy_descriptions[strategy] }}</p>
+                            <p class="text-light"><strong>Days To Expiration:</strong> {{ trade.dte }} days</p>
+                            <p class="text-light"><strong>Target Annual ROI:</strong> {{ trade.roi }}</p>
                         </div>
                     </div>
                 </div>
@@ -611,13 +611,13 @@ def step4():
     
             <div class="card mb-4">
                 <div class="card-header bg-success-subtle">
-                    <h4>Recommended Covered Call Trade</h4>
+                    <h4 class="text-light">Recommended Covered Call Trade</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <h5>Trade Setup</h5>
+                                <h5 class="text-light">Trade Setup</h5>
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Action:</strong></span>
@@ -641,7 +641,7 @@ def step4():
                         
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <h5>Trade Metrics</h5>
+                                <h5 class="text-light">Trade Metrics</h5>
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Strike Distance:</strong></span>
