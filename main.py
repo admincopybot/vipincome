@@ -619,19 +619,19 @@ def step4():
                             <div class="mb-3">
                                 <h5 class="text-light">Trade Setup</h5>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
                                         <span><strong>Action:</strong></span>
                                         <span>Sell 1 {{ etf }} Call Option</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
                                         <span><strong>Strike Price:</strong></span>
                                         <span>${{ "%.2f"|format(trade.strike) }}</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
                                         <span><strong>Expiration:</strong></span>
                                         <span>{{ trade.expiration }} ({{ trade.dte }} days)</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
                                         <span><strong>Premium:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium) }} per share</span>
                                     </li>
@@ -643,19 +643,19 @@ def step4():
                             <div class="mb-3">
                                 <h5 class="text-light">Trade Metrics</h5>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
                                         <span><strong>Strike Distance:</strong></span>
                                         <span>{{ trade.otm }} OTM</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
                                         <span><strong>Annualized ROI:</strong></span>
                                         <span>{{ trade.roi }}</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
                                         <span><strong>Total Premium:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium * 100) }} per contract</span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item text-dark d-flex justify-content-between align-items-center">
                                         <span><strong>Max Profit:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium * 100) }} per contract</span>
                                     </li>
