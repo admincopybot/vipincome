@@ -406,10 +406,10 @@ def step3():
                 <div class="row">
                     <div class="col-md-4">
                         <div class="card mb-4">
-                            <div class="card-header bg-danger-subtle">
+                            <div class="card-header bg-danger text-white">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="strategy" id="aggressive" value="Aggressive" required>
-                                    <label class="form-check-label fw-bold" for="aggressive">
+                                    <label class="form-check-label fw-bold text-white" for="aggressive">
                                         Aggressive Strategy
                                     </label>
                                 </div>
@@ -429,10 +429,10 @@ def step3():
                     
                     <div class="col-md-4">
                         <div class="card mb-4">
-                            <div class="card-header bg-warning-subtle">
+                            <div class="card-header bg-warning text-dark">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="strategy" id="steady" value="Steady" required>
-                                    <label class="form-check-label fw-bold" for="steady">
+                                    <label class="form-check-label fw-bold text-dark" for="steady">
                                         Steady Strategy
                                     </label>
                                 </div>
@@ -452,10 +452,10 @@ def step3():
                     
                     <div class="col-md-4">
                         <div class="card mb-4">
-                            <div class="card-header bg-success-subtle">
+                            <div class="card-header bg-success text-white">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="strategy" id="passive" value="Passive" required>
-                                    <label class="form-check-label fw-bold" for="passive">
+                                    <label class="form-check-label fw-bold text-white" for="passive">
                                         Passive Strategy
                                     </label>
                                 </div>
