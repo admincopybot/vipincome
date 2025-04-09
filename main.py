@@ -114,7 +114,7 @@ def index():
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
                 <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="fs-4">Income Machine <span class="badge bg-primary">MVP</span></h1>
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">MVP</span></h1>
                 </div>
             </header>
             
@@ -239,7 +239,7 @@ def step2():
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
                 <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="fs-4">Income Machine <span class="badge bg-primary">MVP</span></h1>
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">MVP</span></h1>
                 </div>
             </header>
             
@@ -374,7 +374,7 @@ def step3():
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
                 <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="fs-4">Income Machine <span class="badge bg-primary">MVP</span></h1>
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">MVP</span></h1>
                 </div>
             </header>
             
@@ -549,7 +549,7 @@ def step4():
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
                 <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
-                    <h1 class="fs-4">Income Machine <span class="badge bg-primary">MVP</span></h1>
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">MVP</span></h1>
                 </div>
             </header>
             
