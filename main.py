@@ -249,6 +249,9 @@ def index():
         <title>Income Machine DEMO - Daily ETF Scoreboard</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
+            {{ global_css }}
+            
+            /* Page-specific styles */
             .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
             .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
             .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
