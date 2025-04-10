@@ -20,6 +20,8 @@ etf_scores = {
     "XLE": {"name": "Energy", "score": 4, "price": 87.93}
 }
 
+# Global CSS variable defined below with the strategy descriptions
+
 # Create dummy data for option recommendations
 recommended_trades = {
     "XLC": {
