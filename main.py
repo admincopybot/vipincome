@@ -447,41 +447,34 @@ def index():
                 </div>
             </div>
     
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th style="color: rgba(255, 255, 255, 0.95) !important;">ETF</th>
-                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Sector</th>
-                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Price</th>
-                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Score</th>
-                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Strength</th>
-                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for etf, data in etfs.items() %}
-                        <tr>
-                            <td><strong>{{ etf }}</strong></td>
-                            <td>{{ data.name }}</td>
-                            <td>${{ "%.2f"|format(data.price) }}</td>
-                            <td>{{ data.score }}/5</td>
-                            <td>
-                                <div class="progress">
-                                    <div class="progress-bar progress-bar-score-{{ data.score }}" role="progressbar" 
-                                         aria-valuenow="{{ data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
-                                    </div>
+            <div class="row">
+                {% for etf, data in etfs.items() %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100" style="background: rgba(28, 28, 30, 0.8); border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="card-title mb-0" style="font-weight: 700; font-size: 1.8rem; letter-spacing: -0.02em;">{{ etf }}</h3>
+                                <span class="badge {{ 'bg-success' if data.score >= 4 else 'bg-warning' if data.score >= 3 else 'bg-danger' }}" style="font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 20px;">{{ data.score }}/5</span>
+                            </div>
+                            
+                            <p class="text-light mb-1" style="font-size: 1.1rem; opacity: 0.9;">{{ data.name }}</p>
+                            <p class="text-light mb-3" style="font-size: 1.5rem; font-weight: 600;">${{ "%.2f"|format(data.price) }}</p>
+                            
+                            <div class="progress mb-4" style="height: 8px; background: rgba(40, 40, 45, 0.3); overflow: hidden; border-radius: 100px;">
+                                <div class="progress-bar progress-bar-score-{{ data.score }}" role="progressbar" 
+                                    aria-valuenow="{{ data.score * 20 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ data.score * 20 }}%;">
                                 </div>
-                            </td>
-                            <td>
-                                <a href="{{ url_for('step2', etf=etf) }}" class="btn btn-sm {{ 'btn-success' if data.score >= 4 else 'btn-secondary' }}">
-                                    Select
+                            </div>
+                            
+                            <div class="d-grid">
+                                <a href="{{ url_for('step2', etf=etf) }}" class="btn {{ 'btn-success' if data.score >= 4 else 'btn-secondary' }}" style="border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em;">
+                                    Select {{ etf }}
                                 </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
             
             <footer class="pt-3 mt-4 text-body-secondary border-top">
