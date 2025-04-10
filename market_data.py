@@ -35,13 +35,14 @@ class MarketDataService:
                 # Get historical data for score calculation
                 hist = ticker.history(period="1mo")
                 
-                # Calculate score based on multiple factors (1-5 scale)
-                score = MarketDataService._calculate_etf_score(ticker, hist)
+                # Calculate score and get indicator details
+                score, indicators = MarketDataService._calculate_etf_score(ticker, hist)
                 
                 result[symbol] = {
                     'name': name,
                     'price': price,
-                    'score': score
+                    'score': score,
+                    'indicators': indicators
                 }
                 
                 logger.info(f"Fetched data for {symbol}: ${price}, Score: {score}/5")
@@ -62,28 +63,55 @@ class MarketDataService:
         5. Stabilizing: 3-Day ATR < 6-Day ATR
         
         Each indicator = 1 point, total score from 0-5
+        Returns tuple of (score, indicator_details_dict)
         """
         try:
             score = 0
+            indicators = {}
             
             if len(hist_data) < 100:
                 logger.warning(f"Not enough historical data to calculate score, using default")
-                return 3  # Default score if not enough data
+                # Create simulated indicator data for UI display
+                return 3, {
+                    'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Insufficient historical data'},
+                    'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Insufficient historical data'},
+                    'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Insufficient historical data'},
+                    'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Insufficient historical data'},
+                    'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Insufficient historical data'}
+                }
             
             # Latest closing price
             current_price = hist_data['Close'].iloc[-1]
             
             # 1. Trend 1: Price > 20 EMA on Daily Timeframe
             ema_20 = hist_data['Close'].ewm(span=20, adjust=False).mean().iloc[-1]
-            if current_price > ema_20:
+            trend1_pass = current_price > ema_20
+            if trend1_pass:
                 score += 1
-                logger.debug(f"Trend 1 confirmed: Price {current_price} > 20 EMA {ema_20}")
+            
+            trend1_desc = f"Price (${current_price:.2f}) is {'above' if trend1_pass else 'below'} the 20-day EMA (${ema_20:.2f})"
+            indicators['trend1'] = {
+                'pass': trend1_pass,
+                'current': float(current_price),
+                'threshold': float(ema_20),
+                'description': trend1_desc
+            }
+            logger.debug(f"Trend 1: {trend1_desc}")
             
             # 2. Trend 2: Price > 100 EMA on Daily Timeframe
             ema_100 = hist_data['Close'].ewm(span=100, adjust=False).mean().iloc[-1]
-            if current_price > ema_100:
+            trend2_pass = current_price > ema_100
+            if trend2_pass:
                 score += 1
-                logger.debug(f"Trend 2 confirmed: Price {current_price} > 100 EMA {ema_100}")
+            
+            trend2_desc = f"Price (${current_price:.2f}) is {'above' if trend2_pass else 'below'} the 100-day EMA (${ema_100:.2f})"
+            indicators['trend2'] = {
+                'pass': trend2_pass,
+                'current': float(current_price),
+                'threshold': float(ema_100),
+                'description': trend2_desc
+            }
+            logger.debug(f"Trend 2: {trend2_desc}")
             
             # 3. Snapback: RSI < 50 on 4HR Timeframe (approximated with daily)
             # Calculate RSI (14-period)
@@ -94,15 +122,33 @@ class MarketDataService:
             rsi = 100 - (100 / (1 + rs))
             current_rsi = rsi.iloc[-1]
             
-            if current_rsi < 50:
+            snapback_pass = current_rsi < 50
+            if snapback_pass:
                 score += 1
-                logger.debug(f"Snapback confirmed: RSI {current_rsi} < 50")
+            
+            snapback_desc = f"RSI ({current_rsi:.1f}) is {'below' if snapback_pass else 'above'} the threshold (50)"
+            indicators['snapback'] = {
+                'pass': snapback_pass,
+                'current': float(current_rsi),
+                'threshold': 50.0,
+                'description': snapback_desc
+            }
+            logger.debug(f"Snapback: {snapback_desc}")
             
             # 4. Momentum: Above Previous Week's Closing Price
             prev_week_close = hist_data['Close'].iloc[-6]  # ~5 trading days ago
-            if current_price > prev_week_close:
+            momentum_pass = current_price > prev_week_close
+            if momentum_pass:
                 score += 1
-                logger.debug(f"Momentum confirmed: Current {current_price} > Previous week {prev_week_close}")
+            
+            momentum_desc = f"Current price (${current_price:.2f}) is {'above' if momentum_pass else 'below'} last week's close (${prev_week_close:.2f})"
+            indicators['momentum'] = {
+                'pass': momentum_pass,
+                'current': float(current_price),
+                'threshold': float(prev_week_close),
+                'description': momentum_desc
+            }
+            logger.debug(f"Momentum: {momentum_desc}")
             
             # 5. Stabilizing: 3 Day ATR < 6 Day ATR
             # Calculate True Range
@@ -115,16 +161,32 @@ class MarketDataService:
             atr_3 = true_range.rolling(3).mean().iloc[-1]
             atr_6 = true_range.rolling(6).mean().iloc[-1]
             
-            if atr_3 < atr_6:
+            stabilizing_pass = atr_3 < atr_6
+            if stabilizing_pass:
                 score += 1
-                logger.debug(f"Stabilizing confirmed: 3-day ATR {atr_3} < 6-day ATR {atr_6}")
+            
+            stabilizing_desc = f"3-day ATR ({atr_3:.2f}) is {'lower' if stabilizing_pass else 'higher'} than 6-day ATR ({atr_6:.2f})"
+            indicators['stabilizing'] = {
+                'pass': stabilizing_pass,
+                'current': float(atr_3),
+                'threshold': float(atr_6),
+                'description': stabilizing_desc
+            }
+            logger.debug(f"Stabilizing: {stabilizing_desc}")
             
             logger.info(f"Calculated score: {score}/5 using technical indicators")
-            return score
+            return score, indicators
             
         except Exception as e:
             logger.error(f"Error calculating ETF score: {str(e)}")
-            return 3  # Default score on error
+            # Return default values on error
+            return 3, {
+                'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': f'Error: {str(e)}'},
+                'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': f'Error: {str(e)}'},
+                'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': f'Error: {str(e)}'},
+                'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': f'Error: {str(e)}'},
+                'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': f'Error: {str(e)}'}
+            }
     
     @staticmethod
     def get_options_data(symbol, strategy='Steady'):

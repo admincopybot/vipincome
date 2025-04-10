@@ -629,35 +629,61 @@ def step2():
                             <div class="mt-4">
                                 <h6 class="fw-bold">Technical Indicators:</h6>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>Trend 1: Price > 20 EMA</span>
-                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 1 else 'bg-secondary' }}">
-                                            {{ '✓' if etf_data.score >= 1 else '✗' }}
-                                        </span>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><strong>Trend 1:</strong> Price > 20 EMA</span>
+                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.trend1.pass else 'bg-secondary' }}">
+                                                {{ '✓' if etf_data.indicators.trend1.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                        <div class="small text-light">
+                                            {{ etf_data.indicators.trend1.description }}
+                                        </div>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>Trend 2: Price > 100 EMA</span>
-                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 2 else 'bg-secondary' }}">
-                                            {{ '✓' if etf_data.score >= 2 else '✗' }}
-                                        </span>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><strong>Trend 2:</strong> Price > 100 EMA</span>
+                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.trend2.pass else 'bg-secondary' }}">
+                                                {{ '✓' if etf_data.indicators.trend2.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                        <div class="small text-light">
+                                            {{ etf_data.indicators.trend2.description }}
+                                        </div>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>Snapback: RSI < 50</span>
-                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 3 else 'bg-secondary' }}">
-                                            {{ '✓' if etf_data.score >= 3 else '✗' }}
-                                        </span>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><strong>Snapback:</strong> RSI < 50</span>
+                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.snapback.pass else 'bg-secondary' }}">
+                                                {{ '✓' if etf_data.indicators.snapback.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                        <div class="small text-light">
+                                            {{ etf_data.indicators.snapback.description }}
+                                        </div>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>Momentum: Price > Last Week</span>
-                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 4 else 'bg-secondary' }}">
-                                            {{ '✓' if etf_data.score >= 4 else '✗' }}
-                                        </span>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><strong>Momentum:</strong> Price > Last Week</span>
+                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.momentum.pass else 'bg-secondary' }}">
+                                                {{ '✓' if etf_data.indicators.momentum.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                        <div class="small text-light">
+                                            {{ etf_data.indicators.momentum.description }}
+                                        </div>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>Stabilizing: 3D ATR < 6D ATR</span>
-                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 5 else 'bg-secondary' }}">
-                                            {{ '✓' if etf_data.score >= 5 else '✗' }}
-                                        </span>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span><strong>Stabilizing:</strong> 3D ATR < 6D ATR</span>
+                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.stabilizing.pass else 'bg-secondary' }}">
+                                                {{ '✓' if etf_data.indicators.stabilizing.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                        <div class="small text-light">
+                                            {{ etf_data.indicators.stabilizing.description }}
+                                        </div>
+                                    </li>
                                     </li>
                                 </ul>
                             </div>
