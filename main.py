@@ -407,11 +407,14 @@ def step3():
                     <div class="col-md-4">
                         <div class="card mb-4">
                             <div class="card-header bg-danger text-white">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="strategy" id="aggressive" value="Aggressive" required>
-                                    <label class="form-check-label fw-bold text-white" for="aggressive">
-                                        Aggressive Strategy
-                                    </label>
+                                <div class="form-check d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input class="form-check-input" type="radio" name="strategy" id="aggressive" value="Aggressive" required>
+                                        <label class="form-check-label fw-bold text-white" for="aggressive">
+                                            Aggressive Strategy
+                                        </label>
+                                    </div>
+                                    <label for="aggressive" class="btn btn-sm btn-outline-light">Select</label>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -692,6 +695,250 @@ def step4():
         trade=trade,
         strategy_descriptions=strategy_descriptions
     )
+
+# Route for How to Use page
+@app.route('/how-to-use')
+def how_to_use():
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>How to Use the Income Machine</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    </head>
+    <body data-bs-theme="dark">
+        <div class="container py-4">
+            <header class="pb-3 mb-4 border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
+                    <div class="d-flex gap-3">
+                        <a href="/" class="btn btn-sm btn-outline-light">Back to Demo</a>
+                        <a href="/how-to-use" class="btn btn-sm btn-outline-light active">How to Use</a>
+                        <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
+                        <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">How to Use the Income Machine</h2>
+                    <p class="fs-5">Learn how to get the most out of this powerful options income tool.</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Step-by-Step Guide</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="text-light">1. Check the ETF Scoreboard</h5>
+                    <p class="text-light">The scoreboard ranks sector ETFs based on their current income potential. Higher scores (4-5) indicate stronger opportunities.</p>
+                    
+                    <h5 class="text-light">2. Select an ETF</h5>
+                    <p class="text-light">Click on an ETF with a good score to view more details about its current price and income potential.</p>
+                    
+                    <h5 class="text-light">3. Choose a Strategy</h5>
+                    <p class="text-light">Select between Aggressive, Steady, or Passive strategies based on your risk tolerance and how actively you want to manage your positions.</p>
+                    
+                    <h5 class="text-light">4. Review Trade Details</h5>
+                    <p class="text-light">See the specific covered call trade recommendation with strike price, expiration, potential return, and other key metrics.</p>
+                </div>
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(template)
+
+# Route for Live Classes page
+@app.route('/live-classes')
+def live_classes():
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Income Machine LIVE Trade Classes</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    </head>
+    <body data-bs-theme="dark">
+        <div class="container py-4">
+            <header class="pb-3 mb-4 border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
+                    <div class="d-flex gap-3">
+                        <a href="/" class="btn btn-sm btn-outline-light">Back to Demo</a>
+                        <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
+                        <a href="/live-classes" class="btn btn-sm btn-outline-light active">Trade Classes</a>
+                        <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">LIVE Trade Classes</h2>
+                    <p class="fs-5">Join our weekly live sessions to learn advanced options income strategies directly from expert traders.</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Upcoming LIVE Classes</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-dark text-white">
+                                    <h5 class="mb-0">Beginners Options Income</h5>
+                                </div>
+                                <div class="card-body bg-dark bg-opacity-50">
+                                    <p class="text-light"><strong>Date:</strong> Every Monday, 7:00 PM ET</p>
+                                    <p class="text-light"><strong>Duration:</strong> 60 minutes</p>
+                                    <p class="text-light">Learn the basics of selling covered calls and generating consistent income with lower-risk strategies.</p>
+                                    <div class="d-grid">
+                                        <a href="/special-offer" class="btn btn-primary">Register Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-dark text-white">
+                                    <h5 class="mb-0">Advanced Theta Strategies</h5>
+                                </div>
+                                <div class="card-body bg-dark bg-opacity-50">
+                                    <p class="text-light"><strong>Date:</strong> Every Wednesday, 8:00 PM ET</p>
+                                    <p class="text-light"><strong>Duration:</strong> 90 minutes</p>
+                                    <p class="text-light">Master higher-return strategies including custom spreads, rolls, and calendar trades.</p>
+                                    <div class="d-grid">
+                                        <a href="/special-offer" class="btn btn-primary">Register Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(template)
+
+# Route for Special Offer page
+@app.route('/special-offer')
+def special_offer():
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Get Full Access for 50% OFF</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    </head>
+    <body data-bs-theme="dark">
+        <div class="container py-4">
+            <header class="pb-3 mb-4 border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
+                    <div class="d-flex gap-3">
+                        <a href="/" class="btn btn-sm btn-outline-light">Back to Demo</a>
+                        <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
+                        <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
+                        <a href="/special-offer" class="btn btn-sm btn-danger active">Get 50% OFF</a>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="p-4 mb-4 bg-danger rounded-3">
+                <div class="container-fluid py-3 text-center">
+                    <h2 class="display-5 fw-bold text-white">SPECIAL LIMITED-TIME OFFER</h2>
+                    <p class="fs-4 text-white">Get full access to Income Machine at 50% off the regular price</p>
+                    <p class="text-white">Offer expires in: <span class="badge bg-warning text-dark p-2">48 hours 23 minutes</span></p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">Income Machine Full Access Includes:</h4>
+                        </div>
+                        <div class="card-body bg-dark">
+                            <ul class="list-group list-group-flush mb-4">
+                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Real-time ETF and options data feeds</li>
+                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Advanced strategy algorithms</li>
+                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Position tracking and management tools</li>
+                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Email alerts for trade opportunities</li>
+                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Weekly LIVE trading sessions</li>
+                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Access to all recorded training sessions</li>
+                                <li class="list-group-item bg-dark text-white"><strong>✓</strong> Priority email support</li>
+                            </ul>
+                            
+                            <div class="text-center mb-3">
+                                <span class="text-decoration-line-through text-muted fs-4">Regular Price: $197/month</span>
+                                <p class="text-success fs-1 fw-bold">Special Offer: $97/month</p>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <a href="#" class="btn btn-success btn-lg py-3">GET 50% OFF NOW</a>
+                            </div>
+                            <p class="text-center mt-2 text-light small">No contracts. Cancel anytime.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">Testimonials</h4>
+                        </div>
+                        <div class="card-body bg-dark">
+                            <div class="mb-3">
+                                <p class="fst-italic text-light">"The Income Machine has helped me generate an extra $1,500 per month in reliable options income. The recommended trades are clear and easy to execute."</p>
+                                <p class="text-light">— Michael R.</p>
+                            </div>
+                            <div class="mb-3">
+                                <p class="fst-italic text-light">"I've tried other options advisory services, but the Income Machine provides the most consistent returns with less risk."</p>
+                                <p class="text-light">— Sarah T.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h4 class="mb-0">100% Money-Back Guarantee</h4>
+                        </div>
+                        <div class="card-body bg-dark">
+                            <p class="text-light">Try Income Machine risk-free for 30 days. If you're not completely satisfied, we'll refund your subscription fee. No questions asked.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(template)
 
 # Run the Flask application
 if __name__ == '__main__':
