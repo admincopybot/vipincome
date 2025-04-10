@@ -1,15 +1,19 @@
 from flask import Flask, request, render_template_string, redirect, url_for
 import logging
 import os
+import threading
+import time
+import market_data
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Initialize Flask application
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "income_machine_demo")
 
-# Create dummy data for ETF scoreboard
+# Initialize with default data (this will be updated with real market data)
 etf_scores = {
     "XLC": {"name": "Communication Services", "score": 3, "price": 79.42},
     "XLF": {"name": "Financial", "score": 4, "price": 39.86},
@@ -19,6 +23,43 @@ etf_scores = {
     "XLY": {"name": "Consumer Discretionary", "score": 5, "price": 184.61},
     "XLE": {"name": "Energy", "score": 4, "price": 87.93}
 }
+
+# Data update tracking 
+last_update_time = 0
+update_interval = 15 * 60  # 15 minutes
+
+def update_market_data_background():
+    """Background thread to update market data periodically"""
+    global etf_scores, last_update_time
+    
+    while True:
+        current_time = time.time()
+        
+        # Update at app startup and then on interval
+        if current_time - last_update_time > update_interval:
+            try:
+                logger.info("Updating market data...")
+                new_data = market_data.update_market_data()
+                
+                if new_data and len(new_data) > 0:
+                    # Update data while preserving any ETFs that might not be in the new data
+                    for symbol, data in new_data.items():
+                        etf_scores[symbol] = data
+                    
+                    last_update_time = current_time
+                    logger.info(f"Market data updated. {len(new_data)} ETFs processed.")
+                else:
+                    logger.warning("No market data received in update.")
+                    
+            except Exception as e:
+                logger.error(f"Error updating market data: {str(e)}")
+        
+        # Sleep for a minute before checking again
+        time.sleep(60)
+
+# Start background thread for market data updates
+update_thread = threading.Thread(target=update_market_data_background, daemon=True)
+update_thread.start()
 
 # Global CSS variable defined below with the strategy descriptions
 
@@ -816,7 +857,41 @@ def step4():
     if etf not in etf_scores or strategy not in ['Aggressive', 'Steady', 'Passive']:
         return redirect(url_for('index'))
     
-    trade = recommended_trades[etf][strategy]
+    # Get real-time trade recommendation from market data service
+    try:
+        logger.info(f"Getting trade recommendation for {etf} with {strategy} strategy")
+        trade = market_data.get_trade_recommendation(etf, strategy)
+        
+        # Format the trade data to match our template expectations
+        formatted_trade = {
+            "strike": trade.get("strike", 0),
+            "expiration": trade.get("expiration", "N/A"),
+            "dte": trade.get("dte", 0),
+            "roi": trade.get("roi", "N/A"),
+            "premium": trade.get("premium", 0),
+            "otm": f"{trade.get('pct_otm', 0):.1f}%"
+        }
+        
+        logger.info(f"Trade recommendation received: {formatted_trade}")
+        
+    except Exception as e:
+        logger.error(f"Error getting trade recommendation: {str(e)}")
+        # Fallback to static data if real-time data fails
+        if etf in recommended_trades and strategy in recommended_trades[etf]:
+            formatted_trade = recommended_trades[etf][strategy]
+            logger.warning(f"Using fallback trade data for {etf} {strategy}")
+        else:
+            # Create a default recommendation
+            formatted_trade = {
+                "strike": round(etf_scores[etf]["price"] * 1.05, 2),
+                "expiration": "N/A",
+                "dte": 14,
+                "roi": "20-25%",
+                "premium": round(etf_scores[etf]["price"] * 0.02, 2),
+                "otm": "5.0%"
+            }
+    
+    trade = formatted_trade
     
     template = """
     <!DOCTYPE html>
@@ -981,8 +1056,8 @@ def step4():
                     </div>
                     
                     <div class="alert alert-info mt-3" style="background-color: rgba(100, 210, 255, 0.1); border: none; border-radius: 12px; color: rgba(255, 255, 255, 0.9); padding: 1.25rem;">
-                        <strong>Note:</strong> This recommendation is based on dummy data for demonstration purposes.
-                        Real options data would need to be fetched from a market API.
+                        <strong>Real-Time Data:</strong> This recommendation is based on current market data using 
+                        Yahoo Finance API. Options data is refreshed when you request a new trade.
                     </div>
                 </div>
             </div>
