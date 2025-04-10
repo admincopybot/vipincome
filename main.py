@@ -438,20 +438,7 @@ def index():
                 </div>
             </header>
             
-            <div class="step-indicator">
-                <div class="step active">
-                    Step 1: Scoreboard
-                </div>
-                <div class="step upcoming">
-                    Step 2: ETF Selection
-                </div>
-                <div class="step upcoming">
-                    Step 3: Strategy
-                </div>
-                <div class="step upcoming">
-                    Step 4: Trade Details
-                </div>
-            </div>
+
             
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
