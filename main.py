@@ -888,6 +888,9 @@ def how_to_use():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>How to Use the Income Machine</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <style>
+            {{ global_css }}
+        </style>
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
@@ -936,7 +939,7 @@ def how_to_use():
     </body>
     </html>
     """
-    return render_template_string(template)
+    return render_template_string(template, global_css=global_css)
 
 # Route for Live Classes page
 @app.route('/live-classes')
@@ -949,6 +952,9 @@ def live_classes():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Income Machine LIVE Trade Classes</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <style>
+            {{ global_css }}
+        </style>
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
@@ -1031,6 +1037,9 @@ def special_offer():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Get Full Access for 50% OFF</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <style>
+            {{ global_css }}
+        </style>
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
