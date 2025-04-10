@@ -66,6 +66,175 @@ strategy_descriptions = {
     "Passive": "Monthly or longer options (30-60 DTE) with lower but steady ROI (15-20%) requiring less management."
 }
 
+# Global CSS for sleek, minimalist design (Apple meets Wall Street)
+global_css = """
+    /* Refined typography */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        letter-spacing: -0.01em;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 500;
+        letter-spacing: -0.03em;
+    }
+    
+    /* Elegant card styling */
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.12);
+    }
+    
+    .card-header {
+        border-bottom: none;
+        padding: 1.25rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Refined buttons */
+    .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 0.5rem 1.25rem;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #003d80 0%, #0069d9 100%);
+        transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #c31432 0%, #ff512f 100%);
+        border: none;
+    }
+    
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #a51029 0%, #e5492a 100%);
+        transform: translateY(-1px);
+    }
+    
+    /* Progress bars with animation */
+    .progress {
+        height: 0.75rem;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    /* Step indicator refinement */
+    .step-indicator {
+        margin: 2rem 0;
+    }
+    
+    .step {
+        border-radius: 8px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+    
+    .step.active, .step.completed {
+        font-weight: 600;
+    }
+    
+    /* List group elegance */
+    .list-group-item {
+        border: none;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2px;
+        border-radius: 8px !important;
+    }
+    
+    /* Clean, minimal header */
+    header {
+        border: none !important;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Jumbotron area */
+    .bg-body-tertiary {
+        border-radius: 16px !important;
+        background: linear-gradient(45deg, rgba(25, 25, 25, 0.8) 0%, rgba(45, 45, 45, 0.8) 100%) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+    
+    /* Table refinement */
+    table {
+        border-collapse: separate;
+        border-spacing: 0 0.5rem;
+    }
+    
+    td, th {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+    }
+    
+    tbody tr {
+        background-color: rgba(60, 60, 60, 0.4);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    tbody tr:hover {
+        transform: scale(1.01);
+        background-color: rgba(70, 70, 70, 0.6);
+        cursor: pointer;
+    }
+    
+    tbody td:first-child {
+        border-radius: 8px 0 0 8px;
+    }
+    
+    tbody td:last-child {
+        border-radius: 0 8px 8px 0;
+    }
+    
+    /* Strategy card accents */
+    .strategy-card-aggressive {
+        border-left: 4px solid var(--bs-danger);
+    }
+    
+    .strategy-card-steady {
+        border-left: 4px solid var(--bs-warning);
+    }
+    
+    .strategy-card-passive {
+        border-left: 4px solid var(--bs-success);
+    }
+    
+    /* Logo style */
+    .logo-text {
+        letter-spacing: -0.05em;
+        font-weight: 600;
+    }
+    
+    /* Container refinement */
+    .container {
+        padding: 2rem;
+    }
+"""
+
 # Route for Step 1: ETF Scoreboard (Home Page)
 @app.route('/')
 def index():
@@ -190,7 +359,7 @@ def index():
     </html>
     """
     
-    return render_template_string(template, etfs=etf_scores)
+    return render_template_string(template, etfs=etf_scores, global_css=global_css)
 
 # Route for Step 2: ETF Selection
 @app.route('/step2')
@@ -325,7 +494,7 @@ def step2():
     </html>
     """
     
-    return render_template_string(template, etf=etf, etf_data=etf_scores[etf])
+    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css)
 
 # Route for Step 3: Strategy Selection
 @app.route('/step3')
@@ -505,7 +674,7 @@ def step3():
     </html>
     """
     
-    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions)
+    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css)
 
 # Route for Step 4: Trade Details
 @app.route('/step4')
@@ -704,7 +873,8 @@ def step4():
         strategy=strategy, 
         etf_data=etf_scores[etf], 
         trade=trade,
-        strategy_descriptions=strategy_descriptions
+        strategy_descriptions=strategy_descriptions,
+        global_css=global_css
     )
 
 # Route for How to Use page
