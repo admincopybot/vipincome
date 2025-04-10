@@ -113,8 +113,13 @@ def index():
     <body data-bs-theme="dark">
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
+                <div class="d-flex align-items-center justify-content-between">
                     <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
+                    <div class="d-flex gap-3">
+                        <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
+                        <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
+                        <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
+                    </div>
                 </div>
             </header>
             
@@ -238,7 +243,7 @@ def step2():
     <body data-bs-theme="dark">
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
+                <div class="d-flex align-items-center justify-content-between">
                     <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
                 </div>
             </header>
@@ -373,7 +378,7 @@ def step3():
     <body data-bs-theme="dark">
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
+                <div class="d-flex align-items-center justify-content-between">
                     <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
                 </div>
             </header>
@@ -433,11 +438,14 @@ def step3():
                     <div class="col-md-4">
                         <div class="card mb-4">
                             <div class="card-header bg-warning text-dark">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="strategy" id="steady" value="Steady" required>
-                                    <label class="form-check-label fw-bold text-dark" for="steady">
-                                        Steady Strategy
-                                    </label>
+                                <div class="form-check d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input class="form-check-input" type="radio" name="strategy" id="steady" value="Steady" required>
+                                        <label class="form-check-label fw-bold text-dark" for="steady">
+                                            Steady Strategy
+                                        </label>
+                                    </div>
+                                    <label for="steady" class="btn btn-sm btn-outline-dark">Select</label>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -456,11 +464,14 @@ def step3():
                     <div class="col-md-4">
                         <div class="card mb-4">
                             <div class="card-header bg-success text-white">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="strategy" id="passive" value="Passive" required>
-                                    <label class="form-check-label fw-bold text-white" for="passive">
-                                        Passive Strategy
-                                    </label>
+                                <div class="form-check d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input class="form-check-input" type="radio" name="strategy" id="passive" value="Passive" required>
+                                        <label class="form-check-label fw-bold text-white" for="passive">
+                                            Passive Strategy
+                                        </label>
+                                    </div>
+                                    <label for="passive" class="btn btn-sm btn-outline-light">Select</label>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -551,7 +562,7 @@ def step4():
     <body data-bs-theme="dark">
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center text-body-emphasis text-decoration-none">
+                <div class="d-flex align-items-center justify-content-between">
                     <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
                 </div>
             </header>
