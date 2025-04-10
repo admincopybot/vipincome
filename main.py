@@ -280,7 +280,7 @@ global_css = """
     
     th {
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.85);
+        color: rgba(255, 255, 255, 0.95) !important;
         padding: 0.75rem 1.5rem;
         text-transform: uppercase;
         font-size: 0.85rem;
@@ -294,17 +294,17 @@ global_css = """
     }
     
     tbody tr {
-        background: rgba(45, 45, 50, 0.5);
+        background: rgba(28, 28, 30, 0.8);
         border-radius: 12px;
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
     }
     
     tbody tr:hover {
         transform: scale(1.01);
-        background: rgba(55, 55, 60, 0.6);
+        background: rgba(38, 38, 40, 0.85);
         cursor: pointer;
     }
     
@@ -464,12 +464,12 @@ def index():
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ETF</th>
-                            <th>Sector</th>
-                            <th>Price</th>
-                            <th>Score</th>
-                            <th>Strength</th>
-                            <th>Action</th>
+                            <th style="color: rgba(255, 255, 255, 0.95) !important;">ETF</th>
+                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Sector</th>
+                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Price</th>
+                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Score</th>
+                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Strength</th>
+                            <th style="color: rgba(255, 255, 255, 0.95) !important;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
