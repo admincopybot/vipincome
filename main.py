@@ -382,6 +382,9 @@ def step2():
         <title>Income Machine DEMO - ETF Selection - {{ etf }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
+            {{ global_css }}
+            
+            /* Page-specific styles */
             .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
             .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
             .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
@@ -517,6 +520,9 @@ def step3():
         <title>Income Machine DEMO - Strategy Selection for {{ etf }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
+            {{ global_css }}
+            
+            /* Page-specific styles */
             .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
             .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
             .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
@@ -701,6 +707,9 @@ def step4():
         <title>Income Machine DEMO - Trade Details - {{ etf }} {{ strategy }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
+            {{ global_css }}
+            
+            /* Page-specific styles */
             .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
             .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
             .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
