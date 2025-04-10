@@ -280,7 +280,7 @@ global_css = """
     
     th {
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 0.85);
         padding: 0.75rem 1.5rem;
         text-transform: uppercase;
         font-size: 0.85rem;
@@ -290,11 +290,11 @@ global_css = """
     td {
         padding: 1.25rem 1.5rem;
         vertical-align: middle;
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, 0.95) !important;
     }
     
     tbody tr {
-        background: rgba(40, 40, 45, 0.4);
+        background: rgba(45, 45, 50, 0.5);
         border-radius: 12px;
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
@@ -304,7 +304,7 @@ global_css = """
     
     tbody tr:hover {
         transform: scale(1.01);
-        background: rgba(50, 50, 55, 0.5);
+        background: rgba(55, 55, 60, 0.6);
         cursor: pointer;
     }
     
@@ -315,6 +315,10 @@ global_css = """
     
     tbody td:last-child {
         border-radius: 0 12px 12px 0;
+    }
+    
+    .table {
+        color: rgba(255, 255, 255, 0.95) !important;
     }
     
     /* Strategy card styling - replaced colored headers with subtle indicators */
@@ -389,12 +393,12 @@ def index():
             {{ global_css }}
             
             /* Page-specific styles */
-            .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
-            .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
-            .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
-            .progress-bar-score-3 { width: 60%; background-color: var(--bs-info); }
-            .progress-bar-score-4 { width: 80%; background-color: var(--bs-success); }
-            .progress-bar-score-5 { width: 100%; background-color: var(--bs-success); }
+            .progress-bar-score-0 { width: 0%; }
+            .progress-bar-score-1 { width: 20%; }
+            .progress-bar-score-2 { width: 40%; }
+            .progress-bar-score-3 { width: 60%; }
+            .progress-bar-score-4 { width: 80%; }
+            .progress-bar-score-5 { width: 100%; }
             .step-indicator {
                 display: flex;
                 justify-content: space-between;
@@ -522,12 +526,12 @@ def step2():
             {{ global_css }}
             
             /* Page-specific styles */
-            .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
-            .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
-            .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
-            .progress-bar-score-3 { width: 60%; background-color: var(--bs-info); }
-            .progress-bar-score-4 { width: 80%; background-color: var(--bs-success); }
-            .progress-bar-score-5 { width: 100%; background-color: var(--bs-success); }
+            .progress-bar-score-0 { width: 0%; }
+            .progress-bar-score-1 { width: 20%; }
+            .progress-bar-score-2 { width: 40%; }
+            .progress-bar-score-3 { width: 60%; }
+            .progress-bar-score-4 { width: 80%; }
+            .progress-bar-score-5 { width: 100%; }
             .step-indicator {
                 display: flex;
                 justify-content: space-between;
@@ -586,19 +590,18 @@ def step2():
     
             <div class="row">
                 <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="text-light">ETF Details</h4>
+                    <div class="card mb-4" style="background: rgba(30, 30, 34, 0.7); border-radius: 20px; overflow: hidden;">
+                        <div class="card-header" style="background: rgba(40, 40, 45, 0.8); border: none;">
+                            <h4>ETF Details</h4>
                         </div>
                         <div class="card-body">
-                            <p class="text-light"><strong>Symbol:</strong> {{ etf }}</p>
-                            <p class="text-light"><strong>Sector:</strong> {{ etf_data.name }}</p>
-                            <p class="text-light"><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
-                            <p class="text-light"><strong>Score:</strong> {{ etf_data.score }}/5</p>
-                            <div class="progress mb-3" style="height: 25px;">
+                            <p><strong>Symbol:</strong> {{ etf }}</p>
+                            <p><strong>Sector:</strong> {{ etf_data.name }}</p>
+                            <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
+                            <p><strong>Score:</strong> {{ etf_data.score }}/5</p>
+                            <div class="progress mb-3" style="height: 8px; background: rgba(40, 40, 45, 0.3); overflow: hidden; border-radius: 100px;">
                                 <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
                                      aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
-                                    {{ etf_data.score }}/5
                                 </div>
                             </div>
                         </div>
@@ -606,19 +609,19 @@ def step2():
                 </div>
                 
                 <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="text-light">Income Potential</h4>
+                    <div class="card mb-4" style="background: rgba(30, 30, 34, 0.7); border-radius: 20px; overflow: hidden;">
+                        <div class="card-header" style="background: rgba(40, 40, 45, 0.8); border: none;">
+                            <h4>Income Potential</h4>
                         </div>
                         <div class="card-body">
-                            <p class="text-light">Based on the current score of <strong>{{ etf_data.score }}/5</strong>, 
+                            <p>Based on the current score of <strong>{{ etf_data.score }}/5</strong>, 
                             {{ etf }} could be a {{ 'strong' if etf_data.score >= 4 else 'moderate' if etf_data.score >= 2 else 'weak' }} 
                             candidate for generating options income.</p>
                             
-                            <p class="text-light">The higher the score, the more favorable market conditions are for selling covered calls.</p>
+                            <p>The higher the score, the more favorable market conditions are for selling covered calls.</p>
                             
-                            <div class="d-grid gap-2">
-                                <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-primary">
+                            <div class="d-grid gap-2 mt-4">
+                                <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-primary" style="padding: 0.8rem 1.5rem; border-radius: 14px; font-weight: 500; letter-spacing: -0.01em;">
                                     Choose Income Strategy →
                                 </a>
                             </div>
@@ -660,12 +663,12 @@ def step3():
             {{ global_css }}
             
             /* Page-specific styles */
-            .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
-            .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
-            .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
-            .progress-bar-score-3 { width: 60%; background-color: var(--bs-info); }
-            .progress-bar-score-4 { width: 80%; background-color: var(--bs-success); }
-            .progress-bar-score-5 { width: 100%; background-color: var(--bs-success); }
+            .progress-bar-score-0 { width: 0%; }
+            .progress-bar-score-1 { width: 20%; }
+            .progress-bar-score-2 { width: 40%; }
+            .progress-bar-score-3 { width: 60%; }
+            .progress-bar-score-4 { width: 80%; }
+            .progress-bar-score-5 { width: 100%; }
             .step-indicator {
                 display: flex;
                 justify-content: space-between;
@@ -847,12 +850,12 @@ def step4():
             {{ global_css }}
             
             /* Page-specific styles */
-            .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
-            .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
-            .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
-            .progress-bar-score-3 { width: 60%; background-color: var(--bs-info); }
-            .progress-bar-score-4 { width: 80%; background-color: var(--bs-success); }
-            .progress-bar-score-5 { width: 100%; background-color: var(--bs-success); }
+            .progress-bar-score-0 { width: 0%; }
+            .progress-bar-score-1 { width: 20%; }
+            .progress-bar-score-2 { width: 40%; }
+            .progress-bar-score-3 { width: 60%; }
+            .progress-bar-score-4 { width: 80%; }
+            .progress-bar-score-5 { width: 100%; }
             .step-indicator {
                 display: flex;
                 justify-content: space-between;
