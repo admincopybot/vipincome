@@ -68,172 +68,305 @@ strategy_descriptions = {
     "Passive": "Monthly or longer options (30-60 DTE) with lower but steady ROI (15-20%) requiring less management."
 }
 
-# Global CSS for sleek, minimalist design (Apple meets Wall Street)
+# Global CSS for Apple-like minimalist design
 global_css = """
-    /* Refined typography */
+    /* Apple-style base setup */
     body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        letter-spacing: -0.01em;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        letter-spacing: -0.015em;
+        background: linear-gradient(160deg, #000000 0%, #121212 100%);
+        min-height: 100vh;
+        color: rgba(255, 255, 255, 0.95);
     }
     
+    /* Typography refinement */
     h1, h2, h3, h4, h5, h6 {
-        font-weight: 500;
+        font-weight: 600;
         letter-spacing: -0.03em;
+        color: rgba(255, 255, 255, 0.95);
     }
     
-    /* Elegant card styling */
+    p {
+        font-weight: 400;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .display-6 {
+        font-weight: 700;
+        letter-spacing: -0.04em;
+    }
+    
+    /* Monochromatic sleek card styling */
     .card {
         border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-        transition: all 0.2s ease;
+        border-radius: 16px;
+        background: rgba(30, 30, 32, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
         overflow: hidden;
+        margin-bottom: 1.5rem;
     }
     
     .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.12);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     }
     
     .card-header {
         border-bottom: none;
-        padding: 1.25rem;
+        padding: 1.5rem;
+        background: rgba(40, 40, 45, 0.6);
     }
     
     .card-body {
-        padding: 1.5rem;
+        padding: 1.75rem;
     }
     
-    /* Refined buttons */
+    /* Apple-style buttons */
     .btn {
-        border-radius: 8px;
+        border-radius: 12px;
         font-weight: 500;
-        padding: 0.5rem 1.25rem;
-        transition: all 0.2s ease;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+        padding: 0.6rem 1.5rem;
+        transition: all 0.3s ease;
+        letter-spacing: -0.01em;
+        font-size: 0.95rem;
         border: none;
     }
     
+    .btn-sm {
+        border-radius: 8px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-outline-light {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .btn-primary {
+        background: rgba(100, 108, 255, 0.8);
+        color: white;
+    }
+    
     .btn-primary:hover {
-        background: linear-gradient(135deg, #003d80 0%, #0069d9 100%);
+        background: rgba(110, 118, 255, 1);
         transform: translateY(-1px);
     }
     
     .btn-danger {
-        background: linear-gradient(135deg, #c31432 0%, #ff512f 100%);
-        border: none;
+        background: rgba(255, 69, 58, 0.8);
+        color: white;
     }
     
     .btn-danger:hover {
-        background: linear-gradient(135deg, #a51029 0%, #e5492a 100%);
+        background: rgba(255, 69, 58, 1);
         transform: translateY(-1px);
     }
     
-    /* Progress bars with animation */
-    .progress {
-        height: 0.75rem;
-        border-radius: 8px;
-        overflow: hidden;
+    .btn-secondary {
+        background: rgba(100, 100, 100, 0.3);
+        color: rgba(255, 255, 255, 0.9);
     }
     
-    /* Step indicator refinement */
+    .btn-secondary:hover {
+        background: rgba(100, 100, 100, 0.4);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .btn-success {
+        background: rgba(48, 209, 88, 0.8);
+    }
+    
+    .btn-success:hover {
+        background: rgba(48, 209, 88, 1);
+        transform: translateY(-1px);
+    }
+    
+    /* Progress bars */
+    .progress {
+        height: 0.5rem;
+        border-radius: 100px;
+        overflow: hidden;
+        background: rgba(40, 40, 45, 0.3);
+    }
+    
+    /* Step indicators styled like Apple */
     .step-indicator {
-        margin: 2rem 0;
+        display: flex;
+        justify-content: space-between;
+        margin: 2.5rem 0;
+        gap: 10px;
     }
     
     .step {
-        border-radius: 8px;
+        flex: 1;
+        border-radius: 12px;
+        padding: 1rem 0.5rem;
+        text-align: center;
         font-weight: 500;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        background: rgba(60, 60, 70, 0.3);
+        color: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
         transition: all 0.3s ease;
     }
     
-    .step.active, .step.completed {
+    .step.active {
+        background: rgba(100, 108, 255, 0.8);
+        color: white;
         font-weight: 600;
     }
     
-    /* List group elegance */
-    .list-group-item {
-        border: none;
-        padding: 1rem 1.25rem;
-        margin-bottom: 2px;
-        border-radius: 8px !important;
+    .step.completed {
+        background: rgba(48, 209, 88, 0.6);
+        color: white;
+        font-weight: 600;
     }
     
-    /* Clean, minimal header */
+    /* List group refinement */
+    .list-group-item {
+        border: none;
+        padding: 1.25rem;
+        margin-bottom: 0.5rem;
+        border-radius: 12px !important;
+        background: rgba(40, 40, 45, 0.4);
+        color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    
+    /* Modern header */
     header {
         border: none !important;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
     
-    /* Jumbotron area */
+    /* Content area styling */
     .bg-body-tertiary {
-        border-radius: 16px !important;
-        background: linear-gradient(45deg, rgba(25, 25, 25, 0.8) 0%, rgba(45, 45, 45, 0.8) 100%) !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        border-radius: 20px !important;
+        background: rgba(40, 40, 45, 0.5) !important;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        margin-bottom: 2.5rem;
     }
     
-    /* Table refinement */
+    /* Apple-style table */
     table {
+        width: 100%;
         border-collapse: separate;
-        border-spacing: 0 0.5rem;
+        border-spacing: 0 0.75rem;
+        margin-top: 1rem;
     }
     
-    td, th {
-        padding: 1rem 1.5rem;
+    th {
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0.75rem 1.5rem;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+    
+    td {
+        padding: 1.25rem 1.5rem;
         vertical-align: middle;
+        color: rgba(255, 255, 255, 0.9);
     }
     
     tbody tr {
-        background-color: rgba(60, 60, 60, 0.4);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        border-radius: 8px;
-        transition: all 0.2s ease;
+        background: rgba(40, 40, 45, 0.4);
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
     }
     
     tbody tr:hover {
         transform: scale(1.01);
-        background-color: rgba(70, 70, 70, 0.6);
+        background: rgba(50, 50, 55, 0.5);
         cursor: pointer;
     }
     
     tbody td:first-child {
-        border-radius: 8px 0 0 8px;
+        border-radius: 12px 0 0 12px;
+        font-weight: 600;
     }
     
     tbody td:last-child {
-        border-radius: 0 8px 8px 0;
+        border-radius: 0 12px 12px 0;
     }
     
-    /* Strategy card accents */
-    .strategy-card-aggressive {
-        border-left: 4px solid var(--bs-danger);
+    /* Strategy card styling - replaced colored headers with subtle indicators */
+    .card-aggressive .card-header {
+        background: rgba(40, 40, 45, 0.6);
+        border-top: 4px solid rgba(255, 69, 58, 0.8);
     }
     
-    .strategy-card-steady {
-        border-left: 4px solid var(--bs-warning);
+    .card-steady .card-header {
+        background: rgba(40, 40, 45, 0.6);
+        border-top: 4px solid rgba(255, 214, 10, 0.8);
     }
     
-    .strategy-card-passive {
-        border-left: 4px solid var(--bs-success);
+    .card-passive .card-header {
+        background: rgba(40, 40, 45, 0.6);
+        border-top: 4px solid rgba(48, 209, 88, 0.8);
+    }
+    
+    /* Modern badge styling */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+    }
+    
+    .badge.bg-primary {
+        background: rgba(100, 108, 255, 0.8) !important;
     }
     
     /* Logo style */
     .logo-text {
         letter-spacing: -0.05em;
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 1.4rem;
     }
     
     /* Container refinement */
     .container {
         padding: 2rem;
+        max-width: 1200px;
+    }
+    
+    /* Progress bar colors */
+    .progress-bar-score-0 { background-color: rgba(255, 69, 58, 0.5) !important; }
+    .progress-bar-score-1 { background-color: rgba(255, 69, 58, 0.7) !important; }
+    .progress-bar-score-2 { background-color: rgba(255, 159, 10, 0.7) !important; }
+    .progress-bar-score-3 { background-color: rgba(100, 210, 255, 0.7) !important; }
+    .progress-bar-score-4 { background-color: rgba(48, 209, 88, 0.7) !important; }
+    .progress-bar-score-5 { background-color: rgba(48, 209, 88, 0.9) !important; }
+    
+    /* Footer refinement */
+    footer {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        padding-top: 2rem;
     }
 """
 
@@ -297,7 +430,7 @@ def index():
                 </div>
             </header>
             
-            <div class="step-indicator mb-4">
+            <div class="step-indicator">
                 <div class="step active">
                     Step 1: Scoreboard
                 </div>
@@ -320,26 +453,26 @@ def index():
             </div>
     
             <div class="table-responsive">
-                <table class="table table-hover table-dark">
+                <table class="table">
                     <thead>
                         <tr>
-                            <th class="text-light">ETF</th>
-                            <th class="text-light">Sector</th>
-                            <th class="text-light">Price</th>
-                            <th class="text-light">Score</th>
-                            <th class="text-light">Strength</th>
-                            <th class="text-light">Action</th>
+                            <th>ETF</th>
+                            <th>Sector</th>
+                            <th>Price</th>
+                            <th>Score</th>
+                            <th>Strength</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for etf, data in etfs.items() %}
                         <tr>
-                            <td class="text-light"><strong>{{ etf }}</strong></td>
-                            <td class="text-light">{{ data.name }}</td>
-                            <td class="text-light">${{ "%.2f"|format(data.price) }}</td>
-                            <td class="text-light">{{ data.score }}/5</td>
+                            <td><strong>{{ etf }}</strong></td>
+                            <td>{{ data.name }}</td>
+                            <td>${{ "%.2f"|format(data.price) }}</td>
+                            <td>{{ data.score }}/5</td>
                             <td>
-                                <div class="progress" style="height: 20px;">
+                                <div class="progress">
                                     <div class="progress-bar progress-bar-score-{{ data.score }}" role="progressbar" 
                                          aria-valuenow="{{ data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
                                     </div>
@@ -590,8 +723,8 @@ def step3():
                 
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="card mb-4">
-                            <div class="card-header bg-danger text-white">
+                        <div class="card card-aggressive mb-4">
+                            <div class="card-header">
                                 <div class="form-check d-flex justify-content-between align-items-center">
                                     <div>
                                         <input class="form-check-input" type="radio" name="strategy" id="aggressive" value="Aggressive" required>
@@ -603,47 +736,47 @@ def step3():
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title text-light">Higher Risk, Higher Reward</h5>
+                                <h5 class="card-title">Higher Risk, Higher Reward</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item bg-dark text-white"><strong>DTE:</strong> Approx. 7 days (weekly)</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Target ROI:</strong> 25-35% annually</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Strike Selection:</strong> 5-10% OTM</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Management:</strong> Weekly attention needed</li>
+                                    <li class="list-group-item"><strong>DTE:</strong> Approx. 7 days (weekly)</li>
+                                    <li class="list-group-item"><strong>Target ROI:</strong> 25-35% annually</li>
+                                    <li class="list-group-item"><strong>Strike Selection:</strong> 5-10% OTM</li>
+                                    <li class="list-group-item"><strong>Management:</strong> Weekly attention needed</li>
                                 </ul>
-                                <p class="card-text text-light">{{ strategy_descriptions.Aggressive }}</p>
+                                <p class="card-text">{{ strategy_descriptions.Aggressive }}</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-4">
-                        <div class="card mb-4">
-                            <div class="card-header bg-warning text-dark">
+                        <div class="card card-steady mb-4">
+                            <div class="card-header">
                                 <div class="form-check d-flex justify-content-between align-items-center">
                                     <div>
                                         <input class="form-check-input" type="radio" name="strategy" id="steady" value="Steady" required>
-                                        <label class="form-check-label fw-bold text-dark" for="steady">
+                                        <label class="form-check-label fw-bold text-white" for="steady">
                                             Steady Strategy
                                         </label>
                                     </div>
-                                    <label for="steady" class="btn btn-sm btn-outline-dark">Select</label>
+                                    <label for="steady" class="btn btn-sm btn-outline-light">Select</label>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title text-light">Balanced Approach</h5>
+                                <h5 class="card-title">Balanced Approach</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item bg-dark text-white"><strong>DTE:</strong> 14-21 days (bi-weekly)</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Target ROI:</strong> 20-25% annually</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Strike Selection:</strong> 2-5% OTM</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Management:</strong> Bi-weekly attention</li>
+                                    <li class="list-group-item"><strong>DTE:</strong> 14-21 days (bi-weekly)</li>
+                                    <li class="list-group-item"><strong>Target ROI:</strong> 20-25% annually</li>
+                                    <li class="list-group-item"><strong>Strike Selection:</strong> 2-5% OTM</li>
+                                    <li class="list-group-item"><strong>Management:</strong> Bi-weekly attention</li>
                                 </ul>
-                                <p class="card-text text-light">{{ strategy_descriptions.Steady }}</p>
+                                <p class="card-text">{{ strategy_descriptions.Steady }}</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-4">
-                        <div class="card mb-4">
-                            <div class="card-header bg-success text-white">
+                        <div class="card card-passive mb-4">
+                            <div class="card-header">
                                 <div class="form-check d-flex justify-content-between align-items-center">
                                     <div>
                                         <input class="form-check-input" type="radio" name="strategy" id="passive" value="Passive" required>
@@ -655,14 +788,14 @@ def step3():
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title text-light">Lower Risk, Consistent Income</h5>
+                                <h5 class="card-title">Lower Risk, Consistent Income</h5>
                                 <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item bg-dark text-white"><strong>DTE:</strong> 30-60 days (monthly+)</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Target ROI:</strong> 15-20% annually</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Strike Selection:</strong> 1-3% OTM</li>
-                                    <li class="list-group-item bg-dark text-white"><strong>Management:</strong> Monthly attention</li>
+                                    <li class="list-group-item"><strong>DTE:</strong> 30-60 days (monthly+)</li>
+                                    <li class="list-group-item"><strong>Target ROI:</strong> 15-20% annually</li>
+                                    <li class="list-group-item"><strong>Strike Selection:</strong> 1-3% OTM</li>
+                                    <li class="list-group-item"><strong>Management:</strong> Monthly attention</li>
                                 </ul>
-                                <p class="card-text text-light">{{ strategy_descriptions.Passive }}</p>
+                                <p class="card-text">{{ strategy_descriptions.Passive }}</p>
                             </div>
                         </div>
                     </div>
@@ -775,17 +908,16 @@ def step4():
             <div class="row">
                 <div class="col-md-6">
                     <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h4 class="text-white">ETF Information</h4>
+                        <div class="card-header">
+                            <h4>ETF Information</h4>
                         </div>
                         <div class="card-body">
-                            <h5 class="text-light">{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
-                            <p class="text-light"><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
-                            <p class="text-light"><strong>Strength Score:</strong> {{ etf_data.score }}/5</p>
-                            <div class="progress mb-3" style="height: 20px;">
+                            <h5>{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
+                            <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
+                            <p><strong>Strength Score:</strong> {{ etf_data.score }}/5</p>
+                            <div class="progress mb-3" style="height: 8px;">
                                 <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
                                     aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
-                                    {{ etf_data.score }}/5
                                 </div>
                             </div>
                         </div>
@@ -793,42 +925,42 @@ def step4():
                 </div>
                 
                 <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header {{ 'bg-danger text-white' if strategy == 'Aggressive' else 'bg-warning text-dark' if strategy == 'Steady' else 'bg-success text-white' }}">
-                            <h4 class="{{ 'text-white' if strategy == 'Aggressive' or strategy == 'Passive' else 'text-dark' }}">{{ strategy }} Strategy</h4>
+                    <div class="card card-{{ strategy.lower() }} mb-4">
+                        <div class="card-header">
+                            <h4>{{ strategy }} Strategy</h4>
                         </div>
                         <div class="card-body">
-                            <p class="text-light">{{ strategy_descriptions[strategy] }}</p>
-                            <p class="text-light"><strong>Days To Expiration:</strong> {{ trade.dte }} days</p>
-                            <p class="text-light"><strong>Target Annual ROI:</strong> {{ trade.roi }}</p>
+                            <p>{{ strategy_descriptions[strategy] }}</p>
+                            <p><strong>Days To Expiration:</strong> {{ trade.dte }} days</p>
+                            <p><strong>Target Annual ROI:</strong> {{ trade.roi }}</p>
                         </div>
                     </div>
                 </div>
             </div>
     
             <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h4 class="text-white">Recommended Covered Call Trade</h4>
+                <div class="card-header">
+                    <h4>Recommended Covered Call Trade</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <h5 class="text-light">Trade Setup</h5>
+                                <h5>Trade Setup</h5>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Action:</strong></span>
                                         <span>Sell 1 {{ etf }} Call Option</span>
                                     </li>
-                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Strike Price:</strong></span>
                                         <span>${{ "%.2f"|format(trade.strike) }}</span>
                                     </li>
-                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Expiration:</strong></span>
                                         <span>{{ trade.expiration }} ({{ trade.dte }} days)</span>
                                     </li>
-                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Premium:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium) }} per share</span>
                                     </li>
@@ -838,21 +970,21 @@ def step4():
                         
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <h5 class="text-light">Trade Metrics</h5>
+                                <h5>Trade Metrics</h5>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Strike Distance:</strong></span>
                                         <span>{{ trade.otm }} OTM</span>
                                     </li>
-                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Annualized ROI:</strong></span>
                                         <span>{{ trade.roi }}</span>
                                     </li>
-                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Total Premium:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium * 100) }} per contract</span>
                                     </li>
-                                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong>Max Profit:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium * 100) }} per contract</span>
                                     </li>
@@ -861,7 +993,7 @@ def step4():
                         </div>
                     </div>
                     
-                    <div class="alert alert-info mt-3">
+                    <div class="alert alert-info mt-3" style="background-color: rgba(100, 210, 255, 0.1); border: none; border-radius: 12px; color: rgba(255, 255, 255, 0.9); padding: 1.25rem;">
                         <strong>Note:</strong> This recommendation is based on dummy data for demonstration purposes.
                         Real options data would need to be fetched from a market API.
                     </div>
@@ -928,21 +1060,21 @@ def how_to_use():
             </div>
             
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header">
                     <h4 class="mb-0">Step-by-Step Guide</h4>
                 </div>
                 <div class="card-body">
-                    <h5 class="text-light">1. Check the ETF Scoreboard</h5>
-                    <p class="text-light">The scoreboard ranks sector ETFs based on their current income potential. Higher scores (4-5) indicate stronger opportunities.</p>
+                    <h5>1. Check the ETF Scoreboard</h5>
+                    <p>The scoreboard ranks sector ETFs based on their current income potential. Higher scores (4-5) indicate stronger opportunities.</p>
                     
-                    <h5 class="text-light">2. Select an ETF</h5>
-                    <p class="text-light">Click on an ETF with a good score to view more details about its current price and income potential.</p>
+                    <h5>2. Select an ETF</h5>
+                    <p>Click on an ETF with a good score to view more details about its current price and income potential.</p>
                     
-                    <h5 class="text-light">3. Choose a Strategy</h5>
-                    <p class="text-light">Select between Aggressive, Steady, or Passive strategies based on your risk tolerance and how actively you want to manage your positions.</p>
+                    <h5>3. Choose a Strategy</h5>
+                    <p>Select between Aggressive, Steady, or Passive strategies based on your risk tolerance and how actively you want to manage your positions.</p>
                     
-                    <h5 class="text-light">4. Review Trade Details</h5>
-                    <p class="text-light">See the specific covered call trade recommendation with strike price, expiration, potential return, and other key metrics.</p>
+                    <h5>4. Review Trade Details</h5>
+                    <p>See the specific covered call trade recommendation with strike price, expiration, potential return, and other key metrics.</p>
                 </div>
             </div>
             
@@ -992,20 +1124,20 @@ def live_classes():
             </div>
             
             <div class="card mb-4">
-                <div class="card-header bg-success text-white">
+                <div class="card-header">
                     <h4 class="mb-0">Upcoming LIVE Classes</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-4">
                             <div class="card h-100">
-                                <div class="card-header bg-dark text-white">
+                                <div class="card-header">
                                     <h5 class="mb-0">Beginners Options Income</h5>
                                 </div>
-                                <div class="card-body bg-dark bg-opacity-50">
-                                    <p class="text-light"><strong>Date:</strong> Every Monday, 7:00 PM ET</p>
-                                    <p class="text-light"><strong>Duration:</strong> 60 minutes</p>
-                                    <p class="text-light">Learn the basics of selling covered calls and generating consistent income with lower-risk strategies.</p>
+                                <div class="card-body">
+                                    <p><strong>Date:</strong> Every Monday, 7:00 PM ET</p>
+                                    <p><strong>Duration:</strong> 60 minutes</p>
+                                    <p>Learn the basics of selling covered calls and generating consistent income with lower-risk strategies.</p>
                                     <div class="d-grid">
                                         <a href="/special-offer" class="btn btn-primary">Register Now</a>
                                     </div>
@@ -1014,13 +1146,13 @@ def live_classes():
                         </div>
                         <div class="col-md-6 mb-4">
                             <div class="card h-100">
-                                <div class="card-header bg-dark text-white">
+                                <div class="card-header">
                                     <h5 class="mb-0">Advanced Theta Strategies</h5>
                                 </div>
-                                <div class="card-body bg-dark bg-opacity-50">
-                                    <p class="text-light"><strong>Date:</strong> Every Wednesday, 8:00 PM ET</p>
-                                    <p class="text-light"><strong>Duration:</strong> 90 minutes</p>
-                                    <p class="text-light">Master higher-return strategies including custom spreads, rolls, and calendar trades.</p>
+                                <div class="card-body">
+                                    <p><strong>Date:</strong> Every Wednesday, 8:00 PM ET</p>
+                                    <p><strong>Duration:</strong> 90 minutes</p>
+                                    <p>Master higher-return strategies including custom spreads, rolls, and calendar trades.</p>
                                     <div class="d-grid">
                                         <a href="/special-offer" class="btn btn-primary">Register Now</a>
                                     </div>
@@ -1069,67 +1201,67 @@ def special_offer():
                 </div>
             </header>
             
-            <div class="p-4 mb-4 bg-danger rounded-3">
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3 text-center">
-                    <h2 class="display-5 fw-bold text-white">SPECIAL LIMITED-TIME OFFER</h2>
-                    <p class="fs-4 text-white">Get full access to Income Machine at 50% off the regular price</p>
-                    <p class="text-white">Offer expires in: <span class="badge bg-warning text-dark p-2">48 hours 23 minutes</span></p>
+                    <h2 class="display-5 fw-bold">SPECIAL LIMITED-TIME OFFER</h2>
+                    <p class="fs-4">Get full access to Income Machine at 50% off the regular price</p>
+                    <p>Offer expires in: <span class="badge" style="background-color: rgba(255, 69, 58, 0.8); padding: 0.6rem 1rem; border-radius: 8px; font-weight: 500;">48 hours 23 minutes</span></p>
                 </div>
             </div>
             
             <div class="row">
                 <div class="col-md-8">
                     <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
+                        <div class="card-header">
                             <h4 class="mb-0">Income Machine Full Access Includes:</h4>
                         </div>
-                        <div class="card-body bg-dark">
+                        <div class="card-body">
                             <ul class="list-group list-group-flush mb-4">
-                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Real-time ETF and options data feeds</li>
-                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Advanced strategy algorithms</li>
-                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Position tracking and management tools</li>
-                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Email alerts for trade opportunities</li>
-                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Weekly LIVE trading sessions</li>
-                                <li class="list-group-item bg-dark text-white border-bottom border-secondary"><strong>✓</strong> Access to all recorded training sessions</li>
-                                <li class="list-group-item bg-dark text-white"><strong>✓</strong> Priority email support</li>
+                                <li class="list-group-item"><strong>✓</strong> Real-time ETF and options data feeds</li>
+                                <li class="list-group-item"><strong>✓</strong> Advanced strategy algorithms</li>
+                                <li class="list-group-item"><strong>✓</strong> Position tracking and management tools</li>
+                                <li class="list-group-item"><strong>✓</strong> Email alerts for trade opportunities</li>
+                                <li class="list-group-item"><strong>✓</strong> Weekly LIVE trading sessions</li>
+                                <li class="list-group-item"><strong>✓</strong> Access to all recorded training sessions</li>
+                                <li class="list-group-item"><strong>✓</strong> Priority email support</li>
                             </ul>
                             
                             <div class="text-center mb-3">
-                                <span class="text-decoration-line-through text-muted fs-4">Regular Price: $197/month</span>
-                                <p class="text-success fs-1 fw-bold">Special Offer: $97/month</p>
+                                <span class="text-decoration-line-through fs-4" style="color: rgba(255, 255, 255, 0.5);">Regular Price: $197/month</span>
+                                <p class="fs-1 fw-bold" style="color: rgba(48, 209, 88, 0.9);">Special Offer: $97/month</p>
                             </div>
                             
                             <div class="d-grid">
-                                <a href="#" class="btn btn-success btn-lg py-3">GET 50% OFF NOW</a>
+                                <a href="#" class="btn btn-lg py-3" style="background: rgba(48, 209, 88, 0.8); color: white; border-radius: 12px; transition: all 0.3s ease;">GET 50% OFF NOW</a>
                             </div>
-                            <p class="text-center mt-2 text-light small">No contracts. Cancel anytime.</p>
+                            <p class="text-center mt-2 small" style="color: rgba(255, 255, 255, 0.7);">No contracts. Cancel anytime.</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-4">
                     <div class="card mb-4">
-                        <div class="card-header bg-success text-white">
+                        <div class="card-header">
                             <h4 class="mb-0">Testimonials</h4>
                         </div>
-                        <div class="card-body bg-dark">
-                            <div class="mb-3">
-                                <p class="fst-italic text-light">"The Income Machine has helped me generate an extra $1,500 per month in reliable options income. The recommended trades are clear and easy to execute."</p>
-                                <p class="text-light">— Michael R.</p>
+                        <div class="card-body">
+                            <div class="mb-3" style="border-left: 3px solid rgba(100, 210, 255, 0.5); padding-left: 1rem;">
+                                <p class="fst-italic">"The Income Machine has helped me generate an extra $1,500 per month in reliable options income. The recommended trades are clear and easy to execute."</p>
+                                <p style="color: rgba(255, 255, 255, 0.7);">— Michael R.</p>
                             </div>
-                            <div class="mb-3">
-                                <p class="fst-italic text-light">"I've tried other options advisory services, but the Income Machine provides the most consistent returns with less risk."</p>
-                                <p class="text-light">— Sarah T.</p>
+                            <div class="mb-3" style="border-left: 3px solid rgba(100, 210, 255, 0.5); padding-left: 1rem;">
+                                <p class="fst-italic">"I've tried other options advisory services, but the Income Machine provides the most consistent returns with less risk."</p>
+                                <p style="color: rgba(255, 255, 255, 0.7);">— Sarah T.</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="card mb-4">
-                        <div class="card-header bg-warning text-dark">
+                        <div class="card-header">
                             <h4 class="mb-0">100% Money-Back Guarantee</h4>
                         </div>
-                        <div class="card-body bg-dark">
-                            <p class="text-light">Try Income Machine risk-free for 30 days. If you're not completely satisfied, we'll refund your subscription fee. No questions asked.</p>
+                        <div class="card-body">
+                            <p>Try Income Machine risk-free for 30 days. If you're not completely satisfied, we'll refund your subscription fee. No questions asked.</p>
                         </div>
                     </div>
                 </div>
