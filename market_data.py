@@ -32,8 +32,8 @@ class MarketDataService:
                 price = info.get('regularMarketPrice', 0)
                 name = info.get('sector', 'Unknown Sector')
                 
-                # Get historical data for score calculation
-                hist = ticker.history(period="1mo")
+                # Get historical data for score calculation (fetch 6 months for proper technical analysis)
+                hist = ticker.history(period="6mo")
                 
                 # Calculate score and get indicator details
                 score, indicators = MarketDataService._calculate_etf_score(ticker, hist)
@@ -69,8 +69,10 @@ class MarketDataService:
             score = 0
             indicators = {}
             
+            # We need at least 100 data points for reliable technical analysis
+            # 6 months of daily data should give us at least 120 points (approx. 21 trading days/month)
             if len(hist_data) < 100:
-                logger.warning(f"Not enough historical data to calculate score, using default")
+                logger.warning(f"Not enough historical data to calculate score ({len(hist_data)} data points), using default")
                 # Create simulated indicator data for UI display
                 return 3, {
                     'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Insufficient historical data'},
