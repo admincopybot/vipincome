@@ -625,6 +625,42 @@ def step2():
                                      aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
                                 </div>
                             </div>
+                            
+                            <div class="mt-4">
+                                <h6 class="fw-bold">Technical Indicators:</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Trend 1: Price > 20 EMA</span>
+                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 1 else 'bg-secondary' }}">
+                                            {{ '✓' if etf_data.score >= 1 else '✗' }}
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Trend 2: Price > 100 EMA</span>
+                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 2 else 'bg-secondary' }}">
+                                            {{ '✓' if etf_data.score >= 2 else '✗' }}
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Snapback: RSI < 50</span>
+                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 3 else 'bg-secondary' }}">
+                                            {{ '✓' if etf_data.score >= 3 else '✗' }}
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Momentum: Price > Last Week</span>
+                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 4 else 'bg-secondary' }}">
+                                            {{ '✓' if etf_data.score >= 4 else '✗' }}
+                                        </span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>Stabilizing: 3D ATR < 6D ATR</span>
+                                        <span class="badge rounded-pill {{ 'bg-success' if etf_data.score >= 5 else 'bg-secondary' }}">
+                                            {{ '✓' if etf_data.score >= 5 else '✗' }}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -639,7 +675,9 @@ def step2():
                             {{ etf }} could be a {{ 'strong' if etf_data.score >= 4 else 'moderate' if etf_data.score >= 2 else 'weak' }} 
                             candidate for generating options income.</p>
                             
-                            <p>The higher the score, the more favorable market conditions are for selling covered calls.</p>
+                            <p>The score is calculated using 5 technical indicators, with 1 point awarded for each condition met. Higher scores indicate more favorable market conditions for selling covered calls.</p>
+                            
+                            <p><small>Data is automatically refreshed every 15 minutes during market hours.</small></p>
                             
                             <div class="d-grid gap-2 mt-4">
                                 <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-primary" style="padding: 0.8rem 1.5rem; border-radius: 14px; font-weight: 500; letter-spacing: -0.01em;">

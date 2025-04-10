@@ -54,39 +54,73 @@ class MarketDataService:
     @staticmethod
     def _calculate_etf_score(ticker, hist_data):
         """
-        Calculate a score (1-5) for an ETF based on various factors:
-        - Recent performance trend
-        - Volatility
-        - Volume trends
-        - Market conditions for covered calls
+        Calculate a score (1-5) for an ETF based on specific technical indicators:
+        1. Trend 1: Price > 20 EMA on Daily Timeframe
+        2. Trend 2: Price > 100 EMA on Daily Timeframe
+        3. Snapback: RSI < 50 on 4-hour Timeframe (approximated with daily data)
+        4. Momentum: Price > Previous Week's Closing Price
+        5. Stabilizing: 3-Day ATR < 6-Day ATR
         
-        Higher score = better for covered call strategy
+        Each indicator = 1 point, total score from 0-5
         """
         try:
-            # 1. Calculate price momentum (recent performance trend)
-            if len(hist_data) < 5:
+            score = 0
+            
+            if len(hist_data) < 100:
+                logger.warning(f"Not enough historical data to calculate score, using default")
                 return 3  # Default score if not enough data
-                
-            # Calculate short-term (5-day) momentum
-            recent_change = (hist_data['Close'].iloc[-1] / hist_data['Close'].iloc[-5] - 1) * 100
             
-            # 2. Calculate volatility (20-day)
-            volatility = hist_data['Close'].pct_change().std() * 100
+            # Latest closing price
+            current_price = hist_data['Close'].iloc[-1]
             
-            # 3. Volume trend
-            avg_volume = hist_data['Volume'].mean()
-            recent_volume = hist_data['Volume'].iloc[-5:].mean()
-            volume_ratio = recent_volume / avg_volume if avg_volume > 0 else 1
+            # 1. Trend 1: Price > 20 EMA on Daily Timeframe
+            ema_20 = hist_data['Close'].ewm(span=20, adjust=False).mean().iloc[-1]
+            if current_price > ema_20:
+                score += 1
+                logger.debug(f"Trend 1 confirmed: Price {current_price} > 20 EMA {ema_20}")
             
-            # Combine factors to create score (1-5)
-            # Ideal for covered calls: moderate upward momentum, good volatility, strong volume
-            momentum_score = min(5, max(1, int(2.5 + recent_change / 2))) if -5 <= recent_change <= 5 else 3
-            volatility_score = min(5, max(1, int(volatility / 0.5))) if 0.5 <= volatility <= 3 else 3
-            volume_score = min(5, max(1, int(2 * volume_ratio))) if 0.5 <= volume_ratio <= 2.5 else 3
+            # 2. Trend 2: Price > 100 EMA on Daily Timeframe
+            ema_100 = hist_data['Close'].ewm(span=100, adjust=False).mean().iloc[-1]
+            if current_price > ema_100:
+                score += 1
+                logger.debug(f"Trend 2 confirmed: Price {current_price} > 100 EMA {ema_100}")
             
-            # Final score - weighted average rounded to nearest integer
-            final_score = round((momentum_score * 0.4) + (volatility_score * 0.4) + (volume_score * 0.2))
-            return min(5, max(1, final_score))
+            # 3. Snapback: RSI < 50 on 4HR Timeframe (approximated with daily)
+            # Calculate RSI (14-period)
+            delta = hist_data['Close'].diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            rs = gain / loss
+            rsi = 100 - (100 / (1 + rs))
+            current_rsi = rsi.iloc[-1]
+            
+            if current_rsi < 50:
+                score += 1
+                logger.debug(f"Snapback confirmed: RSI {current_rsi} < 50")
+            
+            # 4. Momentum: Above Previous Week's Closing Price
+            prev_week_close = hist_data['Close'].iloc[-6]  # ~5 trading days ago
+            if current_price > prev_week_close:
+                score += 1
+                logger.debug(f"Momentum confirmed: Current {current_price} > Previous week {prev_week_close}")
+            
+            # 5. Stabilizing: 3 Day ATR < 6 Day ATR
+            # Calculate True Range
+            high_low = hist_data['High'] - hist_data['Low']
+            high_close = abs(hist_data['High'] - hist_data['Close'].shift())
+            low_close = abs(hist_data['Low'] - hist_data['Close'].shift())
+            true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+            
+            # Calculate ATRs
+            atr_3 = true_range.rolling(3).mean().iloc[-1]
+            atr_6 = true_range.rolling(6).mean().iloc[-1]
+            
+            if atr_3 < atr_6:
+                score += 1
+                logger.debug(f"Stabilizing confirmed: 3-day ATR {atr_3} < 6-day ATR {atr_6}")
+            
+            logger.info(f"Calculated score: {score}/5 using technical indicators")
+            return score
             
         except Exception as e:
             logger.error(f"Error calculating ETF score: {str(e)}")
