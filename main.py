@@ -13,19 +13,28 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "income_machine_demo")
 
-# Initialize with default data (this will be updated with real market data)
+# Initialize with default data including indicators (this will be updated with real market data)
+# Default indicator template for initial state
+default_indicators = {
+    'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'},
+    'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'},
+    'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'},
+    'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'},
+    'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'}
+}
+
 etf_scores = {
-    "XLC": {"name": "Communication Services", "score": 3, "price": 79.42},
-    "XLF": {"name": "Financial", "score": 4, "price": 39.86},
-    "XLV": {"name": "Health Care", "score": 2, "price": 133.17},
-    "XLI": {"name": "Industrial", "score": 3, "price": 112.22},
-    "XLP": {"name": "Consumer Staples", "score": 1, "price": 74.09},
-    "XLY": {"name": "Consumer Discretionary", "score": 5, "price": 184.61},
-    "XLE": {"name": "Energy", "score": 4, "price": 87.93}
+    "XLC": {"name": "Communication Services", "score": 3, "price": 79.42, "indicators": default_indicators.copy()},
+    "XLF": {"name": "Financial", "score": 4, "price": 39.86, "indicators": default_indicators.copy()},
+    "XLV": {"name": "Health Care", "score": 2, "price": 133.17, "indicators": default_indicators.copy()},
+    "XLI": {"name": "Industrial", "score": 3, "price": 112.22, "indicators": default_indicators.copy()},
+    "XLP": {"name": "Consumer Staples", "score": 1, "price": 74.09, "indicators": default_indicators.copy()},
+    "XLY": {"name": "Consumer Discretionary", "score": 5, "price": 184.61, "indicators": default_indicators.copy()},
+    "XLE": {"name": "Energy", "score": 4, "price": 87.93, "indicators": default_indicators.copy()}
 }
 
 # Data update tracking 
-last_update_time = 0
+last_update_time = 0  # Set to 0 to force immediate update at startup
 update_interval = 15 * 60  # 15 minutes
 
 def update_market_data_background():
