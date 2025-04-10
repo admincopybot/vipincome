@@ -1039,42 +1039,9 @@ def step4():
                 </div>
             </div>
     
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4>ETF Information</h4>
-                        </div>
-                        <div class="card-body">
-                            <h5>{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
-                            <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
-                            <p><strong>Strength Score:</strong> {{ etf_data.score }}/5</p>
-                            <div class="progress mb-3" style="height: 8px;">
-                                <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
-                                    aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="card card-{{ strategy.lower() }} mb-4">
-                        <div class="card-header">
-                            <h4>{{ strategy }} Strategy</h4>
-                        </div>
-                        <div class="card-body">
-                            <p>{{ strategy_descriptions[strategy] }}</p>
-                            <p><strong>Days To Expiration:</strong> {{ trade.dte }} days</p>
-                            <p><strong>Target Annual ROI:</strong> {{ trade.roi }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    
             <div class="card mb-4">
                 <div class="card-header">
-                    <h4>Recommended Covered Call Trade</h4>
+                    <h4>Debit Spread Trade Details</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -1130,6 +1097,39 @@ def step4():
                     <div class="alert alert-info mt-3" style="background-color: rgba(100, 210, 255, 0.1); border: none; border-radius: 12px; color: rgba(255, 255, 255, 0.9); padding: 1.25rem;">
                         <strong>Real-Time Data:</strong> This recommendation is based on current market data using 
                         Yahoo Finance API. Options data is refreshed when you request a new trade.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>ETF Information</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
+                            <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
+                            <p><strong>Strength Score:</strong> {{ etf_data.score }}/5</p>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
+                                    aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card card-{{ strategy.lower() }} mb-4">
+                        <div class="card-header">
+                            <h4>{{ strategy }} Strategy</h4>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ strategy_descriptions[strategy] }}</p>
+                            <p><strong>Days To Expiration:</strong> {{ trade.dte }} days</p>
+                            <p><strong>Target Annual ROI:</strong> {{ trade.roi }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
