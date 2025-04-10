@@ -684,7 +684,6 @@ def step2():
                                             {{ etf_data.indicators.stabilizing.description }}
                                         </div>
                                     </li>
-                                    </li>
                                 </ul>
                             </div>
                         </div>
