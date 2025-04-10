@@ -263,7 +263,7 @@ global_css = """
     /* Content area styling */
     .bg-body-tertiary {
         border-radius: 20px !important;
-        background: rgba(40, 40, 45, 0.5) !important;
+        background: rgba(28, 28, 30, 0.7) !important;
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -323,17 +323,17 @@ global_css = """
     
     /* Strategy card styling - replaced colored headers with subtle indicators */
     .card-aggressive .card-header {
-        background: rgba(40, 40, 45, 0.6);
+        background: rgba(28, 28, 30, 0.8);
         border-top: 4px solid rgba(255, 69, 58, 0.8);
     }
     
     .card-steady .card-header {
-        background: rgba(40, 40, 45, 0.6);
+        background: rgba(28, 28, 30, 0.8);
         border-top: 4px solid rgba(255, 214, 10, 0.8);
     }
     
     .card-passive .card-header {
-        background: rgba(40, 40, 45, 0.6);
+        background: rgba(28, 28, 30, 0.8);
         border-top: 4px solid rgba(48, 209, 88, 0.8);
     }
     
@@ -590,8 +590,8 @@ def step2():
     
             <div class="row">
                 <div class="col-md-6">
-                    <div class="card mb-4" style="background: rgba(30, 30, 34, 0.7); border-radius: 20px; overflow: hidden;">
-                        <div class="card-header" style="background: rgba(40, 40, 45, 0.8); border: none;">
+                    <div class="card mb-4" style="background: rgba(28, 28, 30, 0.7); border-radius: 20px; overflow: hidden;">
+                        <div class="card-header" style="background: rgba(28, 28, 30, 0.9); border: none;">
                             <h4>ETF Details</h4>
                         </div>
                         <div class="card-body">
@@ -609,8 +609,8 @@ def step2():
                 </div>
                 
                 <div class="col-md-6">
-                    <div class="card mb-4" style="background: rgba(30, 30, 34, 0.7); border-radius: 20px; overflow: hidden;">
-                        <div class="card-header" style="background: rgba(40, 40, 45, 0.8); border: none;">
+                    <div class="card mb-4" style="background: rgba(28, 28, 30, 0.7); border-radius: 20px; overflow: hidden;">
+                        <div class="card-header" style="background: rgba(28, 28, 30, 0.9); border: none;">
                             <h4>Income Potential</h4>
                         </div>
                         <div class="card-body">
