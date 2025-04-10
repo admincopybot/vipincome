@@ -1024,7 +1024,7 @@ def live_classes():
     </body>
     </html>
     """
-    return render_template_string(template)
+    return render_template_string(template, global_css=global_css)
 
 # Route for Special Offer page
 @app.route('/special-offer')
@@ -1128,7 +1128,7 @@ def special_offer():
     </body>
     </html>
     """
-    return render_template_string(template)
+    return render_template_string(template, global_css=global_css)
 
 # Run the Flask application
 if __name__ == '__main__':
