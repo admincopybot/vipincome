@@ -129,22 +129,112 @@ strategy_descriptions = {
 
 # Stars background elements for space dust effect
 star_elements = """
-<!-- Space star particles -->
-<div class="star" style="top: 15%; left: 10%;"></div>
-<div class="star" style="top: 25%; left: 25%;"></div>
-<div class="star" style="top: 10%; left: 40%;"></div>
-<div class="star" style="top: 20%; left: 60%;"></div>
-<div class="star" style="top: 5%; left: 80%;"></div>
-<div class="star" style="top: 30%; left: 90%;"></div>
-<div class="star" style="top: 40%; left: 20%;"></div>
-<div class="star" style="top: 50%; left: 15%;"></div>
-<div class="star" style="top: 55%; left: 30%;"></div>
-<div class="star" style="top: 70%; left: 40%;"></div>
-<div class="star" style="top: 65%; left: 70%;"></div>
-<div class="star" style="top: 80%; left: 85%;"></div>
-<div class="star" style="top: 85%; left: 25%;"></div>
-<div class="star" style="top: 90%; left: 50%;"></div>
-<div class="star" style="top: 35%; left: 50%;"></div>
+<!-- Space star particles - Large stars -->
+<div class="star large" style="top: 15%; left: 10%;"></div>
+<div class="star large" style="top: 25%; left: 25%;"></div>
+<div class="star large" style="top: 10%; left: 40%;"></div>
+<div class="star large" style="top: 20%; left: 60%;"></div>
+<div class="star large" style="top: 5%; left: 80%;"></div>
+<div class="star large" style="top: 30%; left: 90%;"></div>
+<div class="star large" style="top: 40%; left: 20%;"></div>
+<div class="star large" style="top: 50%; left: 15%;"></div>
+<div class="star large" style="top: 55%; left: 30%;"></div>
+<div class="star large" style="top: 70%; left: 40%;"></div>
+<div class="star large" style="top: 65%; left: 70%;"></div>
+<div class="star large" style="top: 80%; left: 85%;"></div>
+<div class="star large" style="top: 85%; left: 25%;"></div>
+<div class="star large" style="top: 90%; left: 50%;"></div>
+<div class="star large" style="top: 35%; left: 50%;"></div>
+
+<!-- Medium stars -->
+<div class="star medium" style="top: 8%; left: 15%;"></div>
+<div class="star medium" style="top: 12%; left: 35%;"></div>
+<div class="star medium" style="top: 18%; left: 45%;"></div>
+<div class="star medium" style="top: 22%; left: 72%;"></div>
+<div class="star medium" style="top: 28%; left: 8%;"></div>
+<div class="star medium" style="top: 33%; left: 65%;"></div>
+<div class="star medium" style="top: 38%; left: 88%;"></div>
+<div class="star medium" style="top: 42%; left: 32%;"></div>
+<div class="star medium" style="top: 48%; left: 78%;"></div>
+<div class="star medium" style="top: 53%; left: 5%;"></div>
+<div class="star medium" style="top: 58%; left: 55%;"></div>
+<div class="star medium" style="top: 63%; left: 92%;"></div>
+<div class="star medium" style="top: 68%; left: 18%;"></div>
+<div class="star medium" style="top: 73%; left: 62%;"></div>
+<div class="star medium" style="top: 78%; left: 45%;"></div>
+<div class="star medium" style="top: 83%; left: 12%;"></div>
+<div class="star medium" style="top: 88%; left: 72%;"></div>
+<div class="star medium" style="top: 92%; left: 32%;"></div>
+
+<!-- Small stars - first batch -->
+<div class="star small fast" style="top: 3%; left: 7%;"></div>
+<div class="star small fast" style="top: 6%; left: 23%;"></div>
+<div class="star small fast" style="top: 9%; left: 53%;"></div>
+<div class="star small fast" style="top: 14%; left: 77%;"></div>
+<div class="star small fast" style="top: 19%; left: 3%;"></div>
+<div class="star small fast" style="top: 24%; left: 42%;"></div>
+<div class="star small fast" style="top: 29%; left: 84%;"></div>
+<div class="star small fast" style="top: 34%; left: 15%;"></div>
+<div class="star small fast" style="top: 39%; left: 67%;"></div>
+<div class="star small fast" style="top: 44%; left: 92%;"></div>
+
+<!-- Small stars - second batch -->
+<div class="star small" style="top: 49%; left: 27%;"></div>
+<div class="star small" style="top: 54%; left: 83%;"></div>
+<div class="star small" style="top: 59%; left: 12%;"></div>
+<div class="star small" style="top: 64%; left: 59%;"></div>
+<div class="star small" style="top: 69%; left: 88%;"></div>
+<div class="star small" style="top: 74%; left: 31%;"></div>
+<div class="star small" style="top: 79%; left: 66%;"></div>
+<div class="star small" style="top: 84%; left: 5%;"></div>
+<div class="star small" style="top: 89%; left: 45%;"></div>
+<div class="star small" style="top: 94%; left: 78%;"></div>
+
+<!-- Tiny stars - first batch -->
+<div class="star tiny fast" style="top: 2%; left: 17%;"></div>
+<div class="star tiny fast" style="top: 5%; left: 39%;"></div>
+<div class="star tiny fast" style="top: 8%; left: 61%;"></div>
+<div class="star tiny fast" style="top: 11%; left: 83%;"></div>
+<div class="star tiny fast" style="top: 16%; left: 7%;"></div>
+<div class="star tiny fast" style="top: 21%; left: 29%;"></div>
+<div class="star tiny fast" style="top: 26%; left: 51%;"></div>
+<div class="star tiny fast" style="top: 31%; left: 73%;"></div>
+<div class="star tiny fast" style="top: 36%; left: 95%;"></div>
+<div class="star tiny fast" style="top: 41%; left: 5%;"></div>
+
+<!-- Tiny stars - second batch -->
+<div class="star tiny" style="top: 46%; left: 37%;"></div>
+<div class="star tiny" style="top: 51%; left: 59%;"></div>
+<div class="star tiny" style="top: 56%; left: 81%;"></div>
+<div class="star tiny" style="top: 61%; left: 3%;"></div>
+<div class="star tiny" style="top: 66%; left: 25%;"></div>
+<div class="star tiny" style="top: 71%; left: 47%;"></div>
+<div class="star tiny" style="top: 76%; left: 69%;"></div>
+<div class="star tiny" style="top: 81%; left: 91%;"></div>
+<div class="star tiny" style="top: 86%; left: 13%;"></div>
+<div class="star tiny" style="top: 91%; left: 35%;"></div>
+<div class="star tiny" style="top: 96%; left: 57%;"></div>
+
+<!-- Even more tiny stars randomly placed -->
+<div class="star tiny" style="top: 7%; left: 88%;"></div>
+<div class="star tiny" style="top: 13%; left: 22%;"></div>
+<div class="star tiny" style="top: 17%; left: 49%;"></div>
+<div class="star tiny" style="top: 23%; left: 64%;"></div>
+<div class="star tiny" style="top: 27%; left: 19%;"></div>
+<div class="star tiny" style="top: 32%; left: 38%;"></div>
+<div class="star tiny" style="top: 37%; left: 79%;"></div>
+<div class="star tiny" style="top: 43%; left: 11%;"></div>
+<div class="star tiny" style="top: 47%; left: 52%;"></div>
+<div class="star tiny" style="top: 52%; left: 93%;"></div>
+<div class="star tiny" style="top: 57%; left: 47%;"></div>
+<div class="star tiny" style="top: 62%; left: 18%;"></div>
+<div class="star tiny" style="top: 67%; left: 63%;"></div>
+<div class="star tiny" style="top: 72%; left: 82%;"></div>
+<div class="star tiny" style="top: 77%; left: 9%;"></div>
+<div class="star tiny" style="top: 82%; left: 38%;"></div>
+<div class="star tiny" style="top: 87%; left: 67%;"></div>
+<div class="star tiny" style="top: 93%; left: 14%;"></div>
+<div class="star tiny" style="top: 97%; left: 72%;"></div>
 """
 
 logo_header = """
@@ -287,18 +377,60 @@ global_css = """
         }
     }
     
-    /* Floating stars across background */
+    /* Floating stars across background - with multiple sizes */
     .star {
         position: absolute;
+        border-radius: 50%;
+        z-index: -1;
+    }
+    
+    /* Large stars */
+    .star.large {
         width: 3px;
         height: 3px;
         background-color: rgba(255, 255, 255, 0.8);
-        border-radius: 50%;
         box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5),
                     0 0 20px 5px rgba(100, 210, 255, 0.4);
         animation: twinkle 6s infinite alternate;
-        z-index: -1;
         opacity: 0.8;
+    }
+    
+    /* Medium stars */
+    .star.medium {
+        width: 2px;
+        height: 2px;
+        background-color: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 8px 1px rgba(255, 255, 255, 0.4),
+                    0 0 15px 3px rgba(100, 210, 255, 0.3);
+        animation: twinkleMedium 5s infinite alternate;
+        opacity: 0.7;
+    }
+    
+    /* Small stars */
+    .star.small {
+        width: 1.5px;
+        height: 1.5px;
+        background-color: rgba(255, 255, 255, 0.6);
+        box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.3),
+                    0 0 10px 2px rgba(100, 210, 255, 0.25);
+        animation: twinkleSmall 4.5s infinite alternate;
+        opacity: 0.6;
+    }
+    
+    /* Tiny stars */
+    .star.tiny {
+        width: 1px;
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.2),
+                    0 0 6px 1px rgba(100, 210, 255, 0.15);
+        animation: twinkleTiny 4s infinite alternate;
+        opacity: 0.5;
+    }
+    
+    /* Fast twinkling stars */
+    .star.fast {
+        animation-duration: 3s !important;
     }
     
     @keyframes twinkle {
@@ -311,6 +443,45 @@ global_css = """
             opacity: 0.8;
             box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5),
                       0 0 20px 5px rgba(100, 210, 255, 0.4);
+        }
+    }
+    
+    @keyframes twinkleMedium {
+        0%, 25% {
+            opacity: 0.15;
+            box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.2),
+                      0 0 6px 1px rgba(100, 210, 255, 0.15);
+        }
+        100% {
+            opacity: 0.7;
+            box-shadow: 0 0 8px 1px rgba(255, 255, 255, 0.4),
+                      0 0 15px 3px rgba(100, 210, 255, 0.3);
+        }
+    }
+    
+    @keyframes twinkleSmall {
+        0%, 20% {
+            opacity: 0.1;
+            box-shadow: 0 0 3px 0.5px rgba(255, 255, 255, 0.15),
+                      0 0 5px 0.5px rgba(100, 210, 255, 0.1);
+        }
+        100% {
+            opacity: 0.6;
+            box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.3),
+                      0 0 10px 2px rgba(100, 210, 255, 0.25);
+        }
+    }
+    
+    @keyframes twinkleTiny {
+        0%, 15% {
+            opacity: 0.05;
+            box-shadow: 0 0 2px 0.2px rgba(255, 255, 255, 0.1),
+                      0 0 3px 0.2px rgba(100, 210, 255, 0.05);
+        }
+        100% {
+            opacity: 0.5;
+            box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.2),
+                      0 0 6px 1px rgba(100, 210, 255, 0.15);
         }
     }
     
