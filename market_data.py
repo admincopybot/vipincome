@@ -30,7 +30,23 @@ class MarketDataService:
                 # Get basic ticker info
                 info = ticker.info
                 price = info.get('regularMarketPrice', 0)
-                name = info.get('sector', 'Unknown Sector')
+                
+                # ETF sector mapping
+                sector_map = {
+                    'XLF': 'Financial',
+                    'XLK': 'Technology',
+                    'XLE': 'Energy',
+                    'XLV': 'Healthcare',
+                    'XLI': 'Industrial',
+                    'XLP': 'Consumer Staples',
+                    'XLY': 'Consumer Discretionary',
+                    'XLB': 'Materials',
+                    'XLU': 'Utilities',
+                    'XLRE': 'Real Estate'
+                }
+                
+                # Use our mapping or fallback to Yahoo data
+                name = sector_map.get(symbol, info.get('sector', 'Unknown Sector'))
                 
                 # Get historical data for score calculation (fetch 6 months for proper technical analysis)
                 hist = ticker.history(period="6mo")
