@@ -550,23 +550,27 @@ def index():
             }
             .recommended-asset {
                 position: absolute;
-                top: -10px;
+                top: -15px;
                 left: 50%;
                 transform: translateX(-50%);
                 background: linear-gradient(90deg, #FFD700, #FFA500);
                 color: #000;
                 font-size: 0.75rem;
                 font-weight: 700;
-                padding: 4px 10px;
+                padding: 6px 15px;
                 border-radius: 50px;
                 box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
                 white-space: nowrap;
                 z-index: 10;
+                overflow: visible;
+                line-height: 1.2;
             }
             .trophy-icon {
                 color: #000;
-                margin-right: 4px;
-                font-size: 0.8rem;
+                margin-right: 6px;
+                font-size: 0.9rem;
+                display: inline-block;
+                vertical-align: middle;
             }
             .card-highlight {
                 transform: scale(1.02);
