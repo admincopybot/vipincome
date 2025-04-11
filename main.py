@@ -344,13 +344,13 @@ global_css = """
     }
     
     .step.active {
-        background: rgba(100, 108, 255, 0.8);
+        background: #7970FF;
         color: white;
         font-weight: 600;
     }
     
     .step.completed {
-        background: rgba(48, 209, 88, 0.6);
+        background: #00C8FF;
         color: white;
         font-weight: 600;
     }
