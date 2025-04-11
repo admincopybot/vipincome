@@ -786,58 +786,43 @@ def step2():
                                 <h6 class="fw-bold">Technical Indicators:</h6>
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span><strong>Trend 1:</strong> Price > 20 EMA</span>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Short Term Trend</strong></span>
                                             <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.trend1.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.trend1.pass else '✗' }}
                                             </span>
                                         </div>
-                                        <div class="small text-light">
-                                            {{ etf_data.indicators.trend1.description }}
-                                        </div>
                                     </li>
                                     <li class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span><strong>Trend 2:</strong> Price > 100 EMA</span>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Long Term Trend</strong></span>
                                             <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.trend2.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.trend2.pass else '✗' }}
                                             </span>
                                         </div>
-                                        <div class="small text-light">
-                                            {{ etf_data.indicators.trend2.description }}
-                                        </div>
                                     </li>
                                     <li class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span><strong>Snapback:</strong> RSI < 50</span>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Snapback Position</strong></span>
                                             <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.snapback.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.snapback.pass else '✗' }}
                                             </span>
                                         </div>
-                                        <div class="small text-light">
-                                            {{ etf_data.indicators.snapback.description }}
-                                        </div>
                                     </li>
                                     <li class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span><strong>Momentum:</strong> Price > Last Week</span>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Weekly Momentum</strong></span>
                                             <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.momentum.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.momentum.pass else '✗' }}
                                             </span>
                                         </div>
-                                        <div class="small text-light">
-                                            {{ etf_data.indicators.momentum.description }}
-                                        </div>
                                     </li>
                                     <li class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span><strong>Stabilizing:</strong> 3D ATR < 6D ATR</span>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Stabilizing</strong></span>
                                             <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.stabilizing.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.stabilizing.pass else '✗' }}
                                             </span>
-                                        </div>
-                                        <div class="small text-light">
-                                            {{ etf_data.indicators.stabilizing.description }}
                                         </div>
                                     </li>
                                 </ul>
