@@ -66,6 +66,12 @@ def update_market_data_background():
         # Sleep for a minute before checking again
         time.sleep(60)
 
+# Helper function to add star elements to any template
+def add_stars_to_template(template_str):
+    """Add star elements to a template string by injecting after the body tag"""
+    return template_str.replace('<body data-bs-theme="dark">', 
+                           '<body data-bs-theme="dark">' + star_elements)
+
 # Start background thread for market data updates
 update_thread = threading.Thread(target=update_market_data_background, daemon=True)
 update_thread.start()
@@ -1436,6 +1442,7 @@ def how_to_use():
         </style>
     </head>
     <body data-bs-theme="dark">
+        {{ star_elements|safe }}
         <div class="container py-4">
             {{ logo_header|safe }}
             
@@ -1490,6 +1497,7 @@ def live_classes():
         </style>
     </head>
     <body data-bs-theme="dark">
+        {{ star_elements|safe }}
         <div class="container py-4">
             {{ logo_header|safe }}
             
@@ -1565,6 +1573,7 @@ def special_offer():
         </style>
     </head>
     <body data-bs-theme="dark">
+        {{ star_elements|safe }}
         <div class="container py-4">
             {{ logo_header|safe }}
             
