@@ -119,6 +119,24 @@ strategy_descriptions = {
 }
 
 # Global CSS for Apple-like minimalist design
+# Common HTML components for templates
+logo_header = """
+<header class="pb-3 mb-4 border-bottom">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="50" class="me-2">
+            <span class="badge bg-primary">DEMO</span>
+        </div>
+        <div class="d-flex gap-3">
+            <a href="/" class="btn btn-sm btn-outline-light">ETF Scoreboard</a>
+            <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
+            <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
+            <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
+        </div>
+    </div>
+</header>
+"""
+
 global_css = """
     /* Apple-style base setup */
     body {
@@ -538,7 +556,7 @@ def index():
     </html>
     """
     
-    return render_template_string(template, etfs=etf_scores, global_css=global_css)
+    return render_template_string(template, etfs=etf_scores, global_css=global_css, logo_header=logo_header)
 
 # Route for Step 2: ETF Selection
 @app.route('/step2')
@@ -738,7 +756,7 @@ def step2():
     </html>
     """
     
-    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css)
+    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css, logo_header=logo_header)
 
 # Route for Step 3: Strategy Selection
 @app.route('/step3')
@@ -921,7 +939,7 @@ def step3():
     </html>
     """
     
-    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css)
+    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header)
 
 # Route for Step 4: Trade Details
 @app.route('/step4')
@@ -1157,7 +1175,8 @@ def step4():
         etf_data=etf_scores[etf], 
         trade=trade,
         strategy_descriptions=strategy_descriptions,
-        global_css=global_css
+        global_css=global_css,
+        logo_header=logo_header
     )
 
 # Route for How to Use page
