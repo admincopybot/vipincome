@@ -143,8 +143,8 @@ logo_header = """
             <div class="mb-2" style="text-align: center;">
                 <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="max-width: 150px;">
             </div>
-            <div class="d-flex align-items-center">
-                <div style="font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.8); margin-right: 8px;">Experience Ends in</div>
+            <div class="d-flex flex-column align-items-center">
+                <div style="font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.8); margin-bottom: 5px;">Experience Ends in</div>
                 <div id="countdown" class="text-light" style="background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 6px 12px; border-radius: 50px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 14px; font-weight: 800; letter-spacing: 0.01em;"></div>
             </div>
         </div>
