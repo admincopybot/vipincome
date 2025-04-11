@@ -704,7 +704,6 @@ def index():
         </style>
     </head>
     <body data-bs-theme="dark">
-        {{ star_elements|safe }}
         
         <div class="container py-4">
             {{ logo_header|safe }}
@@ -947,7 +946,7 @@ def step2():
     </html>
     """
     
-    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css, logo_header=logo_header, star_elements=star_elements)
+    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css, logo_header=logo_header)
 
 # Route for Step 3: Strategy Selection
 @app.route('/step3')
@@ -1158,7 +1157,7 @@ def step3():
     </html>
     """
     
-    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header, trades=trades, star_elements=star_elements)
+    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header, trades=trades)
 
 # Route for Step 4: Trade Details
 @app.route('/step4')
@@ -1379,8 +1378,7 @@ def step4():
         trade=trade,
         strategy_descriptions=strategy_descriptions,
         global_css=global_css,
-        logo_header=logo_header,
-        star_elements=star_elements
+        logo_header=logo_header
     )
 
 # Route for How to Use page
