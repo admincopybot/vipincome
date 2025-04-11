@@ -128,8 +128,8 @@ logo_header = """
                 <img src="/static/images/animated_logo.gif" alt="Nate Tucci's Income Machine" height="150" class="me-4" style="cursor: pointer;">
             </a>
             <div class="d-flex flex-column me-auto">
-                <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="height: 30px; width: auto; margin-bottom: 5px;">
-                <div id="countdown" class="text-light" style="font-size: 14px; font-weight: 700; letter-spacing: 0.05em; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 5px 12px; border-radius: 18px; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.5); animation: pulse 2s infinite;"></div>
+                <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="max-width: 200px; margin-bottom: 5px;">
+                <div id="countdown" class="text-light" style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 3px 10px; border-radius: 15px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite;"></div>
             </div>
         </div>
         <nav class="d-flex align-items-center">
@@ -161,8 +161,8 @@ updateCountdown(); // Initial call
 </script>
 <style>
 @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.6); transform: scale(1); }
-    50% { box-shadow: 0 0 0 15px rgba(91, 33, 182, 0); transform: scale(1.05); }
+    0% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.4); transform: scale(1); }
+    50% { box-shadow: 0 0 0 8px rgba(91, 33, 182, 0); transform: scale(1.03); }
     100% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0); transform: scale(1); }
 }
 nav a:hover {
