@@ -550,10 +550,10 @@ def index():
             }
             .recommended-asset {
                 position: absolute;
-                top: -15px;
+                top: -12px;
                 left: 50%;
                 transform: translateX(-50%);
-                background: linear-gradient(90deg, #FFD700, #FFA500);
+                background: #FFD700;
                 color: #000;
                 font-size: 0.75rem;
                 font-weight: 700;
@@ -561,16 +561,16 @@ def index():
                 border-radius: 50px;
                 box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
                 white-space: nowrap;
-                z-index: 10;
-                overflow: visible;
-                line-height: 1.2;
+                z-index: 100;
+                min-height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             .trophy-icon {
                 color: #000;
                 margin-right: 6px;
-                font-size: 0.9rem;
-                display: inline-block;
-                vertical-align: middle;
+                font-size: 14px;
             }
             .card-highlight {
                 transform: scale(1.02);
@@ -598,7 +598,7 @@ def index():
                     <div class="card h-100 position-relative {{ 'card-highlight' if etf == recommended_etf else '' }}" style="background: rgba(28, 28, 30, 0.8); border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
                         {% if etf == recommended_etf %}
                         <div class="recommended-asset">
-                            <i class="bi bi-trophy-fill trophy-icon"></i>Recommended Asset
+                            <i class="bi bi-trophy-fill trophy-icon"></i><span style="position: relative; top: 1px;">Recommended Asset</span>
                         </div>
                         {% endif %}
                         <div class="card-body p-4">
