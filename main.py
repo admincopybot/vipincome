@@ -577,15 +577,23 @@ def index():
                 box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2) !important;
                 border: 1px solid rgba(255, 215, 0, 0.3) !important;
             }
-            .btn[style*="background: #4f46e5"]:hover {
-                background: #6366f1 !important;
+            .btn[style*="background: #7970FF"]:hover {
+                background: #9088FF !important;
                 transform: translateY(-2px);
-                box-shadow: 0 6px 15px rgba(79, 70, 229, 0.35) !important;
+                box-shadow: 0 6px 15px rgba(121, 112, 255, 0.35) !important;
             }
             .btn[style*="background: #FFD700"]:hover {
                 background: #ffc107 !important;
                 transform: translateY(-2px);
                 box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35) !important;
+            }
+            .btn[style*="background: #00C8FF"]:hover {
+                background: #33D5FF !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(0, 200, 255, 0.35) !important;
+            }
+            .progress-bar {
+                background-color: #7970FF !important;
             }
         </style>
     </head>
@@ -610,7 +618,7 @@ def index():
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="card-title mb-0" style="font-weight: 700; font-size: 1.8rem; letter-spacing: -0.02em;">{{ etf }}</h3>
-                                <span class="badge {{ 'bg-success' if data.score >= 4 else 'bg-warning' if data.score >= 3 else 'bg-danger' }}" style="font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 20px;">{{ data.score }}/5</span>
+                                <span class="badge" style="font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 20px; background: {{ '#7970FF' if data.score >= 4 else '#FFD700' if data.score >= 3 else '#6c757d' }}; color: {{ '#fff' if data.score >= 4 else '#000' if data.score >= 3 else '#fff' }};">{{ data.score }}/5</span>
                             </div>
                             
                             <p class="text-light mb-1" style="font-size: 1.1rem; opacity: 0.9;">{{ data.name }}</p>
@@ -631,7 +639,7 @@ def index():
                                         Select {{ etf }}
                                     </div>
                                 {% else %}
-                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: #4f46e5; color: white; border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);">
+                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: #7970FF; color: white; border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(121, 112, 255, 0.2);">
                                         Select {{ etf }}
                                     </a>
                                 {% endif %}
@@ -752,7 +760,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Trend 1:</strong> Price > 20 EMA</span>
-                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.trend1.pass else 'bg-secondary' }}">
+                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.trend1.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.trend1.pass else '✗' }}
                                             </span>
                                         </div>
@@ -763,7 +771,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Trend 2:</strong> Price > 100 EMA</span>
-                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.trend2.pass else 'bg-secondary' }}">
+                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.trend2.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.trend2.pass else '✗' }}
                                             </span>
                                         </div>
@@ -774,7 +782,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Snapback:</strong> RSI < 50</span>
-                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.snapback.pass else 'bg-secondary' }}">
+                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.snapback.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.snapback.pass else '✗' }}
                                             </span>
                                         </div>
@@ -785,7 +793,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Momentum:</strong> Price > Last Week</span>
-                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.momentum.pass else 'bg-secondary' }}">
+                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.momentum.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.momentum.pass else '✗' }}
                                             </span>
                                         </div>
@@ -796,7 +804,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Stabilizing:</strong> 3D ATR < 6D ATR</span>
-                                            <span class="badge rounded-pill {{ 'bg-success' if etf_data.indicators.stabilizing.pass else 'bg-secondary' }}">
+                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.stabilizing.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.stabilizing.pass else '✗' }}
                                             </span>
                                         </div>
