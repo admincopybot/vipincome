@@ -135,7 +135,7 @@ logo_header = """
             <a href="/" class="text-decoration-none mx-2" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">ETF Scoreboard</a>
             <a href="/how-to-use" class="text-decoration-none mx-2" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">How to Use</a>
             <a href="/live-classes" class="text-decoration-none mx-2" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">Trade Classes</a>
-            <a href="/special-offer" class="ms-2 me-3" style="font-size: 14px; font-weight: 600; color: rgba(255, 69, 58, 1); background: rgba(255, 69, 58, 0.15); padding: 5px 10px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease;">Get 50% OFF</a>
+            <a href="/special-offer" class="ms-2 me-3" style="font-size: 14px; font-weight: 600; color: #000; background: #FFD700; padding: 5px 10px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);">Get 50% OFF</a>
         </nav>
         
         <!-- Right section: Free Income Machine on top of Experience Ends in, both left-aligned -->
@@ -178,8 +178,10 @@ nav a:hover {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 nav a:last-child:hover {
-    background: rgba(255, 69, 58, 0.25);
-    text-shadow: 0 0 10px rgba(255, 69, 58, 0.5);
+    background: #ffc107;
+    color: #000 !important;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+    transform: translateY(-1px);
 }
 </style>
 """
