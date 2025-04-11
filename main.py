@@ -856,7 +856,7 @@ def step2():
                             {{ etf }} could be a {{ 'strong' if etf_data.score >= 4 else 'moderate' if etf_data.score >= 2 else 'weak' }} 
                             candidate for generating options income.</p>
                             
-                            <p>The score is calculated using 5 technical indicators, with 1 point awarded for each condition met. Higher scores indicate more favorable market conditions for selling covered calls.</p>
+                            <p>The score is calculated using 5 technical indicators, with 1 point awarded for each condition met. Higher scores indicate more favorable market conditions for income opportunities.</p>
                             
                             <p><small>Data is automatically refreshed every 15 minutes during market hours.</small></p>
                             
@@ -948,7 +948,7 @@ def step3():
                     Step 1: Scoreboard
                 </div>
                 <div class="step completed">
-                    Step 2: ETF Selection
+                    Step 2: Asset Review
                 </div>
                 <div class="step active">
                     Step 3: Strategy
@@ -961,7 +961,7 @@ def step3():
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
                     <h2 class="display-6 fw-bold">Choose an Income Strategy for {{ etf }}</h2>
-                    <p class="fs-5">Select the covered call approach that matches your income goals and risk tolerance.</p>
+                    <p class="fs-5">Select the income opportunity approach that matches your income goals and risk tolerance.</p>
                 </div>
             </div>
     
@@ -1053,7 +1053,7 @@ def step3():
                 </div>
                 
                 <div class="mt-3">
-                    <a href="{{ url_for('step2', etf=etf) }}" class="btn btn-secondary">← Back to ETF Details</a>
+                    <a href="{{ url_for('step2', etf=etf) }}" class="btn btn-secondary">← Back to Asset Review</a>
                 </div>
             </form>
             
@@ -1169,7 +1169,7 @@ def step4():
                     Step 1: Scoreboard
                 </div>
                 <div class="step completed">
-                    Step 2: ETF Selection
+                    Step 2: Asset Review
                 </div>
                 <div class="step completed">
                     Step 3: Strategy
@@ -1182,7 +1182,7 @@ def step4():
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
                     <h2 class="display-6 fw-bold">Recommended Trade</h2>
-                    <p class="fs-5">{{ etf }} covered call with {{ strategy }} strategy</p>
+                    <p class="fs-5">{{ etf }} income opportunity with {{ strategy }} strategy</p>
                 </div>
             </div>
     
@@ -1346,7 +1346,7 @@ def how_to_use():
                     <p>Select between Aggressive, Steady, or Passive strategies based on your risk tolerance and how actively you want to manage your positions.</p>
                     
                     <h5>4. Review Trade Details</h5>
-                    <p>See the specific covered call trade recommendation with strike price, expiration, potential return, and other key metrics.</p>
+                    <p>See the specific income opportunity trade recommendation with strike price, expiration, potential return, and other key metrics.</p>
                 </div>
             </div>
             
@@ -1399,7 +1399,7 @@ def live_classes():
                                 <div class="card-body">
                                     <p><strong>Date:</strong> Every Monday, 7:00 PM ET</p>
                                     <p><strong>Duration:</strong> 60 minutes</p>
-                                    <p>Learn the basics of selling covered calls and generating consistent income with lower-risk strategies.</p>
+                                    <p>Learn the basics of creating income opportunities and generating consistent income with lower-risk strategies.</p>
                                     <div class="d-grid">
                                         <a href="/special-offer" class="btn btn-primary">Register Now</a>
                                     </div>
