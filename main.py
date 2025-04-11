@@ -138,10 +138,12 @@ logo_header = """
             <a href="/special-offer" class="ms-2 me-3" style="font-size: 14px; font-weight: 600; color: rgba(255, 69, 58, 1); background: rgba(255, 69, 58, 0.15); padding: 5px 10px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease;">Get 50% OFF</a>
         </nav>
         
-        <!-- Right section: Free Income Machine and Timer in a single line -->
-        <div class="d-flex align-items-center" style="padding-bottom: 10px;">
-            <div style="font-size: 14px; font-weight: 600; color: rgba(255, 255, 255, 0.9); margin-right: 10px;">Free Income Machine</div>
-            <div style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); margin-right: 8px;">Experience Ends in</div>
+        <!-- Right section: Free Income Machine on top of Experience Ends in -->
+        <div class="d-flex align-items-end" style="padding-bottom: 10px;">
+            <div class="d-flex flex-column align-items-end me-2">
+                <div style="font-size: 14px; font-weight: 600; color: rgba(255, 255, 255, 0.9); margin-bottom: 4px;">Free Income Machine</div>
+                <div style="font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.8);">Experience Ends in</div>
+            </div>
             <div id="countdown" class="text-light" style="background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 6px 12px; border-radius: 50px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 14px; font-weight: 800; letter-spacing: 0.01em;"></div>
         </div>
     </div>
