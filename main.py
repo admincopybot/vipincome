@@ -588,7 +588,7 @@ def index():
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
                     <h2 class="display-6 fw-bold">Daily ETF Scoreboard</h2>
-                    <p class="fs-5">Select an ETF with a high score (4-5) for the best covered call opportunities.</p>
+                    <p class="fs-5">Select an ETF with a score of 3+ for the highest probability income opportunity.</p>
                 </div>
             </div>
     
