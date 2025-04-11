@@ -803,7 +803,7 @@ def index():
     </html>
     """
     
-    return render_template_string(template, etfs=etf_scores, global_css=global_css, logo_header=logo_header, recommended_etf=recommended_etf)
+    return render_template_string(template, etfs=etf_scores, global_css=global_css, logo_header=logo_header, recommended_etf=recommended_etf, star_elements=star_elements)
 
 # Route for Step 2: Asset Review
 @app.route('/step2')
@@ -984,7 +984,7 @@ def step2():
     </html>
     """
     
-    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css, logo_header=logo_header)
+    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css, logo_header=logo_header, star_elements=star_elements)
 
 # Route for Step 3: Strategy Selection
 @app.route('/step3')
@@ -1195,7 +1195,7 @@ def step3():
     </html>
     """
     
-    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header, trades=trades)
+    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header, trades=trades, star_elements=star_elements)
 
 # Route for Step 4: Trade Details
 @app.route('/step4')
@@ -1416,7 +1416,8 @@ def step4():
         trade=trade,
         strategy_descriptions=strategy_descriptions,
         global_css=global_css,
-        logo_header=logo_header
+        logo_header=logo_header,
+        star_elements=star_elements
     )
 
 # Route for How to Use page
