@@ -124,7 +124,7 @@ logo_header = """
 <header class="pb-3 mb-4 border-bottom">
     <div class="d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
-            <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="65" class="me-2">
+            <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="80" class="me-2">
         </div>
         <div class="d-flex gap-3">
             <a href="/" class="btn btn-sm btn-outline-light">ETF Scoreboard</a>
