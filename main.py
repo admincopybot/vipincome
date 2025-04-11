@@ -124,8 +124,7 @@ logo_header = """
 <header class="pb-3 mb-4 border-bottom">
     <div class="d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
-            <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="50" class="me-2">
-            <span class="badge bg-primary">DEMO</span>
+            <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="65" class="me-2">
         </div>
         <div class="d-flex gap-3">
             <a href="/" class="btn btn-sm btn-outline-light">ETF Scoreboard</a>
@@ -495,19 +494,7 @@ def index():
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
-            <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center">
-                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Nate Tucci's Income Machine" height="50" class="me-2">
-                        <span class="badge bg-primary">DEMO</span>
-                    </div>
-                    <div class="d-flex gap-3">
-                        <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
-                        <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
-                        <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
-                    </div>
-                </div>
-            </header>
+            {{ logo_header|safe }}
             
 
             
@@ -611,11 +598,7 @@ def step2():
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
-            <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
-                </div>
-            </header>
+            {{ logo_header|safe }}
             
             <div class="step-indicator mb-4">
                 <div class="step completed">
