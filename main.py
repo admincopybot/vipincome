@@ -876,6 +876,18 @@ def step3():
     if etf not in etf_scores:
         return redirect(url_for('index'))
     
+    # Get real-time trade recommendations for each strategy
+    aggressive_trade = market_data.get_trade_recommendation(etf, 'Aggressive')
+    steady_trade = market_data.get_trade_recommendation(etf, 'Steady')
+    passive_trade = market_data.get_trade_recommendation(etf, 'Passive')
+    
+    # Create a dictionary of trades for easier access in the template
+    trades = {
+        'Aggressive': aggressive_trade,
+        'Steady': steady_trade,
+        'Passive': passive_trade
+    }
+    
     template = """
     <!DOCTYPE html>
     <html lang="en">
@@ -1050,7 +1062,7 @@ def step3():
     </html>
     """
     
-    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header)
+    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header, trades=trades)
 
 # Route for Step 4: Trade Details
 @app.route('/step4')
