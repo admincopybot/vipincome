@@ -181,7 +181,7 @@ global_css = """
     body {
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         letter-spacing: -0.015em;
-        background: linear-gradient(160deg, #000000 0%, #121212 100%);
+        background: #151521;
         min-height: 100vh;
         color: rgba(255, 255, 255, 0.95);
     }
