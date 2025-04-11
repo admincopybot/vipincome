@@ -577,6 +577,16 @@ def index():
                 box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2) !important;
                 border: 1px solid rgba(255, 215, 0, 0.3) !important;
             }
+            .btn[style*="background: #4f46e5"]:hover {
+                background: #6366f1 !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(79, 70, 229, 0.35) !important;
+            }
+            .btn[style*="background: #FFD700"]:hover {
+                background: #ffc107 !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35) !important;
+            }
         </style>
     </head>
     <body data-bs-theme="dark">
@@ -614,14 +624,14 @@ def index():
                             
                             <div class="d-grid">
                                 {% if etf == recommended_etf %}
-                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: #FFD700; color: #000; border-radius: 14px; padding: 0.8rem; font-weight: 600; letter-spacing: -0.01em;">
+                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: #FFD700; color: #000; border-radius: 14px; padding: 0.8rem; font-weight: 600; letter-spacing: -0.01em; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(255, 215, 0, 0.2);">
                                         <i class="bi bi-trophy-fill" style="margin-right: 5px;"></i> Recommended Asset
                                     </a>
                                     <div class="text-center mt-2" style="font-size: 0.8rem; color: #FFD700; font-weight: 600;">
                                         Select {{ etf }}
                                     </div>
                                 {% else %}
-                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn {{ 'btn-success' if data.score >= 4 else 'btn-secondary' }}" style="border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em;">
+                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: #4f46e5; color: white; border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);">
                                         Select {{ etf }}
                                     </a>
                                 {% endif %}
