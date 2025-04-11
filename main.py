@@ -125,8 +125,16 @@ logo_header = """
     <div class="d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
             <a href="/" style="display: block;">
-                <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="80" class="me-2" style="cursor: pointer;">
+                <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="80" class="me-3" style="cursor: pointer;">
             </a>
+            <div class="ms-2 d-flex flex-column">
+                <div class="d-flex align-items-center">
+                    <div style="background: linear-gradient(90deg, #000000 0%, #5b21b6 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-right: 15px; text-shadow: 0 0 10px rgba(144, 97, 249, 0.5);">
+                        Free Income Machine
+                    </div>
+                </div>
+                <div id="countdown" class="text-light" style="font-size: 14px; font-weight: 600; letter-spacing: 0.05em; margin-top: 5px; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 3px 10px; border-radius: 20px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.3); animation: pulse 2s infinite;"></div>
+            </div>
         </div>
         <div class="d-flex gap-3">
             <a href="/" class="btn btn-sm btn-outline-light">ETF Scoreboard</a>
@@ -136,6 +144,32 @@ logo_header = """
         </div>
     </div>
 </header>
+<script>
+// Countdown timer to June 20, 2025
+function updateCountdown() {
+    const endDate = new Date("June 20, 2025 23:59:59").getTime();
+    const now = new Date().getTime();
+    const timeLeft = endDate - now;
+    
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    
+    document.getElementById("countdown").innerHTML = `Expires in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+
+// Update the countdown every second
+setInterval(updateCountdown, 1000);
+updateCountdown(); // Initial call
+</script>
+<style>
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(91, 33, 182, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0); }
+}
+</style>
 """
 
 global_css = """
