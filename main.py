@@ -127,8 +127,8 @@ logo_header = """
             <a href="/" style="display: block;">
                 <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="70" class="me-3" style="cursor: pointer;">
             </a>
-            <div class="d-flex align-items-center me-auto">
-                <img src="/static/images/free_income_machine.png" alt="Free Income Machine" height="30" style="margin-right: 15px;">
+            <div class="d-flex flex-column me-auto">
+                <img src="/static/images/free_income_machine.png" alt="Free Income Machine" height="30" style="margin-bottom: 5px;">
                 <div id="countdown" class="text-light" style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 2px 8px; border-radius: 16px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.3); animation: pulse 2s infinite;"></div>
             </div>
         </div>
