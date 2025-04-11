@@ -129,9 +129,9 @@ logo_header = """
             </a>
             <div class="ms-2 d-flex flex-column">
                 <div class="d-flex align-items-center">
-                    <img src="/static/images/free_income_machine.png" alt="Free Income Machine" height="40" style="margin-right: 15px;">
+                    <img src="/static/images/free_income_machine.png" alt="Free Income Machine" height="30" style="margin-right: 15px;">
                 </div>
-                <div id="countdown" class="text-light" style="font-size: 14px; font-weight: 600; letter-spacing: 0.05em; margin-top: 5px; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 3px 10px; border-radius: 20px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.3); animation: pulse 2s infinite;"></div>
+                <div id="countdown" class="text-light" style="font-size: 12px; font-weight: 600; letter-spacing: 0.05em; margin-top: 3px; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 2px 8px; border-radius: 16px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.3); animation: pulse 2s infinite;"></div>
             </div>
         </div>
         <div class="d-flex gap-3">
