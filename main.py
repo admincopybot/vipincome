@@ -129,7 +129,10 @@ logo_header = """
             </a>
             <div class="d-flex flex-column me-auto">
                 <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="max-width: 200px; margin-bottom: 5px;">
-                <div id="countdown" class="text-light" style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 3px 10px; border-radius: 15px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite;"></div>
+                <div class="text-light" style="background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 8px 14px; border-radius: 15px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite; text-align: center;">
+                    <div style="font-size: 11px; font-weight: 500; letter-spacing: 0.05em; margin-bottom: 2px;">EXPIRES IN</div>
+                    <div id="countdown" style="font-size: 16px; font-weight: 800; letter-spacing: 0.01em;"></div>
+                </div>
             </div>
         </div>
         <nav class="d-flex align-items-center">
@@ -152,7 +155,7 @@ function updateCountdown() {
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
     
-    document.getElementById("countdown").innerHTML = `EXPIRES IN: ${days}D ${hours}H ${minutes}M ${seconds}S`;
+    document.getElementById("countdown").innerHTML = `${days}D ${hours}H ${minutes}M ${seconds}S`;
 }
 
 // Update the countdown every second
