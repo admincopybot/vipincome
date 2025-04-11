@@ -1397,7 +1397,7 @@ def how_to_use():
         </style>
     </head>
     <body data-bs-theme="dark">
-        {{ star_elements|safe }}
+
         <div class="container py-4">
             {{ logo_header|safe }}
             
@@ -1452,7 +1452,7 @@ def live_classes():
         </style>
     </head>
     <body data-bs-theme="dark">
-        {{ star_elements|safe }}
+
         <div class="container py-4">
             {{ logo_header|safe }}
             
@@ -1528,7 +1528,7 @@ def special_offer():
         </style>
     </head>
     <body data-bs-theme="dark">
-        {{ star_elements|safe }}
+
         <div class="container py-4">
             {{ logo_header|safe }}
             
