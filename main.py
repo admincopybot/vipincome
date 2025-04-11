@@ -496,6 +496,15 @@ global_css = """
 # Route for Step 1: ETF Scoreboard (Home Page)
 @app.route('/')
 def index():
+    # Find the ETF with the highest score
+    highest_score = 0
+    recommended_etf = None
+    
+    for etf, data in etf_scores.items():
+        if data['score'] > highest_score:
+            highest_score = data['score']
+            recommended_etf = etf
+    
     template = """
     <!DOCTYPE html>
     <html lang="en">
@@ -504,6 +513,7 @@ def index():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Income Machine DEMO - Daily ETF Scoreboard</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
         <style>
             {{ global_css }}
             
@@ -538,6 +548,31 @@ def index():
                 background-color: var(--bs-secondary);
                 color: white;
             }
+            .recommended-asset {
+                position: absolute;
+                top: -10px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(90deg, #FFD700, #FFA500);
+                color: #000;
+                font-size: 0.75rem;
+                font-weight: 700;
+                padding: 4px 10px;
+                border-radius: 50px;
+                box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+                white-space: nowrap;
+                z-index: 10;
+            }
+            .trophy-icon {
+                color: #000;
+                margin-right: 4px;
+                font-size: 0.8rem;
+            }
+            .card-highlight {
+                transform: scale(1.02);
+                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2) !important;
+                border: 1px solid rgba(255, 215, 0, 0.3) !important;
+            }
         </style>
     </head>
     <body data-bs-theme="dark">
@@ -556,7 +591,12 @@ def index():
             <div class="row">
                 {% for etf, data in etfs.items() %}
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100" style="background: rgba(28, 28, 30, 0.8); border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
+                    <div class="card h-100 position-relative {{ 'card-highlight' if etf == recommended_etf else '' }}" style="background: rgba(28, 28, 30, 0.8); border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
+                        {% if etf == recommended_etf %}
+                        <div class="recommended-asset">
+                            <i class="bi bi-trophy-fill trophy-icon"></i>Recommended Asset
+                        </div>
+                        {% endif %}
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="card-title mb-0" style="font-weight: 700; font-size: 1.8rem; letter-spacing: -0.02em;">{{ etf }}</h3>
@@ -591,7 +631,7 @@ def index():
     </html>
     """
     
-    return render_template_string(template, etfs=etf_scores, global_css=global_css, logo_header=logo_header)
+    return render_template_string(template, etfs=etf_scores, global_css=global_css, logo_header=logo_header, recommended_etf=recommended_etf)
 
 # Route for Step 2: ETF Selection
 @app.route('/step2')
