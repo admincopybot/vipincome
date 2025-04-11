@@ -595,12 +595,8 @@ def index():
             <div class="row">
                 {% for etf, data in etfs.items() %}
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100 position-relative {{ 'card-highlight' if etf == recommended_etf else '' }}" style="background: rgba(28, 28, 30, 0.8); border-radius: 20px; overflow: hidden; border: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
-                        {% if etf == recommended_etf %}
-                        <div class="recommended-asset">
-                            <i class="bi bi-trophy-fill trophy-icon"></i><span style="position: relative; top: 1px;">Recommended Asset</span>
-                        </div>
-                        {% endif %}
+                    <div class="card h-100 position-relative {{ 'card-highlight' if etf == recommended_etf else '' }}" style="background: rgba(28, 28, 30, 0.8); border-radius: 20px; overflow: visible; border: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
+
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="card-title mb-0" style="font-weight: 700; font-size: 1.8rem; letter-spacing: -0.02em;">{{ etf }}</h3>
@@ -617,9 +613,18 @@ def index():
                             </div>
                             
                             <div class="d-grid">
-                                <a href="{{ url_for('step2', etf=etf) }}" class="btn {{ 'btn-success' if data.score >= 4 else 'btn-secondary' }}" style="border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em;">
-                                    Select {{ etf }}
-                                </a>
+                                {% if etf == recommended_etf %}
+                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: #FFD700; color: #000; border-radius: 14px; padding: 0.8rem; font-weight: 600; letter-spacing: -0.01em;">
+                                        <i class="bi bi-trophy-fill" style="margin-right: 5px;"></i> Recommended Asset
+                                    </a>
+                                    <div class="text-center mt-2" style="font-size: 0.8rem; color: #FFD700; font-weight: 600;">
+                                        Select {{ etf }}
+                                    </div>
+                                {% else %}
+                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn {{ 'btn-success' if data.score >= 4 else 'btn-secondary' }}" style="border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em;">
+                                        Select {{ etf }}
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
