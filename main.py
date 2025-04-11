@@ -140,8 +140,8 @@ logo_header = """
         
         <!-- Right section: Free Income Machine and Timer stacked -->
         <div class="d-flex flex-column align-items-end" style="padding-bottom: 10px;">
-            <div class="mb-2" style="text-align: center;">
-                <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="max-width: 150px;">
+            <div class="mb-2 text-center">
+                <div style="font-size: 18px; font-weight: 700; background: linear-gradient(90deg, #fff 0%, #a09fcc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em;">Free Income Machine</div>
             </div>
             <div class="d-flex flex-column align-items-center">
                 <div style="font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.8); margin-bottom: 5px;">Experience Ends in</div>
