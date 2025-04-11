@@ -122,20 +122,25 @@ strategy_descriptions = {
 # Common HTML components for templates
 logo_header = """
 <header class="py-3 mb-4 border-bottom">
-    <div class="container-fluid d-flex align-items-center" style="padding-left: 0;">
-        <div class="d-flex align-items-center me-auto">
+    <div class="container-fluid d-flex justify-content-between" style="padding-left: 0;">
+        <!-- Left side with Nate Tucci's Logo -->
+        <div style="display: flex; align-items: flex-start;">
             <a href="/" style="display: block; margin-left: 0; padding-left: 0;">
                 <img src="/static/images/animated_logo.gif" alt="Nate Tucci's Income Machine" height="150" class="me-4" style="cursor: pointer;">
             </a>
-            <div class="d-flex flex-column me-auto">
-                <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="max-width: 200px; margin-bottom: 5px;">
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.9); margin-bottom: 4px; text-transform: uppercase;">EXPIRES IN</div>
-                    <div id="countdown" class="text-light" style="background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 6px 12px; border-radius: 12px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 16px; font-weight: 800; letter-spacing: 0.01em;"></div>
-                </div>
+        </div>
+        
+        <!-- Center area with Free Income Machine text and countdown -->
+        <div style="display: flex; flex-direction: column; align-items: center; margin-top: 25px;">
+            <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="max-width: 300px; margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.9); margin-bottom: 6px; text-transform: uppercase;">EXPIRES IN</div>
+                <div id="countdown" class="text-light" style="background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 8px 16px; border-radius: 20px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 18px; font-weight: 800; letter-spacing: 0.01em; min-width: 200px;"></div>
             </div>
         </div>
-        <nav class="d-flex align-items-center">
+        
+        <!-- Right side with navigation -->
+        <nav class="d-flex align-items-start" style="margin-top: 25px;">
             <a href="/" class="text-decoration-none mx-3" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">ETF Scoreboard</a>
             <a href="/how-to-use" class="text-decoration-none mx-3" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">How to Use</a>
             <a href="/live-classes" class="text-decoration-none mx-3" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">Trade Classes</a>
