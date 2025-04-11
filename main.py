@@ -194,6 +194,32 @@ global_css = """
         color: rgba(255, 255, 255, 0.95);
     }
     
+    /* Gradient Elements */
+    .progress-bar {
+        background: linear-gradient(90deg, #00C8FF, #7970FF) !important;
+    }
+    
+    .step.active {
+        background: linear-gradient(135deg, #00C8FF, #7970FF) !important;
+        color: white;
+    }
+    
+    .step.completed {
+        background-color: #00C8FF !important;
+        color: white;
+    }
+    
+    .step.upcoming {
+        background-color: #6c757d !important;
+        color: white;
+    }
+    
+    .btn[style*="background: linear-gradient"]:hover {
+        background: linear-gradient(135deg, #33D5FF, #9088FF) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(121, 112, 255, 0.35) !important;
+    }
+    
     /* Typography refinement */
     h1, h2, h3, h4, h5, h6 {
         font-weight: 600;
@@ -577,8 +603,8 @@ def index():
                 box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2) !important;
                 border: 1px solid rgba(255, 215, 0, 0.3) !important;
             }
-            .btn[style*="background: #7970FF"]:hover {
-                background: #9088FF !important;
+            .btn[style*="background: linear-gradient"]:hover {
+                background: linear-gradient(135deg, #33D5FF, #9088FF) !important;
                 transform: translateY(-2px);
                 box-shadow: 0 6px 15px rgba(121, 112, 255, 0.35) !important;
             }
@@ -593,7 +619,7 @@ def index():
                 box-shadow: 0 6px 15px rgba(0, 200, 255, 0.35) !important;
             }
             .progress-bar {
-                background-color: #7970FF !important;
+                background: linear-gradient(90deg, #00C8FF, #7970FF) !important;
             }
         </style>
     </head>
@@ -618,7 +644,7 @@ def index():
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="card-title mb-0" style="font-weight: 700; font-size: 1.8rem; letter-spacing: -0.02em;">{{ etf }}</h3>
-                                <span class="badge" style="font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 20px; background: {{ '#7970FF' if data.score >= 4 else '#FFD700' if data.score >= 3 else '#6c757d' }}; color: {{ '#fff' if data.score >= 4 else '#000' if data.score >= 3 else '#fff' }};">{{ data.score }}/5</span>
+                                <span class="badge" style="font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 20px; background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if data.score >= 4 else '#FFD700' if data.score >= 3 else '#6c757d' }}; color: {{ '#fff' if data.score >= 4 else '#000' if data.score >= 3 else '#fff' }};">{{ data.score }}/5</span>
                             </div>
                             
                             <p class="text-light mb-1" style="font-size: 1.1rem; opacity: 0.9;">{{ data.name }}</p>
@@ -639,7 +665,7 @@ def index():
                                         Select {{ etf }}
                                     </div>
                                 {% else %}
-                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: #7970FF; color: white; border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(121, 112, 255, 0.2);">
+                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: linear-gradient(135deg, #00C8FF, #7970FF); color: white; border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(121, 112, 255, 0.2);">
                                         Select {{ etf }}
                                     </a>
                                 {% endif %}
