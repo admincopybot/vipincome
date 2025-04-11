@@ -688,7 +688,7 @@ def index():
     
     return render_template_string(template, etfs=etf_scores, global_css=global_css, logo_header=logo_header, recommended_etf=recommended_etf)
 
-# Route for Step 2: ETF Selection
+# Route for Step 2: Asset Review
 @app.route('/step2')
 def step2():
     etf = request.args.get('etf')
@@ -701,7 +701,7 @@ def step2():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Income Machine DEMO - ETF Selection - {{ etf }}</title>
+        <title>Income Machine DEMO - Asset Review - {{ etf }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
             {{ global_css }}
@@ -748,7 +748,7 @@ def step2():
                     Step 1: Scoreboard
                 </div>
                 <div class="step active">
-                    Step 2: ETF Selection
+                    Step 2: Asset Review
                 </div>
                 <div class="step upcoming">
                     Step 3: Strategy
