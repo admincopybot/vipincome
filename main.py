@@ -144,7 +144,7 @@ logo_header = """
                 <div style="font-size: 14px; font-weight: 600; color: rgba(255, 255, 255, 0.9); margin-bottom: 4px;">Free Income Machine</div>
                 <div style="font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.8);">Experience Ends in</div>
             </div>
-            <div id="countdown" class="text-light" style="background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 6px 12px; border-radius: 50px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 14px; font-weight: 800; letter-spacing: 0.01em;"></div>
+            <div id="countdown" class="text-light" style="background: linear-gradient(135deg, #00C8FF, #7970FF); display: inline-block; padding: 6px 12px; border-radius: 50px; box-shadow: 0 2px 10px rgba(121, 112, 255, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 14px; font-weight: 800; letter-spacing: 0.01em;"></div>
         </div>
     </div>
 </header>
@@ -169,9 +169,9 @@ updateCountdown(); // Initial call
 </script>
 <style>
 @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.4); transform: scale(1); }
-    50% { box-shadow: 0 0 0 8px rgba(91, 33, 182, 0); transform: scale(1.03); }
-    100% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0); transform: scale(1); }
+    0% { box-shadow: 0 0 0 0 rgba(121, 112, 255, 0.4); transform: scale(1); }
+    50% { box-shadow: 0 0 0 8px rgba(0, 200, 255, 0.2); transform: scale(1.03); }
+    100% { box-shadow: 0 0 0 0 rgba(121, 112, 255, 0); transform: scale(1); }
 }
 nav a:hover {
     color: rgba(255, 255, 255, 1) !important;
@@ -786,7 +786,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Trend 1:</strong> Price > 20 EMA</span>
-                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.trend1.pass else '#6c757d' }}">
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.trend1.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.trend1.pass else '✗' }}
                                             </span>
                                         </div>
@@ -797,7 +797,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Trend 2:</strong> Price > 100 EMA</span>
-                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.trend2.pass else '#6c757d' }}">
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.trend2.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.trend2.pass else '✗' }}
                                             </span>
                                         </div>
@@ -808,7 +808,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Snapback:</strong> RSI < 50</span>
-                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.snapback.pass else '#6c757d' }}">
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.snapback.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.snapback.pass else '✗' }}
                                             </span>
                                         </div>
@@ -819,7 +819,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Momentum:</strong> Price > Last Week</span>
-                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.momentum.pass else '#6c757d' }}">
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.momentum.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.momentum.pass else '✗' }}
                                             </span>
                                         </div>
@@ -830,7 +830,7 @@ def step2():
                                     <li class="list-group-item">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span><strong>Stabilizing:</strong> 3D ATR < 6D ATR</span>
-                                            <span class="badge rounded-pill" style="background-color: {{ '#7970FF' if etf_data.indicators.stabilizing.pass else '#6c757d' }}">
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.stabilizing.pass else '#6c757d' }}">
                                                 {{ '✓' if etf_data.indicators.stabilizing.pass else '✗' }}
                                             </span>
                                         </div>
