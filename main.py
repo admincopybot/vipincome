@@ -464,20 +464,23 @@ global_css = """
         color: rgba(255, 255, 255, 0.95) !important;
     }
     
-    /* Strategy card styling - replaced colored headers with subtle indicators */
+    /* Strategy card styling - with modern gradients */
     .card-aggressive .card-header {
-        background: rgba(28, 28, 30, 0.8);
-        border-top: 4px solid rgba(255, 69, 58, 0.8);
+        background: linear-gradient(135deg, rgba(100, 82, 255, 0.8), rgba(255, 69, 58, 0.8));
+        border-top: none;
+        border-radius: 8px 8px 0 0;
     }
     
     .card-steady .card-header {
-        background: rgba(28, 28, 30, 0.8);
-        border-top: 4px solid rgba(255, 214, 10, 0.8);
+        background: linear-gradient(135deg, rgba(64, 156, 255, 0.8), rgba(100, 82, 255, 0.8));
+        border-top: none;
+        border-radius: 8px 8px 0 0;
     }
     
     .card-passive .card-header {
-        background: rgba(28, 28, 30, 0.8);
-        border-top: 4px solid rgba(48, 209, 88, 0.8);
+        background: linear-gradient(135deg, rgba(40, 210, 255, 0.8), rgba(64, 156, 255, 0.8));
+        border-top: none;
+        border-radius: 8px 8px 0 0;
     }
     
     /* Modern badge styling */
@@ -965,83 +968,103 @@ def step3():
             <form action="{{ url_for('step4') }}" method="get">
                 <input type="hidden" name="etf" value="{{ etf }}">
                 
+                <style>
+                    .strategy-card {
+                        transition: all 0.2s ease-in-out;
+                        cursor: pointer;
+                        border: 2px solid transparent;
+                    }
+                    .strategy-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+                    }
+                    .strategy-card input[type="radio"] {
+                        position: absolute;
+                        opacity: 0;
+                    }
+                    .strategy-card input[type="radio"]:checked + .card {
+                        border: 2px solid var(--bs-info);
+                        box-shadow: 0 0 15px var(--bs-info);
+                    }
+                    .card-header h4 {
+                        margin-bottom: 0;
+                    }
+                    .income-metrics {
+                        background: linear-gradient(45deg, rgba(100, 210, 255, 0.1), rgba(180, 100, 255, 0.1));
+                        border-radius: 8px;
+                        padding: 10px;
+                        margin-top: 10px;
+                    }
+                </style>
+                
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="card card-aggressive mb-4">
-                            <div class="card-header">
-                                <div class="form-check d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <input class="form-check-input" type="radio" name="strategy" id="aggressive" value="Aggressive" required>
-                                        <label class="form-check-label fw-bold text-white" for="aggressive">
-                                            Aggressive Strategy
-                                        </label>
+                        <label class="strategy-card w-100">
+                            <input type="radio" name="strategy" id="aggressive" value="Aggressive" required>
+                            <div class="card card-aggressive mb-4">
+                                <div class="card-header">
+                                    <h4 class="fw-bold text-white">Aggressive Income</h4>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">Higher Risk, Higher Reward</h5>
+                                    <div class="income-metrics">
+                                        <ul class="list-group list-group-flush mb-3">
+                                            <li class="list-group-item"><strong>DTE:</strong> {{ trades.Aggressive.dte }} days</li>
+                                            <li class="list-group-item"><strong>Target ROI:</strong> {{ trades.Aggressive.roi }}</li>
+                                            <li class="list-group-item"><strong>Strike Selection:</strong> {{ "%.1f"|format(trades.Aggressive.pct_otm) }}% OTM</li>
+                                            <li class="list-group-item"><strong>Management:</strong> Weekly attention needed</li>
+                                        </ul>
                                     </div>
-                                    <label for="aggressive" class="btn btn-sm btn-outline-light">Select</label>
+                                    <p class="card-text">{{ strategy_descriptions.Aggressive }}</p>
                                 </div>
                             </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Higher Risk, Higher Reward</h5>
-                                <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item"><strong>DTE:</strong> Approx. 7 days (weekly)</li>
-                                    <li class="list-group-item"><strong>Target ROI:</strong> 25-35% annually</li>
-                                    <li class="list-group-item"><strong>Strike Selection:</strong> 5-10% OTM</li>
-                                    <li class="list-group-item"><strong>Management:</strong> Weekly attention needed</li>
-                                </ul>
-                                <p class="card-text">{{ strategy_descriptions.Aggressive }}</p>
-                            </div>
-                        </div>
+                        </label>
                     </div>
                     
                     <div class="col-md-4">
-                        <div class="card card-steady mb-4">
-                            <div class="card-header">
-                                <div class="form-check d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <input class="form-check-input" type="radio" name="strategy" id="steady" value="Steady" required>
-                                        <label class="form-check-label fw-bold text-white" for="steady">
-                                            Steady Strategy
-                                        </label>
+                        <label class="strategy-card w-100">
+                            <input type="radio" name="strategy" id="steady" value="Steady" required>
+                            <div class="card card-steady mb-4">
+                                <div class="card-header">
+                                    <h4 class="fw-bold text-white">Steady Income</h4>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">Balanced Approach</h5>
+                                    <div class="income-metrics">
+                                        <ul class="list-group list-group-flush mb-3">
+                                            <li class="list-group-item"><strong>DTE:</strong> {{ trades.Steady.dte }} days</li>
+                                            <li class="list-group-item"><strong>Target ROI:</strong> {{ trades.Steady.roi }}</li>
+                                            <li class="list-group-item"><strong>Strike Selection:</strong> {{ "%.1f"|format(trades.Steady.pct_otm) }}% OTM</li>
+                                            <li class="list-group-item"><strong>Management:</strong> Bi-weekly attention</li>
+                                        </ul>
                                     </div>
-                                    <label for="steady" class="btn btn-sm btn-outline-light">Select</label>
+                                    <p class="card-text">{{ strategy_descriptions.Steady }}</p>
                                 </div>
                             </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Balanced Approach</h5>
-                                <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item"><strong>DTE:</strong> 14-21 days (bi-weekly)</li>
-                                    <li class="list-group-item"><strong>Target ROI:</strong> 20-25% annually</li>
-                                    <li class="list-group-item"><strong>Strike Selection:</strong> 2-5% OTM</li>
-                                    <li class="list-group-item"><strong>Management:</strong> Bi-weekly attention</li>
-                                </ul>
-                                <p class="card-text">{{ strategy_descriptions.Steady }}</p>
-                            </div>
-                        </div>
+                        </label>
                     </div>
                     
                     <div class="col-md-4">
-                        <div class="card card-passive mb-4">
-                            <div class="card-header">
-                                <div class="form-check d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <input class="form-check-input" type="radio" name="strategy" id="passive" value="Passive" required>
-                                        <label class="form-check-label fw-bold text-white" for="passive">
-                                            Passive Strategy
-                                        </label>
+                        <label class="strategy-card w-100">
+                            <input type="radio" name="strategy" id="passive" value="Passive" required>
+                            <div class="card card-passive mb-4">
+                                <div class="card-header">
+                                    <h4 class="fw-bold text-white">Passive Income</h4>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">Lower Risk, Consistent Income</h5>
+                                    <div class="income-metrics">
+                                        <ul class="list-group list-group-flush mb-3">
+                                            <li class="list-group-item"><strong>DTE:</strong> {{ trades.Passive.dte }} days</li>
+                                            <li class="list-group-item"><strong>Target ROI:</strong> {{ trades.Passive.roi }}</li>
+                                            <li class="list-group-item"><strong>Strike Selection:</strong> {{ "%.1f"|format(trades.Passive.pct_otm) }}% OTM</li>
+                                            <li class="list-group-item"><strong>Management:</strong> Monthly attention</li>
+                                        </ul>
                                     </div>
-                                    <label for="passive" class="btn btn-sm btn-outline-light">Select</label>
+                                    <p class="card-text">{{ strategy_descriptions.Passive }}</p>
                                 </div>
                             </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Lower Risk, Consistent Income</h5>
-                                <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item"><strong>DTE:</strong> 30-60 days (monthly+)</li>
-                                    <li class="list-group-item"><strong>Target ROI:</strong> 15-20% annually</li>
-                                    <li class="list-group-item"><strong>Strike Selection:</strong> 1-3% OTM</li>
-                                    <li class="list-group-item"><strong>Management:</strong> Monthly attention</li>
-                                </ul>
-                                <p class="card-text">{{ strategy_descriptions.Passive }}</p>
-                            </div>
-                        </div>
+                        </label>
                     </div>
                 </div>
                 
