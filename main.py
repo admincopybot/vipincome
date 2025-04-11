@@ -937,11 +937,7 @@ def step3():
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
-            <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
-                </div>
-            </header>
+            {{ logo_header|safe }}
             
             <div class="step-indicator mb-4">
                 <div class="step completed">
@@ -1178,11 +1174,7 @@ def step4():
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
-            <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
-                </div>
-            </header>
+            {{ logo_header|safe }}
             
             <div class="step-indicator mb-4">
                 <div class="step completed">
