@@ -130,12 +130,12 @@ logo_header = """
             </a>
         </div>
         
-        <!-- Middle section: Free Income Machine and Timer -->
-        <div class="d-flex flex-column align-items-center" style="width: 50%;">
-            <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="max-width: 300px; margin-bottom: 10px;">
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.9); margin-bottom: 6px; text-transform: uppercase;">EXPIRES IN</div>
-                <div id="countdown" class="text-light" style="background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 8px 25px; border-radius: 50px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 18px; font-weight: 800; letter-spacing: 0.01em;"></div>
+        <!-- Middle section: Free Income Machine and Timer in a single line -->
+        <div class="d-flex align-items-center justify-content-center" style="width: 50%;">
+            <img src="/static/images/free_income_machine_new.png" alt="Free Income Machine" style="max-width: 250px; margin-right: 15px;">
+            <div class="d-flex align-items-center">
+                <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.9); margin-right: 10px; text-transform: uppercase;">EXPIRES IN</div>
+                <div id="countdown" class="text-light" style="background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 8px 15px; border-radius: 50px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 16px; font-weight: 800; letter-spacing: 0.01em;"></div>
             </div>
         </div>
         
