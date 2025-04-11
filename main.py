@@ -125,7 +125,7 @@ logo_header = """
     <div class="container d-flex align-items-center">
         <div class="d-flex align-items-center me-auto">
             <a href="/" style="display: block;">
-                <img src="/static/images/animated_logo.gif" alt="Nate Tucci's Income Machine" height="110" class="me-3" style="cursor: pointer;">
+                <img src="/static/images/animated_logo.gif" alt="Nate Tucci's Income Machine" height="130" class="me-3" style="cursor: pointer;">
             </a>
             <div class="d-flex flex-column me-auto">
                 <img src="/static/images/free_income_machine.png" alt="Free Income Machine" height="20" style="margin-bottom: 5px;">
