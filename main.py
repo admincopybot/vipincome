@@ -194,6 +194,70 @@ global_css = """
         background: #151521;
         min-height: 100vh;
         color: rgba(255, 255, 255, 0.95);
+        position: relative;
+        overflow-x: hidden;
+    }
+    
+    /* Vibrant background with space dust effect */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(41, 94, 163, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(100, 82, 255, 0.1) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 100%),
+            linear-gradient(#151521, #161628);
+        opacity: 0.9;
+        animation: pulseBackground 20s ease-in-out infinite alternate;
+    }
+    
+    /* Space dust particles */
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: 
+            radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 1%),
+            radial-gradient(circle at 30% 60%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
+            radial-gradient(circle at 70% 50%, rgba(100, 210, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
+            radial-gradient(circle at 60% 80%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
+            radial-gradient(circle at 20% 40%, rgba(100, 82, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
+            radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
+            radial-gradient(circle at 10% 70%, rgba(100, 210, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
+            radial-gradient(circle at 90% 85%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%);
+        background-size: 200% 200%;
+        animation: moveDust 60s linear infinite;
+        opacity: 0.8;
+    }
+    
+    @keyframes pulseBackground {
+        0% {
+            background-position: 0% 0%;
+        }
+        100% {
+            background-position: 100% 100%;
+        }
+    }
+    
+    @keyframes moveDust {
+        0% {
+            background-position: 0% 0%;
+        }
+        50% {
+            background-position: 100% 100%;
+        }
+        100% {
+            background-position: 0% 0%;
+        }
     }
     
     /* Gradient Elements */
