@@ -1434,7 +1434,7 @@ def how_to_use():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css, logo_header=logo_header, star_elements=star_elements)
+    return render_template_string(template, global_css=global_css, logo_header=logo_header, )
 
 # Route for Live Classes page
 @app.route('/live-classes')
@@ -1510,7 +1510,7 @@ def live_classes():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css, logo_header=logo_header, star_elements=star_elements)
+    return render_template_string(template, global_css=global_css, logo_header=logo_header, )
 
 # Route for Special Offer page
 @app.route('/special-offer')
@@ -1605,7 +1605,7 @@ def special_offer():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css, logo_header=logo_header, star_elements=star_elements)
+    return render_template_string(template, global_css=global_css, logo_header=logo_header, )
 
 # Run the Flask application
 if __name__ == '__main__':
