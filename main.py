@@ -122,14 +122,14 @@ strategy_descriptions = {
 # Common HTML components for templates
 logo_header = """
 <header class="py-3 mb-4 border-bottom">
-    <div class="container d-flex align-items-center">
+    <div class="container-fluid d-flex align-items-center" style="padding-left: 0;">
         <div class="d-flex align-items-center me-auto">
-            <a href="/" style="display: block;">
-                <img src="/static/images/animated_logo.gif" alt="Nate Tucci's Income Machine" height="130" class="me-3" style="cursor: pointer;">
+            <a href="/" style="display: block; margin-left: 0; padding-left: 0;">
+                <img src="/static/images/animated_logo.gif" alt="Nate Tucci's Income Machine" height="150" class="me-4" style="cursor: pointer;">
             </a>
             <div class="d-flex flex-column me-auto">
                 <img src="/static/images/free_income_machine.png" alt="Free Income Machine" height="20" style="margin-bottom: 5px;">
-                <div id="countdown" class="text-light" style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 2px 8px; border-radius: 16px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.3); animation: pulse 2s infinite;"></div>
+                <div id="countdown" class="text-light" style="font-size: 14px; font-weight: 700; letter-spacing: 0.05em; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 5px 12px; border-radius: 18px; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.5); animation: pulse 2s infinite;"></div>
             </div>
         </div>
         <nav class="d-flex align-items-center">
@@ -161,9 +161,9 @@ updateCountdown(); // Initial call
 </script>
 <style>
 @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(91, 33, 182, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0); }
+    0% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.6); transform: scale(1); }
+    50% { box-shadow: 0 0 0 15px rgba(91, 33, 182, 0); transform: scale(1.05); }
+    100% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0); transform: scale(1); }
 }
 nav a:hover {
     color: rgba(255, 255, 255, 1) !important;
