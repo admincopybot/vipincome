@@ -1196,17 +1196,7 @@ def how_to_use():
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
-            <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
-                    <div class="d-flex gap-3">
-                        <a href="/" class="btn btn-sm btn-outline-light">Back to Demo</a>
-                        <a href="/how-to-use" class="btn btn-sm btn-outline-light active">How to Use</a>
-                        <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
-                        <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
-                    </div>
-                </div>
-            </header>
+            {{ logo_header|safe }}
             
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
@@ -1241,7 +1231,7 @@ def how_to_use():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css)
+    return render_template_string(template, global_css=global_css, logo_header=logo_header)
 
 # Route for Live Classes page
 @app.route('/live-classes')
@@ -1260,17 +1250,7 @@ def live_classes():
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
-            <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
-                    <div class="d-flex gap-3">
-                        <a href="/" class="btn btn-sm btn-outline-light">Back to Demo</a>
-                        <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
-                        <a href="/live-classes" class="btn btn-sm btn-outline-light active">Trade Classes</a>
-                        <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
-                    </div>
-                </div>
-            </header>
+            {{ logo_header|safe }}
             
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
@@ -1326,7 +1306,7 @@ def live_classes():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css)
+    return render_template_string(template, global_css=global_css, logo_header=logo_header)
 
 # Route for Special Offer page
 @app.route('/special-offer')
@@ -1345,17 +1325,7 @@ def special_offer():
     </head>
     <body data-bs-theme="dark">
         <div class="container py-4">
-            <header class="pb-3 mb-4 border-bottom">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
-                    <div class="d-flex gap-3">
-                        <a href="/" class="btn btn-sm btn-outline-light">Back to Demo</a>
-                        <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
-                        <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
-                        <a href="/special-offer" class="btn btn-sm btn-danger active">Get 50% OFF</a>
-                    </div>
-                </div>
-            </header>
+            {{ logo_header|safe }}
             
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3 text-center">
@@ -1430,7 +1400,7 @@ def special_offer():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css)
+    return render_template_string(template, global_css=global_css, logo_header=logo_header)
 
 # Run the Flask application
 if __name__ == '__main__':
