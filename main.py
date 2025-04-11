@@ -120,6 +120,27 @@ strategy_descriptions = {
 
 # Global CSS for Apple-like minimalist design
 # Common HTML components for templates
+
+# Stars background elements for space dust effect
+star_elements = """
+<!-- Space star particles -->
+<div class="star" style="top: 15%; left: 10%;"></div>
+<div class="star" style="top: 25%; left: 25%;"></div>
+<div class="star" style="top: 10%; left: 40%;"></div>
+<div class="star" style="top: 20%; left: 60%;"></div>
+<div class="star" style="top: 5%; left: 80%;"></div>
+<div class="star" style="top: 30%; left: 90%;"></div>
+<div class="star" style="top: 40%; left: 20%;"></div>
+<div class="star" style="top: 50%; left: 15%;"></div>
+<div class="star" style="top: 55%; left: 30%;"></div>
+<div class="star" style="top: 70%; left: 40%;"></div>
+<div class="star" style="top: 65%; left: 70%;"></div>
+<div class="star" style="top: 80%; left: 85%;"></div>
+<div class="star" style="top: 85%; left: 25%;"></div>
+<div class="star" style="top: 90%; left: 50%;"></div>
+<div class="star" style="top: 35%; left: 50%;"></div>
+"""
+
 logo_header = """
 <header class="py-3 mb-4 border-bottom">
     <div class="container-fluid d-flex flex-wrap align-items-end" style="padding-left: 0;">
@@ -208,12 +229,12 @@ global_css = """
         height: 100%;
         z-index: -2;
         background: 
-            radial-gradient(circle at 20% 30%, rgba(41, 94, 163, 0.15) 0%, transparent 40%),
-            radial-gradient(circle at 80% 70%, rgba(100, 82, 255, 0.1) 0%, transparent 40%),
-            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 100%),
+            radial-gradient(circle at 20% 30%, rgba(41, 94, 163, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(100, 82, 255, 0.25) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 100%),
             linear-gradient(#151521, #161628);
-        opacity: 0.9;
-        animation: pulseBackground 20s ease-in-out infinite alternate;
+        opacity: 1;
+        animation: pulseBackground 15s ease-in-out infinite alternate;
     }
     
     /* Space dust particles */
@@ -226,17 +247,17 @@ global_css = """
         height: 100%;
         z-index: -1;
         background-image: 
-            radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 1%),
-            radial-gradient(circle at 30% 60%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
-            radial-gradient(circle at 70% 50%, rgba(100, 210, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
-            radial-gradient(circle at 60% 80%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
-            radial-gradient(circle at 20% 40%, rgba(100, 82, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
-            radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
-            radial-gradient(circle at 10% 70%, rgba(100, 210, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%),
-            radial-gradient(circle at 90% 85%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 1%);
+            radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 30% 60%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 70% 50%, rgba(100, 210, 255, 0.2) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 60% 80%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 20% 40%, rgba(100, 82, 255, 0.2) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 10% 70%, rgba(100, 210, 255, 0.2) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 90% 85%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 1.5%);
         background-size: 200% 200%;
-        animation: moveDust 60s linear infinite;
-        opacity: 0.8;
+        animation: moveDust 40s linear infinite;
+        opacity: 1;
     }
     
     @keyframes pulseBackground {
@@ -257,6 +278,33 @@ global_css = """
         }
         100% {
             background-position: 0% 0%;
+        }
+    }
+    
+    /* Floating stars across background */
+    .star {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5),
+                    0 0 20px 5px rgba(100, 210, 255, 0.4);
+        animation: twinkle 6s infinite alternate;
+        z-index: -1;
+        opacity: 0.8;
+    }
+    
+    @keyframes twinkle {
+        0%, 30% {
+            opacity: 0.2;
+            box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.3),
+                      0 0 7px 1px rgba(100, 210, 255, 0.2);
+        }
+        100% {
+            opacity: 0.8;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5),
+                      0 0 20px 5px rgba(100, 210, 255, 0.4);
         }
     }
     
@@ -693,6 +741,8 @@ def index():
         </style>
     </head>
     <body data-bs-theme="dark">
+        {{ star_elements|safe }}
+        
         <div class="container py-4">
             {{ logo_header|safe }}
             
