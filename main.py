@@ -121,25 +121,23 @@ strategy_descriptions = {
 # Global CSS for Apple-like minimalist design
 # Common HTML components for templates
 logo_header = """
-<header class="pb-3 mb-4 border-bottom">
-    <div class="d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
+<header class="py-3 mb-4 border-bottom">
+    <div class="container d-flex align-items-center">
+        <div class="d-flex align-items-center me-auto">
             <a href="/" style="display: block;">
-                <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="80" class="me-3" style="cursor: pointer;">
+                <img src="/static/images/logo.png" alt="Nate Tucci's Income Machine" height="70" class="me-3" style="cursor: pointer;">
             </a>
-            <div class="ms-2 d-flex flex-column">
-                <div class="d-flex align-items-center">
-                    <img src="/static/images/free_income_machine.png" alt="Free Income Machine" height="30" style="margin-right: 15px;">
-                </div>
-                <div id="countdown" class="text-light" style="font-size: 12px; font-weight: 600; letter-spacing: 0.05em; margin-top: 3px; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 2px 8px; border-radius: 16px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.3); animation: pulse 2s infinite;"></div>
+            <div class="d-flex align-items-center me-auto">
+                <img src="/static/images/free_income_machine.png" alt="Free Income Machine" height="30" style="margin-right: 15px;">
+                <div id="countdown" class="text-light" style="font-size: 11px; font-weight: 600; letter-spacing: 0.05em; background: linear-gradient(90deg, #4f46e5 0%, #a855f7 100%); display: inline-block; padding: 2px 8px; border-radius: 16px; box-shadow: 0 2px 10px rgba(91, 33, 182, 0.3); animation: pulse 2s infinite;"></div>
             </div>
         </div>
-        <div class="d-flex gap-3">
-            <a href="/" class="btn btn-sm btn-outline-light">ETF Scoreboard</a>
-            <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
-            <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
-            <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
-        </div>
+        <nav class="d-flex align-items-center">
+            <a href="/" class="text-decoration-none mx-3" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">ETF Scoreboard</a>
+            <a href="/how-to-use" class="text-decoration-none mx-3" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">How to Use</a>
+            <a href="/live-classes" class="text-decoration-none mx-3" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">Trade Classes</a>
+            <a href="/special-offer" class="ms-3" style="font-size: 14px; font-weight: 600; color: rgba(255, 69, 58, 1); background: rgba(255, 69, 58, 0.15); padding: 5px 12px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease;">Get 50% OFF</a>
+        </nav>
     </div>
 </header>
 <script>
@@ -166,6 +164,14 @@ updateCountdown(); // Initial call
     0% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.4); }
     70% { box-shadow: 0 0 0 10px rgba(91, 33, 182, 0); }
     100% { box-shadow: 0 0 0 0 rgba(91, 33, 182, 0); }
+}
+nav a:hover {
+    color: rgba(255, 255, 255, 1) !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+nav a:last-child:hover {
+    background: rgba(255, 69, 58, 0.25);
+    text-shadow: 0 0 10px rgba(255, 69, 58, 0.5);
 }
 </style>
 """
