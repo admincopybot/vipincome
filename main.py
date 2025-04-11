@@ -138,9 +138,9 @@ logo_header = """
             <a href="/special-offer" class="ms-2 me-3" style="font-size: 14px; font-weight: 600; color: rgba(255, 69, 58, 1); background: rgba(255, 69, 58, 0.15); padding: 5px 10px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease;">Get 50% OFF</a>
         </nav>
         
-        <!-- Right section: Free Income Machine on top of Experience Ends in -->
+        <!-- Right section: Free Income Machine on top of Experience Ends in, both left-aligned -->
         <div class="d-flex align-items-end" style="padding-bottom: 10px;">
-            <div class="d-flex flex-column align-items-end me-2">
+            <div class="d-flex flex-column me-2">
                 <div style="font-size: 14px; font-weight: 600; color: rgba(255, 255, 255, 0.9); margin-bottom: 4px;">Free Income Machine</div>
                 <div style="font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.8);">Experience Ends in</div>
             </div>
