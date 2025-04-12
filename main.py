@@ -509,7 +509,7 @@ global_css = """
         background: rgba(40, 40, 45, 0.3);
     }
     
-    /* Step indicators styled like Apple */
+    /* Step indicators styled like image provided */
     .step-indicator {
         display: flex;
         justify-content: space-between;
@@ -519,27 +519,53 @@ global_css = """
     
     .step {
         flex: 1;
-        border-radius: 12px;
-        padding: 1rem 0.5rem;
+        border-radius: 8px;
+        padding: 0.8rem 0.5rem;
         text-align: center;
         font-weight: 500;
         background: rgba(60, 60, 70, 0.3);
-        color: rgba(255, 255, 255, 0.6);
+        color: white;
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
         transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .step:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
     
     .step.active {
-        background: #7970FF;
+        background: linear-gradient(90deg, #555555, #777777);
         color: white;
         font-weight: 600;
     }
     
     .step.completed {
-        background: #00C8FF;
+        background: linear-gradient(90deg, #00C8FF, #0088FF);
         color: white;
         font-weight: 600;
+    }
+    
+    .step.step1.completed {
+        background: linear-gradient(90deg, #00C8FF, #30BBFF);
+    }
+    
+    .step.step2.completed {
+        background: linear-gradient(90deg, #30BBFF, #4E9FFF);
+    }
+    
+    .step.step3 {
+        background: linear-gradient(90deg, #4E9FFF, #7970FF);
+    }
+    
+    .step.step4 {
+        background: linear-gradient(90deg, #7970FF, #9760FF);
     }
     
     /* List group refinement */
@@ -907,16 +933,16 @@ def step2():
             {{ logo_header|safe }}
             
             <div class="step-indicator mb-4">
-                <div class="step completed">
+                <a href="{{ url_for('index') }}" class="step step1 completed">
                     Step 1: Scoreboard
-                </div>
-                <div class="step active">
+                </a>
+                <a href="#" class="step step2 active">
                     Step 2: Asset Review
-                </div>
-                <div class="step upcoming">
+                </a>
+                <div class="step step3 upcoming">
                     Step 3: Strategy
                 </div>
-                <div class="step upcoming">
+                <div class="step step4 upcoming">
                     Step 4: Trade Details
                 </div>
             </div>
@@ -1100,16 +1126,16 @@ def step3():
             {{ logo_header|safe }}
             
             <div class="step-indicator mb-4">
-                <div class="step completed">
+                <a href="{{ url_for('index') }}" class="step step1 completed">
                     Step 1: Scoreboard
-                </div>
-                <div class="step completed">
+                </a>
+                <a href="{{ url_for('step2', etf=etf) }}" class="step step2 completed">
                     Step 2: Asset Review
-                </div>
-                <div class="step active">
+                </a>
+                <a href="#" class="step step3 active">
                     Step 3: Strategy
-                </div>
-                <div class="step upcoming">
+                </a>
+                <div class="step step4 upcoming">
                     Step 4: Trade Details
                 </div>
             </div>
@@ -1351,18 +1377,18 @@ def step4():
             {{ logo_header|safe }}
             
             <div class="step-indicator mb-4">
-                <div class="step completed">
+                <a href="{{ url_for('index') }}" class="step step1 completed">
                     Step 1: Scoreboard
-                </div>
-                <div class="step completed">
+                </a>
+                <a href="{{ url_for('step2', etf=etf) }}" class="step step2 completed">
                     Step 2: Asset Review
-                </div>
-                <div class="step completed">
+                </a>
+                <a href="{{ url_for('step3', etf=etf) }}" class="step step3 completed">
                     Step 3: Strategy
-                </div>
-                <div class="step active">
+                </a>
+                <a href="#" class="step step4 active">
                     Step 4: Trade Details
-                </div>
+                </a>
             </div>
             
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
