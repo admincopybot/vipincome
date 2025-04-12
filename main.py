@@ -118,9 +118,9 @@ recommended_trades = {
 
 # Strategy descriptions
 strategy_descriptions = {
-    "Aggressive": "Weekly options (7 DTE) with higher ROI potential (25-35%) but more active management.",
-    "Steady": "Bi-weekly options (14-21 DTE) balancing ROI (20-25%) with moderate management.",
-    "Passive": "Monthly or longer options (30-60 DTE) with lower but steady ROI (15-20%) requiring less management."
+    "Aggressive": "Weekly call debit spreads (7-15 DTE) with higher ROI potential (20-35%) targeting in-the-money positions for greater probability of success but requiring more active management.",
+    "Steady": "Bi-weekly call debit spreads (14-30 DTE) balancing ROI (18-25%) with moderate management needs and balanced risk/reward ratios.",
+    "Passive": "Monthly call debit spreads (30-45 DTE) with lower but steady ROI (15-20%) prioritizing high-probability trade setups and requiring less frequent management."
 }
 
 # Global CSS for Apple-like minimalist design
