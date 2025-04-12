@@ -862,9 +862,33 @@ def index():
         <div class="countdown-banner">
             <div class="container">
                 <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-                <span id="countdown-banner-timer"></span>
+                <span id="countdown-banner-timer">14D 10H 30M 22S</span>
             </div>
         </div>
+        
+        <script>
+        // Countdown timer to June 20, 2025
+        function updateCountdown() {
+            const endDate = new Date("June 20, 2025 23:59:59").getTime();
+            const now = new Date().getTime();
+            const timeLeft = endDate - now;
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Update the timer element if it exists
+            const timerElement = document.getElementById("countdown-banner-timer");
+            if (timerElement) {
+                timerElement.innerHTML = `${days}D ${hours}H ${minutes}M ${seconds}S`;
+            }
+        }
+
+        // Update the countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+        </script>
         
         <div class="container py-4">
             {{ logo_header|safe }}
