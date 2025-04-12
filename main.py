@@ -280,8 +280,46 @@ nav a:last-child:hover {
 """
 
 global_css = """
-    /* Apple-style base setup */
+    /* Countdown Banner */
+    .countdown-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background: linear-gradient(135deg, #00C8FF, #7970FF);
+        color: white;
+        text-align: center;
+        padding: 8px 0;
+        font-weight: 600;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    .countdown-banner .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .countdown-banner-text {
+        font-size: 14px;
+        font-weight: 700;
+    }
+    
+    #countdown-banner-timer {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Add space at the top for the fixed banner */
     body {
+        padding-top: 40px;
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         letter-spacing: -0.015em;
         background: #151521;
@@ -814,6 +852,13 @@ def index():
         </style>
     </head>
     <body data-bs-theme="dark">
+        <!-- Countdown Banner -->
+        <div class="countdown-banner">
+            <div class="container">
+                <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+                <span id="countdown-banner-timer"></span>
+            </div>
+        </div>
         
         <div class="container py-4">
             {{ logo_header|safe }}
