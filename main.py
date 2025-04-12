@@ -1282,22 +1282,23 @@ def step4():
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <h5>Trade Setup</h5>
+                                <h5>Debit Spread Setup</h5>
                                 <div class="p-4 rounded income-trade-box" style="background: linear-gradient(45deg, rgba(100, 210, 255, 0.1), rgba(180, 100, 255, 0.1)); border-radius: 12px;">
-                                    <p class="mb-2">Buy to Open the {{ trade.expiration }} ${{ "%.2f"|format(trade.strike - 1) }} CALL on {{ etf }}</p>
-                                    <p>Sell to Open the {{ trade.expiration }} ${{ "%.2f"|format(trade.strike) }} CALL on {{ etf }}</p>
+                                    <p class="mb-2">Buy to Open the {{ trade.expiration }} ${{ "%.2f"|format(trade.strike) }} CALL on {{ etf }}</p>
+                                    <p>Sell to Open the {{ trade.expiration }} ${{ "%.2f"|format(trade.upper_strike) }} CALL on {{ etf }}</p>
                                     <hr style="border-color: rgba(255, 255, 255, 0.1);">
                                     <p class="mb-0"><strong>Expiration:</strong> {{ trade.expiration }} ({{ trade.dte }} days)</p>
+                                    <p class="mb-0"><strong>Spread Width:</strong> ${{ "%.2f"|format(trade.spread_width) }}</p>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <h5>Trade Metrics</h5>
+                                <h5>Debit Spread Metrics</h5>
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span><strong>Entry Price:</strong></span>
+                                        <span><strong>Entry Cost:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium) }} per share</span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -1305,12 +1306,22 @@ def step4():
                                         <span>{{ trade.roi }}</span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span><strong>Risk Per Contract:</strong></span>
+                                        <span><strong>Max Risk Per Contract:</strong></span>
                                         <span>${{ "%.2f"|format(trade.premium * 100) }}</span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span><strong>Profit Potential Per Contract:</strong></span>
-                                        <span>${{ "%.2f"|format((1 - trade.premium) * 100) }}</span>
+                                        <span><strong>Max Profit Per Contract:</strong></span>
+                                        <span>${{ "%.2f"|format(trade.max_profit * 100) }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(100, 210, 255, 0.05);">
+                                        <span><strong>ITM/OTM Status:</strong></span>
+                                        <span class="badge" style="background-color: {{ '#00C8FF' if trade.pct_otm < 0 else '#FFD700' }}; color: {{ '#fff' if trade.pct_otm < 0 else '#000' }};">
+                                            {% if trade.pct_otm < 0 %}
+                                                {{ "%.1f"|format(-trade.pct_otm) }}% ITM
+                                            {% else %}
+                                                {{ "%.1f"|format(trade.pct_otm) }}% OTM
+                                            {% endif %}
+                                        </span>
                                     </li>
                                 </ul>
                             </div>

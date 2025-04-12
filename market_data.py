@@ -209,23 +209,23 @@ class MarketDataService:
     @staticmethod
     def get_options_data(symbol, strategy='Steady'):
         """
-        Get covered call options data for a specific ETF and strategy
-        Returns recommendation for covered call trade
+        Get debit spread options data for a specific ETF and strategy
+        Returns recommendation for a call debit spread trade
         """
         try:
             # Get ticker data
             ticker = yf.Ticker(symbol)
             
-            # Set DTE based on strategy
+            # Set DTE and ROI ranges based on strategy
             if strategy == 'Aggressive':
-                target_dte = 7  # ~weekly
-                otm_pct_min, otm_pct_max = 0.05, 0.10  # 5-10% OTM
+                target_dte_min, target_dte_max = 7, 15  # ~weekly
+                target_roi_min, target_roi_max = 0.20, 0.35  # 20-35% ROI
             elif strategy == 'Passive':
-                target_dte = 45  # ~monthly+
-                otm_pct_min, otm_pct_max = 0.01, 0.03  # 1-3% OTM
+                target_dte_min, target_dte_max = 30, 45  # ~monthly+
+                target_roi_min, target_roi_max = 0.15, 0.20  # 15-20% ROI
             else:  # Steady (default)
-                target_dte = 21  # ~bi-weekly
-                otm_pct_min, otm_pct_max = 0.02, 0.05  # 2-5% OTM
+                target_dte_min, target_dte_max = 14, 30  # ~bi-weekly
+                target_roi_min, target_roi_max = 0.18, 0.25  # 18-25% ROI
             
             # Get current price
             current_price = ticker.info.get('regularMarketPrice', 0)
@@ -237,58 +237,149 @@ class MarketDataService:
                 logger.warning(f"No options data available for {symbol}")
                 return MarketDataService._generate_fallback_trade(symbol, strategy, current_price)
             
-            # Find closest expiration to target DTE
-            target_date = datetime.now() + timedelta(days=target_dte)
-            closest_exp = min(expirations, key=lambda x: abs((datetime.strptime(x, '%Y-%m-%d') - target_date).days))
+            # Find expirations within our DTE range
+            valid_expirations = []
+            for exp in expirations:
+                exp_date = datetime.strptime(exp, '%Y-%m-%d')
+                dte = (exp_date - datetime.now()).days
+                if target_dte_min <= dte <= target_dte_max:
+                    valid_expirations.append((exp, dte))
             
-            # Get options chain for this expiration
-            options = ticker.option_chain(closest_exp)
-            calls = options.calls
+            if not valid_expirations:
+                # If no expirations in range, find closest one
+                closest_exp = min(expirations, key=lambda x: 
+                                 abs((datetime.strptime(x, '%Y-%m-%d') - 
+                                     (datetime.now() + timedelta(days=target_dte_min))).days))
+                exp_date = datetime.strptime(closest_exp, '%Y-%m-%d')
+                dte = (exp_date - datetime.now()).days
+                valid_expirations = [(closest_exp, dte)]
             
-            if calls.empty:
-                logger.warning(f"No call options available for {symbol} on {closest_exp}")
-                return MarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+            # Sort by DTE (ascending)
+            valid_expirations.sort(key=lambda x: x[1])
             
-            # Filter for OTM calls
-            otm_calls = calls[calls['strike'] > current_price]
+            # Track the best spread across all expirations
+            best_spread = None
+            best_roi = 0
+            best_exp = None
+            best_dte = 0
             
-            if otm_calls.empty:
-                logger.warning(f"No OTM call options available for {symbol}")
-                return MarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+            # Iterate through valid expirations to find the best debit spread
+            for expiration, dte in valid_expirations:
+                # Get options chain for this expiration
+                try:
+                    options = ticker.option_chain(expiration)
+                    calls = options.calls
+                    
+                    if calls.empty:
+                        logger.warning(f"No call options available for {symbol} on {expiration}")
+                        continue
+                    
+                    # Generate all possible $1-wide call debit spreads
+                    spreads = []
+                    
+                    # Sort strikes in ascending order
+                    sorted_strikes = sorted(calls['strike'].unique())
+                    
+                    # Find all $1-wide spreads
+                    for i in range(len(sorted_strikes) - 1):
+                        lower_strike = sorted_strikes[i]
+                        upper_strike = sorted_strikes[i + 1]
+                        
+                        # Check if it's approximately a $1-wide spread (allow for some variance)
+                        if 0.9 <= (upper_strike - lower_strike) <= 1.1:
+                            try:
+                                # Get the long call option (buy the lower strike)
+                                lower_call = calls[calls['strike'] == lower_strike].iloc[0]
+                                
+                                # Get the short call option (sell the higher strike)
+                                upper_call = calls[calls['strike'] == upper_strike].iloc[0]
+                                
+                                # Calculate spread cost (debit)
+                                spread_cost = lower_call['lastPrice'] - upper_call['lastPrice']
+                                
+                                # Ensure we're not getting negative or zero costs (can happen with illiquid options)
+                                if spread_cost <= 0:
+                                    spread_cost = lower_call['ask'] - upper_call['bid']
+                                
+                                # If still not valid, skip this spread
+                                if spread_cost <= 0:
+                                    continue
+                                
+                                # Calculate max value (width of spread)
+                                spread_width = upper_strike - lower_strike
+                                
+                                # Calculate ROI
+                                roi = (spread_width - spread_cost) / spread_cost
+                                
+                                # Add to potential spreads if ROI is in target range
+                                if target_roi_min <= roi <= target_roi_max:
+                                    spreads.append({
+                                        'lower_strike': lower_strike,
+                                        'upper_strike': upper_strike,
+                                        'cost': spread_cost,
+                                        'width': spread_width,
+                                        'roi': roi,
+                                        'distance_from_current': lower_strike - current_price
+                                    })
+                            except (IndexError, KeyError):
+                                continue
+                    
+                    # If we found valid spreads for this expiration
+                    if spreads:
+                        # Sort by distance from current price (we want the safest one)
+                        # We prioritize in-the-money spreads (negative distance) or closest to the money
+                        sorted_spreads = sorted(spreads, key=lambda x: x['distance_from_current'])
+                        
+                        # Get the best spread for this expiration
+                        best_spread_for_exp = None
+                        
+                        # First try to find an in-the-money spread (safest)
+                        itm_spreads = [s for s in sorted_spreads if s['lower_strike'] < current_price]
+                        if itm_spreads:
+                            # Pick the one closest to the current price
+                            best_spread_for_exp = sorted(itm_spreads, key=lambda x: abs(x['lower_strike'] - current_price))[0]
+                        else:
+                            # Otherwise get the one closest to the money
+                            best_spread_for_exp = sorted_spreads[0]
+                        
+                        # See if this is better than our current best spread
+                        # We prioritize slightly higher ROI if we have multiple good spreads
+                        if best_spread is None or best_spread_for_exp['roi'] > best_roi:
+                            best_spread = best_spread_for_exp
+                            best_roi = best_spread_for_exp['roi']
+                            best_exp = expiration
+                            best_dte = dte
+                
+                except Exception as e:
+                    logger.error(f"Error processing expiration {expiration}: {str(e)}")
+                    continue
             
-            # Calculate % OTM for each strike
-            otm_calls['pct_otm'] = (otm_calls['strike'] - current_price) / current_price
-            
-            # Filter for target OTM range
-            target_calls = otm_calls[(otm_calls['pct_otm'] >= otm_pct_min) & 
-                                    (otm_calls['pct_otm'] <= otm_pct_max)]
-            
-            if target_calls.empty:
-                # If no calls in target range, get closest call to target range
-                best_call = otm_calls.iloc[0]
+            # If we found a valid spread
+            if best_spread:
+                # Calculate ROI percentage and format it
+                roi_pct = best_spread['roi'] * 100
+                roi_formatted = f"{roi_pct:.1f}%"
+                
+                # Distance from current price as percentage
+                pct_distance = (best_spread['lower_strike'] - current_price) / current_price * 100
+                
+                # Build recommendation
+                return {
+                    'strategy_type': 'debit_spread',
+                    'strike': float(best_spread['lower_strike']),
+                    'upper_strike': float(best_spread['upper_strike']),
+                    'spread_width': float(best_spread['width']),
+                    'premium': float(best_spread['cost']),
+                    'expiration': best_exp,
+                    'dte': best_dte,
+                    'pct_otm': float(pct_distance),
+                    'max_profit': float(best_spread['width'] - best_spread['cost']),
+                    'max_loss': float(best_spread['cost']),
+                    'roi': roi_formatted
+                }
             else:
-                # Get call with highest ROI
-                target_calls['roi'] = (target_calls['lastPrice'] / current_price) * (365 / target_dte)
-                best_call = target_calls.sort_values('roi', ascending=False).iloc[0]
-            
-            # Calculate actual DTE
-            expiration_date = datetime.strptime(closest_exp, '%Y-%m-%d')
-            actual_dte = (expiration_date - datetime.now()).days
-            
-            # Calculate ROI
-            premium = best_call['lastPrice']
-            annual_roi = (premium / current_price) * (365 / actual_dte) * 100
-            annual_roi_formatted = f"{annual_roi:.1f}%"
-            
-            # Build recommendation
-            return {
-                'strike': float(best_call['strike']),
-                'premium': float(premium),
-                'expiration': closest_exp,
-                'dte': actual_dte,
-                'pct_otm': float(best_call['pct_otm'] * 100),
-                'roi': annual_roi_formatted
-            }
+                logger.warning(f"No valid debit spreads found for {symbol}")
+                return MarketDataService._generate_fallback_trade(symbol, strategy, current_price)
             
         except Exception as e:
             logger.error(f"Error fetching options data: {str(e)}")
@@ -300,32 +391,46 @@ class MarketDataService:
         # Note: This is used as fallback when the API fails
         if strategy == 'Aggressive':
             dte = 7
-            pct_otm = 7.5
-            premium = current_price * 0.01  # ~1% premium
+            pct_otm = -1.0  # Slightly ITM for lower strike
+            premium = current_price * 0.025  # ~2.5% premium
             roi = "28-32%"
         elif strategy == 'Passive':
             dte = 45
-            pct_otm = 2.0
-            premium = current_price * 0.015  # ~1.5% premium
+            pct_otm = -0.5  # Slightly ITM for lower strike
+            premium = current_price * 0.03  # ~3% premium
             roi = "16-18%"
         else:  # Steady
             dte = 21
-            pct_otm = 3.5
-            premium = current_price * 0.012  # ~1.2% premium
+            pct_otm = -0.75  # Slightly ITM for lower strike
+            premium = current_price * 0.025  # ~2.5% premium
             roi = "20-24%"
             
-        # Calculate strike price
-        strike = current_price * (1 + (pct_otm / 100))
+        # Calculate lower strike price (typically ITM)
+        lower_strike = round(current_price * (1 + (pct_otm / 100)), 2)
+        
+        # Calculate upper strike price ($1 higher)
+        upper_strike = round(lower_strike + 1, 2)
+        
+        # Fixed $1 spread width
+        spread_width = 1.0
         
         # Calculate expiration date
         expiration = (datetime.now() + timedelta(days=dte)).strftime('%Y-%m-%d')
         
+        # Calculate max profit
+        max_profit = spread_width - premium
+        
         return {
-            'strike': round(strike, 2),
+            'strategy_type': 'debit_spread',
+            'strike': lower_strike,
+            'upper_strike': upper_strike,
+            'spread_width': spread_width,
             'premium': round(premium, 2),
             'expiration': expiration,
             'dte': dte,
             'pct_otm': pct_otm,
+            'max_profit': round(max_profit, 2),
+            'max_loss': round(premium, 2),
             'roi': roi
         }
 
