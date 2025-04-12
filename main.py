@@ -239,14 +239,7 @@ logo_header = """
             <a href="/special-offer" class="ms-2 me-3" style="font-size: 14px; font-weight: 600; color: #000; background: #FFD700; padding: 5px 10px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);">Get 50% OFF</a>
         </nav>
         
-        <!-- Right section: Free Income Machine on top of Experience Ends in, both left-aligned -->
-        <div class="d-flex align-items-end" style="padding-bottom: 10px;">
-            <div class="d-flex flex-column me-2">
-                <div style="font-size: 14px; font-weight: 600; color: rgba(255, 255, 255, 0.9); margin-bottom: 4px;">Free Income Machine</div>
-                <div style="font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.8);">Experience Ends in</div>
-            </div>
-            <div id="countdown" class="text-light" style="background: linear-gradient(135deg, #00C8FF, #7970FF); display: inline-block; padding: 6px 12px; border-radius: 50px; box-shadow: 0 2px 10px rgba(121, 112, 255, 0.4); animation: pulse 2s infinite; text-align: center; font-size: 14px; font-weight: 800; letter-spacing: 0.01em;"></div>
-        </div>
+        <!-- Removed countdown from navigation bar as it's now in the banner -->
     </div>
 </header>
 <script>
@@ -301,9 +294,9 @@ global_css = """
         background: linear-gradient(135deg, #00C8FF, #7970FF);
         color: white;
         text-align: center;
-        padding: 8px 0;
+        padding: 12px 0;
         font-weight: 600;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         animation: pulse 2s infinite;
     }
     
@@ -311,26 +304,29 @@ global_css = """
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 10px;
+        gap: 15px;
     }
     
     .countdown-banner-text {
-        font-size: 14px;
-        font-weight: 700;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
     }
     
     #countdown-banner-timer {
         background: rgba(255, 255, 255, 0.2);
-        padding: 4px 12px;
+        padding: 8px 16px;
         border-radius: 20px;
+        font-size: 24px;
         font-weight: 800;
-        letter-spacing: 0.02em;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
     
     /* Add space at the top for the fixed banner */
     body {
-        padding-top: 40px;
+        padding-top: 60px;
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         letter-spacing: -0.015em;
         background: #151521;
