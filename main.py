@@ -818,7 +818,15 @@ def index():
         <div class="container py-4">
             {{ logo_header|safe }}
             
-
+            <div class="step-indicator mb-4">
+                <a href="#" class="step step1 active">
+                    Step 1: Scoreboard
+                </a>
+                <!-- Only show current step on first page -->
+                <div class="step step2">
+                    Step 2: Asset Review
+                </div>
+            </div>
             
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
@@ -939,11 +947,9 @@ def step2():
                 <a href="#" class="step step2 active">
                     Step 2: Asset Review
                 </a>
-                <div class="step step3 upcoming">
+                <!-- Only show the next step, hide future steps -->
+                <div class="step step3">
                     Step 3: Strategy
-                </div>
-                <div class="step step4 upcoming">
-                    Step 4: Trade Details
                 </div>
             </div>
             
@@ -1135,7 +1141,8 @@ def step3():
                 <a href="#" class="step step3 active">
                     Step 3: Strategy
                 </a>
-                <div class="step step4 upcoming">
+                <!-- Only show the next step, hide future steps -->
+                <div class="step step4">
                     Step 4: Trade Details
                 </div>
             </div>
