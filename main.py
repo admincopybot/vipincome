@@ -214,6 +214,14 @@ strategy_descriptions = {
 star_elements = ""
 
 logo_header = """
+<!-- Countdown Banner -->
+<div class="countdown-banner">
+    <div class="container">
+        <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+        <span id="countdown-banner-timer"></span>
+    </div>
+</div>
+
 <header class="py-3 mb-4 border-bottom">
     <div class="container-fluid d-flex flex-wrap align-items-end" style="padding-left: 0;">
         <!-- Left section: Logo -->
@@ -253,7 +261,10 @@ function updateCountdown() {
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
     
-    document.getElementById("countdown").innerHTML = `${days}D ${hours}H ${minutes}M ${seconds}S`;
+    // Update both countdown elements
+    const timerText = `${days}D ${hours}H ${minutes}M ${seconds}S`;
+    document.getElementById("countdown").innerHTML = timerText;
+    document.getElementById("countdown-banner-timer").innerHTML = timerText;
 }
 
 // Update the countdown every second
