@@ -283,7 +283,7 @@ nav a:last-child:hover {
 """
 
 global_css = """
-    /* Countdown Banner */
+    /* Countdown Banner - much smaller */
     .countdown-banner {
         position: fixed;
         top: 0;
@@ -293,39 +293,37 @@ global_css = """
         background: linear-gradient(135deg, #00C8FF, #7970FF);
         color: white;
         text-align: center;
-        padding: 2px 0;
+        padding: 1px 0;
         font-weight: 600;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        animation: pulse 2s infinite;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
     }
     
     .countdown-banner .container {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
     
     .countdown-banner-text {
-        font-size: 14px;
-        font-weight: 700;
+        font-size: 12px;
+        font-weight: 600;
         letter-spacing: -0.01em;
         white-space: nowrap;
     }
     
     #countdown-banner-timer {
         background: rgba(255, 255, 255, 0.2);
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
         letter-spacing: 0.03em;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
     }
     
     /* Add space at the top for the fixed banner */
     body {
-        padding-top: 25px;
+        padding-top: 18px;
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         letter-spacing: -0.015em;
         background: #151521;
@@ -862,7 +860,7 @@ def index():
         <div class="countdown-banner">
             <div class="container">
                 <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-                <span id="countdown-banner-timer">14D 10H 30M 22S</span>
+                <span id="countdown-banner-timer">69D 09H 52M 38S</span>
             </div>
         </div>
         
