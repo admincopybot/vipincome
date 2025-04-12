@@ -77,42 +77,126 @@ update_thread.start()
 
 # Global CSS variable defined below with the strategy descriptions
 
-# Create dummy data for option recommendations
+# Create dummy data for option recommendations with debit spread structure
 recommended_trades = {
     "XLC": {
-        "Aggressive": {"strike": 83.50, "expiration": "2023-05-05", "dte": 7, "roi": "32%", "premium": 1.62, "otm": "5.1%"},
-        "Steady": {"strike": 81.00, "expiration": "2023-05-19", "dte": 21, "roi": "24%", "premium": 2.47, "otm": "2.0%"},
-        "Passive": {"strike": 80.00, "expiration": "2023-06-16", "dte": 49, "roi": "18%", "premium": 3.84, "otm": "0.7%"}
+        "Aggressive": {
+            "strike": 77.50, "upper_strike": 78.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "32%", 
+            "premium": 0.32, "pct_otm": -2.0, "max_profit": 0.68, "max_loss": 0.32
+        },
+        "Steady": {
+            "strike": 77.00, "upper_strike": 78.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "24%", 
+            "premium": 0.47, "pct_otm": -1.5, "max_profit": 0.53, "max_loss": 0.47
+        },
+        "Passive": {
+            "strike": 76.50, "upper_strike": 77.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "18%", 
+            "premium": 0.54, "pct_otm": -1.0, "max_profit": 0.46, "max_loss": 0.54
+        }
     },
     "XLF": {
-        "Aggressive": {"strike": 42.00, "expiration": "2023-05-05", "dte": 7, "roi": "28%", "premium": 0.75, "otm": "5.4%"},
-        "Steady": {"strike": 41.00, "expiration": "2023-05-19", "dte": 21, "roi": "22%", "premium": 1.18, "otm": "2.9%"},
-        "Passive": {"strike": 40.50, "expiration": "2023-06-16", "dte": 49, "roi": "17%", "premium": 1.84, "otm": "1.6%"}
+        "Aggressive": {
+            "strike": 45.50, "upper_strike": 46.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "28%", 
+            "premium": 0.35, "pct_otm": -2.5, "max_profit": 0.65, "max_loss": 0.35
+        },
+        "Steady": {
+            "strike": 45.00, "upper_strike": 46.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "22%", 
+            "premium": 0.48, "pct_otm": -1.8, "max_profit": 0.52, "max_loss": 0.48
+        },
+        "Passive": {
+            "strike": 44.50, "upper_strike": 45.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "17%", 
+            "premium": 0.56, "pct_otm": -1.2, "max_profit": 0.44, "max_loss": 0.56
+        }
     },
     "XLV": {
-        "Aggressive": {"strike": 140.00, "expiration": "2023-05-05", "dte": 7, "roi": "26%", "premium": 2.31, "otm": "5.1%"},
-        "Steady": {"strike": 136.00, "expiration": "2023-05-19", "dte": 21, "roi": "19%", "premium": 3.44, "otm": "2.1%"},
-        "Passive": {"strike": 135.00, "expiration": "2023-06-16", "dte": 49, "roi": "14%", "premium": 5.02, "otm": "1.4%"}
+        "Aggressive": {
+            "strike": 133.50, "upper_strike": 134.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "26%", 
+            "premium": 0.41, "pct_otm": -2.5, "max_profit": 0.59, "max_loss": 0.41
+        },
+        "Steady": {
+            "strike": 133.00, "upper_strike": 134.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "19%", 
+            "premium": 0.54, "pct_otm": -2.0, "max_profit": 0.46, "max_loss": 0.54
+        },
+        "Passive": {
+            "strike": 132.50, "upper_strike": 133.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "14%", 
+            "premium": 0.62, "pct_otm": -1.5, "max_profit": 0.38, "max_loss": 0.62
+        }
     },
     "XLI": {
-        "Aggressive": {"strike": 118.00, "expiration": "2023-05-05", "dte": 7, "roi": "30%", "premium": 2.25, "otm": "5.2%"},
-        "Steady": {"strike": 115.00, "expiration": "2023-05-19", "dte": 21, "roi": "23%", "premium": 3.46, "otm": "2.5%"},
-        "Passive": {"strike": 114.00, "expiration": "2023-06-16", "dte": 49, "roi": "16%", "premium": 4.83, "otm": "1.6%"}
+        "Aggressive": {
+            "strike": 122.50, "upper_strike": 123.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "30%", 
+            "premium": 0.38, "pct_otm": -2.5, "max_profit": 0.62, "max_loss": 0.38
+        },
+        "Steady": {
+            "strike": 122.00, "upper_strike": 123.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "23%", 
+            "premium": 0.46, "pct_otm": -2.0, "max_profit": 0.54, "max_loss": 0.46
+        },
+        "Passive": {
+            "strike": 121.50, "upper_strike": 122.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "16%", 
+            "premium": 0.53, "pct_otm": -1.6, "max_profit": 0.47, "max_loss": 0.53
+        }
     },
     "XLP": {
-        "Aggressive": {"strike": 78.00, "expiration": "2023-05-05", "dte": 7, "roi": "27%", "premium": 1.34, "otm": "5.3%"},
-        "Steady": {"strike": 76.00, "expiration": "2023-05-19", "dte": 21, "roi": "20%", "premium": 2.01, "otm": "2.6%"},
-        "Passive": {"strike": 75.00, "expiration": "2023-06-16", "dte": 49, "roi": "15%", "premium": 3.01, "otm": "1.2%"}
+        "Aggressive": {
+            "strike": 78.50, "upper_strike": 79.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "27%", 
+            "premium": 0.34, "pct_otm": -2.3, "max_profit": 0.66, "max_loss": 0.34
+        },
+        "Steady": {
+            "strike": 78.00, "upper_strike": 79.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "20%", 
+            "premium": 0.51, "pct_otm": -1.8, "max_profit": 0.49, "max_loss": 0.51
+        },
+        "Passive": {
+            "strike": 77.50, "upper_strike": 78.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "15%", 
+            "premium": 0.61, "pct_otm": -1.2, "max_profit": 0.39, "max_loss": 0.61
+        }
     },
     "XLY": {
-        "Aggressive": {"strike": 194.00, "expiration": "2023-05-05", "dte": 7, "roi": "34%", "premium": 4.20, "otm": "5.1%"},
-        "Steady": {"strike": 189.00, "expiration": "2023-05-19", "dte": 21, "roi": "26%", "premium": 6.45, "otm": "2.4%"},
-        "Passive": {"strike": 187.00, "expiration": "2023-06-16", "dte": 49, "roi": "19%", "premium": 9.41, "otm": "1.3%"}
+        "Aggressive": {
+            "strike": 185.50, "upper_strike": 186.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "34%", 
+            "premium": 0.30, "pct_otm": -2.2, "max_profit": 0.70, "max_loss": 0.30
+        },
+        "Steady": {
+            "strike": 185.00, "upper_strike": 186.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "26%", 
+            "premium": 0.45, "pct_otm": -1.7, "max_profit": 0.55, "max_loss": 0.45
+        },
+        "Passive": {
+            "strike": 184.50, "upper_strike": 185.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "19%", 
+            "premium": 0.51, "pct_otm": -1.3, "max_profit": 0.49, "max_loss": 0.51
+        }
     },
     "XLE": {
-        "Aggressive": {"strike": 92.50, "expiration": "2023-05-05", "dte": 7, "roi": "31%", "premium": 1.82, "otm": "5.2%"},
-        "Steady": {"strike": 90.00, "expiration": "2023-05-19", "dte": 21, "roi": "24%", "premium": 2.84, "otm": "2.4%"},
-        "Passive": {"strike": 89.00, "expiration": "2023-06-16", "dte": 49, "roi": "18%", "premium": 4.27, "otm": "1.2%"}
+        "Aggressive": {
+            "strike": 77.00, "upper_strike": 78.00, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "31%", 
+            "premium": 0.32, "pct_otm": -2.4, "max_profit": 0.68, "max_loss": 0.32
+        },
+        "Steady": {
+            "strike": 76.50, "upper_strike": 77.50, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "24%", 
+            "premium": 0.44, "pct_otm": -1.9, "max_profit": 0.56, "max_loss": 0.44
+        },
+        "Passive": {
+            "strike": 76.00, "upper_strike": 77.00, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "18%", 
+            "premium": 0.54, "pct_otm": -1.3, "max_profit": 0.46, "max_loss": 0.54
+        }
     }
 }
 
@@ -1173,14 +1257,18 @@ def step4():
         logger.info(f"Getting trade recommendation for {etf} with {strategy} strategy")
         trade = market_data.get_trade_recommendation(etf, strategy)
         
-        # Format the trade data to match our template expectations
+        # Format the trade data to match our template expectations for debit spreads
         formatted_trade = {
             "strike": trade.get("strike", 0),
+            "upper_strike": trade.get("upper_strike", 0),
+            "spread_width": trade.get("spread_width", 1.0),
             "expiration": trade.get("expiration", "N/A"),
             "dte": trade.get("dte", 0),
             "roi": trade.get("roi", "N/A"),
             "premium": trade.get("premium", 0),
-            "otm": f"{trade.get('pct_otm', 0):.1f}%"
+            "pct_otm": trade.get("pct_otm", 0),
+            "max_profit": trade.get("max_profit", 0),
+            "max_loss": trade.get("max_loss", 0)
         }
         
         logger.info(f"Trade recommendation received: {formatted_trade}")
@@ -1192,14 +1280,24 @@ def step4():
             formatted_trade = recommended_trades[etf][strategy]
             logger.warning(f"Using fallback trade data for {etf} {strategy}")
         else:
-            # Create a default recommendation
+            # Create a default recommendation with debit spread structure
+            current_price = etf_scores[etf]["price"]
+            lower_strike = round(current_price * 0.99, 2)  # 1% ITM
+            upper_strike = round(lower_strike + 1, 2)
+            premium = round(current_price * 0.025, 2)  # 2.5% of current price
+            max_profit = round(1 - premium, 2)
+            
             formatted_trade = {
-                "strike": round(etf_scores[etf]["price"] * 1.05, 2),
+                "strike": lower_strike,
+                "upper_strike": upper_strike,
+                "spread_width": 1.0,
                 "expiration": "N/A",
                 "dte": 14,
                 "roi": "20-25%",
-                "premium": round(etf_scores[etf]["price"] * 0.02, 2),
-                "otm": "5.0%"
+                "premium": premium,
+                "pct_otm": -1.0,  # 1% ITM
+                "max_profit": max_profit,
+                "max_loss": premium
             }
     
     trade = formatted_trade

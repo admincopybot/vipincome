@@ -420,6 +420,7 @@ class MarketDataService:
         # Calculate max profit
         max_profit = spread_width - premium
         
+        # Return a consistent structure that includes all fields used in the UI
         return {
             'strategy_type': 'debit_spread',
             'strike': lower_strike,
