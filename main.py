@@ -214,9 +214,9 @@ strategy_descriptions = {
 star_elements = ""
 
 logo_header = """
-<!-- Fixed Centered Countdown Banner -->
+<!-- Countdown Banner -->
 <div class="countdown-banner">
-    <div class="banner-content">
+    <div class="container">
         <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
         <span id="countdown-banner-timer">67D 04H 42M 18S</span>
     </div>
@@ -254,15 +254,9 @@ function updateCountdown() {
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
     
-    // Format timer text
+    // Update the countdown timer
     const timerText = `${days}D ${hours}H ${minutes}M ${seconds}S`;
-    
-    // Update both the main timer and its clone in the second banner item
-    const mainTimer = document.getElementById("countdown-banner-timer");
-    const cloneTimer = document.getElementById("countdown-banner-timer-clone");
-    
-    if (mainTimer) mainTimer.textContent = timerText;
-    if (cloneTimer) cloneTimer.textContent = timerText;
+    document.getElementById("countdown-banner-timer").innerHTML = timerText;
 }
 
 // Update the countdown every second
@@ -289,7 +283,7 @@ nav a:last-child:hover {
 """
 
 global_css = """
-    /* Fixed Centered Countdown Banner */
+    /* Simple Countdown Banner */
     .countdown-banner {
         position: fixed;
         top: 0;
@@ -306,20 +300,16 @@ global_css = """
         line-height: 30px;
     }
     
-    /* Centered banner content */
-    .banner-content {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .countdown-banner .container {
+        padding: 0;
         height: 100%;
-        width: 100%;
     }
     
     .countdown-banner-text {
         padding-right: 8px;
     }
     
-    #countdown-banner-timer, .countdown-banner-badge {
+    #countdown-banner-timer {
         background: rgba(255, 255, 255, 0.2);
         padding: 0 8px;
         border-radius: 4px;
