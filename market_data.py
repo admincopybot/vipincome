@@ -411,18 +411,36 @@ class MarketDataService:
             roi_display = "20-24%"
         
         # Calculate lower strike price (typically ITM)
-        lower_strike = round(current_price * (1 + (pct_otm / 100)), 2)
+        # First get the theoretical ideal strike
+        theoretical_strike = current_price * (1 + (pct_otm / 100))
         
-        # Calculate upper strike price ($1 higher)
-        upper_strike = round(lower_strike + 1, 2)
+        # Round to nearest standard strike increment
+        # Stocks under $100 typically have $1.00 strike increments
+        # Stocks $100-$150 typically have $2.50 strike increments
+        # Stocks over $150 typically have $5.00 strike increments
+        if current_price < 100:
+            strike_increment = 1.0
+        elif current_price < 150:
+            strike_increment = 2.5
+        else:
+            strike_increment = 5.0
+            
+        # Round to the nearest valid strike
+        lower_strike = round(theoretical_strike / strike_increment) * strike_increment
+        
+        # Calculate upper strike price (one increment higher)
+        upper_strike = lower_strike + strike_increment
+        
+        # Using rounded strikes, adjust spread width to match
+        spread_width = round(upper_strike - lower_strike, 2)
         
         # Calculate expiration date
         expiration = (datetime.now() + timedelta(days=dte)).strftime('%Y-%m-%d')
         
         # CRITICAL: Calculate premium using the correct formula
         # ROI = (Width - Cost) / Cost
-        # Target ROI = (1.0 - premium) / premium
-        # Solving for premium: premium = 1.0 / (1.0 + target_roi)
+        # Target ROI = (Width - premium) / premium
+        # Solving for premium: premium = Width / (1.0 + target_roi)
         premium = round(spread_width / (1.0 + target_roi), 2)
         
         # Calculate max profit using the correct formula
