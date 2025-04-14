@@ -283,7 +283,7 @@ nav a:last-child:hover {
 """
 
 global_css = """
-    /* Countdown Banner - much smaller */
+    /* Countdown Banner - ultra thin with large text */
     .countdown-banner {
         position: fixed;
         top: 0;
@@ -293,9 +293,12 @@ global_css = """
         background: linear-gradient(135deg, #00C8FF, #7970FF);
         color: white;
         text-align: center;
-        padding: 1px 0;
-        font-weight: 600;
+        padding: 0;
+        height: 14px;
+        line-height: 1;
+        font-weight: 700;
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+        overflow: visible;
     }
     
     .countdown-banner .container {
@@ -303,27 +306,34 @@ global_css = """
         justify-content: center;
         align-items: center;
         gap: 6px;
+        position: relative;
+        height: 100%;
     }
     
     .countdown-banner-text {
-        font-size: 12px;
-        font-weight: 600;
+        font-size: 36px;
+        font-weight: 800;
         letter-spacing: -0.01em;
         white-space: nowrap;
+        position: absolute;
+        top: -10px;
     }
     
     #countdown-banner-timer {
         background: rgba(255, 255, 255, 0.2);
-        padding: 1px 6px;
+        padding: 1px 8px;
         border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
+        font-size: 36px;
+        font-weight: 800;
         letter-spacing: 0.03em;
+        position: absolute;
+        top: -10px;
+        margin-left: 410px;
     }
     
     /* Add space at the top for the fixed banner */
     body {
-        padding-top: 18px;
+        padding-top: 14px;
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         letter-spacing: -0.015em;
         background: #151521;
