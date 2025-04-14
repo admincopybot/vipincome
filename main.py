@@ -293,29 +293,23 @@ global_css = """
         background: linear-gradient(90deg, #00C8FF, #7970FF);
         color: white;
         text-align: center;
-        padding: 5px 0;
         font-size: 14px;
         font-weight: 500;
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
         height: 30px;
-        line-height: 20px;
+        line-height: 30px;
     }
     
     .countdown-banner .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        padding: 0 15px;
+        padding: 0;
         height: 100%;
     }
     
     .countdown-banner-text {
-        white-space: nowrap;
+        padding-right: 8px;
     }
     
     #countdown-banner-timer {
-        display: inline-block;
         background: rgba(255, 255, 255, 0.2);
         padding: 0 8px;
         border-radius: 4px;
