@@ -757,6 +757,9 @@ def index():
             highest_score = data['score']
             recommended_etf = etf
     
+    # Sort ETFs by score from highest to lowest
+    sorted_etfs = dict(sorted(etf_scores.items(), key=lambda item: item[1]['score'], reverse=True))
+    
     template = """
     <!DOCTYPE html>
     <html lang="en">
@@ -944,7 +947,19 @@ def index():
     </html>
     """
     
-    return render_template_string(template, etfs=etf_scores, global_css=global_css, logo_header=logo_header, recommended_etf=recommended_etf)
+    # Create a structured display order: recommended ETF at top, then rest sorted by score
+    ordered_etfs = {}
+    
+    # First add the recommended ETF (if any)
+    if recommended_etf:
+        ordered_etfs[recommended_etf] = sorted_etfs[recommended_etf]
+        
+    # Then add all other ETFs sorted by score
+    for etf, data in sorted_etfs.items():
+        if etf != recommended_etf:
+            ordered_etfs[etf] = data
+    
+    return render_template_string(template, etfs=ordered_etfs, global_css=global_css, logo_header=logo_header, recommended_etf=recommended_etf)
 
 # Route for Step 2: Asset Review
 @app.route('/step2')
