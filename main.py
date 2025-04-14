@@ -214,7 +214,7 @@ strategy_descriptions = {
 star_elements = ""
 
 logo_header = """
-<!-- Animated Sliding Countdown Banner -->
+<!-- Simple Countdown Banner with gentle animation -->
 <div class="countdown-banner">
     <div class="banner-scroller">
         <div class="banner-item">
@@ -222,16 +222,8 @@ logo_header = """
             <span id="countdown-banner-timer">67D 04H 42M 18S</span>
         </div>
         <div class="banner-item">
-            <span class="countdown-banner-text">Get 50% OFF Before Time Runs Out</span>
-            <span class="countdown-banner-badge">EXCLUSIVE</span>
-        </div>
-        <div class="banner-item">
-            <span class="countdown-banner-text">Join Now and Get Lifetime Access</span>
-            <span class="countdown-banner-badge">LIMITED TIME</span>
-        </div>
-        <div class="banner-item">
-            <span class="countdown-banner-text">Learn to Generate Income Like the Pros</span>
-            <span class="countdown-banner-badge">GUARANTEED</span>
+            <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+            <span id="countdown-banner-timer-clone">67D 04H 42M 18S</span>
         </div>
     </div>
 </div>
@@ -268,9 +260,15 @@ function updateCountdown() {
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
     
-    // Update the countdown timer
+    // Format timer text
     const timerText = `${days}D ${hours}H ${minutes}M ${seconds}S`;
-    document.getElementById("countdown-banner-timer").innerHTML = timerText;
+    
+    // Update both the main timer and its clone in the second banner item
+    const mainTimer = document.getElementById("countdown-banner-timer");
+    const cloneTimer = document.getElementById("countdown-banner-timer-clone");
+    
+    if (mainTimer) mainTimer.textContent = timerText;
+    if (cloneTimer) cloneTimer.textContent = timerText;
 }
 
 // Update the countdown every second
@@ -316,10 +314,10 @@ global_css = """
         white-space: nowrap;
     }
     
-    /* Banner scrolling animation */
+    /* Banner scrolling animation - slower and more gentle */
     .banner-scroller {
         display: flex;
-        animation: scrollBanner 20s linear infinite;
+        animation: scrollBanner 40s linear infinite;
         width: max-content;
     }
     
