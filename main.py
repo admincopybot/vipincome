@@ -214,17 +214,11 @@ strategy_descriptions = {
 star_elements = ""
 
 logo_header = """
-<!-- Simple Countdown Banner with gentle animation -->
+<!-- Fixed Centered Countdown Banner -->
 <div class="countdown-banner">
-    <div class="banner-scroller">
-        <div class="banner-item">
-            <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-            <span id="countdown-banner-timer">67D 04H 42M 18S</span>
-        </div>
-        <div class="banner-item">
-            <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-            <span id="countdown-banner-timer-clone">67D 04H 42M 18S</span>
-        </div>
+    <div class="banner-content">
+        <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+        <span id="countdown-banner-timer">67D 04H 42M 18S</span>
     </div>
 </div>
 
@@ -295,7 +289,7 @@ nav a:last-child:hover {
 """
 
 global_css = """
-    /* Animated Sliding Countdown Banner */
+    /* Fixed Centered Countdown Banner */
     .countdown-banner {
         position: fixed;
         top: 0;
@@ -310,28 +304,15 @@ global_css = """
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
         height: 30px;
         line-height: 30px;
-        overflow: hidden;
-        white-space: nowrap;
     }
     
-    /* Banner scrolling animation - slower and more gentle */
-    .banner-scroller {
+    /* Centered banner content */
+    .banner-content {
         display: flex;
-        animation: scrollBanner 40s linear infinite;
-        width: max-content;
-    }
-    
-    @keyframes scrollBanner {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-    }
-    
-    .banner-item {
-        display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 0 60px;
-        min-width: 100%;
+        height: 100%;
+        width: 100%;
     }
     
     .countdown-banner-text {
