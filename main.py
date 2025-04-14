@@ -218,7 +218,7 @@ logo_header = """
 <div class="countdown-banner">
     <div class="container">
         <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-        <span id="countdown-banner-timer"></span>
+        <span id="countdown-banner-timer">67D 04H 42M 18S</span>
     </div>
 </div>
 
