@@ -283,20 +283,19 @@ nav a:last-child:hover {
 """
 
 global_css = """
-    /* Countdown Banner - with large text and timer */
+    /* Countdown Banner */
     .countdown-banner {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         z-index: 1000;
-        background: linear-gradient(135deg, #00C8FF, #7970FF);
+        background: linear-gradient(90deg, #00C8FF, #7970FF);
         color: white;
+        font-size: 16px;
         text-align: center;
-        padding: 0;
-        height: 28px;
-        line-height: 28px;
-        font-weight: 700;
+        padding: 8px 0;
+        font-weight: 600;
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
     }
     
@@ -304,29 +303,23 @@ global_css = """
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 12px;
-        height: 100%;
+        gap: 10px;
     }
     
     .countdown-banner-text {
-        font-size: 26px;
-        font-weight: 800;
-        letter-spacing: -0.01em;
         white-space: nowrap;
     }
     
     #countdown-banner-timer {
         background: rgba(255, 255, 255, 0.2);
-        padding: 0 10px;
-        border-radius: 8px;
-        font-size: 26px;
-        font-weight: 800;
-        letter-spacing: 0.03em;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 700;
     }
     
     /* Add space at the top for the fixed banner */
     body {
-        padding-top: 28px;
+        padding-top: 40px;
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         letter-spacing: -0.015em;
         background: #151521;
@@ -863,7 +856,7 @@ def index():
         <div class="countdown-banner">
             <div class="container">
                 <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-                <span id="countdown-banner-timer">69D 09H 52M 38S</span>
+                <span id="countdown-banner-timer"></span>
             </div>
         </div>
         
@@ -879,11 +872,8 @@ def index():
             const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
             
-            // Update the timer element if it exists
-            const timerElement = document.getElementById("countdown-banner-timer");
-            if (timerElement) {
-                timerElement.innerHTML = `${days}D ${hours}H ${minutes}M ${seconds}S`;
-            }
+            document.getElementById("countdown-banner-timer").innerHTML = 
+                days + "D " + hours + "H " + minutes + "M " + seconds + "S";
         }
 
         // Update the countdown every second
@@ -1010,6 +1000,35 @@ def step2():
         </style>
     </head>
     <body data-bs-theme="dark">
+        <!-- Countdown Banner -->
+        <div class="countdown-banner">
+            <div class="container">
+                <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+                <span id="countdown-banner-timer"></span>
+            </div>
+        </div>
+        
+        <script>
+        // Countdown timer to June 20, 2025
+        function updateCountdown() {
+            const endDate = new Date("June 20, 2025 23:59:59").getTime();
+            const now = new Date().getTime();
+            const timeLeft = endDate - now;
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            document.getElementById("countdown-banner-timer").innerHTML = 
+                days + "D " + hours + "H " + minutes + "M " + seconds + "S";
+        }
+
+        // Update the countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+        </script>
+        
         <div class="container py-4">
             {{ logo_header|safe }}
             
