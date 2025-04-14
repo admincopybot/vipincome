@@ -283,7 +283,7 @@ nav a:last-child:hover {
 """
 
 global_css = """
-    /* Countdown Banner - thin with large text */
+    /* Countdown Banner - with large text and timer */
     .countdown-banner {
         position: fixed;
         top: 0;
@@ -294,46 +294,39 @@ global_css = """
         color: white;
         text-align: center;
         padding: 0;
-        height: 18px;
-        line-height: 1;
+        height: 28px;
+        line-height: 28px;
         font-weight: 700;
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-        overflow: visible;
     }
     
     .countdown-banner .container {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 6px;
-        position: relative;
+        gap: 12px;
         height: 100%;
     }
     
     .countdown-banner-text {
-        font-size: 28px;
+        font-size: 26px;
         font-weight: 800;
         letter-spacing: -0.01em;
         white-space: nowrap;
-        position: absolute;
-        top: -6px;
     }
     
     #countdown-banner-timer {
         background: rgba(255, 255, 255, 0.2);
-        padding: 1px 8px;
+        padding: 0 10px;
         border-radius: 8px;
-        font-size: 28px;
+        font-size: 26px;
         font-weight: 800;
         letter-spacing: 0.03em;
-        position: absolute;
-        top: -6px;
-        margin-left: 350px;
     }
     
     /* Add space at the top for the fixed banner */
     body {
-        padding-top: 18px;
+        padding-top: 28px;
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         letter-spacing: -0.015em;
         background: #151521;
