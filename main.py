@@ -214,11 +214,25 @@ strategy_descriptions = {
 star_elements = ""
 
 logo_header = """
-<!-- Countdown Banner -->
+<!-- Animated Sliding Countdown Banner -->
 <div class="countdown-banner">
-    <div class="container">
-        <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-        <span id="countdown-banner-timer">67D 04H 42M 18S</span>
+    <div class="banner-scroller">
+        <div class="banner-item">
+            <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+            <span id="countdown-banner-timer">67D 04H 42M 18S</span>
+        </div>
+        <div class="banner-item">
+            <span class="countdown-banner-text">Get 50% OFF Before Time Runs Out</span>
+            <span class="countdown-banner-badge">EXCLUSIVE</span>
+        </div>
+        <div class="banner-item">
+            <span class="countdown-banner-text">Join Now and Get Lifetime Access</span>
+            <span class="countdown-banner-badge">LIMITED TIME</span>
+        </div>
+        <div class="banner-item">
+            <span class="countdown-banner-text">Learn to Generate Income Like the Pros</span>
+            <span class="countdown-banner-badge">GUARANTEED</span>
+        </div>
     </div>
 </div>
 
@@ -283,7 +297,7 @@ nav a:last-child:hover {
 """
 
 global_css = """
-    /* Simple Countdown Banner */
+    /* Animated Sliding Countdown Banner */
     .countdown-banner {
         position: fixed;
         top: 0;
@@ -298,18 +312,35 @@ global_css = """
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
         height: 30px;
         line-height: 30px;
+        overflow: hidden;
+        white-space: nowrap;
     }
     
-    .countdown-banner .container {
-        padding: 0;
-        height: 100%;
+    /* Banner scrolling animation */
+    .banner-scroller {
+        display: flex;
+        animation: scrollBanner 20s linear infinite;
+        width: max-content;
+    }
+    
+    @keyframes scrollBanner {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    
+    .banner-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 60px;
+        min-width: 100%;
     }
     
     .countdown-banner-text {
         padding-right: 8px;
     }
     
-    #countdown-banner-timer {
+    #countdown-banner-timer, .countdown-banner-badge {
         background: rgba(255, 255, 255, 0.2);
         padding: 0 8px;
         border-radius: 4px;
