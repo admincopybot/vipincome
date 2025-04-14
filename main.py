@@ -223,19 +223,19 @@ logo_header = """
 </div>
 
 <header class="py-3 mb-4 border-bottom">
-    <div class="container-fluid d-flex flex-wrap align-items-end" style="padding-left: 0;">
+    <div class="container-fluid d-flex flex-wrap justify-content-between align-items-end" style="padding-left: 0;">
         <!-- Left section: Logo -->
-        <div class="me-4" style="min-width: 150px;">
+        <div style="min-width: 150px;">
             <a href="/" style="display: block;">
                 <img src="/static/images/animated_logo.gif" alt="Nate Tucci's Income Machine" height="150" style="cursor: pointer;">
             </a>
         </div>
         
-        <!-- Middle section: Navigation -->
-        <nav class="d-flex flex-wrap align-items-center me-auto" style="padding-bottom: 10px;">
+        <!-- Right section: Navigation -->
+        <nav class="d-flex flex-wrap align-items-center" style="padding-bottom: 10px;">
             <a href="/how-to-use" class="text-decoration-none mx-2" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">How to Use</a>
             <a href="/live-classes" class="text-decoration-none mx-2" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">Trade Classes</a>
-            <a href="/special-offer" class="ms-2 me-3" style="font-size: 14px; font-weight: 600; color: #000; background: #FFD700; padding: 5px 10px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);">Get 50% OFF</a>
+            <a href="/special-offer" class="ms-2" style="font-size: 14px; font-weight: 600; color: #000; background: #FFD700; padding: 5px 10px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);">Get 50% OFF</a>
         </nav>
         
         <!-- Removed countdown from navigation bar as it's now in the banner -->
