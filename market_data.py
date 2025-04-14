@@ -389,36 +389,48 @@ class MarketDataService:
     def _generate_fallback_trade(symbol, strategy, current_price):
         """Generate fallback trade recommendation when API data is unavailable"""
         # Note: This is used as fallback when the API fails
+        
+        # Fixed $1 spread width (always use $1 wide spreads per requirements)
+        spread_width = 1.0
+        
+        # Calculate target ROI based on strategy
         if strategy == 'Aggressive':
             dte = 7
             pct_otm = -1.0  # Slightly ITM for lower strike
-            premium = current_price * 0.025  # ~2.5% premium
-            roi = "28-32%"
+            target_roi = 0.30  # 30% ROI
+            roi_display = "28-32%"
         elif strategy == 'Passive':
             dte = 45
             pct_otm = -0.5  # Slightly ITM for lower strike
-            premium = current_price * 0.03  # ~3% premium
-            roi = "16-18%"
+            target_roi = 0.17  # 17% ROI
+            roi_display = "16-18%"
         else:  # Steady
             dte = 21
             pct_otm = -0.75  # Slightly ITM for lower strike
-            premium = current_price * 0.025  # ~2.5% premium
-            roi = "20-24%"
-            
+            target_roi = 0.22  # 22% ROI
+            roi_display = "20-24%"
+        
         # Calculate lower strike price (typically ITM)
         lower_strike = round(current_price * (1 + (pct_otm / 100)), 2)
         
         # Calculate upper strike price ($1 higher)
         upper_strike = round(lower_strike + 1, 2)
         
-        # Fixed $1 spread width
-        spread_width = 1.0
-        
         # Calculate expiration date
         expiration = (datetime.now() + timedelta(days=dte)).strftime('%Y-%m-%d')
         
-        # Calculate max profit
-        max_profit = spread_width - premium
+        # CRITICAL: Calculate premium using the correct formula
+        # ROI = (Width - Cost) / Cost
+        # Target ROI = (1.0 - premium) / premium
+        # Solving for premium: premium = 1.0 / (1.0 + target_roi)
+        premium = round(spread_width / (1.0 + target_roi), 2)
+        
+        # Calculate max profit using the correct formula
+        max_profit = round(spread_width - premium, 2)
+        
+        # Double-check: verify ROI calculation is correct
+        actual_roi = (spread_width - premium) / premium
+        logger.info(f"Generated fallback trade for {symbol} with ROI={actual_roi:.2f} (target was {target_roi:.2f})")
         
         # Return a consistent structure that includes all fields used in the UI
         return {
@@ -426,13 +438,13 @@ class MarketDataService:
             'strike': lower_strike,
             'upper_strike': upper_strike,
             'spread_width': spread_width,
-            'premium': round(premium, 2),
+            'premium': premium,
             'expiration': expiration,
             'dte': dte,
             'pct_otm': pct_otm,
-            'max_profit': round(max_profit, 2),
-            'max_loss': round(premium, 2),
-            'roi': roi
+            'max_profit': max_profit,
+            'max_loss': premium,
+            'roi': roi_display
         }
 
 # Example sector ETFs to track
