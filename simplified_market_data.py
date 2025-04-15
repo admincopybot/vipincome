@@ -122,17 +122,34 @@ class SimplifiedMarketDataService:
             weekly_data = hist_data.resample('W-FRI').agg({'Close': 'last'})
             prev_week_close = float(weekly_data['Close'].iloc[-2]) if len(weekly_data) > 1 else float(hist_data['Close'].iloc[0])
             
-            # Get ETF technical score from the TA-Lib microservice
-            logger.info(f"Getting ETF technical score for {ticker} from the TA-Lib microservice")
-            etf_score_result = talib_service.get_etf_technical_score(ticker)
+            # Instead of using the microservice directly, we'll use our own implementation using the data we already have
+            # This avoids potential conflicts with different data formats
+            logger.info(f"Calculating technical score for {ticker} using local implementation and TA-Lib microservice")
             
-            if etf_score_result and 'score' in etf_score_result:
-                # Use the score and indicators from the comprehensive score endpoint
-                score = etf_score_result['score']
-                indicators = etf_score_result.get('factors', {})
-                logger.info(f"Received score {score}/5 from TA-Lib microservice")
-                return score, float(current_price), indicators
+            # First, try to use the complete endpoint if available
+            try:
+                # Prepare payload for the microservice
+                payload = {
+                    "close": close_prices,
+                    "high": high_prices,
+                    "low": low_prices,
+                    "prev_week_close": prev_week_close
+                }
                 
+                # Send to the TA-Lib microservice
+                etf_score_result = talib_service.send_to_talib_service("/etf/score", payload)
+                
+                if etf_score_result and 'score' in etf_score_result:
+                    # Use the score and indicators from the comprehensive score endpoint
+                    score = etf_score_result['score']
+                    indicators = etf_score_result.get('factors', {})
+                    logger.info(f"Received score {score}/5 from TA-Lib microservice")
+                    return score, float(current_price), indicators
+            except Exception as e:
+                logger.warning(f"Error using comprehensive ETF score endpoint: {str(e)}")
+                etf_score_result = None
+            
+            # If we get here, the comprehensive score failed
             # Fallback to individual calculations if microservice fails
             logger.warning(f"Microservice comprehensive score failed for {ticker}, falling back to individual calculations")
             
