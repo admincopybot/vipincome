@@ -25,12 +25,15 @@ default_indicators = {
 
 etf_scores = {
     "XLC": {"name": "Communication Services", "score": 3, "price": 79.42, "indicators": default_indicators.copy()},
-    "XLF": {"name": "Financial", "score": 4, "price": 39.86, "indicators": default_indicators.copy()},
-    "XLV": {"name": "Health Care", "score": 2, "price": 133.17, "indicators": default_indicators.copy()},
-    "XLI": {"name": "Industrial", "score": 3, "price": 112.22, "indicators": default_indicators.copy()},
-    "XLP": {"name": "Consumer Staples", "score": 1, "price": 74.09, "indicators": default_indicators.copy()},
-    "XLY": {"name": "Consumer Discretionary", "score": 5, "price": 184.61, "indicators": default_indicators.copy()},
-    "XLE": {"name": "Energy", "score": 4, "price": 87.93, "indicators": default_indicators.copy()}
+    "XLF": {"name": "Financial", "score": 4, "price": 47.69, "indicators": default_indicators.copy()},
+    "XLV": {"name": "Health Care", "score": 3, "price": 137.98, "indicators": default_indicators.copy()},
+    "XLI": {"name": "Industrial", "score": 3, "price": 127.23, "indicators": default_indicators.copy()},
+    "XLP": {"name": "Consumer Staples", "score": 4, "price": 81.33, "indicators": default_indicators.copy()},
+    "XLY": {"name": "Consumer Discretionary", "score": 3, "price": 189.89, "indicators": default_indicators.copy()},
+    "XLE": {"name": "Energy", "score": 3, "price": 79.71, "indicators": default_indicators.copy()},
+    "XLB": {"name": "Materials", "score": 3, "price": 81.38, "indicators": default_indicators.copy()},
+    "XLU": {"name": "Utilities", "score": 4, "price": 77.94, "indicators": default_indicators.copy()},
+    "XLRE": {"name": "Real Estate", "score": 3, "price": 40.02, "indicators": default_indicators.copy()}
 }
 
 # Data update tracking 

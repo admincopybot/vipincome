@@ -16,6 +16,10 @@ class PolygonDataService:
         try:
             # Using REST API directly for simplicity
             api_key = os.environ.get("POLYGON_API_KEY")
+            if api_key and len(api_key) > 8:
+                logger.info(f"Using Polygon API key (masked): {api_key[:4]}...{api_key[-4:]}")
+            else:
+                logger.info("Using Polygon API key: None or too short")
             if not api_key:
                 logger.error("No Polygon API key found in environment variables")
                 return None
