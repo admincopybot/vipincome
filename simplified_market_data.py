@@ -143,8 +143,22 @@ class SimplifiedMarketDataService:
                 'description': trend2_desc
             }
             
-            # 3. Calculate RSI (14-period) using TA library
-            rsi = ta.momentum.RSIIndicator(close=hist_data['Close'], window=14).rsi()
+            # 3. Calculate RSI (14-period) using manual calculation
+            # RSI = 100 - (100 / (1 + RS))
+            # RS = Average Gain / Average Loss
+            delta = hist_data['Close'].diff()
+            gain = delta.copy()
+            loss = delta.copy()
+            gain[gain < 0] = 0
+            loss[loss > 0] = 0
+            avg_gain = gain.rolling(window=14).mean()
+            avg_loss = abs(loss.rolling(window=14).mean())
+            
+            # Avoid division by zero
+            rs = avg_gain / avg_loss.replace(0, 0.001)
+            rsi = 100 - (100 / (1 + rs))
+            
+            # Get the last value safely
             rsi_last = rsi.iloc[-1]
             if isinstance(rsi_last, pd.Series):
                 rsi_last = rsi_last.item()
@@ -178,10 +192,16 @@ class SimplifiedMarketDataService:
             
             if len(closest_dates) > 0:
                 prev_week_idx = closest_dates[-1]  # Get the last date that's <= 7 days ago
-                prev_week_close = float(hist_data.loc[prev_week_idx, 'Close'])
+                close_value = hist_data.loc[prev_week_idx, 'Close']
+                if isinstance(close_value, pd.Series):
+                    close_value = close_value.item()
+                prev_week_close = float(close_value)
             else:
                 # Fallback if we don't have data from 7 days ago
-                prev_week_close = float(hist_data['Close'].iloc[-6] if len(hist_data) > 5 else hist_data['Close'].iloc[0])
+                close_value = hist_data['Close'].iloc[-6] if len(hist_data) > 5 else hist_data['Close'].iloc[0]
+                if isinstance(close_value, pd.Series):
+                    close_value = close_value.item()
+                prev_week_close = float(close_value)
             
             momentum_pass = bool(current_price > prev_week_close)
             if momentum_pass:
