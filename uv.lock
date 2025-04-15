@@ -923,6 +923,7 @@ dependencies = [
     { name = "polygon-api-client" },
     { name = "psycopg2-binary" },
     { name = "requests" },
+    { name = "ta" },
     { name = "trafilatura" },
     { name = "yfinance" },
 ]
@@ -938,6 +939,7 @@ requires-dist = [
     { name = "polygon-api-client", specifier = ">=1.14.4" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
     { name = "requests", specifier = ">=2.32.3" },
+    { name = "ta", specifier = ">=0.11.0" },
     { name = "trafilatura", specifier = ">=2.0.0" },
     { name = "yfinance", specifier = ">=0.2.55" },
 ]
@@ -1020,6 +1022,16 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/1c/cb/f38c61f7f2fd4d10494c1c135ff6a6ddb63508d0b47bccccd93670637309/sqlalchemy-2.0.40-cp313-cp313-win_amd64.whl", hash = "sha256:641ee2e0834812d657862f3a7de95e0048bdcb6c55496f39c6fa3d435f6ac6ad", size = 2104564 },
     { url = "https://files.pythonhosted.org/packages/d1/7c/5fc8e802e7506fe8b55a03a2e1dab156eae205c91bee46305755e086d2e2/sqlalchemy-2.0.40-py3-none-any.whl", hash = "sha256:32587e2e1e359276957e6fe5dad089758bc042a971a8a09ae8ecf7a8fe23d07a", size = 1903894 },
 ]
+
+[[package]]
+name = "ta"
+version = "0.11.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pandas" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e0/9a/37d92a6b470dc9088612c2399a68f1a9ac22872d4e1eff416818e22ab11b/ta-0.11.0.tar.gz", hash = "sha256:de86af43418420bd6b088a2ea9b95483071bf453c522a8441bc2f12bcf8493fd", size = 25308 }
 
 [[package]]
 name = "tld"

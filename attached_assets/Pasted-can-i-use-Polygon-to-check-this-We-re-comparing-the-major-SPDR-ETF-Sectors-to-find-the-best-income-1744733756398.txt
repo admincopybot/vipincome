@@ -1,0 +1,113 @@
+can i use Polygon to check this:
+
+We’re comparing the major SPDR ETF Sectors to find the best income opportunity.
+
+Assets: XLC, XLF, XLV, XLI, XLP, XLY, XLE
+
+Comparison Data - 1 Point for Each:
+Trend 1 = 20 EMA on Daily Timeframe
+Trend 2 = 100 EMA on Daily Timeframe
+Snapback = Below 50 on RSI on 4HR Timeframe
+Momentum = Above Previous Week’s Closing Price
+Stabilizing = 3 Day ATR < 6 Day ATR
+
+i tried using Yfinance but it ran into some issues on RSI or something like that. i am not too savy with trading terms
+
+
+
+ChatGPT said:
+Yes, you can do all of that with Polygon.io except for RSI, which it does not compute natively—you'll need to calculate that manually from historical prices. Here's how to handle each of your comparison points using Polygon:
+
+✅ Assets
+You're looking at these SPDR ETFs:
+['XLC', 'XLF', 'XLV', 'XLI', 'XLP', 'XLY', 'XLE']
+
+✅ Data Needed
+For each symbol, you'll need:
+
+Daily bars — for EMA 20, EMA 100, momentum (compare to last week's close)
+
+4HR bars — for RSI 4H
+
+Daily bars — again for ATR (Average True Range)
+
+⛔ Polygon Limitation
+Polygon does not provide RSI or EMA directly. You'll need to fetch OHLC data and calculate them manually using pandas or ta libraries.
+
+✅ Code Setup (Basic Skeleton)
+python
+Copy
+Edit
+import requests
+import pandas as pd
+from ta.momentum import RSIIndicator
+from ta.trend import EMAIndicator
+from ta.volatility import AverageTrueRange
+from datetime import datetime, timedelta
+
+API_KEY = 'YOUR_POLYGON_API_KEY'
+BASE_URL = 'https://api.polygon.io/v2/aggs/ticker/{}/range/{}/{}/{}/{}'
+
+symbols = ['XLC', 'XLF', 'XLV', 'XLI', 'XLP', 'XLY', 'XLE']
+today = datetime.today().strftime('%Y-%m-%d')
+start = (datetime.today() - timedelta(days=100)).strftime('%Y-%m-%d')  # pull enough data
+
+def fetch_agg(symbol, multiplier, timespan, from_date, to_date):
+    url = BASE_URL.format(symbol, multiplier, timespan, from_date, to_date)
+    params = {'apiKey': API_KEY, 'adjusted': 'true', 'sort': 'asc', 'limit': 5000}
+    r = requests.get(url, params=params)
+    data = r.json().get('results', [])
+    df = pd.DataFrame(data)
+    df['t'] = pd.to_datetime(df['t'], unit='ms')
+    df.set_index('t', inplace=True)
+    return df
+
+results = []
+
+for symbol in symbols:
+    df_day = fetch_agg(symbol, 1, 'day', start, today)
+    df_4h = fetch_agg(symbol, 4, 'hour', start, today)
+
+    if df_day.empty or df_4h.empty:
+        continue
+
+    # Trend 1: 20 EMA
+    ema20 = EMAIndicator(df_day['c'], window=20).ema_indicator().iloc[-1]
+    above_ema20 = df_day['c'].iloc[-1] > ema20
+
+    # Trend 2: 100 EMA
+    ema100 = EMAIndicator(df_day['c'], window=100).ema_indicator().iloc[-1]
+    above_ema100 = df_day['c'].iloc[-1] > ema100
+
+    # Snapback: RSI < 50 on 4H
+    rsi_4h = RSIIndicator(df_4h['c'], window=14).rsi().iloc[-1]
+    snapback = rsi_4h < 50
+
+    # Momentum: Above previous week's close
+    last_week_close = df_day.iloc[-6]['c']  # assuming 5 trading days per week
+    momentum = df_day['c'].iloc[-1] > last_week_close
+
+    # Stabilizing: 3-day ATR < 6-day ATR
+    atr3 = AverageTrueRange(df_day['h'], df_day['l'], df_day['c'], window=3).average_true_range().iloc[-1]
+    atr6 = AverageTrueRange(df_day['h'], df_day['l'], df_day['c'], window=6).average_true_range().iloc[-1]
+    stabilizing = atr3 < atr6
+
+    score = sum([above_ema20, above_ema100, snapback, momentum, stabilizing])
+    results.append({'symbol': symbol, 'score': score})
+
+# Rank
+ranked = sorted(results, key=lambda x: x['score'], reverse=True)
+print(ranked)
+📌 Requirements
+bash
+Copy
+Edit
+pip install pandas ta requests
+🔧 Notes
+RSI and EMAs calculated with ta library.
+
+Adjust logic if needed (e.g., change RSI period or EMA settings).
+
+Use limit=5000 in Polygon requests to ensure enough data for 100 EMA.
+
+Let me know if you want this converted into a reusable function or scheduled script.
