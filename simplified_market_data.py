@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import yfinance as yf
-import ta
+import talib_custom as talib
 
 logger = logging.getLogger(__name__)
 
@@ -106,16 +106,12 @@ class SimplifiedMarketDataService:
             score = 0
             indicators = {}
             
-            # Calculate EMAs for trendlines
-            ema_20 = hist_data['Close'].ewm(span=20, adjust=False).mean().iloc[-1]
-            if isinstance(ema_20, pd.Series):
-                ema_20 = ema_20.item()
-            ema_20 = float(ema_20)
+            # Calculate EMAs for trendlines using TA-Lib
+            ema_20_values = talib.EMA(hist_data['Close'], timeperiod=20)
+            ema_20 = float(ema_20_values[-1])
             
-            ema_100 = hist_data['Close'].ewm(span=100, adjust=False).mean().iloc[-1]
-            if isinstance(ema_100, pd.Series):
-                ema_100 = ema_100.item()
-            ema_100 = float(ema_100)
+            ema_100_values = talib.EMA(hist_data['Close'], timeperiod=100)
+            ema_100 = float(ema_100_values[-1])
             
             # 1. Trend 1: Price > 20 EMA
             trend1_pass = bool(current_price > ema_20)
@@ -143,26 +139,9 @@ class SimplifiedMarketDataService:
                 'description': trend2_desc
             }
             
-            # 3. Calculate RSI (14-period) using manual calculation
-            # RSI = 100 - (100 / (1 + RS))
-            # RS = Average Gain / Average Loss
-            delta = hist_data['Close'].diff()
-            gain = delta.copy()
-            loss = delta.copy()
-            gain[gain < 0] = 0
-            loss[loss > 0] = 0
-            avg_gain = gain.rolling(window=14).mean()
-            avg_loss = abs(loss.rolling(window=14).mean())
-            
-            # Avoid division by zero
-            rs = avg_gain / avg_loss.replace(0, 0.001)
-            rsi = 100 - (100 / (1 + rs))
-            
-            # Get the last value safely
-            rsi_last = rsi.iloc[-1]
-            if isinstance(rsi_last, pd.Series):
-                rsi_last = rsi_last.item()
-            current_rsi = float(rsi_last)
+            # 3. Calculate RSI (14-period) using TA-Lib
+            rsi_values = talib.RSI(hist_data['Close'], timeperiod=14)
+            current_rsi = float(rsi_values[-1])
             
             # Snapback: RSI < 50
             try:
