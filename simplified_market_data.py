@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import yfinance as yf
+import ta
 
 logger = logging.getLogger(__name__)
 
@@ -97,14 +98,24 @@ class SimplifiedMarketDataService:
                 logger.error(f"Not enough historical data for {ticker}")
                 return 0, 0.0, {}
             
-            # Get current price and initialize score
-            current_price = float(hist_data['Close'].iloc[-1])
+            # Get current price and initialize score - use .item() to avoid Series truth value ambiguity
+            current_price = hist_data['Close'].iloc[-1]
+            if isinstance(current_price, pd.Series):
+                current_price = current_price.item()  # Convert to scalar if Series
+            current_price = float(current_price)
             score = 0
             indicators = {}
             
             # Calculate EMAs for trendlines
             ema_20 = hist_data['Close'].ewm(span=20, adjust=False).mean().iloc[-1]
+            if isinstance(ema_20, pd.Series):
+                ema_20 = ema_20.item()
+            ema_20 = float(ema_20)
+            
             ema_100 = hist_data['Close'].ewm(span=100, adjust=False).mean().iloc[-1]
+            if isinstance(ema_100, pd.Series):
+                ema_100 = ema_100.item()
+            ema_100 = float(ema_100)
             
             # 1. Trend 1: Price > 20 EMA
             trend1_pass = bool(current_price > ema_20)
@@ -132,22 +143,20 @@ class SimplifiedMarketDataService:
                 'description': trend2_desc
             }
             
-            # 3. Calculate RSI (14-period)
-            delta = hist_data['Close'].diff()
-            gain = delta.copy()
-            loss = delta.copy()
-            gain[gain < 0] = 0
-            loss[loss > 0] = 0
-            avg_gain = gain.rolling(window=14).mean()
-            avg_loss = abs(loss.rolling(window=14).mean())
-            
-            # Avoid division by zero
-            rs = avg_gain / avg_loss.replace(0, 0.001)
-            rsi = 100 - (100 / (1 + rs))
-            current_rsi = float(rsi.iloc[-1])
+            # 3. Calculate RSI (14-period) using TA library
+            rsi = ta.momentum.RSIIndicator(close=hist_data['Close'], window=14).rsi()
+            rsi_last = rsi.iloc[-1]
+            if isinstance(rsi_last, pd.Series):
+                rsi_last = rsi_last.item()
+            current_rsi = float(rsi_last)
             
             # Snapback: RSI < 50
-            snapback_pass = bool(current_rsi < 50)
+            try:
+                snapback_pass = bool(current_rsi < 50)
+            except:
+                # In case of comparison error
+                snapback_pass = False
+                
             if snapback_pass:
                 score += 1
                 
