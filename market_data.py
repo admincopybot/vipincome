@@ -75,7 +75,7 @@ class MarketDataService:
         1. Trend 1: Price > 20 EMA on Daily Timeframe
         2. Trend 2: Price > 100 EMA on Daily Timeframe
         3. Snapback: RSI < 50 on 4-hour Timeframe (approximated with daily data)
-        4. Momentum: Price > Previous Week's Closing Price
+        4. Momentum: Price > Previous Week's Closing Price (using actual calendar days)
         5. Stabilizing: 3-Day ATR < 6-Day ATR
         
         Each indicator = 1 point, total score from 0-5
@@ -89,7 +89,7 @@ class MarketDataService:
             # 6 months of daily data should give us at least 120 points (approx. 21 trading days/month)
             if len(hist_data) < 100:
                 logger.warning(f"Not enough historical data to calculate score ({len(hist_data)} data points), using default")
-                # Create simulated indicator data for UI display
+                # Create indicator data for UI display
                 return 3, {
                     'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Insufficient historical data'},
                     'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Insufficient historical data'},
@@ -131,12 +131,16 @@ class MarketDataService:
             }
             logger.debug(f"Trend 2: {trend2_desc}")
             
-            # 3. Snapback: RSI < 50 on 4HR Timeframe (approximated with daily)
+            # 3. Snapback: RSI < 50 on daily chart
+            # For truly accurate 4HR RSI, we'd need 4-hour data which Yahoo Finance doesn't provide.
+            # This is a limitation of the free API - we're using daily RSI as an approximation
+            
             # Calculate RSI (14-period)
             delta = hist_data['Close'].diff()
             gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
             loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-            rs = gain / loss
+            # Handle division by zero
+            rs = gain / loss.replace(0, 0.001)  # Replace zeros with small number to avoid infinity
             rsi = 100 - (100 / (1 + rs))
             current_rsi = rsi.iloc[-1]
             
@@ -153,8 +157,21 @@ class MarketDataService:
             }
             logger.debug(f"Snapback: {snapback_desc}")
             
-            # 4. Momentum: Above Previous Week's Closing Price
-            prev_week_close = hist_data['Close'].iloc[-6]  # ~5 trading days ago
+            # 4. Momentum: Above Previous Week's Closing Price (properly calculated)
+            # Find exactly 7 calendar days ago or the closest trading day before that
+            today = hist_data.index[-1]
+            seven_days_ago = today - pd.Timedelta(days=7)
+            
+            # Find the closest trading day on or before 7 days ago
+            closest_date = hist_data.index[hist_data.index <= seven_days_ago]
+            
+            if len(closest_date) > 0:
+                prev_week_idx = closest_date[-1]  # Get the last date that's <= 7 days ago
+                prev_week_close = hist_data.loc[prev_week_idx, 'Close']
+            else:
+                # Fallback if we don't have data from 7 days ago (use 5 trading days as approximation)
+                prev_week_close = hist_data['Close'].iloc[-6] if len(hist_data) > 5 else hist_data['Close'].iloc[0]
+            
             momentum_pass = current_price > prev_week_close
             if momentum_pass:
                 score += 1
