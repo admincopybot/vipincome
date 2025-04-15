@@ -3,16 +3,13 @@ import logging
 import time
 from datetime import datetime, timedelta
 import pandas as pd
+import numpy as np
 import yfinance as yf
-from ta.trend import EMAIndicator
-from ta.momentum import RSIIndicator
-from ta.volatility import AverageTrueRange
-from enhanced_polygon_client import EnhancedPolygonService
 
 logger = logging.getLogger(__name__)
 
-class EnhancedMarketDataService:
-    """Enhanced service to fetch and analyze market data for ETFs and options"""
+class SimplifiedMarketDataService:
+    """Simplified service to fetch and analyze market data for ETFs and options"""
     
     # Dictionary mapping ETF symbols to sector names for display
     etf_sectors = {
@@ -35,48 +32,21 @@ class EnhancedMarketDataService:
     @staticmethod
     def get_etf_data(symbols=None):
         """
-        Fetch current data for a list of ETF symbols using Polygon.io for scoring
-        and Yahoo Finance as backup
+        Fetch current data for a list of ETF symbols
         Returns a dictionary with ETF data including price, sector, and calculated score
         """
         if symbols is None:
-            symbols = EnhancedMarketDataService.default_etfs
+            symbols = SimplifiedMarketDataService.default_etfs
             
         results = {}
         
         for symbol in symbols:
             try:
                 # Get ETF sector name
-                sector_name = EnhancedMarketDataService.etf_sectors.get(symbol, symbol)
+                sector_name = SimplifiedMarketDataService.etf_sectors.get(symbol, symbol)
                 
-                # Try Polygon.io first
-                try:
-                    logger.info(f"Fetching data for {symbol} using Enhanced Polygon service")
-                    # Get current price from Polygon
-                    current_price = EnhancedPolygonService.get_etf_price(symbol)
-                    
-                    if current_price:
-                        # Calculate score using Polygon
-                        score, indicators = EnhancedPolygonService.calculate_etf_score(symbol)
-                        
-                        results[symbol] = {
-                            "name": sector_name,
-                            "price": current_price,
-                            "score": score,
-                            "indicators": indicators,
-                            "source": "polygon"
-                        }
-                        logger.info(f"Fetched data for {symbol}: ${current_price}, Score: {score}/5")
-                        continue
-                    else:
-                        logger.error(f"Failed to get price for {symbol} from Polygon")
-                except Exception as e:
-                    logger.error(f"Polygon data fetch failed for {symbol}: {str(e)}")
-                
-                # Fallback to Yahoo Finance
-                logger.info(f"Falling back to Yahoo Finance for {symbol}")
-                # Fetch data and calculate score using Yahoo Finance
-                score, price, indicators = EnhancedMarketDataService._calculate_etf_score(symbol)
+                # Fetch data and calculate score
+                score, price, indicators = SimplifiedMarketDataService._calculate_etf_score(symbol)
                 
                 results[symbol] = {
                     "name": sector_name,
@@ -91,7 +61,7 @@ class EnhancedMarketDataService:
                 logger.error(f"Error fetching data for {symbol}: {str(e)}")
                 # Add basic entry if error occurred
                 results[symbol] = {
-                    "name": EnhancedMarketDataService.etf_sectors.get(symbol, symbol),
+                    "name": SimplifiedMarketDataService.etf_sectors.get(symbol, symbol),
                     "price": 0.0,
                     "score": 0,
                     "indicators": {
@@ -109,7 +79,7 @@ class EnhancedMarketDataService:
     @staticmethod
     def _calculate_etf_score(ticker):
         """
-        Calculate a score (1-5) for an ETF using Yahoo Finance data based on specific indicators:
+        Calculate a score (1-5) for an ETF based on specific technical indicators:
         1. Trend 1: Price > 20 EMA on Daily Timeframe
         2. Trend 2: Price > 100 EMA on Daily Timeframe
         3. Snapback: RSI < 50 on Daily Timeframe
@@ -127,23 +97,20 @@ class EnhancedMarketDataService:
                 logger.error(f"Not enough historical data for {ticker}")
                 return 0, 0.0, {}
             
-            # Get current price
-            current_price = hist_data['Close'].iloc[-1]
+            # Get current price and initialize score
+            current_price = float(hist_data['Close'].iloc[-1])
             score = 0
             indicators = {}
             
-            # 1. Trend 1: Price > 20 EMA on Daily Timeframe using TA library
-            # Ensure we're working with a 1-dimensional Series
-            close_series = hist_data['Close']
-            if hasattr(close_series, 'values') and len(close_series.values.shape) > 1:
-                close_series = pd.Series(close_series.values.flatten())
+            # Calculate EMAs for trendlines
+            ema_20 = hist_data['Close'].ewm(span=20, adjust=False).mean().iloc[-1]
+            ema_100 = hist_data['Close'].ewm(span=100, adjust=False).mean().iloc[-1]
             
-            ema_indicator = EMAIndicator(close=close_series, window=20)
-            ema_20 = ema_indicator.ema_indicator().iloc[-1]
-            trend1_pass = current_price > ema_20
+            # 1. Trend 1: Price > 20 EMA
+            trend1_pass = bool(current_price > ema_20)
             if trend1_pass:
                 score += 1
-            
+                
             trend1_desc = f"Price (${current_price:.2f}) is {'above' if trend1_pass else 'below'} the 20-day EMA (${ema_20:.2f})"
             indicators['trend1'] = {
                 'pass': trend1_pass,
@@ -152,13 +119,11 @@ class EnhancedMarketDataService:
                 'description': trend1_desc
             }
             
-            # 2. Trend 2: Price > 100 EMA on Daily Timeframe
-            ema_indicator = EMAIndicator(close=close_series, window=100)
-            ema_100 = ema_indicator.ema_indicator().iloc[-1]
-            trend2_pass = current_price > ema_100
+            # 2. Trend 2: Price > 100 EMA
+            trend2_pass = bool(current_price > ema_100)
             if trend2_pass:
                 score += 1
-            
+                
             trend2_desc = f"Price (${current_price:.2f}) is {'above' if trend2_pass else 'below'} the 100-day EMA (${ema_100:.2f})"
             indicators['trend2'] = {
                 'pass': trend2_pass,
@@ -167,18 +132,29 @@ class EnhancedMarketDataService:
                 'description': trend2_desc
             }
             
-            # 3. Snapback: RSI < 50 on Daily Timeframe
-            rsi_indicator = RSIIndicator(close=close_series, window=14)
-            current_rsi = rsi_indicator.rsi().iloc[-1]
+            # 3. Calculate RSI (14-period)
+            delta = hist_data['Close'].diff()
+            gain = delta.copy()
+            loss = delta.copy()
+            gain[gain < 0] = 0
+            loss[loss > 0] = 0
+            avg_gain = gain.rolling(window=14).mean()
+            avg_loss = abs(loss.rolling(window=14).mean())
             
-            snapback_pass = current_rsi < 50
+            # Avoid division by zero
+            rs = avg_gain / avg_loss.replace(0, 0.001)
+            rsi = 100 - (100 / (1 + rs))
+            current_rsi = float(rsi.iloc[-1])
+            
+            # Snapback: RSI < 50
+            snapback_pass = bool(current_rsi < 50)
             if snapback_pass:
                 score += 1
-            
+                
             snapback_desc = f"RSI ({current_rsi:.1f}) is {'below' if snapback_pass else 'above'} the threshold (50)"
             indicators['snapback'] = {
                 'pass': snapback_pass,
-                'current': float(current_rsi),
+                'current': current_rsi,
                 'threshold': 50.0,
                 'description': snapback_desc
             }
@@ -193,15 +169,15 @@ class EnhancedMarketDataService:
             
             if len(closest_dates) > 0:
                 prev_week_idx = closest_dates[-1]  # Get the last date that's <= 7 days ago
-                prev_week_close = hist_data.loc[prev_week_idx, 'Close']
+                prev_week_close = float(hist_data.loc[prev_week_idx, 'Close'])
             else:
-                # Fallback if we don't have data from 7 days ago (use 5 trading days as approximation)
-                prev_week_close = hist_data['Close'].iloc[-6] if len(hist_data) > 5 else hist_data['Close'].iloc[0]
+                # Fallback if we don't have data from 7 days ago
+                prev_week_close = float(hist_data['Close'].iloc[-6] if len(hist_data) > 5 else hist_data['Close'].iloc[0])
             
-            momentum_pass = current_price > prev_week_close
+            momentum_pass = bool(current_price > prev_week_close)
             if momentum_pass:
                 score += 1
-            
+                
             momentum_desc = f"Current price (${current_price:.2f}) is {'above' if momentum_pass else 'below'} last week's close (${prev_week_close:.2f})"
             indicators['momentum'] = {
                 'pass': momentum_pass,
@@ -210,30 +186,20 @@ class EnhancedMarketDataService:
                 'description': momentum_desc
             }
             
-            # 5. Stabilizing: 3 Day ATR < 6 Day ATR
-            # Ensure we're working with 1-dimensional Series for High and Low also
-            high_series = hist_data['High']
-            if hasattr(high_series, 'values') and len(high_series.values.shape) > 1:
-                high_series = pd.Series(high_series.values.flatten())
-                
-            low_series = hist_data['Low']
-            if hasattr(low_series, 'values') and len(low_series.values.shape) > 1:
-                low_series = pd.Series(low_series.values.flatten())
+            # 5. Calculate ATR for stabilizing indicator
+            high_low = hist_data['High'] - hist_data['Low']
+            high_close = abs(hist_data['High'] - hist_data['Close'].shift())
+            low_close = abs(hist_data['Low'] - hist_data['Close'].shift())
+            true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
             
-            atr_3 = AverageTrueRange(high=high_series, 
-                                   low=low_series, 
-                                   close=close_series, 
-                                   window=3).average_true_range().iloc[-1]
+            # Calculate 3-day and 6-day ATR 
+            atr_3 = float(true_range.rolling(3).mean().iloc[-1])
+            atr_6 = float(true_range.rolling(6).mean().iloc[-1])
             
-            atr_6 = AverageTrueRange(high=high_series, 
-                                   low=low_series, 
-                                   close=close_series, 
-                                   window=6).average_true_range().iloc[-1]
-            
-            stabilizing_pass = atr_3 < atr_6
+            stabilizing_pass = bool(atr_3 < atr_6)
             if stabilizing_pass:
                 score += 1
-            
+                
             stabilizing_desc = f"3-day ATR ({atr_3:.2f}) is {'lower' if stabilizing_pass else 'higher'} than 6-day ATR ({atr_6:.2f})"
             indicators['stabilizing'] = {
                 'pass': stabilizing_pass,
@@ -252,22 +218,22 @@ class EnhancedMarketDataService:
     @staticmethod
     def get_options_data(symbol, strategy='Steady'):
         """
-        Get debit spread options data for a specific ETF and strategy using Yahoo Finance
+        Get debit spread options data for a specific ETF and strategy
         Returns recommendation for a call debit spread trade
         """
         try:
             # Check if symbol is in our tracked ETFs
-            if symbol not in EnhancedMarketDataService.etf_sectors:
+            if symbol not in SimplifiedMarketDataService.etf_sectors:
                 logger.warning(f"Unrecognized ETF symbol: {symbol}")
                 return None
             
             # First, get latest price data
             ticker_data = yf.Ticker(symbol)
-            current_price = ticker_data.history(period="1d")['Close'].iloc[-1]
+            current_price = float(ticker_data.history(period="1d")['Close'].iloc[-1])
             
             if not current_price or current_price <= 0:
                 logger.error(f"Invalid current price for {symbol}: {current_price}")
-                return EnhancedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+                return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
             
             try:
                 # Get options chain data
@@ -289,7 +255,7 @@ class EnhancedMarketDataService:
                 
                 if not expirations or len(expirations) == 0:
                     logger.warning(f"No options expirations available for {symbol}")
-                    return EnhancedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
                 
                 # Find expiration closest to our target
                 expiration = None
@@ -305,19 +271,23 @@ class EnhancedMarketDataService:
                 
                 if not expiration:
                     logger.warning(f"Failed to find suitable expiration for {symbol}")
-                    return EnhancedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
                 
                 # Calculate actual DTE
                 exp_date = datetime.strptime(expiration, '%Y-%m-%d')
                 dte = (exp_date - today).days
                 
                 # Get options chain for this expiration
-                options = ticker_data.option_chain(expiration)
-                calls = options.calls
+                try:
+                    options = ticker_data.option_chain(expiration)
+                    calls = options.calls
+                except:
+                    logger.warning(f"Failed to get option chain for {symbol}")
+                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
                 
                 if calls.empty:
                     logger.warning(f"No call options found for {symbol} on {expiration}")
-                    return EnhancedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
                 
                 # Determine the standard option increment based on ETF price
                 if current_price < 50:
@@ -342,11 +312,11 @@ class EnhancedMarketDataService:
                 if itm_calls.empty:
                     # If no ITM options, use the closest OTM
                     sorted_calls = calls.sort_values('strike')
-                    lower_strike = sorted_calls.iloc[0]['strike']
+                    lower_strike = float(sorted_calls.iloc[0]['strike'])
                 else:
                     # Use closest ITM strike
                     sorted_itm = itm_calls.sort_values('strike', ascending=False)
-                    lower_strike = sorted_itm.iloc[0]['strike']
+                    lower_strike = float(sorted_itm.iloc[0]['strike'])
                 
                 # Round to standard option increments
                 lower_strike = round(lower_strike / increment) * increment
@@ -360,15 +330,19 @@ class EnhancedMarketDataService:
                 target_premium = spread_width / (1 + target_roi)
                 
                 # Find actual premiums if possible
-                lower_option = calls[calls['strike'] == lower_strike]
-                upper_option = calls[calls['strike'] == upper_strike]
-                
-                if not lower_option.empty and not upper_option.empty:
-                    # Use mid-price for calculations
-                    lower_premium = (lower_option.iloc[0]['ask'] + lower_option.iloc[0]['bid']) / 2
-                    upper_premium = (upper_option.iloc[0]['ask'] + upper_option.iloc[0]['bid']) / 2
-                    actual_premium = lower_premium - upper_premium
-                else:
+                try:
+                    lower_option = calls[calls['strike'] == lower_strike]
+                    upper_option = calls[calls['strike'] == upper_strike]
+                    
+                    if not lower_option.empty and not upper_option.empty:
+                        # Use mid-price for calculations
+                        lower_premium = (float(lower_option.iloc[0]['ask']) + float(lower_option.iloc[0]['bid'])) / 2
+                        upper_premium = (float(upper_option.iloc[0]['ask']) + float(upper_option.iloc[0]['bid'])) / 2
+                        actual_premium = lower_premium - upper_premium
+                    else:
+                        # Fallback to theoretical premium
+                        actual_premium = target_premium
+                except:
                     # Fallback to theoretical premium
                     actual_premium = target_premium
                 
@@ -396,68 +370,84 @@ class EnhancedMarketDataService:
                 
             except Exception as e:
                 logger.error(f"Error getting options data for {symbol}: {str(e)}")
-                return EnhancedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+                return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
             
         except Exception as e:
             logger.error(f"Error in options data for {symbol}: {str(e)}")
-            return EnhancedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+            return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, 0)
     
     @staticmethod
     def _generate_fallback_trade(symbol, strategy, current_price):
         """Generate fallback trade recommendation with realistic values"""
-        if current_price <= 0:
-            current_price = 100.0  # Default fallback price
-        
-        # Determine the increment based on ETF price
-        if current_price < 50:
-            increment = 0.5
-        elif current_price < 100:
-            increment = 1.0
-        else:
-            increment = 2.5
+        try:
+            if not current_price or current_price <= 0:
+                current_price = 100.0  # Default fallback price
             
-        # Round current price to increment and find strikes
-        rounded_price = round(current_price / increment) * increment
-        lower_strike = rounded_price - increment
-        upper_strike = rounded_price
-        spread_width = upper_strike - lower_strike
-        
-        # Target ROI based on strategy
-        if strategy == 'Aggressive':
-            target_roi = 0.30
-            dte = 7
-        elif strategy == 'Passive':
-            target_roi = 0.16
-            dte = 42
-        else:  # Default to Steady
-            target_roi = 0.22
-            dte = 21
-        
-        # Calculate premium based on target ROI
-        premium = round(spread_width / (1 + target_roi), 2)
-        
-        # Set expiration date
-        expiration = (datetime.now() + timedelta(days=dte)).strftime('%Y-%m-%d')
-        
-        # Return simulated trade
-        return {
-            "strike": lower_strike,
-            "upper_strike": upper_strike,
-            "spread_width": spread_width,
-            "expiration": expiration,
-            "dte": dte,
-            "roi": f"{target_roi:.0%}",
-            "premium": premium,
-            "pct_otm": round((lower_strike - current_price) / current_price * 100, 1),
-            "max_profit": round(spread_width - premium, 2),
-            "max_loss": premium
-        }
+            # Determine the increment based on ETF price
+            if current_price < 50:
+                increment = 0.5
+            elif current_price < 100:
+                increment = 1.0
+            else:
+                increment = 2.5
+                
+            # Round current price to increment and find strikes
+            rounded_price = round(current_price / increment) * increment
+            lower_strike = rounded_price - increment
+            upper_strike = rounded_price
+            spread_width = upper_strike - lower_strike
+            
+            # Target ROI based on strategy
+            if strategy == 'Aggressive':
+                target_roi = 0.30
+                dte = 7
+            elif strategy == 'Passive':
+                target_roi = 0.16
+                dte = 42
+            else:  # Default to Steady
+                target_roi = 0.22
+                dte = 21
+            
+            # Calculate premium based on target ROI
+            premium = round(spread_width / (1 + target_roi), 2)
+            
+            # Set expiration date
+            expiration = (datetime.now() + timedelta(days=dte)).strftime('%Y-%m-%d')
+            
+            # Return simulated trade
+            return {
+                "strike": lower_strike,
+                "upper_strike": upper_strike,
+                "spread_width": spread_width,
+                "expiration": expiration,
+                "dte": dte,
+                "roi": f"{target_roi:.0%}",
+                "premium": premium,
+                "pct_otm": round((lower_strike - current_price) / current_price * 100, 1),
+                "max_profit": round(spread_width - premium, 2),
+                "max_loss": premium
+            }
+        except Exception as e:
+            logger.error(f"Error generating fallback trade: {str(e)}")
+            # Return most basic fallback with default values
+            return {
+                "strike": 100.0,
+                "upper_strike": 101.0,
+                "spread_width": 1.0,
+                "expiration": (datetime.now() + timedelta(days=21)).strftime('%Y-%m-%d'),
+                "dte": 21,
+                "roi": "22%",
+                "premium": 0.45,
+                "pct_otm": -2.0,
+                "max_profit": 0.55,
+                "max_loss": 0.45
+            }
 
 def update_market_data():
     """Update market data for all tracked ETFs"""
     try:
         start_time = time.time()
-        etf_data = EnhancedMarketDataService.get_etf_data()
+        etf_data = SimplifiedMarketDataService.get_etf_data()
         logger.info(f"Market data update completed in {time.time() - start_time:.2f} seconds")
         return etf_data
     except Exception as e:
@@ -467,7 +457,7 @@ def update_market_data():
 def get_trade_recommendation(symbol, strategy):
     """Get trade recommendation for a specific ETF and strategy"""
     try:
-        return EnhancedMarketDataService.get_options_data(symbol, strategy)
+        return SimplifiedMarketDataService.get_options_data(symbol, strategy)
     except Exception as e:
         logger.error(f"Failed to get trade recommendation for {symbol}: {str(e)}")
         return None

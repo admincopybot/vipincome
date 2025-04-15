@@ -3,7 +3,7 @@ import logging
 import os
 import threading
 import time
-import market_data_new as market_data  # Using Polygon for ETF scoring
+import simplified_market_data as market_data  # Using simplified market data service with reliable indicators
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
