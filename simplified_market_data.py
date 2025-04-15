@@ -91,11 +91,52 @@ class SimplifiedMarketDataService:
         Returns tuple of (score, current_price, indicator_details_dict)
         """
         try:
-            # Get historical data (last 6 months)
-            hist_data = yf.download(ticker, period="6mo", progress=False)
+            # Get historical data (last 6 months) - explicitly set group_by to prevent multi-index
+            hist_data = yf.download(ticker, period="6mo", progress=False, group_by=None)
             
             if hist_data.empty or len(hist_data) < 100:
                 logger.error(f"Not enough historical data for {ticker}")
+                return 0, 0.0, {}
+            
+            # Handle multi-index columns if present 
+            if isinstance(hist_data.columns, pd.MultiIndex):
+                logger.info(f"Multi-index detected in columns: {hist_data.columns}")
+                
+                # Create new DataFrame with flattened structure
+                # This approach works regardless of the exact multi-index structure
+                flat_data = {}
+                
+                # Extract each series we need and give it a simple name
+                for col_type in ['Close', 'High', 'Low', 'Open', 'Volume']:
+                    try:
+                        # Try to get the column with various options to handle different multi-index formats
+                        if (col_type, ticker) in hist_data.columns:
+                            flat_data[col_type] = hist_data[(col_type, ticker)]
+                        elif col_type in hist_data.columns.get_level_values(0):
+                            # If the column type exists at level 0, get that series
+                            cols = [col for col in hist_data.columns if col[0] == col_type]
+                            if cols:
+                                flat_data[col_type] = hist_data[cols[0]]
+                    except Exception as e:
+                        logger.warning(f"Error extracting {col_type} from multi-index: {e}")
+                
+                # Create a new DataFrame if we got any data
+                if flat_data:
+                    hist_data = pd.DataFrame(flat_data)
+                    logger.info(f"Successfully flattened multi-index data. New columns: {hist_data.columns}")
+                else:
+                    # As a last resort, try resetting the multi-index
+                    try:
+                        # Another approach: drop the first level entirely
+                        hist_data.columns = hist_data.columns.droplevel(0)
+                        logger.info(f"Dropped first level of multi-index. New columns: {hist_data.columns}")
+                    except:
+                        logger.error(f"Failed to process multi-index columns: {hist_data.columns}")
+                        return 0, 0.0, {}
+            
+            # Check if we actually have the 'Close' column now
+            if 'Close' not in hist_data.columns:
+                logger.error(f"Could not find Close column in data. Columns: {hist_data.columns}")
                 return 0, 0.0, {}
             
             # Get current price and initialize score - use .item() to avoid Series truth value ambiguity
@@ -306,9 +347,21 @@ class SimplifiedMarketDataService:
                 logger.warning(f"Unrecognized ETF symbol: {symbol}")
                 return None
             
-            # First, get latest price data
+            # First, get latest price data with group_by=None to avoid multi-index
             ticker_data = yf.Ticker(symbol)
-            current_price = float(ticker_data.history(period="1d")['Close'].iloc[-1])
+            hist = ticker_data.history(period="1d", group_by=None)
+            
+            # Handle potential multi-index in the result
+            if isinstance(hist.columns, pd.MultiIndex):
+                # If we have a multi-index, flatten it
+                if ('Close', symbol) in hist.columns:
+                    current_price = float(hist[('Close', symbol)].iloc[-1])
+                else:
+                    logger.error(f"Unexpected column structure in history: {hist.columns}")
+                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, 0)
+            else:
+                # If we don't have a multi-index, just access Close directly
+                current_price = float(hist['Close'].iloc[-1])
             
             if not current_price or current_price <= 0:
                 logger.error(f"Invalid current price for {symbol}: {current_price}")
