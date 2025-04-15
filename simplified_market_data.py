@@ -106,12 +106,51 @@ class SimplifiedMarketDataService:
             score = 0
             indicators = {}
             
-            # Calculate EMAs for trendlines using TA-Lib
-            ema_20_values = talib.EMA(hist_data['Close'], timeperiod=20)
-            ema_20 = float(ema_20_values[-1])
+            # Use the external TA-Lib microservice for all technical indicators
             
-            ema_100_values = talib.EMA(hist_data['Close'], timeperiod=100)
-            ema_100 = float(ema_100_values[-1])
+            # Prepare data for the microservice
+            close_data = hist_data['Close'].dropna().tail(100)
+            high_data = hist_data['High'].dropna().tail(100)
+            low_data = hist_data['Low'].dropna().tail(100)
+            
+            # Convert to regular lists for JSON serialization
+            close_prices = [float(x) for x in close_data.values]
+            high_prices = [float(x) for x in high_data.values]
+            low_prices = [float(x) for x in low_data.values]
+            
+            # Calculate previous week closing price
+            weekly_data = hist_data.resample('W-FRI').agg({'Close': 'last'})
+            prev_week_close = float(weekly_data['Close'].iloc[-2]) if len(weekly_data) > 1 else float(hist_data['Close'].iloc[0])
+            
+            # Get ETF technical score from the TA-Lib microservice
+            logger.info(f"Getting ETF technical score for {ticker} from the TA-Lib microservice")
+            etf_score_result = talib_service.get_etf_technical_score(ticker)
+            
+            if etf_score_result and 'score' in etf_score_result:
+                # Use the score and indicators from the comprehensive score endpoint
+                score = etf_score_result['score']
+                indicators = etf_score_result.get('factors', {})
+                logger.info(f"Received score {score}/5 from TA-Lib microservice")
+                return score, float(current_price), indicators
+                
+            # Fallback to individual calculations if microservice fails
+            logger.warning(f"Microservice comprehensive score failed for {ticker}, falling back to individual calculations")
+            
+            # Try using individual indicators via microservice
+            try:
+                # For EMA calculations
+                ema_20_payload = {"prices": close_prices, "timeperiod": 20}
+                ema_20_result = talib_service.send_to_talib_service("/indicators/ema", ema_20_payload)
+                ema_20 = float(ema_20_result['last_value']) if ema_20_result and 'last_value' in ema_20_result else 0.0
+                
+                ema_100_payload = {"prices": close_prices, "timeperiod": 100}
+                ema_100_result = talib_service.send_to_talib_service("/indicators/ema", ema_100_payload)
+                ema_100 = float(ema_100_result['last_value']) if ema_100_result and 'last_value' in ema_100_result else 0.0
+            except Exception as e:
+                logger.warning(f"Error getting individual indicators from microservice: {str(e)}")
+                # Calculate EMAs manually using pandas rolling function
+                ema_20 = float(hist_data['Close'].ewm(span=20, adjust=False).mean().iloc[-1])
+                ema_100 = float(hist_data['Close'].ewm(span=100, adjust=False).mean().iloc[-1])
             
             # 1. Trend 1: Price > 20 EMA
             trend1_pass = bool(current_price > ema_20)
@@ -139,9 +178,24 @@ class SimplifiedMarketDataService:
                 'description': trend2_desc
             }
             
-            # 3. Calculate RSI (14-period) using TA-Lib
-            rsi_values = talib.RSI(hist_data['Close'], timeperiod=14)
-            current_rsi = float(rsi_values[-1])
+            # 3. Calculate RSI (14-period) using microservice
+            try:
+                rsi_payload = {"prices": close_prices, "timeperiod": 14}
+                rsi_result = talib_service.send_to_talib_service("/indicators/rsi", rsi_payload)
+                current_rsi = float(rsi_result['last_value']) if rsi_result and 'last_value' in rsi_result else 50.0
+            except Exception as e:
+                logger.warning(f"Error getting RSI from microservice: {str(e)}")
+                # Calculate RSI manually using pandas
+                delta = hist_data['Close'].diff()
+                gain = delta.copy()
+                loss = delta.copy()
+                gain[gain < 0] = 0
+                loss[loss > 0] = 0
+                avg_gain = gain.rolling(window=14).mean()
+                avg_loss = abs(loss.rolling(window=14).mean())
+                rs = avg_gain / avg_loss.replace(0, 0.001)
+                rsi = 100 - (100 / (1 + rs))
+                current_rsi = float(rsi.iloc[-1])
             
             # Snapback: RSI < 50
             try:

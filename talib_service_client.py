@@ -37,7 +37,8 @@ def check_rsi_condition(ticker, timeframe='4H', period="1mo"):
         
         # Resample to desired timeframe
         resampled = data.resample(timeframe).agg({'Close': 'last'})
-        close_prices = resampled['Close'].dropna().tail(30).tolist()
+        close_data = resampled['Close'].dropna().tail(30)
+        close_prices = [float(x) for x in close_data.values]
         
         # Prepare payload for the microservice
         payload = {
@@ -73,9 +74,14 @@ def get_etf_technical_score(ticker, period="6mo"):
             return None
         
         # Prepare data for the microservice
-        close_prices = data['Close'].dropna().tail(100).tolist()
-        high_prices = data['High'].dropna().tail(100).tolist()
-        low_prices = data['Low'].dropna().tail(100).tolist()
+        close_data = data['Close'].dropna().tail(100)
+        high_data = data['High'].dropna().tail(100)
+        low_data = data['Low'].dropna().tail(100)
+        
+        # Convert to regular lists for JSON serialization
+        close_prices = [float(x) for x in close_data.values]
+        high_prices = [float(x) for x in high_data.values]
+        low_prices = [float(x) for x in low_data.values]
         
         # Calculate previous week closing price
         weekly_data = data.resample('W-FRI').agg({'Close': 'last'})
@@ -125,7 +131,8 @@ def check_snapback_condition(ticker):
         # Get data
         data = yf.download(ticker, period="1mo", interval="1h", progress=False)
         resampled = data.resample('4H').agg({'Close': 'last'})
-        close_prices = resampled['Close'].dropna().tail(30).tolist()
+        close_data = resampled['Close'].dropna().tail(30)
+        close_prices = [float(x) for x in close_data.values]
         
         # Send request to the TA-Lib microservice
         response = requests.post(
