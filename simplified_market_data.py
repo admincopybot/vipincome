@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import yfinance as yf
-import talib_custom as talib
+import talib_service_client as talib_service
 
 logger = logging.getLogger(__name__)
 
