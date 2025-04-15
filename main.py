@@ -3,7 +3,7 @@ import logging
 import os
 import threading
 import time
-import market_data
+import market_data_new as market_data  # Using our Polygon-enhanced version
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
