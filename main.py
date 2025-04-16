@@ -37,21 +37,24 @@ etf_scores = {
 }
 
 # Data update tracking 
+# Cache control variables
 last_update_time = 0  # Set to 0 to force immediate update at startup
-update_interval = 15 * 60  # 15 minutes
+update_interval = 5 * 60  # 5 minutes (reduced to ensure more frequent real-time updates)
+force_refresh = False  # Flag to force refresh regardless of time interval
 
 def update_market_data_background():
     """Background thread to update market data periodically"""
-    global etf_scores, last_update_time
+    global etf_scores, last_update_time, force_refresh
     
     while True:
         current_time = time.time()
         
-        # Update at app startup and then on interval
-        if current_time - last_update_time > update_interval:
+        # Update at app startup, on interval, or when forced refresh is requested
+        if current_time - last_update_time > update_interval or force_refresh:
             try:
                 logger.info("Updating market data...")
-                new_data = market_data.update_market_data()
+                # Add a cache-busting parameter to ensure fresh data
+                new_data = market_data.update_market_data(force_refresh=True)
                 
                 if new_data and len(new_data) > 0:
                     # Update data while preserving any ETFs that might not be in the new data
@@ -59,6 +62,7 @@ def update_market_data_background():
                         etf_scores[symbol] = data
                     
                     last_update_time = current_time
+                    force_refresh = False  # Reset the force refresh flag
                     logger.info(f"Market data updated. {len(new_data)} ETFs processed.")
                 else:
                     logger.warning("No market data received in update.")
@@ -66,8 +70,8 @@ def update_market_data_background():
             except Exception as e:
                 logger.error(f"Error updating market data: {str(e)}")
         
-        # Sleep for a minute before checking again
-        time.sleep(60)
+        # Sleep for a shorter interval (30 seconds) to be more responsive to force_refresh requests
+        time.sleep(30)
 
 # Helper function that previously added star elements (now disabled)
 def add_stars_to_template(template_str):

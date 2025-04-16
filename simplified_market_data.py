@@ -31,10 +31,16 @@ class SimplifiedMarketDataService:
     default_etfs = ["XLK", "XLF", "XLV", "XLI", "XLP", "XLY", "XLE", "XLB", "XLU", "XLRE", "XLC"]
     
     @staticmethod
-    def get_etf_data(symbols=None):
+    def get_etf_data(symbols=None, force_refresh=False):
         """
         Fetch current data for a list of ETF symbols
-        Returns a dictionary with ETF data including price, sector, and calculated score
+        
+        Args:
+            symbols (list): List of ETF symbols to fetch data for
+            force_refresh (bool): If True, bypass any caching and fetch fresh data
+            
+        Returns:
+            dict: Dictionary with ETF data including price, sector, and calculated score
         """
         if symbols is None:
             symbols = SimplifiedMarketDataService.default_etfs
@@ -78,7 +84,7 @@ class SimplifiedMarketDataService:
         return results
     
     @staticmethod
-    def _calculate_etf_score(ticker):
+    def _calculate_etf_score(ticker, force_refresh=False):
         """
         Calculate a score (1-5) for an ETF based on specific technical indicators:
         1. Trend 1: Price > 20 EMA on Daily Timeframe
@@ -87,12 +93,26 @@ class SimplifiedMarketDataService:
         4. Momentum: Price > Previous Week's Closing Price
         5. Stabilizing: 3-Day ATR < 6-Day ATR
         
+        Args:
+            ticker (str): ETF ticker symbol 
+            force_refresh (bool): If True, bypass any caching and fetch fresh data
+        
         Each indicator = 1 point, total score from 0-5
         Returns tuple of (score, current_price, indicator_details_dict)
         """
         try:
             # Get historical data (last 6 months) - explicitly set group_by to prevent multi-index
-            hist_data = yf.download(ticker, period="6mo", progress=False, group_by=None)
+            # Add cache busting parameter if force_refresh is True
+            download_params = {'period': '6mo', 'progress': False, 'group_by': None}
+            
+            # Get real-time data by explicitly setting today as the end date when force_refresh is requested
+            if force_refresh:
+                from datetime import datetime
+                download_params['start'] = None  # Let period handle the start date 
+                download_params['end'] = datetime.now().strftime('%Y-%m-%d')  # Force today's data
+                logger.info(f"Force refreshing data for {ticker} with real-time parameters")
+                
+            hist_data = yf.download(ticker, **download_params)
             
             if hist_data.empty or len(hist_data) < 100:
                 logger.error(f"Not enough historical data for {ticker}")
@@ -575,11 +595,16 @@ class SimplifiedMarketDataService:
                 "max_loss": 0.45
             }
 
-def update_market_data():
-    """Update market data for all tracked ETFs"""
+def update_market_data(force_refresh=False):
+    """Update market data for all tracked ETFs
+    
+    Args:
+        force_refresh (bool): If True, bypass any caching and fetch fresh data
+    """
     try:
         start_time = time.time()
-        etf_data = SimplifiedMarketDataService.get_etf_data()
+        # Pass force_refresh to get_etf_data to ensure fresh data
+        etf_data = SimplifiedMarketDataService.get_etf_data(force_refresh=force_refresh)
         logger.info(f"Market data update completed in {time.time() - start_time:.2f} seconds")
         return etf_data
     except Exception as e:
