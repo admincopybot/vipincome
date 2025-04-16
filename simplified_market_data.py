@@ -198,12 +198,12 @@ class SimplifiedMarketDataService:
             
             # First, try to use the complete endpoint if available
             try:
-                # Prepare payload for the microservice
+                # Prepare payload for the microservice - ensure all values are JSON serializable
                 payload = {
                     "close": close_prices,
                     "high": high_prices,
                     "low": low_prices,
-                    "prev_week_close": prev_week_close
+                    "prev_week_close": float(prev_week_close)  # Ensure this is a regular float, not numpy.float or other type
                 }
                 
                 # Send to the TA-Lib microservice

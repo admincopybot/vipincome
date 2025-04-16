@@ -9,10 +9,16 @@ logger = logging.getLogger(__name__)
 def send_to_talib_service(endpoint, payload, base_url="https://5218d07b-482e-43f3-8a01-fbca2786e42c-00-3t4oeu4n8zr8l.riker.replit.dev"):
     """Send data to the TA-Lib microservice"""
     try:
+        # Convert boolean values to integers (0/1) to avoid JSON serialization issues
+        sanitized_payload = payload.copy()
+        for key, value in sanitized_payload.items():
+            if isinstance(value, bool):
+                sanitized_payload[key] = 1 if value else 0
+                
         response = requests.post(
             f"{base_url}/api{endpoint}",
             headers={"Content-Type": "application/json"},
-            data=json.dumps(payload),
+            data=json.dumps(sanitized_payload),
             timeout=10
         )
         
