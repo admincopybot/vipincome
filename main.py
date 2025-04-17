@@ -232,9 +232,9 @@ logo_header = """
 <header class="py-3 mb-4 border-bottom">
     <div class="container-fluid d-flex flex-wrap justify-content-between align-items-end" style="padding-left: 0;">
         <!-- Left section: Logo -->
-        <div style="min-width: 150px;">
+        <div style="min-width: 300px; margin-left: 15px;">
             <a href="/" style="display: block;">
-                <img src="/static/images/animated_logo.gif" alt="Nate Tucci's Income Machine" height="150" style="cursor: pointer;">
+                <img src="/static/images/incomemachine_horizontallogo.png" alt="Nate Tucci's Income Machine" height="80" style="cursor: pointer; margin: 10px 0;">
             </a>
         </div>
         
