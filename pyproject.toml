@@ -13,6 +13,7 @@ dependencies = [
     "pandas>=2.2.3",
     "polygon-api-client>=1.14.4",
     "psycopg2-binary>=2.9.10",
+    "python-dotenv>=1.1.0",
     "requests>=2.32.3",
     "ta>=0.11.0",
     "trafilatura>=2.0.0",

@@ -3,8 +3,13 @@ import logging
 import os
 import threading
 import time
+from dotenv import load_dotenv
+from datetime import datetime
 import simplified_market_data as market_data  # Using simplified market data service with reliable indicators
 from tradelist_client import TradeListApiService
+
+# Load environment variables from .env file if it exists
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -1855,6 +1860,32 @@ def special_offer():
     </html>
     """
     return render_template_string(template, global_css=global_css, logo_header=logo_header, )
+
+# API test endpoints
+@app.route('/api/test/tradelist')
+def test_tradelist_api():
+    """Test endpoint for TheTradeList API integration"""
+    from datetime import datetime
+    tradelist_service = TradeListApiService()
+    
+    # Get health check
+    health_check = tradelist_service.api_health_check()
+    
+    # Test with a sample ticker
+    test_ticker = request.args.get('ticker', 'XLK')
+    ticker_data = tradelist_service.get_current_price(test_ticker)
+    
+    response = {
+        "api_status": health_check,
+        "ticker_data": ticker_data,
+        "environment": {
+            "api_key_set": bool(os.environ.get("TRADELIST_API_KEY")),
+            "api_enabled": tradelist_service.USE_TRADELIST_API
+        },
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    return jsonify(response)
 
 # Run the Flask application
 if __name__ == '__main__':
