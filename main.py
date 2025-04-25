@@ -897,6 +897,14 @@ def index():
         
         <div class="container py-4">
             {{ logo_header|safe }}
+            {% if all_zero_prices %}
+            <div class="alert alert-danger mb-4" role="alert">
+                <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> API Connection Issue</h4>
+                <p>The TradeList API is currently unavailable. The system is showing placeholder data until the connection is restored.</p>
+                <hr>
+                <p class="mb-0">Our team has been notified and is working to resolve this issue. Please check back later.</p>
+            </div>
+            {% endif %}
             
             <div class="step-indicator mb-4">
                 <a href="#" class="step step1 active">
@@ -924,7 +932,16 @@ def index():
                             </div>
                             
                             <p class="text-light mb-1" style="font-size: 1.1rem; opacity: 0.9;">{{ data.name }}</p>
-                            <p class="text-light mb-3" style="font-size: 1.5rem; font-weight: 600;">${{ "%.2f"|format(data.price) }}</p>
+                            {% if data.price > 0 %}
+                                <p class="text-light mb-3" style="font-size: 1.5rem; font-weight: 600;">${{ "%.2f"|format(data.price) }}</p>
+                            {% else %}
+                                <p class="text-danger mb-3" style="font-size: 1.1rem; font-weight: 500;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> API Connection Issue
+                                </p>
+                                <p class="text-light mb-3" style="font-size: 0.9rem; opacity: 0.7;">
+                                    The TradeList API is currently unavailable
+                                </p>
+                            {% endif %}
                             
                             <div class="progress mb-4" style="height: 8px; background: rgba(40, 40, 45, 0.3); overflow: hidden; border-radius: 100px;">
                                 <div class="progress-bar progress-bar-score-{{ data.score }}" role="progressbar" 
@@ -1084,7 +1101,17 @@ def step2():
                         <div class="card-body">
                             <p><strong>Symbol:</strong> {{ etf }}</p>
                             <p><strong>Sector:</strong> {{ etf_data.name }}</p>
-                            <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
+                            {% if etf_data.price > 0 %}
+                                <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
+                            {% else %}
+                                <p class="text-danger">
+                                    <strong>Price Data:</strong> 
+                                    <span class="badge bg-danger">API Connection Issue</span>
+                                </p>
+                                <p class="text-light" style="font-size: 0.9rem; opacity: 0.7;">
+                                    The TradeList API is currently unavailable
+                                </p>
+                            {% endif %}
                             <p><strong>Score:</strong> {{ etf_data.score }}/5</p>
                             <div class="progress mb-3" style="height: 8px; background: rgba(40, 40, 45, 0.3); overflow: hidden; border-radius: 100px;">
                                 <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 

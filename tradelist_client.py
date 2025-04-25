@@ -204,13 +204,35 @@ class TradeListApiService:
                 redirect_url = response.headers.get('Location')
                 logger.warning(f"API returned redirect to: {redirect_url}")
                 
-                # Follow the redirect manually with the API key in headers
+                # Parse the redirect URL properly (with null checks)
+                if redirect_url is None:
+                    logger.error("Received a 302 redirect but no Location header was provided")
+                    full_redirect_url = "https://api.thetradelist.com"
+                elif redirect_url.startswith('http'):
+                    # It's an absolute URL
+                    full_redirect_url = redirect_url
+                elif redirect_url.startswith('/'):
+                    # It's a root-relative URL
+                    base_url = TradeListApiService.TRADELIST_API_BASE_URL.split('/v1')[0]
+                    full_redirect_url = f"{base_url}{redirect_url}"
+                else:
+                    # It's a relative URL from the current path
+                    base_url = TradeListApiService.TRADELIST_API_BASE_URL
+                    full_redirect_url = f"{base_url}/{redirect_url}"
+                
+                logger.info(f"Following redirect to: {full_redirect_url}")
+                
+                # Follow the redirect manually with the API key in headers and cookies
                 headers = {
                     'Authorization': f'Bearer {api_key}',
-                    'User-Agent': 'IncomeMachineMVP/1.0'
+                    'User-Agent': 'IncomeMachineMVP/1.0',
+                    'Accept': 'application/json'
                 }
-                response = requests.get(f"{TradeListApiService.TRADELIST_API_BASE_URL}/{redirect_url}", 
-                                       headers=headers, timeout=15)
+                
+                # Try to preserve any cookies from the original response
+                cookies = response.cookies
+                
+                response = requests.get(full_redirect_url, headers=headers, cookies=cookies, timeout=15)
             
             # Log the response for debugging
             logger.debug(f"TheTradeList API response status: {response.status_code}")
@@ -336,11 +358,47 @@ class TradeListApiService:
             # Make a test API request with no redirects
             response = requests.get(url, params=params, timeout=15, allow_redirects=False)
             
+            # Handle redirects for health check similar to main API calls
+            if response.status_code == 302:
+                redirect_url = response.headers.get('Location')
+                logger.info(f"Health check: API returned redirect to: {redirect_url}")
+                
+                # Parse the redirect URL properly (with null checks)
+                if redirect_url is None:
+                    logger.error("Received a 302 redirect but no Location header was provided")
+                    full_redirect_url = "https://api.thetradelist.com"
+                elif redirect_url.startswith('http'):
+                    full_redirect_url = redirect_url
+                elif redirect_url.startswith('/'):
+                    base_url = TradeListApiService.TRADELIST_API_BASE_URL.split('/v1')[0]
+                    full_redirect_url = f"{base_url}{redirect_url}"
+                else:
+                    base_url = TradeListApiService.TRADELIST_API_BASE_URL
+                    full_redirect_url = f"{base_url}/{redirect_url}"
+                
+                # Follow the redirect with proper headers
+                headers = {
+                    'Authorization': f'Bearer {api_key}',
+                    'User-Agent': 'IncomeMachineMVP/1.0',
+                    'Accept': 'application/json'
+                }
+                try:
+                    redirect_response = requests.get(full_redirect_url, headers=headers, cookies=response.cookies, timeout=15)
+                    # Update response with the redirect results
+                    response = redirect_response
+                except Exception as redirect_error:
+                    logger.error(f"Failed to follow redirect in health check: {str(redirect_error)}")
+            
             # If we can connect to the API endpoint, consider it a successful connectivity check
-            if response.status_code == 200 or response.status_code == 302:
-                # The API is responding, even if with a redirect or doesn't return proper data
+            if response.status_code == 200:
+                # The API is responding properly
+                api_status = "ok"
+                if not response.text.strip().startswith(('[', '{')):
+                    api_status = "invalid_format"
+                
                 return {
                     "status": "connected", 
+                    "api_status": api_status,
                     "message": f"TheTradeList API is reachable. Status code: {response.status_code}",
                     "feature_enabled": TradeListApiService.USE_TRADELIST_API,
                     "http_status": response.status_code,
