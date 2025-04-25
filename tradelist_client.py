@@ -40,52 +40,73 @@ class TradeListApiService:
     - returntype (optional, default: 'csv'): 'csv' or 'json'
     - apiKey (required): Your API key
     """
-    TRADELIST_SUPPORTED_ETFS = ["XLC", "XLF", "XLV", "XLI", "XLP", "XLY", "XLE", "XLB", "XLU", "XLRE", "XLC"]
+    TRADELIST_SUPPORTED_ETFS = ["XLK", "XLF", "XLV", "XLI", "XLP", "XLY", "XLE", "XLB", "XLU", "XLRE", "XLC", "SPY"]
     
     # Feature flag to control API usage
     USE_TRADELIST_API = os.environ.get("USE_TRADELIST_API", "true").lower() == "true"
     
     @staticmethod
     def get_current_price(ticker):
-        """Get the current price and change data for a ticker using TheTradeList API with yfinance fallback"""
+        """Get the current price and change data for a ticker using TheTradeList API only (no fallback)"""
         try:
-            # First attempt to get data from TheTradeList API if enabled and ticker is supported
-            if TradeListApiService.USE_TRADELIST_API and ticker in TradeListApiService.TRADELIST_SUPPORTED_ETFS:
-                tradelist_data = TradeListApiService.get_tradelist_data(ticker)
-                
-                # Extract data from the response
-                if tradelist_data and len(tradelist_data) > 0:
-                    etf_data = tradelist_data[0]
-                    current_price = float(etf_data.get("current_stock_price", 0))
-                    prev_close = float(etf_data.get("prev_week_stock_close_price", 0))
-                    
-                    # Calculate change values
-                    price_change = current_price - prev_close
-                    percent_change = (price_change / prev_close * 100) if prev_close > 0 else 0
-                    
-                    logger.info(f"Retrieved {ticker} price from TheTradeList API: ${current_price:.2f}")
-                    
-                    # Create response object matching the current structure
-                    return {
-                        "ticker": ticker,
-                        "price": current_price,
-                        "change": price_change,
-                        "change_percent": percent_change,
-                        "volume": etf_data.get("stock_volume_by_day", 0),
-                        "last_updated": etf_data.get("price_update_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                        "data_source": "TheTradeList API"
-                    }
-                else:
-                    logger.warning(f"No data returned from TheTradeList API for {ticker}")
+            # Check if API is enabled
+            if not TradeListApiService.USE_TRADELIST_API:
+                logger.error(f"TheTradeList API is disabled. Set USE_TRADELIST_API=true to enable.")
+                return TradeListApiService._create_error_response(ticker, "API disabled")
             
-            # Fall back to yfinance if TheTradeList API fails, is disabled, or ticker not supported
-            logger.info(f"Falling back to yfinance for {ticker}")
-            return TradeListApiService._get_price_from_yfinance(ticker)
+            # Check if ticker is supported
+            if ticker not in TradeListApiService.TRADELIST_SUPPORTED_ETFS:
+                logger.error(f"Ticker {ticker} is not supported by TheTradeList API")
+                return TradeListApiService._create_error_response(ticker, "Unsupported ticker")
+            
+            # Get data from TheTradeList API
+            tradelist_data = TradeListApiService.get_tradelist_data(ticker)
+            
+            # Extract data from the response
+            if tradelist_data and len(tradelist_data) > 0:
+                etf_data = tradelist_data[0]
+                current_price = float(etf_data.get("current_stock_price", 0))
+                prev_close = float(etf_data.get("prev_week_stock_close_price", 0))
+                
+                # Calculate change values
+                price_change = current_price - prev_close
+                percent_change = (price_change / prev_close * 100) if prev_close > 0 else 0
+                
+                logger.info(f"Retrieved {ticker} price from TheTradeList API: ${current_price:.2f}")
+                
+                # Create response object matching the current structure
+                return {
+                    "ticker": ticker,
+                    "price": current_price,
+                    "change": price_change,
+                    "change_percent": percent_change,
+                    "volume": etf_data.get("stock_volume_by_day", 0),
+                    "last_updated": etf_data.get("price_update_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                    "data_source": "TheTradeList API"
+                }
+            else:
+                logger.error(f"No data returned from TheTradeList API for {ticker}")
+                return TradeListApiService._create_error_response(ticker, "No data returned from API")
         
         except Exception as e:
-            logger.error(f"Error getting price data for {ticker}: {str(e)}")
-            # Fall back to yfinance in case of any error
-            return TradeListApiService._get_price_from_yfinance(ticker)
+            logger.error(f"Error getting price data for {ticker} from TheTradeList API: {str(e)}")
+            return TradeListApiService._create_error_response(ticker, f"API Error: {str(e)}")
+    
+    @staticmethod
+    def _create_error_response(ticker, error_message):
+        """Create an error response object for when API fails"""
+        logger.error(f"TradeList API Error for {ticker}: {error_message}")
+        return {
+            "ticker": ticker,
+            "price": 0,
+            "change": 0,
+            "change_percent": 0,
+            "volume": 0,
+            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "data_source": f"TheTradeList API Error: {error_message}",
+            "error": True,
+            "error_message": error_message
+        }
     
     @staticmethod
     def _get_price_from_yfinance(ticker):
@@ -286,36 +307,58 @@ class TradeListApiService:
     def api_health_check():
         """Check if TheTradeList API is available and API key is valid"""
         try:
+            # Check if API is enabled
+            if not TradeListApiService.USE_TRADELIST_API:
+                return {
+                    "status": "disabled",
+                    "message": "TheTradeList API is explicitly disabled by configuration",
+                    "feature_enabled": False
+                }
+                
             # Check if API key exists
             api_key = os.environ.get("TRADELIST_API_KEY")
             if not api_key:
                 return {
                     "status": "error",
-                    "message": "TheTradeList API key not found in environment variables",
+                    "message": "TheTradeList API key not found in environment variables. Set TRADELIST_API_KEY.",
                     "feature_enabled": TradeListApiService.USE_TRADELIST_API
                 }
             
-            # Test API with a sample call
-            test_ticker = "XLK"  # Use a common ETF for testing
-            test_data = TradeListApiService.get_tradelist_data(test_ticker)
+            # Test API with a basic connection check
+            url = f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_SCANNER_ENDPOINT}"
+            params = {
+                "returntype": "json",
+                "apiKey": api_key,
+                "stockvol": 0,
+                "totalpoints": 0
+            }
             
-            if test_data is not None:
+            # Make a test API request with no redirects
+            response = requests.get(url, params=params, timeout=15, allow_redirects=False)
+            
+            # If we can connect to the API endpoint, consider it a successful connectivity check
+            if response.status_code == 200 or response.status_code == 302:
+                # The API is responding, even if with a redirect or doesn't return proper data
                 return {
-                    "status": "success",
-                    "message": "TheTradeList API is operational",
+                    "status": "connected", 
+                    "message": f"TheTradeList API is reachable. Status code: {response.status_code}",
                     "feature_enabled": TradeListApiService.USE_TRADELIST_API,
-                    "sample_data": test_data[:1] if test_data else []  # Include just the first item to avoid verbose output
+                    "http_status": response.status_code,
+                    "details": "API can be reached but may not be returning proper data format."
                 }
             else:
+                # The API endpoint is unreachable or returning errors
                 return {
                     "status": "error",
-                    "message": "TheTradeList API call failed",
-                    "feature_enabled": TradeListApiService.USE_TRADELIST_API
+                    "message": f"TheTradeList API responded with error status code: {response.status_code}",
+                    "feature_enabled": TradeListApiService.USE_TRADELIST_API,
+                    "http_status": response.status_code
                 }
                 
         except Exception as e:
+            # Could not connect to the API at all
             return {
                 "status": "error",
-                "message": f"Error during API health check: {str(e)}",
+                "message": f"Cannot connect to TheTradeList API: {str(e)}",
                 "feature_enabled": TradeListApiService.USE_TRADELIST_API
             }
