@@ -12,8 +12,13 @@ class TradeListApiService:
     """Service to fetch ETF data from TheTradeList API with yfinance fallback"""
     
     # API Constants
+    # TODO: Update with correct API endpoint information once provided
+    # Current endpoints don't return expected data format
     TRADELIST_API_BASE_URL = "https://api.thetradelist.com/v1/data"
     TRADELIST_SCANNER_ENDPOINT = "/get_trader_scanner_data.php"
+    
+    # Add info about API documentation
+    API_DOCUMENTATION = "Refer to TheTradeList API documentation for up-to-date endpoint information"
     TRADELIST_SUPPORTED_ETFS = ["XLC", "XLF", "XLV", "XLI", "XLP", "XLY", "XLE", "XLB", "XLU", "XLRE", "XLC"]
     
     # Feature flag to control API usage
@@ -128,25 +133,45 @@ class TradeListApiService:
             # Build query parameters
             params = {
                 "returntype": return_type,
-                "apiKey": api_key
+                "apiKey": api_key,
+                "symbol": ticker  # Add specific symbol parameter to filter server-side
             }
             
-            # Make API request
-            response = requests.get(url, params=params, timeout=10)
+            logger.info(f"Making request to TheTradeList API for {ticker}")
             
-            # Check for successful response
+            # Make API request with redirect following enabled
+            response = requests.get(url, params=params, timeout=10, allow_redirects=True)
+            
+            # Log the complete response for debugging
+            logger.debug(f"TheTradeList API response status: {response.status_code}")
+            logger.debug(f"TheTradeList API response headers: {response.headers}")
+            logger.debug(f"TheTradeList API response content: {response.text[:200]}...")  # Truncate to avoid huge logs
+            
+            # Check for successful response and parse accordingly
             if response.status_code == 200:
-                if return_type.lower() == "json":
-                    data = response.json()
-                    # Filter to only get the requested ticker
-                    ticker_data = [item for item in data if item.get("symbol") == ticker]
-                    return ticker_data
-                else:
-                    # Handle CSV response if needed
-                    return response.text
+                # Try to parse as JSON first
+                try:
+                    if return_type.lower() == "json" and response.text.strip().startswith(('[', '{')):
+                        data = response.json()
+                        # Filter to only get the requested ticker if not already filtered server-side
+                        if isinstance(data, list):
+                            ticker_data = [item for item in data if item.get("symbol") == ticker]
+                            return ticker_data
+                        elif isinstance(data, dict) and data.get("symbol") == ticker:
+                            return [data]  # Return as list for consistency
+                        else:
+                            logger.warning(f"Received JSON data but couldn't find ticker {ticker} in response")
+                    else:
+                        logger.warning(f"Response doesn't appear to be valid JSON format: {response.text[:50]}...")
+                except Exception as json_error:
+                    logger.error(f"Failed to parse JSON from API response: {str(json_error)}")
             else:
                 logger.error(f"TheTradeList API error: {response.status_code} - {response.text}")
-                return None
+            
+            # If we got here, either parsing failed or we didn't get valid data
+            logger.warning(f"Couldn't get valid data for {ticker} from TheTradeList API")
+            return None
+            
         except Exception as e:
             logger.error(f"Exception when calling TheTradeList API: {str(e)}")
             return None
