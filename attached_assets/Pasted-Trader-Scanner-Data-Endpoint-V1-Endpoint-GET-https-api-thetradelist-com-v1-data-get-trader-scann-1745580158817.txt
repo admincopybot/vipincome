@@ -1,0 +1,106 @@
+Trader Scanner Data Endpoint V1
+Endpoint
+GET https://api.thetradelist.com/v1/data/get_trader_scanner_data.php
+
+Description
+This API retrieves trader scanner data based on user-defined filters. Users can specify various parameters to refine their query. The data can be returned in either CSV or JSON format, with defaults applied if parameters are omitted.
+
+Request Parameters
+totalpoints (optional, default: 0) – Filters results based on total points.
+marketcap (optional, default: 0) – Filters results based on the minimum market capitalization (e.g., 500000 for $500,000).
+stockvol (optional, default: 0) – Filters results based on the minimum stock volume (e.g., 10000000 for 10 million shares).
+optionvol (optional, default: 0) – Filters results based on the minimum options volume (e.g., 2000 for 2,000 contracts).
+returntype (optional, default: CSV) – Specifies the return format. Options:
+csv – Returns data in CSV format.
+json – Returns data in JSON format.
+apiKey (required) – Your API key for authentication.
+Example Request
+GET https://api.thetradelist.com/v1/data/get_trader_scanner_data.php/?totalpoints=7&marketcap=500000&stockvol=10000000&optionvol=2000&returntype=csv&apiKey=YOUR_API_KEY
+Response Formats
+JSON Response Example
+    [
+        {
+            "symbol": "MNST",
+            "price_update_time": "2025-02-28 00:00:00",
+            "month_open_price": "48.39000",
+            "current_stock_price": "54.65000",
+            "prev_week_close_above_prev_week_high": 1,
+            "prev_week_stock_close_price": "53.00000",
+            "prev_week_high_stock_price": "50.34000",
+            "call_options_volume_trend": 1,
+            "ave_daily_call_option_volume_last_3_days": 0,
+            "ave_daily_call_option_volume_last_100_days": 2408,
+            "ave_daily_call_option_volume_last_100_trading_days": 2408,
+            "current_number_of_call_options": 7351,
+            "double_average_calls": 1,
+            "stock_purchasing_volume_gtr_two_times_ave_last_three_days": 0,
+            "stock_volume_by_day": 13932710,
+            "ema_14_and_ema_21_gtr_one_pct_separation": 1,
+            "executive_buying": 0,
+            "stock_historically_goes_up_this_month_eighty_pct": "0.00",
+            "stock_price_above_200_ema": 1,
+            "stock_price_above_100_ema": 1,
+            "stock_price_above_50_ema": 1,
+            "total_points": "8.00"
+        }
+    ]
+    
+CSV Response Example
+symbol,price_update_time,month_open_price,current_stock_price,prev_week_close_above_prev_week_high,prev_week_stock_close_price,prev_week_high_stock_price,call_options_volume_trend,ave_daily_call_option_volume_last_3_days,ave_daily_call_option_volume_last_100_days,ave_daily_call_option_volume_last_100_trading_days,current_number_of_call_options,double_average_calls,stock_purchasing_volume_gtr_two_times_ave_last_three_days,stock_volume_by_day,ema_14_and_ema_21_gtr_one_pct_separation,executive_buying,stock_historically_goes_up_this_month_eighty_pct,stock_price_above_200_ema,stock_price_above_100_ema,stock_price_above_50_ema,total_points
+    MNST,2025-02-28 00:00:00,48.39000,54.65000,1,53.00000,50.34000,1,0,2408,2408,7351,1,0,13932710,1,0,0.00,1,1,1,8.00
+    
+Notes
+Any parameter omitted from the request defaults to 0.
+The apiKey is required for authentication.
+Large queries may take longer to process.
+Ensure proper URL encoding for query parameters.
+
+
+Highs and Lows Data Endpoint V1
+Endpoint
+GET https://api.thetradelist.com/v1/data/get_highs_lows.php
+
+Description
+This API retrieves stock symbols that hit a 52 week high or 52 week low on the request date based on user-defined filters. It will return the symbol and the High and Low values. The data can be returned in either CSV or JSON format, with defaults applied if parameters are omitted.
+
+Request Parameters
+price (optional, default: 0) – Filters results based on the minimum stock price (e.g., 15.50 for $15.50).
+volume (optional, default: 0) – Filters results based on the minimum trading volume (e.g., 500000 for 500,000 shares).
+extreme (optional, default: null) – Filters results based on selected extreme High or Low (e.g., low for only seeing low results).
+returntype (optional, default: CSV) – Specifies the return format. Options:
+csv – Returns data in CSV format.
+json – Returns data in JSON format.
+apiKey (required) – Your API key for authentication.
+Example Request (extreme not set)
+GET https://api.thetradelist.com/v1/data/get_highs_lows.php/?price=15.00&volume=500000&returntype=csv&apiKey=YOUR_API_KEY
+Response Formats
+CSV Response Example
+symbol,year_high,year_low 
+    ABBV,209.60000,153.58000
+JSON Response Example
+    [
+        {
+            "symbol": "ABBV",
+            "year_high": "209.60000",
+            "year_low": "153.58000"
+        }
+    ]
+    
+Example Request (extreme set at low)
+GET https://api.thetradelist.com/v1/data/get_highs_lows.php/?price=15.00&volume=500000&extreme=low&returntype=csv&apiKey=YOUR_API_KEY
+Response Formats
+CSV Response Example
+symbol,year_low 
+    ABBV,153.58000
+JSON Response Example
+    [
+        {
+            "symbol": "ABBV",
+            "year_low": "153.58000"
+        }
+    ]
+    
+Notes
+Any parameter omitted from the request defaults to 0.
+The apiKey is required for authentication.
+Ensure proper URL encoding for query parameters.

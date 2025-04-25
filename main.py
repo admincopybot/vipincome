@@ -1864,26 +1864,131 @@ def special_offer():
 # API test endpoints
 @app.route('/api/test/tradelist')
 def test_tradelist_api():
-    """Test endpoint for TheTradeList API integration"""
+    """Test endpoint for TheTradeList API integration with detailed diagnostics
+    
+    Query Parameters:
+    - ticker: The ETF symbol to test with (default: XLK)
+    - force_raw_api: Set to 'true' to test the raw API directly (default: false)
+    - return_type: 'json' or 'csv' format (default: json)
+    - min_stock_vol: Minimum stock volume (default: 0)
+    - min_total_points: Minimum total points (default: 0)
+    """
     from datetime import datetime
-    tradelist_service = TradeListApiService()
+    import requests  # For direct API testing
     
-    # Get health check
-    health_check = tradelist_service.api_health_check()
-    
-    # Test with a sample ticker
+    # Parse query parameters
     test_ticker = request.args.get('ticker', 'XLK')
-    ticker_data = tradelist_service.get_current_price(test_ticker)
+    force_raw_api = request.args.get('force_raw_api', 'false').lower() == 'true'
+    return_type = request.args.get('return_type', 'json')
+    min_stock_vol = int(request.args.get('min_stock_vol', '0'))
+    min_total_points = int(request.args.get('min_total_points', '0'))
     
+    # Prepare response object
     response = {
-        "api_status": health_check,
-        "ticker_data": ticker_data,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "request_params": {
+            "ticker": test_ticker,
+            "force_raw_api": force_raw_api,
+            "return_type": return_type,
+            "min_stock_vol": min_stock_vol,
+            "min_total_points": min_total_points
+        },
         "environment": {
             "api_key_set": bool(os.environ.get("TRADELIST_API_KEY")),
-            "api_enabled": tradelist_service.USE_TRADELIST_API
-        },
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "api_enabled": TradeListApiService.USE_TRADELIST_API,
+            "api_endpoints": {
+                "scanner": f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_SCANNER_ENDPOINT}",
+                "highs_lows": f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_HIGHS_LOWS_ENDPOINT}"
+            }
+        }
     }
+    
+    # Test #1: API Health Check
+    api_health = TradeListApiService.api_health_check()
+    response["api_status"] = api_health
+    
+    # Test #2: Get price data through our client (always uses fallback if API fails)
+    ticker_data = TradeListApiService.get_current_price(test_ticker)
+    response["ticker_data"] = ticker_data
+    
+    # Test #3: Direct API call if requested (for diagnostics)
+    if force_raw_api:
+        try:
+            # Get API key
+            api_key = os.environ.get("TRADELIST_API_KEY", "")
+            
+            # Make direct API request
+            api_url = f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_SCANNER_ENDPOINT}"
+            params = {
+                "returntype": return_type,
+                "apiKey": api_key,
+                "stockvol": min_stock_vol,
+                "totalpoints": min_total_points
+            }
+            
+            # First request with no redirects
+            direct_response = requests.get(api_url, params=params, timeout=15, allow_redirects=False)
+            
+            # Record initial response
+            initial_response = {
+                "status_code": direct_response.status_code,
+                "headers": dict(direct_response.headers),
+                "url": direct_response.url
+            }
+            
+            # If we got a redirect, follow it manually
+            if direct_response.status_code == 302:
+                redirect_url = direct_response.headers.get('Location')
+                headers = {
+                    'Authorization': f'Bearer {api_key}',
+                    'User-Agent': 'IncomeMachineMVP/1.0'
+                }
+                
+                redirected_response = requests.get(
+                    f"{TradeListApiService.TRADELIST_API_BASE_URL}/{redirect_url}", 
+                    headers=headers,
+                    timeout=15
+                )
+                
+                # Add redirect results
+                redirect_info = {
+                    "redirect_url": redirect_url,
+                    "status_code": redirected_response.status_code,
+                    "content_preview": redirected_response.text[:300] + ('...' if len(redirected_response.text) > 300 else '')
+                }
+                response["raw_api_test"] = {
+                    "initial_request": initial_response,
+                    "redirect_followup": redirect_info
+                }
+            else:
+                # Just record the initial response
+                initial_response["content_preview"] = direct_response.text[:300] + ('...' if len(direct_response.text) > 300 else '')
+                response["raw_api_test"] = {
+                    "initial_request": initial_response
+                }
+                
+        except Exception as e:
+            response["raw_api_test"] = {
+                "error": str(e)
+            }
+    
+    # Test #4: Get raw data via our client method
+    if force_raw_api:
+        try:
+            # Get data with our client method
+            raw_data = TradeListApiService.get_tradelist_data(
+                test_ticker, 
+                return_type=return_type,
+                min_stock_vol=min_stock_vol,
+                min_total_points=min_total_points
+            )
+            
+            response["tradelist_api_data"] = raw_data
+            
+        except Exception as e:
+            response["tradelist_api_data"] = {
+                "error": str(e)
+            }
     
     return jsonify(response)
 

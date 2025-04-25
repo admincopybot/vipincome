@@ -12,13 +12,34 @@ class TradeListApiService:
     """Service to fetch ETF data from TheTradeList API with yfinance fallback"""
     
     # API Constants
-    # TODO: Update with correct API endpoint information once provided
-    # Current endpoints don't return expected data format
+    # API endpoints based on official documentation
     TRADELIST_API_BASE_URL = "https://api.thetradelist.com/v1/data"
     TRADELIST_SCANNER_ENDPOINT = "/get_trader_scanner_data.php"
+    TRADELIST_HIGHS_LOWS_ENDPOINT = "/get_highs_lows.php"
     
-    # Add info about API documentation
-    API_DOCUMENTATION = "Refer to TheTradeList API documentation for up-to-date endpoint information"
+    # API Documentation reference
+    API_DOCUMENTATION = """
+    Trader Scanner Data Endpoint:
+    GET https://api.thetradelist.com/v1/data/get_trader_scanner_data.php
+    
+    Parameters:
+    - totalpoints (optional, default: 0): Minimum total points threshold
+    - marketcap (optional, default: 0): Minimum market capitalization
+    - stockvol (optional, default: 0): Minimum stock volume
+    - optionvol (optional, default: 0): Minimum options volume
+    - returntype (optional, default: 'csv'): 'csv' or 'json'
+    - apiKey (required): Your API key
+    
+    Highs and Lows Endpoint:
+    GET https://api.thetradelist.com/v1/data/get_highs_lows.php
+    
+    Parameters:
+    - price (optional, default: 0): Minimum stock price 
+    - volume (optional, default: 0): Minimum trading volume
+    - extreme (optional): Filter for 'high' or 'low' only
+    - returntype (optional, default: 'csv'): 'csv' or 'json'
+    - apiKey (required): Your API key
+    """
     TRADELIST_SUPPORTED_ETFS = ["XLC", "XLF", "XLV", "XLI", "XLP", "XLY", "XLE", "XLB", "XLU", "XLRE", "XLC"]
     
     # Feature flag to control API usage
@@ -118,8 +139,20 @@ class TradeListApiService:
             }
     
     @staticmethod
-    def get_tradelist_data(ticker, return_type="json"):
-        """Get data from TheTradeList API"""
+    def get_tradelist_data(ticker, return_type="json", min_stock_vol=0, min_option_vol=0, min_market_cap=0, min_total_points=0):
+        """
+        Get data from TheTradeList API using the Trader Scanner Data Endpoint
+        
+        Parameters:
+        - ticker: The stock symbol to filter by (not in the official params but we'll filter results)
+        - return_type: 'json' or 'csv'
+        - min_stock_vol: Minimum stock volume filter
+        - min_option_vol: Minimum options volume filter
+        - min_market_cap: Minimum market capitalization filter
+        - min_total_points: Minimum total points threshold
+        
+        Returns list of ticker data or None if error
+        """
         try:
             # Ensure API key is available
             api_key = os.environ.get("TRADELIST_API_KEY")
@@ -130,41 +163,85 @@ class TradeListApiService:
             # Construct API URL
             url = f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_SCANNER_ENDPOINT}"
             
-            # Build query parameters
+            # Build query parameters according to the API documentation
             params = {
                 "returntype": return_type,
                 "apiKey": api_key,
-                "symbol": ticker  # Add specific symbol parameter to filter server-side
+                "stockvol": min_stock_vol,
+                "optionvol": min_option_vol,
+                "marketcap": min_market_cap,
+                "totalpoints": min_total_points
             }
             
-            logger.info(f"Making request to TheTradeList API for {ticker}")
+            logger.info(f"Making request to TheTradeList API for {ticker} with params: {params}")
             
-            # Make API request with redirect following enabled
-            response = requests.get(url, params=params, timeout=10, allow_redirects=True)
+            # Make API request with redirect following disabled (to see actual redirect)
+            response = requests.get(url, params=params, timeout=15, allow_redirects=False)
             
-            # Log the complete response for debugging
+            # Check if we got a redirect and handle it explicitly
+            if response.status_code == 302:
+                redirect_url = response.headers.get('Location')
+                logger.warning(f"API returned redirect to: {redirect_url}")
+                
+                # Follow the redirect manually with the API key in headers
+                headers = {
+                    'Authorization': f'Bearer {api_key}',
+                    'User-Agent': 'IncomeMachineMVP/1.0'
+                }
+                response = requests.get(f"{TradeListApiService.TRADELIST_API_BASE_URL}/{redirect_url}", 
+                                       headers=headers, timeout=15)
+            
+            # Log the response for debugging
             logger.debug(f"TheTradeList API response status: {response.status_code}")
             logger.debug(f"TheTradeList API response headers: {response.headers}")
-            logger.debug(f"TheTradeList API response content: {response.text[:200]}...")  # Truncate to avoid huge logs
+            logger.debug(f"TheTradeList API response content preview: {response.text[:200]}...")
             
             # Check for successful response and parse accordingly
             if response.status_code == 200:
-                # Try to parse as JSON first
-                try:
-                    if return_type.lower() == "json" and response.text.strip().startswith(('[', '{')):
-                        data = response.json()
-                        # Filter to only get the requested ticker if not already filtered server-side
-                        if isinstance(data, list):
-                            ticker_data = [item for item in data if item.get("symbol") == ticker]
-                            return ticker_data
-                        elif isinstance(data, dict) and data.get("symbol") == ticker:
-                            return [data]  # Return as list for consistency
+                # Handle different return types
+                if return_type.lower() == "json":
+                    try:
+                        # Check if response text starts with JSON markers
+                        if response.text.strip().startswith(('[', '{')):
+                            data = response.json()
+                            
+                            # Filter to only get the requested ticker
+                            if isinstance(data, list):
+                                ticker_data = [item for item in data if item.get("symbol") == ticker]
+                                logger.info(f"Found {len(ticker_data)} records for {ticker} in API response")
+                                return ticker_data
+                            elif isinstance(data, dict) and data.get("symbol") == ticker:
+                                logger.info(f"Found single record for {ticker} in API response")
+                                return [data]  # Return as list for consistency
+                            else:
+                                logger.warning(f"No data found for {ticker} in API response")
+                                return []
                         else:
-                            logger.warning(f"Received JSON data but couldn't find ticker {ticker} in response")
-                    else:
-                        logger.warning(f"Response doesn't appear to be valid JSON format: {response.text[:50]}...")
-                except Exception as json_error:
-                    logger.error(f"Failed to parse JSON from API response: {str(json_error)}")
+                            logger.warning(f"Response doesn't appear to be valid JSON: {response.text[:50]}...")
+                    except Exception as json_error:
+                        logger.error(f"Failed to parse JSON: {str(json_error)}")
+                elif return_type.lower() == "csv":
+                    try:
+                        # Parse CSV data
+                        csv_data = response.text.strip().split('\n')
+                        if len(csv_data) >= 2:  # Header row + at least one data row
+                            headers = csv_data[0].split(',')
+                            
+                            # Find all rows for the requested ticker
+                            ticker_rows = []
+                            for row in csv_data[1:]:
+                                values = row.split(',')
+                                if values and values[0] == ticker:
+                                    # Convert to dictionary
+                                    row_dict = dict(zip(headers, values))
+                                    ticker_rows.append(row_dict)
+                            
+                            logger.info(f"Found {len(ticker_rows)} CSV rows for {ticker} in API response")
+                            return ticker_rows
+                        else:
+                            logger.warning(f"No valid CSV data found in response")
+                    except Exception as csv_error:
+                        logger.error(f"Failed to parse CSV data: {str(csv_error)}")
             else:
                 logger.error(f"TheTradeList API error: {response.status_code} - {response.text}")
             
