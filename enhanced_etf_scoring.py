@@ -277,13 +277,14 @@ class EnhancedEtfScoringService:
         self.cache = {}  # Symbol -> (score_data, timestamp)
         self.cache_duration = cache_duration
     
-    def get_etf_score(self, symbol, force_refresh=False):
+    def get_etf_score(self, symbol, force_refresh=False, price_override=None):
         """
         Get the ETF score, using cached value if available and recent.
         
         Args:
             symbol (str): The ETF symbol
             force_refresh (bool): Whether to force a data refresh
+            price_override (float): Optional override for current price (e.g., from a real-time API)
             
         Returns:
             tuple: (score, current_price, indicators_dict)

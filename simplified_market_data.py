@@ -7,6 +7,7 @@ import numpy as np
 import yfinance as yf
 import talib_service_client as talib_service
 import enhanced_etf_scoring
+from tradelist_client import TradeListApiService
 
 logger = logging.getLogger(__name__)
 
@@ -48,22 +49,49 @@ class SimplifiedMarketDataService:
             
         results = {}
         
+        start_time = time.time()
+        
         for symbol in symbols:
             try:
                 # Get ETF sector name
                 sector_name = SimplifiedMarketDataService.etf_sectors.get(symbol, symbol)
                 
+                # Try to get price from TheTradeList API first (if enabled and supported)
+                price_data = None
+                data_source = "yfinance"
+                
+                # Only try TheTradeList API if the symbol is in supported ETFs
+                if symbol in TradeListApiService.TRADELIST_SUPPORTED_ETFS:
+                    try:
+                        price_data = TradeListApiService.get_current_price(symbol)
+                        if price_data and price_data.get("price", 0) > 0:
+                            data_source = price_data.get("data_source", "TheTradeList API")
+                            logger.info(f"Using {data_source} for {symbol} price data")
+                    except Exception as e:
+                        logger.warning(f"Error getting price from TheTradeList API for {symbol}: {str(e)}")
+                        price_data = None
+                
                 # Fetch data and calculate score with force_refresh parameter
-                score, price, indicators = SimplifiedMarketDataService._calculate_etf_score(symbol, force_refresh=force_refresh)
+                score, price, indicators = SimplifiedMarketDataService._calculate_etf_score(
+                    symbol, 
+                    force_refresh=force_refresh,
+                    price_override=price_data.get("price") if price_data else None
+                )
+                
+                # Use price from TheTradeList API if available, otherwise use the one from the scoring system
+                if price_data and price_data.get("price", 0) > 0:
+                    display_price = price_data.get("price")
+                else:
+                    display_price = price
                 
                 results[symbol] = {
                     "name": sector_name,
-                    "price": price,
+                    "price": display_price,
                     "score": score,
                     "indicators": indicators,
-                    "source": "yfinance"
+                    "source": data_source
                 }
-                logger.info(f"Fetched data for {symbol}: ${price}, Score: {score}/5")
+                logger.info(f"Fetched data for {symbol}: ${display_price}, Score: {score}/5")
                 
             except Exception as e:
                 logger.error(f"Error fetching data for {symbol}: {str(e)}")
@@ -88,7 +116,7 @@ class SimplifiedMarketDataService:
     _etf_scoring_service = enhanced_etf_scoring.EnhancedEtfScoringService(cache_duration=3600)
     
     @staticmethod
-    def _calculate_etf_score(ticker, force_refresh=False):
+    def _calculate_etf_score(ticker, force_refresh=False, price_override=None):
         """
         Calculate a score (1-5) for an ETF based on specific technical indicators:
         1. Trend 1: Price > 20 EMA on Daily Timeframe
@@ -100,6 +128,7 @@ class SimplifiedMarketDataService:
         Args:
             ticker (str): ETF ticker symbol 
             force_refresh (bool): If True, bypass any caching and fetch fresh data
+            price_override (float): If provided, use this price instead of fetching from yfinance
         
         Each indicator = 1 point, total score from 0-5
         Returns tuple of (score, current_price, indicator_details_dict)
@@ -110,8 +139,41 @@ class SimplifiedMarketDataService:
             
             # Get the ETF score from the enhanced service
             score, current_price, indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
-            logger.info(f"Calculated score: {score}/5 using technical indicators")
             
+            # If we have a price override (e.g., from TheTradeList API), we should recalculate the 
+            # indicators that depend on the current price.
+            # For now, we'll just log the override but use the calculated indicators as is.
+            # A more complex implementation could recalculate certain indicators here.
+            if price_override is not None:
+                logger.info(f"Price override for {ticker}: ${price_override} (calculated: ${current_price})")
+                
+                # For indicators that directly compare current price to a threshold,
+                # we could update the pass/fail status and description
+                if 'trend1' in indicators:
+                    threshold = indicators['trend1']['threshold']
+                    indicators['trend1']['current'] = float(price_override)
+                    indicators['trend1']['pass'] = price_override > threshold
+                    indicators['trend1']['description'] = f"Price (${price_override:.2f}) is {'above' if price_override > threshold else 'below'} the 20-day EMA (${threshold:.2f})"
+                
+                if 'trend2' in indicators:
+                    threshold = indicators['trend2']['threshold']
+                    indicators['trend2']['current'] = float(price_override)
+                    indicators['trend2']['pass'] = price_override > threshold
+                    indicators['trend2']['description'] = f"Price (${price_override:.2f}) is {'above' if price_override > threshold else 'below'} the 100-day EMA (${threshold:.2f})"
+                
+                if 'momentum' in indicators:
+                    threshold = indicators['momentum']['threshold']
+                    indicators['momentum']['current'] = float(price_override)
+                    indicators['momentum']['pass'] = price_override > threshold
+                    indicators['momentum']['description'] = f"Current price (${price_override:.2f}) is {'above' if price_override > threshold else 'below'} last week's close (${threshold:.2f})"
+                
+                # Recalculate the total score based on updated indicators
+                score = sum(1 for ind in indicators.values() if ind.get('pass', False))
+                
+                # Use the override price for the return value
+                current_price = price_override
+            
+            logger.info(f"Calculated score: {score}/5 using technical indicators")
             return score, float(current_price), indicators
             
         except Exception as e:
