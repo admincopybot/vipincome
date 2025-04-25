@@ -1,9 +1,10 @@
-from flask import Flask, request, render_template_string, redirect, url_for
+from flask import Flask, request, render_template_string, redirect, url_for, jsonify
 import logging
 import os
 import threading
 import time
 import simplified_market_data as market_data  # Using simplified market data service with reliable indicators
+from tradelist_client import TradeListApiService
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
