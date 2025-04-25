@@ -56,33 +56,61 @@ class SimplifiedMarketDataService:
                 # Get ETF sector name
                 sector_name = SimplifiedMarketDataService.etf_sectors.get(symbol, symbol)
                 
-                # Try to get price from TheTradeList API first (if enabled and supported)
-                price_data = None
-                data_source = "yfinance"
+                # Get price exclusively from TheTradeList API - no fallbacks
+                price_data = TradeListApiService.get_current_price(symbol)
                 
-                # Only try TheTradeList API if the symbol is in supported ETFs
-                if symbol in TradeListApiService.TRADELIST_SUPPORTED_ETFS:
-                    try:
-                        price_data = TradeListApiService.get_current_price(symbol)
-                        if price_data and price_data.get("price", 0) > 0:
-                            data_source = price_data.get("data_source", "TheTradeList API")
-                            logger.info(f"Using {data_source} for {symbol} price data")
-                    except Exception as e:
-                        logger.warning(f"Error getting price from TheTradeList API for {symbol}: {str(e)}")
-                        price_data = None
-                
-                # Fetch data and calculate score with force_refresh parameter
-                score, price, indicators = SimplifiedMarketDataService._calculate_etf_score(
-                    symbol, 
-                    force_refresh=force_refresh,
-                    price_override=price_data.get("price") if price_data else None
-                )
-                
-                # Use price from TheTradeList API if available, otherwise use the one from the scoring system
-                if price_data and price_data.get("price", 0) > 0:
-                    display_price = price_data.get("price")
+                # Check if we have a valid price or if there was an API error
+                if price_data.get("error", False):
+                    # API error occurred, use the error information provided
+                    display_price = 0
+                    data_source = price_data.get("data_source", "API Error")
+                    error_message = price_data.get("error_message", "Unknown error")
+                    logger.error(f"Error getting price for {symbol}: {error_message}")
+                    
+                    # Create error indicators that will be displayed to the user
+                    indicators = {
+                        'trend1': {'pass': False, 'current': 0, 'threshold': 0, 
+                                 'description': f'API Error: {error_message}'},
+                        'trend2': {'pass': False, 'current': 0, 'threshold': 0, 
+                                 'description': f'Unable to fetch price data'},
+                        'snapback': {'pass': False, 'current': 0, 'threshold': 0, 
+                                   'description': f'Check API configuration'},
+                        'momentum': {'pass': False, 'current': 0, 'threshold': 0, 
+                                   'description': f'See logs for details'},
+                        'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 
+                                      'description': f'API Integration Status: Error'}
+                    }
+                    score = 0
+                    price = 0
                 else:
-                    display_price = price
+                    # Use the price from TheTradeList API
+                    display_price = price_data.get("price", 0)
+                    data_source = price_data.get("data_source", "TheTradeList API")
+                    logger.info(f"Using {data_source} for {symbol} price data: ${display_price}")
+                    
+                    # Only calculate technical score if we have a valid price
+                    if display_price > 0:
+                        score, price, indicators = SimplifiedMarketDataService._calculate_etf_score(
+                            symbol, 
+                            force_refresh=force_refresh,
+                            price_override=display_price
+                        )
+                    else:
+                        # Create zeroed indicators for consistency
+                        indicators = {
+                            'trend1': {'pass': False, 'current': 0, 'threshold': 0, 
+                                     'description': 'No price data available'},
+                            'trend2': {'pass': False, 'current': 0, 'threshold': 0, 
+                                     'description': 'Cannot calculate indicators'},
+                            'snapback': {'pass': False, 'current': 0, 'threshold': 0, 
+                                       'description': 'Price is required for calculation'},
+                            'momentum': {'pass': False, 'current': 0, 'threshold': 0, 
+                                       'description': 'Check API connection'},
+                            'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 
+                                          'description': 'API response: No price data'}
+                        }
+                        score = 0
+                        price = 0
                 
                 results[symbol] = {
                     "name": sector_name,
