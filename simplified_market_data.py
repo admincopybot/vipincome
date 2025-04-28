@@ -8,6 +8,7 @@ import yfinance as yf
 import talib_service_client as talib_service
 import enhanced_etf_scoring
 from tradelist_client import TradeListApiService
+from tradelist_websocket_client import TradeListWebSocketClient, get_websocket_client
 
 logger = logging.getLogger(__name__)
 
