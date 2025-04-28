@@ -113,31 +113,54 @@ def on_websocket_data_update(updates):
         # Log the updates
         logger.info(f"Received data for {len(updates)} symbols via WebSocket")
         
+        # Determine if we should recalculate scores (only do this occasionally, not with every price update)
+        # We'll use a time-based approach - only recalculate scores every 15 minutes
+        recalculate_scores = False
+        current_time = time.time()
+        
+        # Static variable to track last score recalculation time
+        if not hasattr(on_websocket_data_update, "last_score_update"):
+            on_websocket_data_update.last_score_update = 0
+        
+        # Check if it's time to recalculate (every 15 minutes = 900 seconds)
+        if current_time - on_websocket_data_update.last_score_update > 900:
+            recalculate_scores = True
+            on_websocket_data_update.last_score_update = current_time
+            logger.info("Scheduled recalculation of ETF technical scores (15-minute interval)")
+        
         # Process each symbol that was updated
         for symbol, data in updates.items():
             if symbol in etf_scores:
                 websocket_price = data.get('price', 0)
                 websocket_timestamp = data.get('last_updated', '')
                 
-                # Use WebSocket data directly, even though it might be from April 24th
-                # This is per user request to drop yfinance completely
+                if websocket_price <= 0:
+                    continue  # Skip invalid prices
                 
-                # Calculate score using the WebSocket price
-                new_score, _, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
-                    symbol, 
-                    force_refresh=False,
-                    price_override=websocket_price  # Use WebSocket price directly
-                )
-                
-                if websocket_price > 0:
-                    # Update all ETF data with WebSocket price and score
+                if recalculate_scores:
+                    # Only recalculate score on schedule, not with every price update
+                    new_score, _, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
+                        symbol, 
+                        force_refresh=True,  # Force refresh when we recalculate
+                        price_override=websocket_price
+                    )
+                    
+                    # Update the full ETF data including indicators and score
                     etf_scores[symbol]['price'] = websocket_price
                     etf_scores[symbol]['score'] = new_score
                     etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
                     etf_scores[symbol]['indicators'] = indicators
                     
-                    # Log the update with WebSocket price
-                    logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket with score {new_score}/5")
+                    # Log the update with score
+                    logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket with recalculated score {new_score}/5")
+                else:
+                    # Just update the price without recalculating the score
+                    etf_scores[symbol]['price'] = websocket_price
+                    etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
+                    
+                    # Log the price-only update
+                    current_score = etf_scores[symbol]['score']
+                    logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket (keeping score {current_score}/5)")
     except Exception as e:
         logger.error(f"Error processing WebSocket data update: {str(e)}")
 
