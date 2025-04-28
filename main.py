@@ -118,31 +118,33 @@ def on_websocket_data_update(updates):
     
     try:
         # Log the updates
-        logger.info(f"Received real-time updates for {len(updates)} symbols via WebSocket")
+        logger.info(f"Received data for {len(updates)} symbols via WebSocket")
         
         # Process each symbol that was updated
         for symbol, data in updates.items():
             if symbol in etf_scores:
-                # Update our ETF scores with the new price data
-                sector_name = market_data.SimplifiedMarketDataService.etf_sectors.get(symbol, symbol)
-                price = data.get('price', 0)
+                websocket_price = data.get('price', 0)
+                websocket_timestamp = data.get('last_updated', '')
                 
-                if price > 0:
-                    # Immediately calculate score with this price
-                    new_score, _, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
-                        symbol, 
-                        force_refresh=True,
-                        price_override=price
-                    )
-                    
-                    # Update all ETF data with real-time price and fresh score
-                    etf_scores[symbol]['price'] = price
+                # We'll use the WebSocket data for logging purposes, but rely on yfinance for pricing
+                # This avoids using potentially stale WebSocket data
+                
+                # Calculate score with fresh yfinance data instead of using websocket price
+                new_score, calculated_price, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
+                    symbol, 
+                    force_refresh=True,
+                    price_override=None  # Don't use price_override to rely on yfinance
+                )
+                
+                if calculated_price > 0:
+                    # Update all ETF data with yfinance price and fresh score
+                    etf_scores[symbol]['price'] = calculated_price
                     etf_scores[symbol]['score'] = new_score
-                    etf_scores[symbol]['source'] = data.get('data_source', 'TheTradeList WebSocket')
+                    etf_scores[symbol]['source'] = 'yfinance (real-time)'
                     etf_scores[symbol]['indicators'] = indicators
                     
-                    # Log the update
-                    logger.info(f"Updated {symbol} price to ${price:.2f} from WebSocket with score {new_score}/5")
+                    # Log the update with both prices for comparison
+                    logger.info(f"Updated {symbol} price to ${calculated_price:.2f} from yfinance (WebSocket showed ${websocket_price:.2f}) with score {new_score}/5")
     except Exception as e:
         logger.error(f"Error processing WebSocket data update: {str(e)}")
 

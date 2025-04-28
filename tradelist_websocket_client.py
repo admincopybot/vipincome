@@ -114,14 +114,34 @@ class TradeListWebSocketClient:
                     continue
                     
                 # Store the latest data
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                local_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                # Extract the timestamp from the WebSocket data (if available)
+                ws_timestamp = item.get('t', 0)
+                
+                # Convert WebSocket timestamp to human-readable format
+                if ws_timestamp > 0:
+                    # Nanoseconds to seconds
+                    ws_timestamp_seconds = ws_timestamp / 1000000000
+                    ws_datetime = datetime.fromtimestamp(ws_timestamp_seconds)
+                    ws_datetime_str = ws_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                    
+                    # Log if timestamp hasn't changed since the last update
+                    if symbol in self._raw_data and 't' in self._raw_data[symbol]:
+                        previous_timestamp = self._raw_data[symbol].get('t', 0)
+                        if previous_timestamp == ws_timestamp and previous_timestamp > 0:
+                            logger.warning(f"WebSocket data for {symbol} has unchanged timestamp: {ws_datetime_str}")
+                else:
+                    ws_datetime_str = "Unknown"
+                
                 self.latest_data[symbol] = {
                     'ticker': symbol,
                     'price': item.get('p', 0),
                     'change': item.get('p', 0) - item.get('c', 0) if item.get('c') else 0,
                     'change_percent': ((item.get('p', 0) - item.get('c', 0)) / item.get('c', 1) * 100) if item.get('c') else 0,
                     'volume': item.get('v', 0),
-                    'last_updated': timestamp,
+                    'last_updated': local_timestamp,
+                    'ws_timestamp': ws_datetime_str,
                     'data_source': "TheTradeList WebSocket",
                     'open': item.get('o', 0),
                     'high': item.get('h', 0),
