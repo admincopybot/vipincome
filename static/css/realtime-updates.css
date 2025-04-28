@@ -1,59 +1,83 @@
-/**
- * Styles for real-time ETF price updates
- */
+/* Real-time updates styling */
 
-/* Data attributes for the realtime updates */
-[data-etf-price], [data-etf-score] {
-    transition: background-color 0.5s ease, color 0.5s ease;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-}
-
-/* Flash animations */
-@keyframes flash-green {
-    0% { background-color: transparent; }
-    50% { background-color: rgba(76, 175, 80, 0.3); }
-    100% { background-color: transparent; }
-}
-
-@keyframes flash-red {
-    0% { background-color: transparent; }
-    50% { background-color: rgba(244, 67, 54, 0.3); }
-    100% { background-color: transparent; }
-}
-
-/* Real-time indicator in the scoreboard header */
+/* Realtime indicator */
 .realtime-indicator {
-    display: inline-block;
-    font-size: 0.75rem;
-    color: #FFD700;
-    margin-left: 8px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    background-color: rgba(0, 0, 0, 0.2);
+    font-size: 0.8rem;
+    background: linear-gradient(135deg, #00C8FF, #7970FF);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    vertical-align: middle;
+    margin-left: 1rem;
+    display: inline-flex;
+    align-items: center;
+    animation: pulse 2s infinite;
 }
 
 .realtime-indicator::before {
-    content: '';
+    content: "";
     display: inline-block;
-    width: 8px;
-    height: 8px;
-    background-color: #4CAF50;
+    width: 6px;
+    height: 6px;
+    background-color: white;
     border-radius: 50%;
-    margin-right: 4px;
-    animation: pulse 2s infinite;
+    margin-right: 6px;
+    animation: blink 1.5s infinite;
+}
+
+.last-updated {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.5rem;
+}
+
+/* Price flash animations */
+.price-up {
+    animation: flash-green 1s;
+}
+
+.price-down {
+    animation: flash-red 1s;
+}
+
+/* Score flash animations */
+.score-up {
+    animation: flash-blue 1s;
+}
+
+.score-down {
+    animation: flash-orange 1s;
+}
+
+/* Animation keyframes */
+@keyframes flash-green {
+    0% { color: #28a745; }
+    100% { color: inherit; }
+}
+
+@keyframes flash-red {
+    0% { color: #dc3545; }
+    100% { color: inherit; }
+}
+
+@keyframes flash-blue {
+    0% { color: #00C8FF; }
+    100% { color: inherit; }
+}
+
+@keyframes flash-orange {
+    0% { color: #ffc107; }
+    100% { color: inherit; }
 }
 
 @keyframes pulse {
     0% { opacity: 1; }
-    50% { opacity: 0.3; }
+    50% { opacity: 0.8; }
     100% { opacity: 1; }
 }
 
-/* Updated timestamps */
-.last-updated {
-    font-size: 0.75rem;
-    color: #999;
-    text-align: right;
-    margin-top: 8px;
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
 }

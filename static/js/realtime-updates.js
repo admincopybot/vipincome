@@ -1,132 +1,183 @@
 /**
- * Real-time ETF price updates for Income Machine
- * 
- * This script fetches ETF data from the server via API calls and updates the UI
- * without requiring page refreshes. It includes visual effects to highlight price changes.
+ * Income Machine - Real-time ETF Updates
+ * This script handles fetching and displaying real-time ETF data without requiring page refresh
  */
 
-// Store previous prices to identify changes for highlighting
-let previousPrices = {};
+// Store previous values to determine if prices/scores have changed
+const previousValues = {
+    prices: {},
+    scores: {}
+};
 
-// Polling interval in milliseconds (3 seconds)
-const POLLING_INTERVAL = 3000;
+// Update frequency in milliseconds (5 seconds by default)
+const UPDATE_INTERVAL = 5000;
 
-// Colors for price changes
-const PRICE_UP_COLOR = '#4CAF50';   // Green
-const PRICE_DOWN_COLOR = '#F44336'; // Red
-const NORMAL_COLOR = ''; // Default (inherit from CSS)
-
-// Get updated ETF data from the server
+/**
+ * Fetch the latest ETF data from the API
+ */
 async function fetchEtfData() {
     try {
         const response = await fetch('/api/etf-data');
-        
         if (!response.ok) {
-            console.error('Error fetching ETF data:', response.status);
-            return null;
+            throw new Error(`API response error: ${response.status}`);
         }
-        
-        return await response.json();
+        const data = await response.json();
+        updateEtfUi(data);
+        return data;
     } catch (error) {
         console.error('Error fetching ETF data:', error);
         return null;
     }
 }
 
-// Update the UI with new ETF data
+/**
+ * Update the UI with the latest ETF data
+ */
 function updateEtfUi(data) {
     if (!data) return;
     
-    // Loop through each ETF in the data
-    for (const [symbol, etfData] of Object.entries(data)) {
-        // Update price
+    // Update each ETF's price and score
+    Object.entries(data).forEach(([symbol, etfData]) => {
         updateEtfPrice(symbol, etfData.price);
-        
-        // Update score
         updateEtfScore(symbol, etfData.score);
-    }
+    });
 }
 
-// Update ETF price with visual effect
+/**
+ * Update an ETF's price display
+ */
 function updateEtfPrice(symbol, newPrice) {
     const priceElement = document.querySelector(`[data-etf-price="${symbol}"]`);
     if (!priceElement) return;
     
-    // Format the price to 2 decimal places
-    const formattedPrice = parseFloat(newPrice).toFixed(2);
+    // Remove any existing animation classes
+    priceElement.classList.remove('price-up', 'price-down');
     
-    // Check if we have a previous price for this symbol
-    if (previousPrices[symbol] !== undefined) {
-        const oldPrice = previousPrices[symbol];
-        
-        // Determine if price went up or down
-        if (newPrice > oldPrice) {
-            // Price went up - flash green
-            flashElement(priceElement, PRICE_UP_COLOR);
-        } else if (newPrice < oldPrice) {
-            // Price went down - flash red
-            flashElement(priceElement, PRICE_DOWN_COLOR);
+    // Format price as currency
+    const formattedPrice = `$${newPrice.toFixed(2)}`;
+    
+    // If we have a previous price, compare and add animation class
+    if (previousValues.prices[symbol]) {
+        const previousPrice = previousValues.prices[symbol];
+        if (newPrice > previousPrice) {
+            priceElement.classList.add('price-up');
+        } else if (newPrice < previousPrice) {
+            priceElement.classList.add('price-down');
         }
     }
     
-    // Update the price display
-    priceElement.textContent = `$${formattedPrice}`;
-    
-    // Store the new price for future comparison
-    previousPrices[symbol] = newPrice;
+    // Update the displayed price and store the new value
+    priceElement.textContent = formattedPrice;
+    previousValues.prices[symbol] = newPrice;
 }
 
-// Update ETF score
+/**
+ * Update an ETF's score display
+ */
 function updateEtfScore(symbol, score) {
     const scoreElement = document.querySelector(`[data-etf-score="${symbol}"]`);
     if (!scoreElement) return;
     
-    // Update the score display
-    scoreElement.textContent = score;
-}
-
-// Flash an element with a color transition effect
-function flashElement(element, color) {
-    // Save the original background color
-    const originalColor = element.style.backgroundColor;
-    const originalTransition = element.style.transition;
+    // Remove any existing animation classes
+    scoreElement.classList.remove('score-up', 'score-down');
     
-    // Apply the new color and transition
-    element.style.backgroundColor = color;
-    element.style.transition = 'background-color 1.5s';
-    element.style.color = '#FFFFFF';  // White text for better contrast
-    
-    // Reset back to original after animation
-    setTimeout(() => {
-        element.style.backgroundColor = originalColor;
-        element.style.color = '';     // Reset to default text color
-        
-        // Remove transition after returning to normal
-        setTimeout(() => {
-            element.style.transition = originalTransition;
-        }, 1500);
-    }, 1500);
-}
-
-// Start periodic polling for ETF data
-function startRealtimeUpdates() {
-    console.log('Starting real-time ETF price updates...');
-    
-    // Initial fetch to store base prices
-    fetchEtfData().then(data => {
-        if (data) {
-            // Store initial prices without highlighting
-            for (const [symbol, etfData] of Object.entries(data)) {
-                previousPrices[symbol] = etfData.price;
-            }
+    // If we have a previous score, compare and add animation class
+    if (previousValues.scores[symbol] !== undefined) {
+        const previousScore = previousValues.scores[symbol];
+        if (score > previousScore) {
+            scoreElement.classList.add('score-up');
+            
+            // Update badge styling based on new score
+            updateScoreBadgeStyle(scoreElement, score);
+        } else if (score < previousScore) {
+            scoreElement.classList.add('score-down');
+            
+            // Update badge styling based on new score
+            updateScoreBadgeStyle(scoreElement, score);
         }
-    });
+    }
     
-    // Set up interval for periodic updates
-    setInterval(() => {
-        fetchEtfData().then(data => updateEtfUi(data));
-    }, POLLING_INTERVAL);
+    // Update the score text and store the new value
+    scoreElement.textContent = `${score}/5`;
+    previousValues.scores[symbol] = score;
+    
+    // Also update progress bars if they exist
+    updateProgressBar(symbol, score);
 }
 
-// Initialize when DOM is loaded
+/**
+ * Update the score badge style based on the score value
+ */
+function updateScoreBadgeStyle(element, score) {
+    // Update the background and text color based on the score
+    if (score >= 4) {
+        element.style.background = 'linear-gradient(135deg, #00C8FF, #7970FF)';
+        element.style.color = '#fff';
+    } else if (score >= 3) {
+        element.style.background = '#FFD700';
+        element.style.color = '#000';
+    } else {
+        element.style.background = '#6c757d';
+        element.style.color = '#fff';
+    }
+}
+
+/**
+ * Update the progress bar for an ETF if it exists
+ */
+function updateProgressBar(symbol, score) {
+    // Find progress bars associated with this ETF by finding parent card and then progress bar
+    const scoreElement = document.querySelector(`[data-etf-score="${symbol}"]`);
+    if (!scoreElement) return;
+    
+    // Look for any progres bar in the parent card
+    const card = scoreElement.closest('.card');
+    if (!card) return;
+    
+    const progressBar = card.querySelector('.progress-bar');
+    if (!progressBar) return;
+    
+    // Update progress bar width and class
+    progressBar.style.width = `${score * 20}%`;
+    progressBar.setAttribute('aria-valuenow', score * 20);
+    
+    // Remove all progress bar score classes
+    for (let i = 0; i <= 5; i++) {
+        progressBar.classList.remove(`progress-bar-score-${i}`);
+    }
+    
+    // Add the new score class
+    progressBar.classList.add(`progress-bar-score-${score}`);
+}
+
+/**
+ * Apply a visual flash effect to an element
+ */
+function flashElement(element, color) {
+    // Save original color
+    const originalColor = element.style.color;
+    
+    // Change color
+    element.style.color = color;
+    
+    // Revert after animation time
+    setTimeout(() => {
+        element.style.color = originalColor;
+    }, 1000);
+}
+
+/**
+ * Start the real-time updates
+ */
+function startRealtimeUpdates() {
+    console.log("Starting real-time ETF price updates...");
+    
+    // Fetch initial data
+    fetchEtfData();
+    
+    // Set up periodic updates
+    setInterval(fetchEtfData, UPDATE_INTERVAL);
+}
+
+// Start updates when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', startRealtimeUpdates);

@@ -1069,6 +1069,8 @@ def step2():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Income Machine DEMO - Asset Review - {{ etf }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
         <style>
             {{ global_css }}
             
@@ -1296,6 +1298,8 @@ def step3():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Income Machine DEMO - Strategy Selection for {{ etf }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
         <style>
             {{ global_css }}
             
