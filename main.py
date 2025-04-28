@@ -1949,6 +1949,15 @@ def special_offer():
     return render_template_string(template, global_css=global_css, logo_header=logo_header, )
 
 # API test endpoints
+@app.route('/api/etf-data')
+def api_etf_data():
+    """API endpoint to get the latest ETF data for real-time updates in the UI
+    
+    Returns:
+        JSON: Current ETF data including prices and scores
+    """
+    return jsonify(etf_scores)
+
 @app.route('/api/test/websocket')
 def test_websocket():
     """Test endpoint for TheTradeList WebSocket connection and data
