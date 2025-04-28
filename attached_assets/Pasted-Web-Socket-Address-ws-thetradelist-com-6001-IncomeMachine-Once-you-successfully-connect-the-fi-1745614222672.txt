@@ -1,0 +1,180 @@
+Web Socket Address:
+ws://thetradelist.com:6001/IncomeMachine
+Once you successfully connect, the first thing you will receive is a session ID.
+You must keep this as it will be used throughout your session.
+The connection process in C# looks like this:
+Instantiation
+_client = new WebSocketSharp.WebSocket(_host);
+Callbacks
+_client.OnError += Client_OnError;
+_client.OnOpen += Client_OnOpen;
+_client.OnMessage += Client_OnMessage;
+_client.OnClose += Client_OnClose;
+My connect function
+   public void Connect(string? AHost, string? AApiKey)
+   {
+       try
+       {
+           _host = AHost;
+           _apiKey = AApiKey;
+           Disconnect();
+           InitializeClient();
+           _expectedDisconnect = false;
+           ConnectionState.Set(SSEnums.ConnectionState.Connecting);
+           if (_client == null)
+           {
+               ConnectionState.Set(SSEnums.ConnectionState.Error);
+               return;
+           }
+           _client.Connect();
+       }
+       catch (Exception ex)
+       {
+           Log.Exception(ex);
+       }
+   }
+My OnMessage Event
+   private void Client_OnMessage(object? sender, MessageEventArgs e)
+   {
+       try
+       {
+           // Initially we get the Session ID only. For instance: 300131ecbcb746f0b0bd321a1b5e7d70
+           // [{"ev":"im","s":"KO","o":73.02,"h":73.505,"l":72.307,"p":72.525,"c":72.52,"v":16871955.0,"t":1745529201153946381},{"ev":"im","s":"MSFT","o":375.695,"h":388.821,"l":372.275,"p":388.048,"c":387.3,"v":22132169.0,"t":1745529199889048806},{"ev":"im","s":"AAPL","o":204.89,"h":208.726,"l":202.895,"p":208.653,"c":208.37,"v":47098485.0,"t":1745529200888647620}]
+           if (_sessionId == null)
+           {
+               InitializeSession(e);
+           }
+           else
+           {
+               ProcessMessage(e.Data);
+           }
+           //Log.Info(e.Data);
+       }
+       catch (Exception ex)
+       {
+           Log.Exception(ex);
+       }
+   }
+The first packet you will receive is just a raw Session Id.
+The second packet is your income machine packet in a JSON array.
+Here’s the C# Class:
+public class IncomeMachinePacket
+{
+   public string? ev; // FMV (FaiMarketValue) - Polygon, IM (IncomeMachine) - FinMC
+   public string? s; // Symbol
+   public double? o; // Open
+   public double? h; // High
+   public double? l; // Low
+   public double? p; // Price
+   public double? c; // Close
+   public double? v; // Volume
+   public long? t;
+}
+RAW JSON packet
+{
+ "ev": null,
+ "s": null,
+ "o": 0.0,
+ "h": 0.0,
+ "l": 0.0,
+ "p": 0.0,
+ "c": 0.0,
+ "v": 0.0,
+ "t": 0
+}
+Once you get the session ID, you can then subscribe to the symbols you want.
+           ActionProperties subscribe = new ActionProperties()
+           {
+               action = "subscribe",
+               @params = $"{ATicker}",
+               session_id = _sessionId
+           };
+           string json = JsonConvert.SerializeObject(subscribe);
+           _client?.Send(json);
+Here’s the JSON Class
+public class ActionProperties
+{
+   public string? action { get; set; }
+   public string? @params { get; set; }
+   public string? session_id { get; set; }
+}
+Once you subscribe, you start receiving your data packets:
+   private void ProcessMessage(string AJson)
+   {
+       try
+       {
+           if (string.IsNullOrWhiteSpace(AJson))
+           {
+               Log.Error("AJson is null");
+               return;
+           }
+           JToken token = JToken.Parse(AJson);
+           if (token.Type == JTokenType.Array)
+           {
+               foreach (JToken item in token)
+               {
+                   ProcessItem(item);
+               }
+           }
+           else if (token.Type == JTokenType.Object)
+           {
+               JObject? item = (JObject)token;
+               ProcessItem(item);
+           }
+           else
+           {
+               Log.Warn("Unexpected JSON structure");
+               return;
+           }
+       }
+       catch (Exception ex)
+       {
+           Log.Exception(ex);
+       }
+   }
+   private void ProcessItem(JToken AItem)
+   {
+       try
+       {
+           string? type = AItem["ev"]?.ToString() ?? null;
+           if (type == null)
+           {
+               type = AItem["action"]?.ToString() ?? null;
+           }
+           if (type != null)
+           {
+               switch (type)
+               {
+                   // ev Types
+                   case "IM": ProcessIM(AItem); break;
+                   case "FMV": ProcessFMV(AItem); break;
+                   // action types
+                   case "authorize_status": ProcessAuthorizeStatus(AItem); break;
+                   default:
+                   {
+                       Log.Warn(AItem.ToString());
+                   }
+                   break;
+               }
+           }
+       }
+       catch (Exception ex)
+       {
+           Log.Exception(ex);
+       }
+   }
+And you will be doing IM’s … so here is that function
+   private void ProcessIM(JToken AToken)
+   {
+       try
+       {
+           IncomeMachineResponse? im = JsonConvert.DeserializeObject<IncomeMachineResponse>(AToken.ToString());
+           SymbolManager.UpdateWithIncomeMachine(im);
+       }
+       catch (Exception ex)
+       {
+           Log.Exception(ex);
+       }
+   }
+This is pulsed every 5 seconds.
+Let’s start here.
