@@ -25,7 +25,10 @@ class TradeListWebSocketClient:
     # Dictionary to store the latest data for each symbol
     latest_data = {}
     
-    # Lock for thread-safe access to latest_data
+    # Dictionary to store the raw data for each symbol
+    _raw_data = {}
+    
+    # Lock for thread-safe access to data
     data_lock = threading.Lock()
     
     def __init__(self, api_key: str, symbols_to_track: List[str] = None):
@@ -91,6 +94,16 @@ class TradeListWebSocketClient:
         updates = {}
         
         with self.data_lock:
+            # Store the raw data we received
+            if isinstance(data, list):
+                for item in data:
+                    symbol = item.get('s')
+                    if symbol:
+                        self._raw_data[symbol] = item
+            elif isinstance(data, dict) and 's' in data:
+                symbol = data.get('s')
+                self._raw_data[symbol] = data
+            
             for item in items:
                 # Skip if not an IM (IncomeMachine) event
                 if item.get('ev') != 'IM' and item.get('ev') != 'im':
@@ -305,6 +318,22 @@ class TradeListWebSocketClient:
         """
         with self.data_lock:
             return self.latest_data.copy()
+            
+    def get_raw_data(self, symbol: str = None) -> Dict[str, Any]:
+        """
+        Get the raw data received from the WebSocket.
+        
+        Args:
+            symbol (str, optional): Specific symbol to get raw data for.
+                                   If None, returns all raw data.
+        
+        Returns:
+            Dict[str, Any]: The raw WebSocket data
+        """
+        with self.data_lock:
+            if symbol:
+                return self._raw_data.get(symbol, {})
+            return self._raw_data.copy()
 
 
 # Singleton instance for application-wide use

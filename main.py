@@ -1960,8 +1960,10 @@ def test_websocket():
     
     Query Parameters:
     - ticker: The ETF symbol to check (default: all)
+    - raw: Set to 'true' to show the raw WebSocket data (default: false)
     """
     ticker = request.args.get('ticker')
+    show_raw = request.args.get('raw', 'false').lower() == 'true'
     
     # Get the WebSocket client
     ws_client = get_websocket_client()
@@ -1983,6 +1985,7 @@ def test_websocket():
     # Get data for a specific ticker or all data
     if ticker:
         data = ws_client.get_latest_price(ticker)
+        raw_data = ws_client.get_raw_data(ticker)
         
         # If no data for the requested ticker, try to subscribe
         if not data and ws_client.is_connected and ws_client.session_id:
@@ -1990,13 +1993,19 @@ def test_websocket():
             data = None  # Will be updated on next cycle
     else:
         data = ws_client.get_all_latest_data()
+        raw_data = ws_client.get_raw_data()
     
-    return jsonify({
+    response = {
         'status': 'success',
         'connection': connection_status,
         'data': data,
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    })
+    }
+    
+    if show_raw and raw_data:
+        response['raw_websocket_data'] = raw_data
+    
+    return jsonify(response)
 
 @app.route('/api/test/tradelist')
 def test_tradelist_api():
