@@ -126,11 +126,21 @@ class TradeListWebSocketClient:
                     ws_datetime = datetime.fromtimestamp(ws_timestamp_seconds)
                     ws_datetime_str = ws_datetime.strftime("%Y-%m-%d %H:%M:%S")
                     
+                    # Calculate how old the data is
+                    now = datetime.now()
+                    data_age_seconds = (now - ws_datetime).total_seconds()
+                    data_age_hours = data_age_seconds / 3600
+                    
                     # Log if timestamp hasn't changed since the last update
                     if symbol in self._raw_data and 't' in self._raw_data[symbol]:
                         previous_timestamp = self._raw_data[symbol].get('t', 0)
                         if previous_timestamp == ws_timestamp and previous_timestamp > 0:
                             logger.warning(f"WebSocket data for {symbol} has unchanged timestamp: {ws_datetime_str}")
+                    
+                    # Log if data is older than 1 day
+                    if data_age_hours > 24:
+                        days_old = int(data_age_hours / 24)
+                        logger.warning(f"WebSocket data for {symbol} is {days_old} days old. Timestamp: {ws_datetime_str}")
                 else:
                     ws_datetime_str = "Unknown"
                 
