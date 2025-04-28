@@ -169,38 +169,24 @@ class SimplifiedMarketDataService:
             # Get the ETF score from the enhanced service
             score, current_price, indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
             
-            # If we have a price override (e.g., from TheTradeList API), we should recalculate the 
-            # indicators that depend on the current price.
-            # For now, we'll just log the override but use the calculated indicators as is.
-            # A more complex implementation could recalculate certain indicators here.
+            # If we have a price override (e.g., from TheTradeList API), we'll use it for display
+            # purposes but won't recalculate the technical indicators with every minor price change.
+            # This helps maintain stability in the scoring system.
             if price_override is not None:
                 logger.info(f"Price override for {ticker}: ${price_override} (calculated: ${current_price})")
                 
-                # For indicators that directly compare current price to a threshold,
-                # we could update the pass/fail status and description
-                if 'trend1' in indicators:
-                    threshold = indicators['trend1']['threshold']
-                    indicators['trend1']['current'] = float(price_override)
-                    indicators['trend1']['pass'] = price_override > threshold
-                    indicators['trend1']['description'] = f"Price (${price_override:.2f}) is {'above' if price_override > threshold else 'below'} the 20-day EMA (${threshold:.2f})"
-                
-                if 'trend2' in indicators:
-                    threshold = indicators['trend2']['threshold']
-                    indicators['trend2']['current'] = float(price_override)
-                    indicators['trend2']['pass'] = price_override > threshold
-                    indicators['trend2']['description'] = f"Price (${price_override:.2f}) is {'above' if price_override > threshold else 'below'} the 100-day EMA (${threshold:.2f})"
-                
-                if 'momentum' in indicators:
-                    threshold = indicators['momentum']['threshold']
-                    indicators['momentum']['current'] = float(price_override)
-                    indicators['momentum']['pass'] = price_override > threshold
-                    indicators['momentum']['description'] = f"Current price (${price_override:.2f}) is {'above' if price_override > threshold else 'below'} last week's close (${threshold:.2f})"
-                
-                # Recalculate the total score based on updated indicators
-                score = sum(1 for ind in indicators.values() if ind.get('pass', False))
-                
-                # Use the override price for the return value
+                # Only use the real-time price for display purposes
+                # Do NOT recalculate score based on small price movements
+                # This keeps scores stable while still showing current prices
                 current_price = price_override
+                
+                # STABLE SCORING APPROACH:
+                # We're intentionally NOT updating the indicators or recalculating scores
+                # based on real-time price movements. This keeps the technical analysis
+                # stable and prevents scores from fluctuating with minor price changes.
+                
+                # Technical scores should only update on a schedule (hourly) or
+                # when explicitly forced to refresh.
             
             logger.info(f"Calculated score: {score}/5 using technical indicators")
             return score, float(current_price), indicators

@@ -296,6 +296,14 @@ class EnhancedEtfScoringService:
         if (not force_refresh and 
             cache_key in self.cache and 
             (now - self.cache[cache_key][1]).total_seconds() < self.cache_duration):
+            
+            # If we have a price override, update just the current price while maintaining the same score
+            if price_override is not None:
+                score_data, indicators = self.cache[cache_key][0][0], self.cache[cache_key][0][2]
+                logger.info(f"Using cached technical score for {symbol} with updated real-time price")
+                return (score_data, price_override, indicators)
+            
+            # Otherwise return the fully cached result
             return self.cache[cache_key][0]
         
         # Calculate new score
