@@ -36,10 +36,14 @@ async function fetchEtfData() {
 function updateEtfUi(data) {
     if (!data) return;
     
-    // Update each ETF's price and score
+    // Only update each ETF's price, not the score (per user request)
+    // Scores should only update when the page is manually refreshed
     Object.entries(data).forEach(([symbol, etfData]) => {
+        // Update price in real-time
         updateEtfPrice(symbol, etfData.price);
-        updateEtfScore(symbol, etfData.score);
+        
+        // Don't update score in real-time - scores should remain stable
+        // updateEtfScore(symbol, etfData.score); - DISABLED
     });
 }
 
