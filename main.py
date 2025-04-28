@@ -842,6 +842,8 @@ def index():
         <title>Income Machine DEMO - Daily ETF Scoreboard</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
         <style>
             {{ global_css }}
             
@@ -975,8 +977,9 @@ def index():
             
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
-                    <h2 class="display-6 fw-bold">Daily ETF Scoreboard</h2>
+                    <h2 class="display-6 fw-bold">Daily ETF Scoreboard <span class="realtime-indicator">Real-time</span></h2>
                     <p class="fs-5">Select an ETF with a score of 3+ for the highest probability income opportunity.</p>
+                    <p class="last-updated">Prices and scores update automatically</p>
                 </div>
             </div>
     
@@ -1956,7 +1959,16 @@ def api_etf_data():
     Returns:
         JSON: Current ETF data including prices and scores
     """
-    return jsonify(etf_scores)
+    # Return the current ETF data with timestamp for client-side tracking
+    data = {}
+    for etf, etf_data in etf_scores.items():
+        data[etf] = {
+            'price': etf_data['price'],
+            'score': etf_data['score'],
+            'name': etf_data['name'],
+            'timestamp': datetime.now().isoformat()
+        }
+    return jsonify(data)
 
 @app.route('/api/test/websocket')
 def test_websocket():
