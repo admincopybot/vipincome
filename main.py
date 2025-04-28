@@ -128,14 +128,21 @@ def on_websocket_data_update(updates):
                 price = data.get('price', 0)
                 
                 if price > 0:
-                    # Update the price immediately
+                    # Immediately calculate score with this price
+                    new_score, _, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
+                        symbol, 
+                        force_refresh=True,
+                        price_override=price
+                    )
+                    
+                    # Update all ETF data with real-time price and fresh score
                     etf_scores[symbol]['price'] = price
+                    etf_scores[symbol]['score'] = new_score
                     etf_scores[symbol]['source'] = data.get('data_source', 'TheTradeList WebSocket')
+                    etf_scores[symbol]['indicators'] = indicators
                     
-                    # Set force_refresh flag to recalculate technical score on next update cycle
-                    force_refresh = True
-                    
-                    logger.info(f"Updated {symbol} price to ${price:.2f} from WebSocket")
+                    # Log the update
+                    logger.info(f"Updated {symbol} price to ${price:.2f} from WebSocket with score {new_score}/5")
     except Exception as e:
         logger.error(f"Error processing WebSocket data update: {str(e)}")
 
