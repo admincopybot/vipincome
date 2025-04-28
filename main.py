@@ -1947,6 +1947,50 @@ def special_offer():
     return render_template_string(template, global_css=global_css, logo_header=logo_header, )
 
 # API test endpoints
+@app.route('/api/test/websocket')
+def test_websocket():
+    """Test endpoint for TheTradeList WebSocket connection and data
+    
+    Query Parameters:
+    - ticker: The ETF symbol to check (default: all)
+    """
+    ticker = request.args.get('ticker')
+    
+    # Get the WebSocket client
+    ws_client = get_websocket_client()
+    if not ws_client:
+        return jsonify({
+            'status': 'error',
+            'message': 'WebSocket client not initialized - check API key',
+            'api_key_set': os.environ.get('TRADELIST_API_KEY') is not None
+        })
+    
+    # Check connection status
+    connection_status = {
+        'is_connected': ws_client.is_connected,
+        'session_id': ws_client.session_id if ws_client.session_id else None,
+        'symbols_tracking': ws_client.symbols_to_track,
+        'reconnect_attempts': ws_client._reconnect_attempts
+    }
+    
+    # Get data for a specific ticker or all data
+    if ticker:
+        data = ws_client.get_latest_price(ticker)
+        
+        # If no data for the requested ticker, try to subscribe
+        if not data and ws_client.is_connected and ws_client.session_id:
+            ws_client.subscribe_to_symbol(ticker)
+            data = None  # Will be updated on next cycle
+    else:
+        data = ws_client.get_all_latest_data()
+    
+    return jsonify({
+        'status': 'success',
+        'connection': connection_status,
+        'data': data,
+        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    })
+
 @app.route('/api/test/tradelist')
 def test_tradelist_api():
     """Test endpoint for TheTradeList API integration with detailed diagnostics
