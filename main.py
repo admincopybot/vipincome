@@ -56,29 +56,22 @@ def update_market_data_background():
     while True:
         current_time = time.time()
         
-        # Update at app startup, on interval, or when forced refresh is requested
+        # For WebSocket-only approach, we don't need to actively update market data
+        # The data will be updated by the WebSocket callback on_websocket_data_update
+        # We keep this thread primarily for continuity and in case we need to implement
+        # fallback mechanisms in the future
+        
         if current_time - last_update_time > update_interval or force_refresh:
             try:
-                logger.info("Updating market data...")
-                # Add a cache-busting parameter to ensure fresh data
-                new_data = market_data.update_market_data(force_refresh=True)
-                
-                if new_data and len(new_data) > 0:
-                    # Update data while preserving any ETFs that might not be in the new data
-                    for symbol, data in new_data.items():
-                        etf_scores[symbol] = data
-                    
-                    last_update_time = current_time
-                    force_refresh = False  # Reset the force refresh flag
-                    logger.info(f"Market data updated. {len(new_data)} ETFs processed.")
-                else:
-                    logger.warning("No market data received in update.")
-                    
+                logger.info("Market data primarily updated via WebSocket. Background updater still active.")
+                # No market data update via yfinance
+                last_update_time = current_time
+                force_refresh = False  # Reset the force refresh flag
             except Exception as e:
-                logger.error(f"Error updating market data: {str(e)}")
+                logger.error(f"Error in market data background thread: {str(e)}")
         
-        # Sleep for a shorter interval (30 seconds) to be more responsive to force_refresh requests
-        time.sleep(30)
+        # Sleep for a longer interval since WebSocket handles real-time updates
+        time.sleep(60)
 
 # Helper function that previously added star elements (now disabled)
 def add_stars_to_template(template_str):
@@ -126,25 +119,25 @@ def on_websocket_data_update(updates):
                 websocket_price = data.get('price', 0)
                 websocket_timestamp = data.get('last_updated', '')
                 
-                # We'll use the WebSocket data for logging purposes, but rely on yfinance for pricing
-                # This avoids using potentially stale WebSocket data
+                # Use WebSocket data directly, even though it might be from April 24th
+                # This is per user request to drop yfinance completely
                 
-                # Calculate score with fresh yfinance data instead of using websocket price
-                new_score, calculated_price, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
+                # Calculate score using the WebSocket price
+                new_score, _, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
                     symbol, 
-                    force_refresh=True,
-                    price_override=None  # Don't use price_override to rely on yfinance
+                    force_refresh=False,
+                    price_override=websocket_price  # Use WebSocket price directly
                 )
                 
-                if calculated_price > 0:
-                    # Update all ETF data with yfinance price and fresh score
-                    etf_scores[symbol]['price'] = calculated_price
+                if websocket_price > 0:
+                    # Update all ETF data with WebSocket price and score
+                    etf_scores[symbol]['price'] = websocket_price
                     etf_scores[symbol]['score'] = new_score
-                    etf_scores[symbol]['source'] = 'yfinance (real-time)'
+                    etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
                     etf_scores[symbol]['indicators'] = indicators
                     
-                    # Log the update with both prices for comparison
-                    logger.info(f"Updated {symbol} price to ${calculated_price:.2f} from yfinance (WebSocket showed ${websocket_price:.2f}) with score {new_score}/5")
+                    # Log the update with WebSocket price
+                    logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket with score {new_score}/5")
     except Exception as e:
         logger.error(f"Error processing WebSocket data update: {str(e)}")
 

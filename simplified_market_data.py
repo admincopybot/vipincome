@@ -4,7 +4,7 @@ import time
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
-import yfinance as yf
+# Removed yfinance import per user request
 import talib_service_client as talib_service
 import enhanced_etf_scoring
 from tradelist_client import TradeListApiService
