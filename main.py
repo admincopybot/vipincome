@@ -988,12 +988,12 @@ def index():
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="card-title mb-0" style="font-weight: 700; font-size: 1.8rem; letter-spacing: -0.02em;">{{ etf }}</h3>
-                                <span class="badge" style="font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 20px; background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if data.score >= 4 else '#FFD700' if data.score >= 3 else '#6c757d' }}; color: {{ '#fff' if data.score >= 4 else '#000' if data.score >= 3 else '#fff' }};">{{ data.score }}/5</span>
+                                <span class="badge" data-etf-score="{{ etf }}" style="font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 20px; background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if data.score >= 4 else '#FFD700' if data.score >= 3 else '#6c757d' }}; color: {{ '#fff' if data.score >= 4 else '#000' if data.score >= 3 else '#fff' }};">{{ data.score }}/5</span>
                             </div>
                             
                             <p class="text-light mb-1" style="font-size: 1.1rem; opacity: 0.9;">{{ data.name }}</p>
                             {% if data.price > 0 %}
-                                <p class="text-light mb-3" style="font-size: 1.5rem; font-weight: 600;">${{ "%.2f"|format(data.price) }}</p>
+                                <p class="text-light mb-3" style="font-size: 1.5rem; font-weight: 600;" data-etf-price="{{ etf }}">${{ "%.2f"|format(data.price) }}</p>
                             {% else %}
                                 <p class="text-danger mb-3" style="font-size: 1.1rem; font-weight: 500;">
                                     <i class="bi bi-exclamation-triangle-fill"></i> API Connection Issue
