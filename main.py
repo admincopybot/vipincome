@@ -1549,6 +1549,8 @@ def step4():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Income Machine DEMO - Trade Details - {{ etf }} {{ strategy }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
         <style>
             {{ global_css }}
             
@@ -1680,11 +1682,15 @@ def step4():
                         </div>
                         <div class="card-body">
                             <h5>{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
-                            <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
-                            <p><strong>Strength Score:</strong> {{ etf_data.score }}/5</p>
+                            <p><strong>Current Price:</strong> <span data-etf-price="{{ etf }}">${{ "%.2f"|format(etf_data.price) }}</span> <span class="realtime-indicator">Real-time</span></p>
+                            <p><strong>Strength Score:</strong> <span data-etf-score="{{ etf }}">{{ etf_data.score }}/5</span></p>
                             <div class="progress mb-3" style="height: 8px;">
-                                <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
-                                    aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar progress-bar-score-{{ etf_data.score }}" 
+                                     role="progressbar" 
+                                     data-etf-progress="{{ etf }}"
+                                     aria-valuenow="{{ etf_data.score * 20 }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
                                 </div>
                             </div>
                         </div>
@@ -1740,6 +1746,8 @@ def how_to_use():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>How to Use the Income Machine</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
         <style>
             {{ global_css }}
         </style>
@@ -1795,6 +1803,8 @@ def live_classes():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Income Machine LIVE Trade Classes</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
         <style>
             {{ global_css }}
         </style>
@@ -1871,6 +1881,8 @@ def special_offer():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Get Full Access for 50% OFF</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
         <style>
             {{ global_css }}
         </style>
