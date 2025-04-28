@@ -221,6 +221,8 @@ class SimplifiedMarketDataService:
         """
         Get debit spread options data for a specific ETF and strategy
         Returns recommendation for a call debit spread trade
+        
+        Note: This now uses exclusively WebSocket data instead of yfinance
         """
         try:
             # Check if symbol is in our tracked ETFs
@@ -228,162 +230,29 @@ class SimplifiedMarketDataService:
                 logger.warning(f"Unrecognized ETF symbol: {symbol}")
                 return None
             
-            # First, get latest price data with group_by=None to avoid multi-index
-            ticker_data = yf.Ticker(symbol)
-            hist = ticker_data.history(period="1d", group_by=None)
+            # Get price from WebSocket data instead of yfinance
+            # This requires retrieving the current price from our WebSocket cache
+            ws_client = get_websocket_client()
+            current_price = 0
             
-            # Handle potential multi-index in the result
-            if isinstance(hist.columns, pd.MultiIndex):
-                # If we have a multi-index, flatten it
-                if ('Close', symbol) in hist.columns:
-                    current_price = float(hist[('Close', symbol)].iloc[-1])
-                else:
-                    logger.error(f"Unexpected column structure in history: {hist.columns}")
-                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, 0)
+            if ws_client and symbol in ws_client.cached_data:
+                websocket_data = ws_client.cached_data.get(symbol, {})
+                current_price = websocket_data.get('price', 0)
+                logger.info(f"Using WebSocket price for {symbol}: ${current_price}")
             else:
-                # If we don't have a multi-index, just access Close directly
-                current_price = float(hist['Close'].iloc[-1])
+                # If WebSocket data isn't available, try TradeList API
+                price_data = TradeListApiService.get_current_price(symbol)
+                current_price = price_data.get('price', 0)
+                logger.info(f"Using TradeList API price for {symbol}: ${current_price}")
             
             if not current_price or current_price <= 0:
                 logger.error(f"Invalid current price for {symbol}: {current_price}")
                 return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
             
-            try:
-                # Get options chain data
-                # Strategy determines days to expiration (DTE)
-                # Aggressive: 7-15 days, Steady: 14-30 days, Passive: 30-45 days
-                if strategy == 'Aggressive':
-                    expiry_days = 14  # Aim for 2 weeks out
-                elif strategy == 'Passive':
-                    expiry_days = 45  # Aim for 6 weeks out
-                else:  # Default to Steady
-                    expiry_days = 30  # Aim for 4 weeks out
-                
-                # Find appropriate expiration date
-                today = datetime.now()
-                target_date = today + timedelta(days=expiry_days)
-                
-                # Get available expiration dates
-                expirations = ticker_data.options
-                
-                if not expirations or len(expirations) == 0:
-                    logger.warning(f"No options expirations available for {symbol}")
-                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
-                
-                # Find expiration closest to our target
-                expiration = None
-                min_diff = float('inf')
-                
-                for exp in expirations:
-                    exp_date = datetime.strptime(exp, '%Y-%m-%d')
-                    diff = abs((exp_date - target_date).days)
-                    
-                    if diff < min_diff:
-                        min_diff = diff
-                        expiration = exp
-                
-                if not expiration:
-                    logger.warning(f"Failed to find suitable expiration for {symbol}")
-                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
-                
-                # Calculate actual DTE
-                exp_date = datetime.strptime(expiration, '%Y-%m-%d')
-                dte = (exp_date - today).days
-                
-                # Get options chain for this expiration
-                try:
-                    options = ticker_data.option_chain(expiration)
-                    calls = options.calls
-                except:
-                    logger.warning(f"Failed to get option chain for {symbol}")
-                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
-                
-                if calls.empty:
-                    logger.warning(f"No call options found for {symbol} on {expiration}")
-                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
-                
-                # Determine the standard option increment based on ETF price
-                if current_price < 50:
-                    increment = 0.5
-                elif current_price < 100:
-                    increment = 1.0
-                else:
-                    increment = 2.5
-                
-                # Target ROI based on strategy
-                # Aggressive: 30%, Steady: 22%, Passive: 16%
-                if strategy == 'Aggressive':
-                    target_roi = 0.30
-                elif strategy == 'Passive':
-                    target_roi = 0.16
-                else:  # Default to Steady
-                    target_roi = 0.22
-                
-                # Find strikes close to current price (prefer slightly ITM)
-                itm_calls = calls[calls['strike'] <= current_price]
-                
-                if itm_calls.empty:
-                    # If no ITM options, use the closest OTM
-                    sorted_calls = calls.sort_values('strike')
-                    lower_strike = float(sorted_calls.iloc[0]['strike'])
-                else:
-                    # Use closest ITM strike
-                    sorted_itm = itm_calls.sort_values('strike', ascending=False)
-                    lower_strike = float(sorted_itm.iloc[0]['strike'])
-                
-                # Round to standard option increments
-                lower_strike = round(lower_strike / increment) * increment
-                
-                # Upper strike is 1 increment higher for simplicity
-                upper_strike = lower_strike + increment
-                
-                # Get actual premiums if available
-                # Optimal trade based on target ROI
-                spread_width = upper_strike - lower_strike
-                target_premium = spread_width / (1 + target_roi)
-                
-                # Find actual premiums if possible
-                try:
-                    lower_option = calls[calls['strike'] == lower_strike]
-                    upper_option = calls[calls['strike'] == upper_strike]
-                    
-                    if not lower_option.empty and not upper_option.empty:
-                        # Use mid-price for calculations
-                        lower_premium = (float(lower_option.iloc[0]['ask']) + float(lower_option.iloc[0]['bid'])) / 2
-                        upper_premium = (float(upper_option.iloc[0]['ask']) + float(upper_option.iloc[0]['bid'])) / 2
-                        actual_premium = lower_premium - upper_premium
-                    else:
-                        # Fallback to theoretical premium
-                        actual_premium = target_premium
-                except:
-                    # Fallback to theoretical premium
-                    actual_premium = target_premium
-                
-                # Calculate ROI: (spread_width - premium) / premium
-                roi = (spread_width - actual_premium) / actual_premium if actual_premium > 0 else target_roi
-                
-                # Calculate percent OTM/ITM
-                pct_difference = (lower_strike - current_price) / current_price * 100
-                
-                trade = {
-                    "strike": lower_strike,
-                    "upper_strike": upper_strike,
-                    "spread_width": spread_width,
-                    "expiration": expiration,
-                    "dte": dte,
-                    "roi": f"{roi:.0%}",
-                    "premium": round(actual_premium, 2),
-                    "pct_otm": round(pct_difference, 1),
-                    "max_profit": round(spread_width - actual_premium, 2),
-                    "max_loss": round(actual_premium, 2)
-                }
-                
-                logger.info(f"Generated {strategy} trade for {symbol}: {trade}")
-                return trade
-                
-            except Exception as e:
-                logger.error(f"Error getting options data for {symbol}: {str(e)}")
-                return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+            # Since we've removed yfinance completely, we'll use the fallback trade generator
+            # This is based on the current price from the WebSocket/API
+            logger.info(f"Generating fallback trade for {symbol} ({strategy}) with price ${current_price}")
+            return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
             
         except Exception as e:
             logger.error(f"Error in options data for {symbol}: {str(e)}")
