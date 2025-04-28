@@ -3,7 +3,7 @@ import json
 import logging
 import threading
 import time
-from websocket import WebSocketApp
+import websocket
 from datetime import datetime
 from typing import Dict, List, Optional, Callable, Any, Union
 

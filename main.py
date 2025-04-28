@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import simplified_market_data as market_data  # Using simplified market data service with reliable indicators
 from tradelist_client import TradeListApiService
+from tradelist_websocket_client import get_websocket_client
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -84,9 +85,66 @@ def add_stars_to_template(template_str):
     """Previously added star elements, now just returns the original template"""
     return template_str
 
+# Initialize WebSocket connection for real-time data
+def initialize_websocket_client():
+    """Initialize and connect to TheTradeList WebSocket API"""
+    try:
+        logger.info("Initializing WebSocket connection to TheTradeList API...")
+        ws_client = get_websocket_client()
+        if ws_client:
+            # Add all our ETF symbols to track
+            ws_client.symbols_to_track = market_data.SimplifiedMarketDataService.default_etfs.copy()
+            
+            # Connect to the WebSocket
+            success = ws_client.connect()
+            if success:
+                logger.info(f"WebSocket client initialized with {len(ws_client.symbols_to_track)} symbols to track")
+                
+                # Register a callback to update our data when new data arrives
+                ws_client.add_data_update_callback(on_websocket_data_update)
+                return True
+            else:
+                logger.error("Failed to connect WebSocket client")
+        else:
+            logger.error("Failed to get WebSocket client instance - check API key")
+    except Exception as e:
+        logger.error(f"Error initializing WebSocket client: {str(e)}")
+    
+    return False
+
+def on_websocket_data_update(updates):
+    """Callback function when new data is received from WebSocket"""
+    global etf_scores, force_refresh
+    
+    try:
+        # Log the updates
+        logger.info(f"Received real-time updates for {len(updates)} symbols via WebSocket")
+        
+        # Process each symbol that was updated
+        for symbol, data in updates.items():
+            if symbol in etf_scores:
+                # Update our ETF scores with the new price data
+                sector_name = market_data.SimplifiedMarketDataService.etf_sectors.get(symbol, symbol)
+                price = data.get('price', 0)
+                
+                if price > 0:
+                    # Update the price immediately
+                    etf_scores[symbol]['price'] = price
+                    etf_scores[symbol]['source'] = data.get('data_source', 'TheTradeList WebSocket')
+                    
+                    # Set force_refresh flag to recalculate technical score on next update cycle
+                    force_refresh = True
+                    
+                    logger.info(f"Updated {symbol} price to ${price:.2f} from WebSocket")
+    except Exception as e:
+        logger.error(f"Error processing WebSocket data update: {str(e)}")
+
 # Start background thread for market data updates
 update_thread = threading.Thread(target=update_market_data_background, daemon=True)
 update_thread.start()
+
+# Initialize WebSocket connection
+initialize_websocket_client()
 
 # Global CSS variable defined below with the strategy descriptions
 
