@@ -16,6 +16,7 @@ class TradeListApiService:
     TRADELIST_API_BASE_URL = "https://api.thetradelist.com/v1/data"
     TRADELIST_SCANNER_ENDPOINT = "/get_trader_scanner_data.php"
     TRADELIST_HIGHS_LOWS_ENDPOINT = "/get_highs_lows.php"
+    TRADELIST_OPTIONS_SPREADS_ENDPOINT = "/options-spreads"
     
     # API Documentation reference
     API_DOCUMENTATION = """
@@ -38,6 +39,14 @@ class TradeListApiService:
     - volume (optional, default: 0): Minimum trading volume
     - extreme (optional): Filter for 'high' or 'low' only
     - returntype (optional, default: 'csv'): 'csv' or 'json'
+    - apiKey (required): Your API key
+    
+    Options Spreads Endpoint:
+    GET https://api.thetradelist.com/v1/data/options-spreads
+    
+    Parameters:
+    - symbol (required): ETF symbol (e.g., 'XLK', 'XLF')
+    - strategy (required): Trading strategy ('Aggressive', 'Steady', 'Passive')
     - apiKey (required): Your API key
     """
     TRADELIST_SUPPORTED_ETFS = ["XLK", "XLF", "XLV", "XLI", "XLP", "XLY", "XLE", "XLB", "XLU", "XLRE", "XLC", "SPY"]
