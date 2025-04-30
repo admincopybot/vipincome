@@ -208,7 +208,8 @@ class SimplifiedMarketDataService:
         Get debit spread options data for a specific ETF and strategy
         Returns recommendation for a call debit spread trade
         
-        Note: This now uses exclusively WebSocket data instead of yfinance
+        Note: This now tries to use TheTradeList options spreads API first,
+        and falls back to synthetic data only if the API is unavailable
         """
         try:
             # Check if symbol is in our tracked ETFs
@@ -216,8 +217,7 @@ class SimplifiedMarketDataService:
                 logger.warning(f"Unrecognized ETF symbol: {symbol}")
                 return None
             
-            # Get price from WebSocket data instead of yfinance
-            # This requires retrieving the current price from our WebSocket cache
+            # Get price from WebSocket data
             ws_client = get_websocket_client()
             current_price = 0
             
@@ -231,13 +231,32 @@ class SimplifiedMarketDataService:
                 current_price = price_data.get('price', 0)
                 logger.info(f"Using TradeList API price for {symbol}: ${current_price}")
             
+            # Try to get options data from the TheTradeList options spreads API
+            logger.info(f"Attempting to fetch options data from TheTradeList API for {symbol} with {strategy} strategy")
+            options_data = TradeListApiService.get_options_spreads(symbol, strategy)
+            
+            if options_data:
+                logger.info(f"Successfully retrieved options data from TheTradeList API for {symbol}")
+                
+                # Transform API response to match our expected format if needed
+                # This assumes the API returns data in a compatible format; adjust as needed
+                # based on the actual API response structure
+                
+                # Basic validation of the response
+                if 'strike' not in options_data or 'expiration' not in options_data:
+                    logger.warning(f"Invalid options data format from API for {symbol}")
+                    logger.debug(f"API response: {options_data}")
+                    # Fall back to our generator if the API response doesn't have the expected fields
+                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+                
+                return options_data
+            
+            # If we couldn't get options data from the API, fall back to our generator
             if not current_price or current_price <= 0:
                 logger.error(f"Invalid current price for {symbol}: {current_price}")
-                return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+                return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, 0)
             
-            # Since we've removed yfinance completely, we'll use the fallback trade generator
-            # This is based on the current price from the WebSocket/API
-            logger.info(f"Generating fallback trade for {symbol} ({strategy}) with price ${current_price}")
+            logger.info(f"No API data available. Generating fallback trade for {symbol} ({strategy}) with price ${current_price}")
             return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
             
         except Exception as e:

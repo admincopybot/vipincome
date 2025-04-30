@@ -335,6 +335,81 @@ class TradeListApiService:
             return pd.DataFrame()
     
     @staticmethod
+    def get_options_spreads(symbol, strategy):
+        """
+        Get options spread data for a specific ETF and strategy
+        
+        Parameters:
+        - symbol: ETF symbol (e.g., 'XLK', 'XLF')
+        - strategy: Trading strategy ('Aggressive', 'Steady', 'Passive')
+        
+        Returns:
+        - dict: Options spread data including current price, expiration dates, and spreads
+        """
+        try:
+            # Check if API is enabled
+            if not TradeListApiService.USE_TRADELIST_API:
+                logger.error(f"TheTradeList API is disabled. Set USE_TRADELIST_API=true to enable.")
+                return None
+            
+            # Check if ticker is supported
+            if symbol not in TradeListApiService.TRADELIST_SUPPORTED_ETFS:
+                logger.error(f"Symbol {symbol} is not supported by TheTradeList API")
+                return None
+            
+            # Ensure API key is available
+            api_key = os.environ.get("TRADELIST_API_KEY")
+            if not api_key:
+                logger.error("TheTradeList API key not found in environment variables")
+                return None
+                
+            # Construct API URL
+            url = f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_OPTIONS_SPREADS_ENDPOINT}"
+            
+            # Validate strategy parameter
+            if strategy not in ["Aggressive", "Steady", "Passive"]:
+                logger.error(f"Invalid strategy: {strategy}. Must be 'Aggressive', 'Steady', or 'Passive'")
+                return None
+            
+            # Build query parameters
+            params = {
+                "symbol": symbol,
+                "strategy": strategy,
+                "apiKey": api_key
+            }
+            
+            logger.info(f"Making request to TheTradeList Options Spreads API for {symbol} with strategy {strategy}")
+            
+            # Make API request
+            response = requests.get(url, params=params, timeout=15)
+            
+            # Log the response for debugging
+            logger.debug(f"TheTradeList Options API response status: {response.status_code}")
+            
+            # Check for successful response and parse
+            if response.status_code == 200:
+                try:
+                    # Check if response text starts with JSON markers
+                    if response.text.strip().startswith(('[', '{')):
+                        data = response.json()
+                        logger.info(f"Successfully retrieved options data for {symbol} with strategy {strategy}")
+                        return data
+                    else:
+                        logger.warning(f"Response doesn't appear to be valid JSON: {response.text[:50]}...")
+                except Exception as json_error:
+                    logger.error(f"Failed to parse JSON: {str(json_error)}")
+            else:
+                logger.error(f"TheTradeList Options API error: {response.status_code} - {response.text}")
+            
+            # If we got here, either parsing failed or we didn't get valid data
+            logger.warning(f"Couldn't get valid options data for {symbol} with strategy {strategy}")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Exception when calling TheTradeList Options API: {str(e)}")
+            return None
+    
+    @staticmethod
     def api_health_check():
         """Check if TheTradeList API is available and API key is valid"""
         try:
