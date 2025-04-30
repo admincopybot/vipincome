@@ -1891,7 +1891,7 @@ def live_classes():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css, logo_header=logo_header, )
+    return render_template_string(template, global_css=global_css, logo_header=logo_header, etf=etf, etf_data=etf_data, strategies=strategies)
 
 # Route for Special Offer page
 @app.route('/special-offer')
@@ -1988,7 +1988,7 @@ def special_offer():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css, logo_header=logo_header, )
+    return render_template_string(template, global_css=global_css, logo_header=logo_header)
 
 # API test endpoints
 @app.route('/api/etf-data')
