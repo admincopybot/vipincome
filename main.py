@@ -144,20 +144,41 @@ def on_websocket_data_update(updates):
                 
                 if recalculate_scores:
                     # Only recalculate score on schedule, not with every price update
-                    new_score, _, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
-                        symbol, 
-                        force_refresh=True,  # Force refresh when we recalculate
-                        price_override=websocket_price
-                    )
-                    
-                    # Update the full ETF data including indicators and score
-                    etf_scores[symbol]['price'] = websocket_price
-                    etf_scores[symbol]['score'] = new_score
-                    etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
-                    etf_scores[symbol]['indicators'] = indicators
-                    
-                    # Log the update with score
-                    logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket with recalculated score {new_score}/5")
+                    try:
+                        new_score, _, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
+                            symbol, 
+                            force_refresh=True,  # Force refresh when we recalculate
+                            price_override=websocket_price
+                        )
+                        
+                        # Only update if we got a valid score
+                        if new_score > 0:
+                            # Update the full ETF data including indicators and score
+                            etf_scores[symbol]['price'] = websocket_price
+                            etf_scores[symbol]['score'] = new_score
+                            etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
+                            etf_scores[symbol]['indicators'] = indicators
+                            
+                            # Store this valid score in our original scores cache for future use
+                            original_etf_scores[symbol] = new_score
+                            
+                            # Log the update with score
+                            logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket with recalculated score {new_score}/5")
+                        else:
+                            # Just update price and keep existing score
+                            etf_scores[symbol]['price'] = websocket_price
+                            logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket but kept existing score (failed to calculate new score)")
+                    except Exception as e:
+                        # If score calculation fails, just update the price
+                        etf_scores[symbol]['price'] = websocket_price
+                        etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
+                        
+                        # Restore original score if current score is 0
+                        if etf_scores[symbol]['score'] == 0 and symbol in original_etf_scores:
+                            etf_scores[symbol]['score'] = original_etf_scores[symbol]
+                            logger.info(f"Restored original score {original_etf_scores[symbol]}/5 for {symbol} after calculation error: {str(e)}")
+                        
+                        logger.warning(f"Error calculating new score for {symbol}: {str(e)}")
                 else:
                     # Just update the price without recalculating the score
                     etf_scores[symbol]['price'] = websocket_price
