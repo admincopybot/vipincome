@@ -43,6 +43,11 @@ etf_scores = {
     "XLRE": {"name": "Real Estate", "score": 3, "price": 40.02, "indicators": default_indicators.copy()}
 }
 
+# Save original scores to preserve them during WebSocket updates
+original_etf_scores = {
+    symbol: data["score"] for symbol, data in etf_scores.items()
+}
+
 # Data update tracking 
 # Cache control variables
 last_update_time = 0  # Set to 0 to force immediate update at startup
@@ -158,8 +163,14 @@ def on_websocket_data_update(updates):
                     etf_scores[symbol]['price'] = websocket_price
                     etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
                     
-                    # Log the price-only update
+                    # Restore original score if current score is 0 and original exists
                     current_score = etf_scores[symbol]['score']
+                    if current_score == 0 and symbol in original_etf_scores:
+                        etf_scores[symbol]['score'] = original_etf_scores[symbol]
+                        current_score = original_etf_scores[symbol]
+                        logger.info(f"Restored original score {current_score}/5 for {symbol}")
+                    
+                    # Log the price-only update
                     logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket (keeping score {current_score}/5)")
     except Exception as e:
         logger.error(f"Error processing WebSocket data update: {str(e)}")
@@ -170,6 +181,12 @@ update_thread.start()
 
 # Initialize WebSocket connection
 initialize_websocket_client()
+
+# Force score restoration at startup - make sure ETF scores are properly initialized
+for symbol in etf_scores:
+    if etf_scores[symbol]['score'] == 0 and symbol in original_etf_scores:
+        etf_scores[symbol]['score'] = original_etf_scores[symbol]
+        logger.info(f"Restored original score {original_etf_scores[symbol]}/5 for {symbol} at startup")
 
 # Global CSS variable defined below with the strategy descriptions
 
