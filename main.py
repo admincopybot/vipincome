@@ -1813,7 +1813,7 @@ def how_to_use():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css, logo_header=logo_header, )
+    return render_template_string(template, global_css=global_css, logo_header=logo_header, etf=etf, strategy=strategy, trade=trade, etf_score=etf_scores.get(etf, {}).get("score", 0), current_price=etf_scores.get(etf, {}).get("price", 0), strategy_description=strategy_descriptions.get(strategy, ""))
 
 # Route for Live Classes page
 @app.route('/live-classes')
