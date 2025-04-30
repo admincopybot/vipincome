@@ -2194,6 +2194,7 @@ def test_tradelist_api():
 
 
 @app.route('/api/test/options-spreads')
+@app.route('/test_options_spreads_api')
 def test_options_spreads_api():
     """Test endpoint for TheTradeList options spreads API integration
     
@@ -2262,7 +2263,11 @@ def test_options_spreads_api():
             
             response["raw_api_test"] = {
                 "url": api_url,
-                "params": params,
+                "params": {
+                    "symbol": test_ticker,
+                    "strategy": strategy,
+                    "apiKey": "<redacted>" if api_key else None
+                },
                 "status_code": api_response.status_code,
                 "content_type": api_response.headers.get('Content-Type', 'unknown'),
                 "response_preview": api_response.text[:500] + ('...' if len(api_response.text) > 500 else '')
