@@ -2192,6 +2192,126 @@ def test_tradelist_api():
     
     return jsonify(response)
 
+
+@app.route('/api/test/options-spreads')
+def test_options_spreads_api():
+    """Test endpoint for TheTradeList options spreads API integration
+    
+    Query Parameters:
+    - ticker: The ETF symbol to test with (default: XLK)
+    - strategy: Trading strategy to test (default: Steady, options: Aggressive, Steady, Passive)
+    - force_raw_api: Set to 'true' to test the raw API directly (default: false)
+    - compare_fallback: Set to 'true' to compare with fallback data (default: false)
+    """
+    from datetime import datetime
+    import requests  # For direct API testing
+    
+    # Parse query parameters
+    test_ticker = request.args.get('ticker', 'XLK')
+    strategy = request.args.get('strategy', 'Steady')
+    force_raw_api = request.args.get('force_raw_api', 'false').lower() == 'true'
+    compare_fallback = request.args.get('compare_fallback', 'false').lower() == 'true'
+    
+    # Prepare response object
+    response = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "request_params": {
+            "ticker": test_ticker,
+            "strategy": strategy,
+            "force_raw_api": force_raw_api,
+            "compare_fallback": compare_fallback
+        },
+        "api_info": TradeListApiService.API_DOCUMENTATION,
+        "environment": {
+            "use_tradelist_api": TradeListApiService.USE_TRADELIST_API,
+            "api_key_available": bool(os.environ.get("POLYGON_API_KEY")),
+            "supported_etfs": TradeListApiService.TRADELIST_SUPPORTED_ETFS
+        }
+    }
+    
+    # Check API health
+    api_status = TradeListApiService.api_health_check()
+    response["api_status"] = api_status
+    
+    # Test the client implementation
+    try:
+        logger.info(f"Testing options spreads API with ticker={test_ticker}, strategy={strategy}")
+        
+        if force_raw_api:
+            # Directly test the API endpoint with our own request
+            api_url = f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_OPTIONS_SPREADS_ENDPOINT}"
+            params = {
+                "symbol": test_ticker,
+                "strategy": strategy,
+                "apiKey": os.environ.get("POLYGON_API_KEY", "")
+            }
+            
+            logger.info(f"Making direct API request to {api_url} with params: {params}")
+            
+            # Make the request
+            api_response = requests.get(api_url, params=params, timeout=10)
+            
+            # Log and store results
+            logger.info(f"Raw API response status: {api_response.status_code}")
+            
+            response["raw_api_test"] = {
+                "url": api_url,
+                "params": params,
+                "status_code": api_response.status_code,
+                "content_type": api_response.headers.get('Content-Type', 'unknown'),
+                "response_preview": api_response.text[:500] + ('...' if len(api_response.text) > 500 else '')
+            }
+            
+            # Try to parse as JSON
+            try:
+                json_data = api_response.json()
+                response["raw_api_test"]["parsed_json"] = json_data
+            except Exception as e:
+                response["raw_api_test"]["json_parse_error"] = str(e)
+        
+        # Test through our client implementation
+        client_result = TradeListApiService.get_options_spreads(test_ticker, strategy)
+        
+        if client_result:
+            response["client_implementation"] = {
+                "success": True,
+                "data": client_result
+            }
+        else:
+            response["client_implementation"] = {
+                "success": False,
+                "error": "Client returned None or empty result"
+            }
+            
+        # If requested, also generate fallback data for comparison
+        if compare_fallback:
+            # Get current price from WebSocket if available
+            ws_client = get_websocket_client()
+            current_price = 0
+            
+            if ws_client and test_ticker in ws_client.cached_data:
+                current_price = ws_client.cached_data.get(test_ticker, {}).get('price', 0)
+            
+            # If WebSocket price not available, try API price
+            if not current_price:
+                price_data = TradeListApiService.get_current_price(test_ticker)
+                current_price = price_data.get('price', 0)
+            
+            # Generate fallback data
+            fallback_data = SimplifiedMarketDataService._generate_fallback_trade(test_ticker, strategy, current_price)
+            
+            response["fallback_comparison"] = {
+                "current_price": current_price,
+                "fallback_data": fallback_data
+            }
+    
+    except Exception as e:
+        logger.error(f"Error testing options spreads API: {str(e)}")
+        response["error"] = str(e)
+    
+    return jsonify(response)
+
+
 # Run the Flask application
 if __name__ == '__main__':
     print("Visit http://127.0.0.1:5000/ to view the Income Machine DEMO.")
