@@ -239,17 +239,54 @@ class SimplifiedMarketDataService:
                 logger.info(f"Successfully retrieved options data from TheTradeList API for {symbol}")
                 
                 # Transform API response to match our expected format if needed
-                # This assumes the API returns data in a compatible format; adjust as needed
-                # based on the actual API response structure
+                # Based on our debugging, we know the API returns a LIST of option contracts
                 
-                # Basic validation of the response
-                if 'strike' not in options_data or 'expiration' not in options_data:
-                    logger.warning(f"Invalid options data format from API for {symbol}")
-                    logger.debug(f"API response: {options_data}")
-                    # Fall back to our generator if the API response doesn't have the expected fields
-                    return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
-                
-                return options_data
+                # We're using the structure in options_data
+                if isinstance(options_data, dict) and 'raw_data' in options_data:
+                    raw_data = options_data.get('raw_data', [])
+                    options_count = options_data.get('options_count', 0)
+                    logger.info(f"Received {options_count} option contracts from API")
+                    
+                    # Find the appropriate call options for our strategy DTE range
+                    dte_ranges = {
+                        'Aggressive': (7, 15),   # 7-15 days
+                        'Steady': (14, 30),      # 14-30 days
+                        'Passive': (30, 45)      # 30-45 days
+                    }
+                    min_dte, max_dte = dte_ranges.get(strategy, (14, 30))
+                    
+                    # Get current price from API data if available
+                    # The first option should have the ETF price
+                    if raw_data and len(raw_data) > 0:
+                        if 'etf_price' in raw_data[0]:
+                            api_price = raw_data[0].get('etf_price', 0)
+                            if api_price > 0:
+                                current_price = api_price
+                                logger.info(f"Using ETF price from options API: ${current_price}")
+                    
+                    # Convert the raw data to our expected format
+                    return {
+                        'symbol': symbol,
+                        'current_price': current_price,
+                        'strategy': strategy,
+                        'recommended_expiration': None,  # We'll set this later
+                        'recommended_spread': None,      # We'll set this later
+                        'risk_per_contract': 0,
+                        'max_profit_per_contract': 0,
+                        'risk_reward_ratio': 0,
+                        'source': 'TheTradeList API',
+                        'raw_data': raw_data,            # Include raw data for processing
+                        'options_count': options_count
+                    }
+                else:
+                    # Basic validation of the response (original format)
+                    if 'strike' not in options_data or 'expiration' not in options_data:
+                        logger.warning(f"Invalid options data format from API for {symbol}")
+                        logger.debug(f"API response: {options_data}")
+                        # Fall back to our generator if the API response doesn't have the expected fields
+                        return SimplifiedMarketDataService._generate_fallback_trade(symbol, strategy, current_price)
+                    
+                    return options_data
             
             # If we couldn't get options data from the API, fall back to our generator
             if not current_price or current_price <= 0:

@@ -377,11 +377,21 @@ class TradeListApiService:
                     
                     # Parse JSON response
                     data = response.json()
-                    logger.debug(f"Received options spreads data: {data}")
+                    logger.info(f"Received options spreads data type: {type(data)}")
                     
                     # Basic validation of the response structure
-                    if not isinstance(data, dict):
-                        logger.error(f"Invalid response format from Options Spreads API: {data}")
+                    if isinstance(data, list):
+                        logger.info(f"Received options spreads data as list with {len(data)} items")
+                        # The response format appears to be a list, let's convert it to a dictionary
+                        return {
+                            "raw_data": data,
+                            "symbol": symbol,
+                            "strategy": strategy,
+                            "options_count": len(data),
+                            "source": "TheTradeList API"
+                        }
+                    elif not isinstance(data, dict):
+                        logger.error(f"Invalid response format from Options Spreads API: {type(data)}")
                         return None
                     
                     # Return the options spread data
