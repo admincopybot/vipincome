@@ -166,8 +166,39 @@ class SimplifiedMarketDataService:
             # Use the enhanced ETF scoring system that matches TradingView
             logger.info(f"Calculating technical score for {ticker} using enhanced ETF scoring system")
             
-            # Get the ETF score from the enhanced service
-            score, current_price, indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
+            try:
+                # Get the ETF score from the enhanced service
+                # This may fail due to Yahoo Finance rate limiting
+                score, current_price, indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
+                
+                logger.info(f"Successfully calculated score for {ticker}: {score}/5")
+                
+            except Exception as calc_error:
+                logger.warning(f"Error in ETF score calculation for {ticker}: {str(calc_error)}")
+                
+                if "Too Many Requests" in str(calc_error) or "rate limit" in str(calc_error).lower():
+                    logger.warning("Yahoo Finance rate limit hit - using fallback score")
+                
+                # Create a default set of indicators
+                indicators = {
+                    'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'},
+                    'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'},
+                    'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'},
+                    'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'},
+                    'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'}
+                }
+                
+                # Set default values
+                score = 0
+                current_price = 0.0
+                
+                # Try to get current price from WebSocket if available
+                ws_client = get_websocket_client()
+                if ws_client and ticker in ws_client.cached_data:
+                    ws_data = ws_client.cached_data.get(ticker, {})
+                    if 'price' in ws_data and ws_data['price'] > 0:
+                        current_price = ws_data['price']
+                        logger.info(f"Using WebSocket price for {ticker}: ${current_price}")
             
             # If we have a price override (e.g., from TheTradeList API), we'll use it for display
             # purposes but won't recalculate the technical indicators with every minor price change.
@@ -188,13 +219,26 @@ class SimplifiedMarketDataService:
                 # Technical scores should only update on a schedule (hourly) or
                 # when explicitly forced to refresh.
             
-            logger.info(f"Calculated score: {score}/5 using technical indicators")
+            logger.info(f"Final score for {ticker}: {score}/5")
             return score, float(current_price), indicators
             
         except Exception as e:
             logger.error(f"Error calculating ETF score: {str(e)}")
+            
+            # Try to get current price from WebSocket if available
+            try:
+                ws_client = get_websocket_client()
+                if ws_client and ticker in ws_client.cached_data:
+                    ws_data = ws_client.cached_data.get(ticker, {})
+                    current_price = ws_data.get('price', 0.0)
+                    logger.info(f"Using WebSocket price for {ticker} in error handler: ${current_price}")
+                else:
+                    current_price = price_override or 0.0
+            except:
+                current_price = price_override or 0.0
+                
             # Provide default values with error information
-            return 0, 0.0, {
+            return 0, current_price, {
                 'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': f'Error: {str(e)}'},
                 'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': f'Error: {str(e)}'},
                 'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': f'Error: {str(e)}'},

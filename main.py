@@ -1891,7 +1891,7 @@ def live_classes():
     </body>
     </html>
     """
-    return render_template_string(template, global_css=global_css, logo_header=logo_header, etf=etf, etf_data=etf_data, strategies=strategies)
+    return render_template_string(template, global_css=global_css, logo_header=logo_header, etf=etf, etf_data=etf_scores.get(etf, {}), trades=trades, strategies=strategy_descriptions)
 
 # Route for Special Offer page
 @app.route('/special-offer')
