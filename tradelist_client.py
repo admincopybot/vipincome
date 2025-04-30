@@ -49,10 +49,21 @@ class TradeListApiService:
     - strategy (required): Trading strategy ('Aggressive', 'Steady', 'Passive')
     - apiKey (required): Your API key
     """
+    
+    # List of ETFs that are supported by TheTradeList API
+    # (ensures we don't make API calls for symbols that the API doesn't support)
     TRADELIST_SUPPORTED_ETFS = ["XLK", "XLF", "XLV", "XLI", "XLP", "XLY", "XLE", "XLB", "XLU", "XLRE", "XLC", "SPY"]
     
-    # Feature flag to control API usage
+    # Controls whether to use the API; set to false to disable completely (for troubleshooting)
     USE_TRADELIST_API = os.environ.get("USE_TRADELIST_API", "true").lower() == "true"
+    
+    @staticmethod
+    def _get_api_key():
+        """Get the API key from environment variables with fallback mechanism"""
+        api_key = os.environ.get("TRADELIST_API_KEY") or os.environ.get("POLYGON_API_KEY")
+        if not api_key:
+            logger.error("No API key found in environment variables (TRADELIST_API_KEY or POLYGON_API_KEY)")
+        return api_key
     
     @staticmethod
     def get_current_price(ticker):
@@ -61,112 +72,103 @@ class TradeListApiService:
             # Check if API is enabled
             if not TradeListApiService.USE_TRADELIST_API:
                 logger.error(f"TheTradeList API is disabled. Set USE_TRADELIST_API=true to enable.")
-                return TradeListApiService._create_error_response(ticker, "API disabled")
+                return None
             
             # Check if ticker is supported
             if ticker not in TradeListApiService.TRADELIST_SUPPORTED_ETFS:
-                logger.error(f"Ticker {ticker} is not supported by TheTradeList API")
-                return TradeListApiService._create_error_response(ticker, "Unsupported ticker")
+                logger.error(f"Symbol {ticker} is not supported by TheTradeList API")
+                return None
             
-            # Get data from TheTradeList API
-            tradelist_data = TradeListApiService.get_tradelist_data(ticker)
+            # Get API key
+            api_key = TradeListApiService._get_api_key()
+            if not api_key:
+                return None
+                
+            # Make API call to trader scanner endpoint which contains current price and change data
+            data = TradeListApiService.get_tradelist_data(ticker, return_type="json")
             
-            # Extract data from the response
-            if tradelist_data and len(tradelist_data) > 0:
-                etf_data = tradelist_data[0]
-                current_price = float(etf_data.get("current_stock_price", 0))
-                prev_close = float(etf_data.get("prev_week_stock_close_price", 0))
-                
-                # Calculate change values
-                price_change = current_price - prev_close
-                percent_change = (price_change / prev_close * 100) if prev_close > 0 else 0
-                
-                logger.info(f"Retrieved {ticker} price from TheTradeList API: ${current_price:.2f}")
-                
-                # Create response object matching the current structure
-                return {
-                    "ticker": ticker,
-                    "price": current_price,
-                    "change": price_change,
-                    "change_percent": percent_change,
-                    "volume": etf_data.get("stock_volume_by_day", 0),
-                    "last_updated": etf_data.get("price_update_time", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                    "data_source": "TheTradeList API"
-                }
-            else:
+            if not data or not isinstance(data, list) or len(data) == 0:
                 logger.error(f"No data returned from TheTradeList API for {ticker}")
-                return TradeListApiService._create_error_response(ticker, "No data returned from API")
-        
+                return TradeListApiService._create_error_response(ticker, "No data returned")
+            
+            # Find the ticker in the results
+            ticker_data = None
+            for item in data:
+                if item.get('symbol') == ticker:
+                    ticker_data = item
+                    break
+            
+            if not ticker_data:
+                logger.error(f"Ticker {ticker} not found in API response")
+                return TradeListApiService._create_error_response(ticker, "Symbol not found in response")
+            
+            # Extract price and change data
+            price = float(ticker_data.get('lastprice', 0))
+            change = float(ticker_data.get('percentchange', 0))
+            volume = int(ticker_data.get('volume', 0))
+            total_points = int(ticker_data.get('totalpoints', 0))
+            
+            return {
+                'symbol': ticker,
+                'price': price,
+                'change': change,
+                'volume': volume,
+                'total_points': total_points,
+                'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'source': 'TheTradeList'
+            }
         except Exception as e:
-            logger.error(f"Error getting price data for {ticker} from TheTradeList API: {str(e)}")
-            return TradeListApiService._create_error_response(ticker, f"API Error: {str(e)}")
+            logger.error(f"Error getting current price for {ticker}: {str(e)}")
+            # Try to get price from yfinance as fallback
+            return TradeListApiService._get_price_from_yfinance(ticker)
     
     @staticmethod
     def _create_error_response(ticker, error_message):
         """Create an error response object for when API fails"""
-        logger.error(f"TradeList API Error for {ticker}: {error_message}")
         return {
-            "ticker": ticker,
-            "price": 0,
-            "change": 0,
-            "change_percent": 0,
-            "volume": 0,
-            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "data_source": f"TheTradeList API Error: {error_message}",
-            "error": True,
-            "error_message": error_message
+            'symbol': ticker,
+            'price': 0,
+            'change': 0,
+            'volume': 0,
+            'total_points': 0,
+            'error': error_message,
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'source': 'Error'
         }
     
     @staticmethod
     def _get_price_from_yfinance(ticker):
         """Get price data using yfinance as fallback"""
         try:
-            ticker_data = yf.Ticker(ticker)
-            hist = ticker_data.history(period="2d")
+            logger.info(f"Falling back to yfinance for {ticker} price data")
+            ticker_obj = yf.Ticker(ticker)
+            data = ticker_obj.history(period="1d")
             
-            if hist.empty:
-                logger.warning(f"No history data from yfinance for {ticker}")
-                return {
-                    "ticker": ticker,
-                    "price": 0,
-                    "change": 0,
-                    "change_percent": 0,
-                    "volume": 0,
-                    "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "data_source": "yfinance (Error)"
-                }
+            if data.empty:
+                return TradeListApiService._create_error_response(ticker, "No data from yfinance")
             
-            # Calculate current price and changes
-            current_price = float(hist['Close'].iloc[-1])
-            prev_close = float(hist['Close'].iloc[-2]) if len(hist) > 1 else current_price
+            latest = data.iloc[-1]
+            price = float(latest['Close'])
             
-            price_change = current_price - prev_close
-            percent_change = (price_change / prev_close * 100) if prev_close > 0 else 0
-            volume = int(hist['Volume'].iloc[-1])
-            
-            logger.info(f"Retrieved {ticker} price from yfinance: ${current_price:.2f}")
+            # Calculate change if possible
+            change = 0
+            if len(data) > 1:
+                prev_close = float(data.iloc[-2]['Close'])
+                if prev_close > 0:
+                    change = (price - prev_close) / prev_close * 100
             
             return {
-                "ticker": ticker,
-                "price": current_price,
-                "change": price_change,
-                "change_percent": percent_change,
-                "volume": volume,
-                "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "data_source": "yfinance"
+                'symbol': ticker,
+                'price': price,
+                'change': change,
+                'volume': int(latest.get('Volume', 0)),
+                'total_points': 0,  # We don't have this from yfinance
+                'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'source': 'yfinance'
             }
-        
         except Exception as e:
-            logger.error(f"YFinance error for {ticker}: {str(e)}")
-            return {
-                "ticker": ticker,
-                "price": 0,
-                "change": 0,
-                "change_percent": 0,
-                "volume": 0,
-                "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "data_source": "Error"
-            }
+            logger.error(f"Error in yfinance fallback for {ticker}: {str(e)}")
+            return TradeListApiService._create_error_response(ticker, f"Fallback failed: {str(e)}")
     
     @staticmethod
     def get_tradelist_data(ticker, return_type="json", min_stock_vol=0, min_option_vol=0, min_market_cap=0, min_total_points=0):
@@ -184,10 +186,14 @@ class TradeListApiService:
         Returns list of ticker data or None if error
         """
         try:
-            # Ensure API key is available
-            api_key = os.environ.get("TRADELIST_API_KEY")
+            # Check if API is enabled
+            if not TradeListApiService.USE_TRADELIST_API:
+                logger.error(f"TheTradeList API is disabled. Set USE_TRADELIST_API=true to enable.")
+                return None
+            
+            # Get API key
+            api_key = TradeListApiService._get_api_key()
             if not api_key:
-                logger.error("TheTradeList API key not found in environment variables")
                 return None
                 
             # Construct API URL
@@ -218,91 +224,54 @@ class TradeListApiService:
                     logger.error("Received a 302 redirect but no Location header was provided")
                     full_redirect_url = "https://api.thetradelist.com"
                 elif redirect_url.startswith('http'):
-                    # It's an absolute URL
                     full_redirect_url = redirect_url
-                elif redirect_url.startswith('/'):
-                    # It's a root-relative URL
-                    base_url = TradeListApiService.TRADELIST_API_BASE_URL.split('/v1')[0]
-                    full_redirect_url = f"{base_url}{redirect_url}"
                 else:
-                    # It's a relative URL from the current path
-                    base_url = TradeListApiService.TRADELIST_API_BASE_URL
-                    full_redirect_url = f"{base_url}/{redirect_url}"
+                    # Assume relative URL
+                    base_url = "https://api.thetradelist.com"
+                    full_redirect_url = f"{base_url}{redirect_url}"
                 
+                # Follow the redirect manually
                 logger.info(f"Following redirect to: {full_redirect_url}")
-                
-                # Follow the redirect manually with the API key in headers and cookies
-                headers = {
-                    'Authorization': f'Bearer {api_key}',
-                    'User-Agent': 'IncomeMachineMVP/1.0',
-                    'Accept': 'application/json'
-                }
-                
-                # Try to preserve any cookies from the original response
-                cookies = response.cookies
-                
-                response = requests.get(full_redirect_url, headers=headers, cookies=cookies, timeout=15)
+                response = requests.get(full_redirect_url, timeout=15)
             
-            # Log the response for debugging
-            logger.debug(f"TheTradeList API response status: {response.status_code}")
-            logger.debug(f"TheTradeList API response headers: {response.headers}")
-            logger.debug(f"TheTradeList API response content preview: {response.text[:200]}...")
+            # Now handle the actual response (either direct or after redirect)
+            if response.status_code != 200:
+                logger.error(f"Error from TheTradeList API: {response.status_code} - {response.text}")
+                return None
             
-            # Check for successful response and parse accordingly
-            if response.status_code == 200:
-                # Handle different return types
-                if return_type.lower() == "json":
-                    try:
-                        # Check if response text starts with JSON markers
-                        if response.text.strip().startswith(('[', '{')):
-                            data = response.json()
-                            
-                            # Filter to only get the requested ticker
-                            if isinstance(data, list):
-                                ticker_data = [item for item in data if item.get("symbol") == ticker]
-                                logger.info(f"Found {len(ticker_data)} records for {ticker} in API response")
-                                return ticker_data
-                            elif isinstance(data, dict) and data.get("symbol") == ticker:
-                                logger.info(f"Found single record for {ticker} in API response")
-                                return [data]  # Return as list for consistency
-                            else:
-                                logger.warning(f"No data found for {ticker} in API response")
-                                return []
-                        else:
-                            logger.warning(f"Response doesn't appear to be valid JSON: {response.text[:50]}...")
-                    except Exception as json_error:
-                        logger.error(f"Failed to parse JSON: {str(json_error)}")
-                elif return_type.lower() == "csv":
-                    try:
-                        # Parse CSV data
-                        csv_data = response.text.strip().split('\n')
-                        if len(csv_data) >= 2:  # Header row + at least one data row
-                            headers = csv_data[0].split(',')
-                            
-                            # Find all rows for the requested ticker
-                            ticker_rows = []
-                            for row in csv_data[1:]:
-                                values = row.split(',')
-                                if values and values[0] == ticker:
-                                    # Convert to dictionary
-                                    row_dict = dict(zip(headers, values))
-                                    ticker_rows.append(row_dict)
-                            
-                            logger.info(f"Found {len(ticker_rows)} CSV rows for {ticker} in API response")
-                            return ticker_rows
-                        else:
-                            logger.warning(f"No valid CSV data found in response")
-                    except Exception as csv_error:
-                        logger.error(f"Failed to parse CSV data: {str(csv_error)}")
+            # Parse the response based on return_type
+            if return_type.lower() == 'json':
+                # Handle JSON response
+                try:
+                    if not response.text.strip():
+                        logger.error("Empty response received from API")
+                        return None
+                    
+                    data = response.json()
+                    logger.debug(f"Received JSON data: {data}")
+                    
+                    # Filter by ticker if provided
+                    if ticker and ticker != "":
+                        if isinstance(data, list):
+                            # Filter the list to keep only the ticker we want
+                            filtered_data = [item for item in data if item.get('symbol') == ticker]
+                            return filtered_data
+                    
+                    return data
+                except json.JSONDecodeError as e:
+                    logger.error(f"Error decoding JSON response: {str(e)}")
+                    logger.error(f"Response text: {response.text[:1000]}")  # Log first 1000 chars only
+                    return None
             else:
-                logger.error(f"TheTradeList API error: {response.status_code} - {response.text}")
-            
-            # If we got here, either parsing failed or we didn't get valid data
-            logger.warning(f"Couldn't get valid data for {ticker} from TheTradeList API")
-            return None
-            
+                # Handle CSV response (just return as text)
+                data = response.text
+                
+                # Filter by ticker if needed (would need CSV parsing)
+                # For now, just return the raw CSV
+                return data
+                
         except Exception as e:
-            logger.error(f"Exception when calling TheTradeList API: {str(e)}")
+            logger.error(f"Error fetching data from TheTradeList: {str(e)}")
             return None
     
     @staticmethod
@@ -320,19 +289,33 @@ class TradeListApiService:
         - pandas DataFrame with OHLCV data
         """
         try:
-            # For now, this always uses yfinance since TheTradeList API's historical data endpoint isn't specified
-            interval = "1d" if timespan == "day" else "1h"
-            df = yf.download(symbol, period=period, interval=interval, progress=False)
+            # Use yfinance to fetch historical data
+            logger.info(f"Fetching {timespan} historical data for {symbol} using yfinance")
+            ticker = yf.Ticker(symbol)
             
+            # Map timespan to interval
+            interval_map = {
+                "minute": "1m",
+                "hour": "1h",
+                "day": "1d",
+                "week": "1wk",
+                "month": "1mo"
+            }
+            interval = interval_map.get(timespan, "1d")
+            
+            # Fetch the data
+            df = ticker.history(period=period, interval=interval)
+            
+            # Basic sanity check
             if df.empty:
-                logger.warning(f"No historical data available for {symbol}")
-                return pd.DataFrame()
-            
+                logger.warning(f"No historical data found for {symbol}")
+                return None
+                
             return df
             
         except Exception as e:
-            logger.error(f"Error getting historical data for {symbol}: {str(e)}")
-            return pd.DataFrame()
+            logger.error(f"Error fetching historical data for {symbol}: {str(e)}")
+            return None
     
     @staticmethod
     def get_options_spreads(symbol, strategy):
@@ -357,10 +340,9 @@ class TradeListApiService:
                 logger.error(f"Symbol {symbol} is not supported by TheTradeList API")
                 return None
             
-            # Ensure API key is available
-            api_key = os.environ.get("TRADELIST_API_KEY")
+            # Get API key
+            api_key = TradeListApiService._get_api_key()
             if not api_key:
-                logger.error("TheTradeList API key not found in environment variables")
                 return None
                 
             # Construct API URL
@@ -389,31 +371,39 @@ class TradeListApiService:
             # Check for successful response and parse
             if response.status_code == 200:
                 try:
-                    # Check if response text starts with JSON markers
-                    if response.text.strip().startswith(('[', '{')):
-                        data = response.json()
-                        logger.info(f"Successfully retrieved options data for {symbol} with strategy {strategy}")
-                        return data
-                    else:
-                        logger.warning(f"Response doesn't appear to be valid JSON: {response.text[:50]}...")
-                except Exception as json_error:
-                    logger.error(f"Failed to parse JSON: {str(json_error)}")
+                    if not response.text.strip():
+                        logger.error("Empty response received from Options Spreads API")
+                        return None
+                    
+                    # Parse JSON response
+                    data = response.json()
+                    logger.debug(f"Received options spreads data: {data}")
+                    
+                    # Basic validation of the response structure
+                    if not isinstance(data, dict):
+                        logger.error(f"Invalid response format from Options Spreads API: {data}")
+                        return None
+                    
+                    # Return the options spread data
+                    return data
+                    
+                except json.JSONDecodeError as e:
+                    logger.error(f"Error decoding JSON response from Options Spreads API: {str(e)}")
+                    logger.error(f"Response text: {response.text[:1000]}")  # Log first 1000 chars only
+                    return None
             else:
-                logger.error(f"TheTradeList Options API error: {response.status_code} - {response.text}")
-            
-            # If we got here, either parsing failed or we didn't get valid data
-            logger.warning(f"Couldn't get valid options data for {symbol} with strategy {strategy}")
-            return None
-            
+                logger.error(f"Error from TheTradeList Options Spreads API: {response.status_code} - {response.text}")
+                return None
+                
         except Exception as e:
-            logger.error(f"Exception when calling TheTradeList Options API: {str(e)}")
+            logger.error(f"Error fetching options spread data for {symbol}: {str(e)}")
             return None
     
     @staticmethod
     def api_health_check():
         """Check if TheTradeList API is available and API key is valid"""
         try:
-            # Check if API is enabled
+            # Check if API is enabled in configuration
             if not TradeListApiService.USE_TRADELIST_API:
                 return {
                     "status": "disabled",
@@ -422,11 +412,11 @@ class TradeListApiService:
                 }
                 
             # Check if API key exists
-            api_key = os.environ.get("TRADELIST_API_KEY")
+            api_key = TradeListApiService._get_api_key()
             if not api_key:
                 return {
                     "status": "error",
-                    "message": "TheTradeList API key not found in environment variables. Set TRADELIST_API_KEY.",
+                    "message": "No API key found in environment variables (TRADELIST_API_KEY or POLYGON_API_KEY)",
                     "feature_enabled": TradeListApiService.USE_TRADELIST_API
                 }
             
@@ -449,58 +439,79 @@ class TradeListApiService:
                 
                 # Parse the redirect URL properly (with null checks)
                 if redirect_url is None:
-                    logger.error("Received a 302 redirect but no Location header was provided")
+                    logger.error("Health check: Received a 302 redirect but no Location header was provided")
                     full_redirect_url = "https://api.thetradelist.com"
                 elif redirect_url.startswith('http'):
                     full_redirect_url = redirect_url
-                elif redirect_url.startswith('/'):
-                    base_url = TradeListApiService.TRADELIST_API_BASE_URL.split('/v1')[0]
-                    full_redirect_url = f"{base_url}{redirect_url}"
                 else:
-                    base_url = TradeListApiService.TRADELIST_API_BASE_URL
-                    full_redirect_url = f"{base_url}/{redirect_url}"
+                    # Assume relative URL
+                    base_url = "https://api.thetradelist.com"
+                    full_redirect_url = f"{base_url}{redirect_url}"
                 
-                # Follow the redirect with proper headers
-                headers = {
-                    'Authorization': f'Bearer {api_key}',
-                    'User-Agent': 'IncomeMachineMVP/1.0',
-                    'Accept': 'application/json'
-                }
-                try:
-                    redirect_response = requests.get(full_redirect_url, headers=headers, cookies=response.cookies, timeout=15)
-                    # Update response with the redirect results
-                    response = redirect_response
-                except Exception as redirect_error:
-                    logger.error(f"Failed to follow redirect in health check: {str(redirect_error)}")
+                # Follow the redirect manually
+                logger.info(f"Health check: Following redirect to: {full_redirect_url}")
+                response = requests.get(full_redirect_url, timeout=15)
             
-            # If we can connect to the API endpoint, consider it a successful connectivity check
+            # Now handle the actual response (either direct or after redirect)
             if response.status_code == 200:
-                # The API is responding properly
-                api_status = "ok"
-                if not response.text.strip().startswith(('[', '{')):
-                    api_status = "invalid_format"
-                
-                return {
-                    "status": "connected", 
-                    "api_status": api_status,
-                    "message": f"TheTradeList API is reachable. Status code: {response.status_code}",
-                    "feature_enabled": TradeListApiService.USE_TRADELIST_API,
-                    "http_status": response.status_code,
-                    "details": "API can be reached but may not be returning proper data format."
-                }
+                try:
+                    # Try to parse JSON to ensure it's a valid response
+                    if not response.text.strip():
+                        return {
+                            "status": "error",
+                            "message": "API returned empty response on health check",
+                            "feature_enabled": True
+                        }
+                    
+                    # Parse JSON
+                    data = response.json()
+                    
+                    # Additional validation of the response structure
+                    if isinstance(data, list) and len(data) > 0:
+                        # API is healthy
+                        return {
+                            "status": "ok",
+                            "message": "TheTradeList API is available and working correctly",
+                            "data_count": len(data),
+                            "feature_enabled": True
+                        }
+                    else:
+                        # API returns valid JSON but in wrong format
+                        return {
+                            "status": "warning",
+                            "message": "API connection successful but returned unexpected data structure",
+                            "data": data,
+                            "feature_enabled": True
+                        }
+                    
+                except json.JSONDecodeError as e:
+                    # API returns non-JSON response
+                    return {
+                        "status": "error",
+                        "message": f"API returned invalid JSON response: {str(e)}",
+                        "response_preview": response.text[:200] + "...",  # First 200 chars only
+                        "feature_enabled": True
+                    }
             else:
-                # The API endpoint is unreachable or returning errors
+                # API returns error status code
                 return {
                     "status": "error",
-                    "message": f"TheTradeList API responded with error status code: {response.status_code}",
-                    "feature_enabled": TradeListApiService.USE_TRADELIST_API,
-                    "http_status": response.status_code
+                    "message": f"API returned error status code: {response.status_code}",
+                    "response_preview": response.text[:200] + "...",  # First 200 chars only
+                    "feature_enabled": True
                 }
                 
-        except Exception as e:
-            # Could not connect to the API at all
+        except requests.exceptions.RequestException as e:
+            # Network/connection error
             return {
                 "status": "error",
-                "message": f"Cannot connect to TheTradeList API: {str(e)}",
+                "message": f"Network error connecting to API: {str(e)}",
+                "feature_enabled": TradeListApiService.USE_TRADELIST_API
+            }
+        except Exception as e:
+            # Any other error
+            return {
+                "status": "error",
+                "message": f"Unexpected error in API health check: {str(e)}",
                 "feature_enabled": TradeListApiService.USE_TRADELIST_API
             }
