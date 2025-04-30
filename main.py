@@ -2224,7 +2224,9 @@ def test_options_spreads_api():
         "api_info": TradeListApiService.API_DOCUMENTATION,
         "environment": {
             "use_tradelist_api": TradeListApiService.USE_TRADELIST_API,
-            "api_key_available": bool(os.environ.get("POLYGON_API_KEY")),
+            "api_key_available": bool(os.environ.get("TRADELIST_API_KEY") or os.environ.get("POLYGON_API_KEY")),
+            "polygon_api_key_available": bool(os.environ.get("POLYGON_API_KEY")),
+            "tradelist_api_key_available": bool(os.environ.get("TRADELIST_API_KEY")),
             "supported_etfs": TradeListApiService.TRADELIST_SUPPORTED_ETFS
         }
     }
@@ -2240,10 +2242,14 @@ def test_options_spreads_api():
         if force_raw_api:
             # Directly test the API endpoint with our own request
             api_url = f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_OPTIONS_SPREADS_ENDPOINT}"
+            
+            # Get API key with fallback logic
+            api_key = os.environ.get("TRADELIST_API_KEY") or os.environ.get("POLYGON_API_KEY", "")
+            
             params = {
                 "symbol": test_ticker,
                 "strategy": strategy,
-                "apiKey": os.environ.get("POLYGON_API_KEY", "")
+                "apiKey": api_key
             }
             
             logger.info(f"Making direct API request to {api_url} with params: {params}")
