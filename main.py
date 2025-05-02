@@ -1729,8 +1729,9 @@ def step4():
                     </div>
                     
                     <div class="alert alert-info mt-3" style="background-color: rgba(100, 210, 255, 0.1); border: none; border-radius: 12px; color: rgba(255, 255, 255, 0.9); padding: 1.25rem;">
-                        <strong>Real-Time Data:</strong> This recommendation is based on current market data using 
-                        Yahoo Finance API. Options data is refreshed when you request a new trade.
+                        <strong>Real-Time Data:</strong> This recommendation is based on current market data from 
+                        TheTradeList API and WebSocket service. The live options spread data below is updated in 
+                        real-time directly from the options market.
                     </div>
                 </div>
             </div>
@@ -1775,6 +1776,35 @@ def step4():
             <div class="mt-3">
                 <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-secondary me-2">← Back to Strategy Selection</a>
                 <a href="{{ url_for('index') }}" class="btn btn-primary">Start New Trade Search</a>
+            </div>
+            
+            <!-- ETF Option Spreads Widget from TradeList -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Real-Time Options Spreads for {{ etf }}</h4>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="ratio ratio-16x9" style="height: 430px;">
+                                <iframe 
+                                    src="https://sector-spread-scanner-income-machine.replit.app/embed/{{ etf }}/{{ strategy.lower() }}"
+                                    width="100%"
+                                    height="425"
+                                    frameborder="0"
+                                    scrolling="no"
+                                    style="border: none; overflow: hidden;"
+                                    class="embed-responsive-item"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                            <div class="card-footer text-muted">
+                                <small>This widget displays real-time options spread data from TheTradeList API</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <footer class="pt-3 mt-4 text-body-secondary border-top">
