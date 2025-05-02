@@ -1595,6 +1595,21 @@ def step4():
             .iframe-container {
                 height: 85vh;
                 min-height: 700px;
+                overflow: hidden;
+                background-color: #121212;  /* Match dark theme background */
+            }
+            .card {
+                border: none;
+                background-color: #121212;  /* Match embed background */
+                overflow: hidden;
+            }
+            .card-header {
+                background-color: #121212;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .card-footer {
+                background-color: #121212;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
         </style>
     </head>
@@ -1627,7 +1642,7 @@ def step4():
             <!-- ETF Option Spreads Widget from TradeList -->
             <div class="row">
                 <div class="col-12">
-                    <div class="card mb-4">
+                    <div class="card mb-4" style="background: transparent;">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="mb-0">{{ etf }} Options - {{ strategy }} Strategy</h4>
@@ -1638,16 +1653,15 @@ def step4():
                                 <a href="{{ url_for('index') }}" class="btn btn-sm btn-primary">New Search</a>
                             </div>
                         </div>
-                        <div class="card-body p-0">
-                            <div class="iframe-container">
+                        <div class="card-body p-0 m-0">
+                            <div class="iframe-container" style="width: 100%;">
                                 <iframe 
                                     src="https://sector-spread-scanner-income-machine.replit.app/embed/{{ etf }}/{{ strategy.lower() }}"
                                     width="100%"
                                     height="100%"
                                     frameborder="0"
                                     scrolling="no"
-                                    style="border: none; overflow: hidden;"
-                                    class="embed-responsive-item"
+                                    style="border: none; overflow: hidden; margin: 0; padding: 0; display: block;"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen>
                                 </iframe>
