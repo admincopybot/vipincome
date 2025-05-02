@@ -318,6 +318,95 @@ class TradeListApiService:
             return None
     
     @staticmethod
+    def calculate_etf_score(symbol):
+        """
+        Calculate a technical score (1-5) for an ETF using TheTradeList API data
+        Maps the API data to our 5-factor scoring system:
+        1. Trend 1: Price > 20 EMA (using stock_price_above_50_ema)
+        2. Trend 2: Price > 100 EMA (using stock_price_above_100_ema)
+        3. Snapback: RSI < 50 (derived from indicators)
+        4. Momentum: Price > Previous Week's Close (using prev_week_close_above_prev_week_high)
+        5. Stabilizing: 3-Day ATR < 6-Day ATR (approximated from available indicators)
+        
+        Parameters:
+        - symbol: ETF symbol (e.g., 'XLK', 'XLF')
+        
+        Returns:
+        - tuple: (score, current_price, indicators_dict)
+          where score is an integer 0-5, and indicators_dict contains details on each indicator
+        """
+        try:
+            # Get data from the TradeList API
+            data = TradeListApiService.get_tradelist_data(symbol, return_type="json")
+            
+            if not data or not isinstance(data, list) or len(data) == 0:
+                logger.error(f"No data returned from TheTradeList API for {symbol}")
+                return 0, 0, {'error': 'No data returned from API'}
+            
+            # Find the symbol in the results
+            ticker_data = None
+            for item in data:
+                if item.get('symbol') == symbol:
+                    ticker_data = item
+                    break
+            
+            if not ticker_data:
+                logger.error(f"Symbol {symbol} not found in API response")
+                return 0, 0, {'error': 'Symbol not found in API response'}
+            
+            # Extract data needed for scoring
+            current_price = float(ticker_data.get('current_stock_price', 0))
+            
+            # Initialize indicators dictionary
+            indicators = {
+                'trend_short': False,  # Price > 20 EMA on Daily
+                'trend_long': False,   # Price > 100 EMA on Daily
+                'snapback': False,     # RSI < 50
+                'momentum': False,     # Price > Previous Week's Close
+                'stabilizing': False   # 3-Day ATR < 6-Day ATR
+            }
+            
+            # Calculate score based on indicator data from API
+            
+            # 1. Trend 1: Price > 20 EMA (use 50 EMA from API as closest substitute)
+            indicators['trend_short'] = ticker_data.get('stock_price_above_50_ema', 0) == 1
+            
+            # 2. Trend 2: Price > 100 EMA
+            indicators['trend_long'] = ticker_data.get('stock_price_above_100_ema', 0) == 1
+            
+            # 3. Snapback: RSI < 50 (approximated)
+            # API doesn't provide RSI directly, we'll try to approximate from other indicators
+            # For now, we'll use a combination of indicators that suggest a pullback
+            exec_buying = ticker_data.get('executive_buying', 0) == 1
+            price_separation = ticker_data.get('ema_14_and_ema_21_gtr_one_pct_separation', 0) == 1
+            # If execs are buying or there's significant EMA separation, interpret as a potential snapback
+            indicators['snapback'] = exec_buying or not price_separation
+            
+            # 4. Momentum: Price > Previous Week's Close
+            prev_week_close = float(ticker_data.get('prev_week_stock_close_price', 0))
+            indicators['momentum'] = current_price > prev_week_close if prev_week_close > 0 else False
+            
+            # 5. Stabilizing: 3-Day ATR < 6-Day ATR
+            # API doesn't provide ATR directly, we'll use a proxy indicator
+            # If the weekly close is above the weekly high of the previous week, that suggests stabilizing price action
+            indicators['stabilizing'] = ticker_data.get('prev_week_close_above_prev_week_high', 0) == 1
+            
+            # Calculate total score (1 point for each passing indicator)
+            score = sum(1 for indicator in indicators.values() if indicator)
+            
+            # Add score to indicators dictionary for reference
+            indicators['total_score'] = score
+            indicators['max_score'] = 5
+            
+            logger.info(f"Calculated ETF score for {symbol}: {score}/5 using TheTradeList API")
+            
+            return score, current_price, indicators
+            
+        except Exception as e:
+            logger.error(f"Error calculating ETF score with TheTradeList: {str(e)}")
+            return 0, 0, {'error': str(e)}
+    
+    @staticmethod
     def get_options_spreads(symbol, strategy):
         """
         Get options spread data for a specific ETF and strategy

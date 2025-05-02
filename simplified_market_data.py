@@ -163,6 +163,70 @@ class SimplifiedMarketDataService:
         Returns tuple of (score, current_price, indicator_details_dict)
         """
         try:
+            # First try using TradeList API for scoring if available
+            try:
+                logger.info(f"Attempting to calculate technical score for {ticker} using TradeList API")
+                
+                # Use TradeList API to calculate scores
+                tradelist_score, tradelist_price, tradelist_indicators = TradeListApiService.calculate_etf_score(ticker)
+                
+                # If we got valid data from TradeList API
+                if tradelist_score > 0 and tradelist_price > 0:
+                    logger.info(f"Successfully calculated score for {ticker} using TradeList API: {tradelist_score}/5")
+                    
+                    # Transform indicators to the expected format for UI
+                    ui_indicators = {
+                        # 1. Trend 1: Price > 20/50 EMA
+                        'trend1': {
+                            'pass': tradelist_indicators.get('trend_short', False),
+                            'current': tradelist_price,
+                            'threshold': 0,  # We don't have the actual EMA value
+                            'description': 'Price > 50 EMA (Short-Term Trend)'
+                        },
+                        
+                        # 2. Trend 2: Price > 100 EMA
+                        'trend2': {
+                            'pass': tradelist_indicators.get('trend_long', False),
+                            'current': tradelist_price,
+                            'threshold': 0,  # We don't have the actual EMA value
+                            'description': 'Price > 100 EMA (Long-Term Trend)'
+                        },
+                        
+                        # 3. Snapback: RSI < 50 (approximated)
+                        'snapback': {
+                            'pass': tradelist_indicators.get('snapback', False),
+                            'current': 0,  # We don't have the actual RSI value
+                            'threshold': 50,
+                            'description': 'Market Snapback Potential'
+                        },
+                        
+                        # 4. Momentum: Price > Previous Week's Close
+                        'momentum': {
+                            'pass': tradelist_indicators.get('momentum', False),
+                            'current': tradelist_price,
+                            'threshold': 0,  # We don't have the actual previous week close
+                            'description': 'Price > Weekly Close (Momentum)'
+                        },
+                        
+                        # 5. Stabilizing: Volatility decreasing
+                        'stabilizing': {
+                            'pass': tradelist_indicators.get('stabilizing', False),
+                            'current': 0,  # We don't have the actual ATR values
+                            'threshold': 0,
+                            'description': 'Volatility Stabilizing'
+                        }
+                    }
+                    
+                    # Use price override if provided
+                    if price_override is not None:
+                        logger.info(f"Using price override for {ticker}: ${price_override} (TradeList: ${tradelist_price})")
+                        tradelist_price = price_override
+                    
+                    return tradelist_score, float(tradelist_price), ui_indicators
+            except Exception as tradelist_error:
+                logger.warning(f"Error calculating score with TradeList API, falling back: {str(tradelist_error)}")
+                # Fall through to enhanced scoring system
+            
             # Use the enhanced ETF scoring system that matches TradingView
             logger.info(f"Calculating technical score for {ticker} using enhanced ETF scoring system")
             
@@ -194,7 +258,7 @@ class SimplifiedMarketDataService:
                 
                 # Try to get current price from WebSocket if available
                 ws_client = get_websocket_client()
-                if ws_client and ticker in ws_client.cached_data:
+                if ws_client and hasattr(ws_client, 'cached_data') and ws_client.cached_data and ticker in ws_client.cached_data:
                     ws_data = ws_client.cached_data.get(ticker, {})
                     if 'price' in ws_data and ws_data['price'] > 0:
                         current_price = ws_data['price']
@@ -228,13 +292,14 @@ class SimplifiedMarketDataService:
             # Try to get current price from WebSocket if available
             try:
                 ws_client = get_websocket_client()
-                if ws_client and ticker in ws_client.cached_data:
+                if ws_client and hasattr(ws_client, 'cached_data') and ws_client.cached_data and ticker in ws_client.cached_data:
                     ws_data = ws_client.cached_data.get(ticker, {})
                     current_price = ws_data.get('price', 0.0)
                     logger.info(f"Using WebSocket price for {ticker} in error handler: ${current_price}")
                 else:
                     current_price = price_override or 0.0
-            except:
+            except Exception as ws_error:
+                logger.error(f"Error getting WebSocket price: {str(ws_error)}")
                 current_price = price_override or 0.0
                 
             # Provide default values with error information
