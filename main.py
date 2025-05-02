@@ -1552,55 +1552,7 @@ def step4():
     if etf not in etf_scores or strategy not in ['Aggressive', 'Steady', 'Passive']:
         return redirect(url_for('index'))
     
-    # Get real-time trade recommendation from market data service
-    try:
-        logger.info(f"Getting trade recommendation for {etf} with {strategy} strategy")
-        trade = market_data.get_trade_recommendation(etf, strategy)
-        
-        # Format the trade data to match our template expectations for debit spreads
-        formatted_trade = {
-            "strike": trade.get("strike", 0),
-            "upper_strike": trade.get("upper_strike", 0),
-            "spread_width": trade.get("spread_width", 1.0),
-            "expiration": trade.get("expiration", "N/A"),
-            "dte": trade.get("dte", 0),
-            "roi": trade.get("roi", "N/A"),
-            "premium": trade.get("premium", 0),
-            "pct_otm": trade.get("pct_otm", 0),
-            "max_profit": trade.get("max_profit", 0),
-            "max_loss": trade.get("max_loss", 0)
-        }
-        
-        logger.info(f"Trade recommendation received: {formatted_trade}")
-        
-    except Exception as e:
-        logger.error(f"Error getting trade recommendation: {str(e)}")
-        # Fallback to static data if real-time data fails
-        if etf in recommended_trades and strategy in recommended_trades[etf]:
-            formatted_trade = recommended_trades[etf][strategy]
-            logger.warning(f"Using fallback trade data for {etf} {strategy}")
-        else:
-            # Create a default recommendation with debit spread structure
-            current_price = etf_scores[etf]["price"]
-            lower_strike = round(current_price * 0.99, 2)  # 1% ITM
-            upper_strike = round(lower_strike + 1, 2)
-            premium = round(current_price * 0.025, 2)  # 2.5% of current price
-            max_profit = round(1 - premium, 2)
-            
-            formatted_trade = {
-                "strike": lower_strike,
-                "upper_strike": upper_strike,
-                "spread_width": 1.0,
-                "expiration": "N/A",
-                "dte": 14,
-                "roi": "20-25%",
-                "premium": premium,
-                "pct_otm": -1.0,  # 1% ITM
-                "max_profit": max_profit,
-                "max_loss": premium
-            }
-    
-    trade = formatted_trade
+    logger.info(f"Showing options spreads widget for {etf} with {strategy} strategy")
     
     template = """
     <!DOCTYPE html>
@@ -1616,12 +1568,6 @@ def step4():
             {{ global_css }}
             
             /* Page-specific styles */
-            .progress-bar-score-0 { width: 0%; }
-            .progress-bar-score-1 { width: 20%; }
-            .progress-bar-score-2 { width: 40%; }
-            .progress-bar-score-3 { width: 60%; }
-            .progress-bar-score-4 { width: 80%; }
-            .progress-bar-score-5 { width: 100%; }
             .step-indicator {
                 display: flex;
                 justify-content: space-between;
@@ -1646,6 +1592,10 @@ def step4():
                 background-color: var(--bs-secondary);
                 color: white;
             }
+            .iframe-container {
+                height: 85vh;
+                min-height: 700px;
+            }
         </style>
     </head>
     <body data-bs-theme="dark">
@@ -1669,128 +1619,31 @@ def step4():
             
             <div class="p-4 mb-4 bg-body-tertiary rounded-3">
                 <div class="container-fluid py-3">
-                    <h2 class="display-6 fw-bold">Recommended Trade</h2>
-                    <p class="fs-5">{{ etf }} income opportunity with {{ strategy }} strategy</p>
+                    <h2 class="display-6 fw-bold">Real-Time Options Spreads</h2>
+                    <p class="fs-5">{{ etf }} income opportunities using {{ strategy }} strategy</p>
                 </div>
             </div>
     
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4>Income Trade Details</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <h5>Debit Spread Setup</h5>
-                                <div class="p-4 rounded income-trade-box" style="background: linear-gradient(45deg, rgba(100, 210, 255, 0.1), rgba(180, 100, 255, 0.1)); border-radius: 12px;">
-                                    <p class="mb-2">Buy to Open the {{ trade.expiration }} ${{ "%.2f"|format(trade.strike) }} CALL on {{ etf }}</p>
-                                    <p>Sell to Open the {{ trade.expiration }} ${{ "%.2f"|format(trade.upper_strike) }} CALL on {{ etf }}</p>
-                                    <hr style="border-color: rgba(255, 255, 255, 0.1);">
-                                    <p class="mb-0"><strong>Expiration:</strong> {{ trade.expiration }} ({{ trade.dte }} days)</p>
-                                    <p class="mb-0"><strong>Spread Width:</strong> ${{ "%.2f"|format(trade.spread_width) }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <h5>Debit Spread Metrics</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span><strong>Entry Cost:</strong></span>
-                                        <span>${{ "%.2f"|format(trade.premium) }} per share</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span><strong>Target ROI:</strong></span>
-                                        <span>{{ trade.roi }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span><strong>Max Risk Per Contract:</strong></span>
-                                        <span>${{ "%.2f"|format(trade.premium * 100) }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span><strong>Max Profit Per Contract:</strong></span>
-                                        <span>${{ "%.2f"|format(trade.max_profit * 100) }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(100, 210, 255, 0.05);">
-                                        <span><strong>ITM/OTM Status:</strong></span>
-                                        <span class="badge" style="background-color: {{ '#00C8FF' if trade.pct_otm < 0 else '#FFD700' }}; color: {{ '#fff' if trade.pct_otm < 0 else '#000' }};">
-                                            {% if trade.pct_otm < 0 %}
-                                                {{ "%.1f"|format(-trade.pct_otm) }}% ITM
-                                            {% else %}
-                                                {{ "%.1f"|format(trade.pct_otm) }}% OTM
-                                            {% endif %}
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert-info mt-3" style="background-color: rgba(100, 210, 255, 0.1); border: none; border-radius: 12px; color: rgba(255, 255, 255, 0.9); padding: 1.25rem;">
-                        <strong>Real-Time Data:</strong> This recommendation is based on current market data from 
-                        TheTradeList API and WebSocket service. The live options spread data below is updated in 
-                        real-time directly from the options market.
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4>ETF Information</h4>
-                        </div>
-                        <div class="card-body">
-                            <h5>{{ etf }} - {{ etf_data.name }} Sector ETF</h5>
-                            <p><strong>Current Price:</strong> <span data-etf-price="{{ etf }}">${{ "%.2f"|format(etf_data.price) }}</span> <span class="realtime-indicator">Real-time</span></p>
-                            <p><strong>Strength Score:</strong> <span data-etf-score="{{ etf }}">{{ etf_data.score }}/5</span></p>
-                            <div class="progress mb-3" style="height: 8px;">
-                                <div class="progress-bar progress-bar-score-{{ etf_data.score }}" 
-                                     role="progressbar" 
-                                     data-etf-progress="{{ etf }}"
-                                     aria-valuenow="{{ etf_data.score * 20 }}" 
-                                     aria-valuemin="0" 
-                                     aria-valuemax="100">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="card card-{{ strategy.lower() }} mb-4">
-                        <div class="card-header">
-                            <h4>{{ strategy }} Strategy</h4>
-                        </div>
-                        <div class="card-body">
-                            <p>{{ strategy_descriptions[strategy] }}</p>
-                            <p><strong>Days To Expiration:</strong> {{ trade.dte }} days</p>
-                            <p><strong>Target ROI:</strong> {{ trade.roi }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="mt-3">
-                <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-secondary me-2">← Back to Strategy Selection</a>
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Start New Trade Search</a>
-            </div>
-            
             <!-- ETF Option Spreads Widget from TradeList -->
-            <div class="row mt-4">
+            <div class="row">
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Real-Time Options Spreads for {{ etf }}</h4>
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-0">{{ etf }} Options - {{ strategy }} Strategy</h4>
+                                <small>Current ETF price: <span data-etf-price="{{ etf }}">${{ "%.2f"|format(etf_data.price) }}</span> <span class="realtime-indicator">Real-time</span></small>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-sm btn-secondary me-2">← Back</a>
+                                <a href="{{ url_for('index') }}" class="btn btn-sm btn-primary">New Search</a>
+                            </div>
                         </div>
                         <div class="card-body p-0">
-                            <div class="ratio ratio-16x9" style="height: 430px;">
+                            <div class="iframe-container">
                                 <iframe 
                                     src="https://sector-spread-scanner-income-machine.replit.app/embed/{{ etf }}/{{ strategy.lower() }}"
                                     width="100%"
-                                    height="425"
+                                    height="100%"
                                     frameborder="0"
                                     scrolling="no"
                                     style="border: none; overflow: hidden;"
@@ -1800,7 +1653,7 @@ def step4():
                                 </iframe>
                             </div>
                             <div class="card-footer text-muted">
-                                <small>This widget displays real-time options spread data from TheTradeList API</small>
+                                <small>Real-time options spread data from TheTradeList API</small>
                             </div>
                         </div>
                     </div>
@@ -1820,7 +1673,6 @@ def step4():
         etf=etf, 
         strategy=strategy, 
         etf_data=etf_scores[etf], 
-        trade=trade,
         strategy_descriptions=strategy_descriptions,
         global_css=global_css,
         logo_header=logo_header
