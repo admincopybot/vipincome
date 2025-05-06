@@ -1461,20 +1461,8 @@ def step3():
                                 <div class="card-header">
                                     <h4 class="fw-bold text-white">Aggressive Income</h4>
                                 </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">Higher Risk, Higher Reward</h5>
-                                    <div class="income-metrics">
-                                        <ul class="list-group list-group-flush mb-3">
-                                            <li class="list-group-item"><strong>DTE:</strong> {{ trades.Aggressive.dte }} days</li>
-                                            <li class="list-group-item"><strong>Target ROI:</strong> {{ trades.Aggressive.roi }}</li>
-                                            <li class="list-group-item"><strong>Strike Selection:</strong> {{ "%.1f"|format(trades.Aggressive.pct_otm) }}% OTM</li>
-                                            <li class="list-group-item"><strong>Management:</strong> Weekly attention needed</li>
-                                        </ul>
-                                    </div>
-                                    <p class="card-text">{{ strategy_descriptions.Aggressive }}</p>
-                                    <div class="strategy-embed mt-4">
-                                        <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/aggressive" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
-                                    </div>
+                                <div class="card-body p-0">
+                                    <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/aggressive" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
                                 </div>
                             </div>
                         </label>
@@ -1487,20 +1475,8 @@ def step3():
                                 <div class="card-header">
                                     <h4 class="fw-bold text-white">Steady Income</h4>
                                 </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">Balanced Approach</h5>
-                                    <div class="income-metrics">
-                                        <ul class="list-group list-group-flush mb-3">
-                                            <li class="list-group-item"><strong>DTE:</strong> {{ trades.Steady.dte }} days</li>
-                                            <li class="list-group-item"><strong>Target ROI:</strong> {{ trades.Steady.roi }}</li>
-                                            <li class="list-group-item"><strong>Strike Selection:</strong> {{ "%.1f"|format(trades.Steady.pct_otm) }}% OTM</li>
-                                            <li class="list-group-item"><strong>Management:</strong> Bi-weekly attention</li>
-                                        </ul>
-                                    </div>
-                                    <p class="card-text">{{ strategy_descriptions.Steady }}</p>
-                                    <div class="strategy-embed mt-4">
-                                        <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/steady" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
-                                    </div>
+                                <div class="card-body p-0">
+                                    <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/steady" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
                                 </div>
                             </div>
                         </label>
@@ -1513,20 +1489,8 @@ def step3():
                                 <div class="card-header">
                                     <h4 class="fw-bold text-white">Passive Income</h4>
                                 </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">Lower Risk, Consistent Income</h5>
-                                    <div class="income-metrics">
-                                        <ul class="list-group list-group-flush mb-3">
-                                            <li class="list-group-item"><strong>DTE:</strong> {{ trades.Passive.dte }} days</li>
-                                            <li class="list-group-item"><strong>Target ROI:</strong> {{ trades.Passive.roi }}</li>
-                                            <li class="list-group-item"><strong>Strike Selection:</strong> {{ "%.1f"|format(trades.Passive.pct_otm) }}% OTM</li>
-                                            <li class="list-group-item"><strong>Management:</strong> Monthly attention</li>
-                                        </ul>
-                                    </div>
-                                    <p class="card-text">{{ strategy_descriptions.Passive }}</p>
-                                    <div class="strategy-embed mt-4">
-                                        <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/passive" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
-                                    </div>
+                                <div class="card-body p-0">
+                                    <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/passive" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
                                 </div>
                             </div>
                         </label>
