@@ -1442,6 +1442,7 @@ def step3():
                         border: 2px solid var(--bs-info);
                         box-shadow: 0 0 15px var(--bs-info);
                     }
+                    /* Strategy card styling */
                     .card-header h4 {
                         margin-bottom: 0;
                     }
