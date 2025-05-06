@@ -1515,6 +1515,29 @@ def step3():
     </html>
     """
     
+    # Add script tag for strategy card selection
+    script_tag = """
+    <script>
+        // Make iframe strategy cards clickable
+        document.addEventListener('DOMContentLoaded', function() {
+            // For each strategy card
+            document.querySelectorAll('.strategy-card').forEach(function(card) {
+                // When the card is clicked
+                card.addEventListener('click', function() {
+                    // Select the radio button
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                });
+            });
+        });
+    </script>
+    """
+    
+    # Insert the script tag right before the closing body tag
+    template = template.replace('</body>', script_tag + '</body>')
+    
     return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header, trades=trades)
 
 # Route for Step 4: Trade Details
