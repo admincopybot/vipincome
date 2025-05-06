@@ -1479,10 +1479,11 @@ def step3():
                                     <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
                                          onclick="document.getElementById('aggressive').checked = true;"></div>
                                     <!-- Loading indicator -->
-                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
-                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
+                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem; margin-bottom: 1rem;">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
+                                        <p class="text-light">Looking for trade...</p>
                                     </div>
                                     <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/aggressive" width="100%" height="450" frameborder="0" style="background: transparent;" onload="this.previousElementSibling.style.display='none';"></iframe>
                                 </div>
@@ -1502,10 +1503,11 @@ def step3():
                                     <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
                                          onclick="document.getElementById('steady').checked = true;"></div>
                                     <!-- Loading indicator -->
-                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
-                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
+                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem; margin-bottom: 1rem;">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
+                                        <p class="text-light">Looking for trade...</p>
                                     </div>
                                     <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/steady" width="100%" height="450" frameborder="0" style="background: transparent;" onload="this.previousElementSibling.style.display='none';"></iframe>
                                 </div>
@@ -1525,10 +1527,11 @@ def step3():
                                     <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
                                          onclick="document.getElementById('passive').checked = true;"></div>
                                     <!-- Loading indicator -->
-                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
-                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
+                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem; margin-bottom: 1rem;">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
+                                        <p class="text-light">Looking for trade...</p>
                                     </div>
                                     <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/passive" width="100%" height="450" frameborder="0" style="background: transparent;" onload="this.previousElementSibling.style.display='none';"></iframe>
                                 </div>
@@ -1696,7 +1699,7 @@ def step4():
                                     <div class="spinner-border text-light" role="status" style="width: 3.5rem; height: 3.5rem; margin-bottom: 1rem;">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <p class="text-light">Loading options data for {{ etf }}...</p>
+                                    <p class="text-light">Looking for trade...</p>
                                 </div>
                                 <iframe 
                                     src="https://sector-spread-scanner-income-machine.replit.app/embed/{{ etf }}/{{ strategy.lower() }}"
