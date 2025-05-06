@@ -1134,11 +1134,6 @@ def step2():
     if etf not in etf_scores:
         return redirect(url_for('index'))
     
-    # Count available trades for this ETF
-    available_trades_count = 0
-    if etf in recommended_trades:
-        available_trades_count = len(recommended_trades[etf])
-    
     template = """
     <!DOCTYPE html>
     <html lang="en">
@@ -1256,10 +1251,6 @@ def step2():
                                 </p>
                             {% endif %}
                             <p><strong>Score:</strong> {{ etf_data.score }}/5</p>
-                            <p>
-                                <strong>Available Trades:</strong> 
-                                <span class="badge rounded-pill" style="background: linear-gradient(135deg, #00C8FF, #7970FF);">{{ available_trades_count }}</span>
-                            </p>
                             <div class="progress mb-3" style="height: 8px; background: rgba(40, 40, 45, 0.3); overflow: hidden; border-radius: 100px;">
                                 <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
                                      aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
@@ -1351,7 +1342,7 @@ def step2():
     </html>
     """
     
-    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css, logo_header=logo_header, available_trades_count=available_trades_count)
+    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css, logo_header=logo_header)
 
 # Route for Step 3: Strategy Selection
 @app.route('/step3')
