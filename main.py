@@ -191,6 +191,18 @@ def on_websocket_data_update(updates):
                         current_score = original_etf_scores[symbol]
                         logger.info(f"Restored original score {current_score}/5 for {symbol}")
                     
+                    # Ensure indicators match the score
+                    # Create/update synthetic indicators that match the current score value
+                    if 'indicators' in etf_scores[symbol]:
+                        indicators = etf_scores[symbol]['indicators']
+                        # Set indicators pass/fail state to match current score
+                        # For score of 3, first 3 indicators should pass, last 2 should fail
+                        indicators['trend1']['pass'] = current_score >= 1
+                        indicators['trend2']['pass'] = current_score >= 2
+                        indicators['snapback']['pass'] = current_score >= 3
+                        indicators['momentum']['pass'] = current_score >= 4
+                        indicators['stabilizing']['pass'] = current_score >= 5
+                        
                     # Log the price-only update
                     logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket (keeping score {current_score}/5)")
     except Exception as e:
