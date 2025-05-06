@@ -1472,6 +1472,9 @@ def step3():
                                         </ul>
                                     </div>
                                     <p class="card-text">{{ strategy_descriptions.Aggressive }}</p>
+                                    <div class="strategy-embed mt-4">
+                                        <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/aggressive" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
+                                    </div>
                                 </div>
                             </div>
                         </label>
@@ -1495,6 +1498,9 @@ def step3():
                                         </ul>
                                     </div>
                                     <p class="card-text">{{ strategy_descriptions.Steady }}</p>
+                                    <div class="strategy-embed mt-4">
+                                        <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/steady" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
+                                    </div>
                                 </div>
                             </div>
                         </label>
@@ -1518,6 +1524,9 @@ def step3():
                                         </ul>
                                     </div>
                                     <p class="card-text">{{ strategy_descriptions.Passive }}</p>
+                                    <div class="strategy-embed mt-4">
+                                        <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/passive" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
+                                    </div>
                                 </div>
                             </div>
                         </label>
