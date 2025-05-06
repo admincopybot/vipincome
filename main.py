@@ -1462,7 +1462,10 @@ def step3():
                                 <div class="card-header">
                                     <h4 class="fw-bold text-white">Aggressive Income</h4>
                                 </div>
-                                <div class="card-body p-0">
+                                <div class="card-body p-0 position-relative">
+                                    <!-- Overlay to capture clicks -->
+                                    <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
+                                         onclick="document.getElementById('aggressive').checked = true;"></div>
                                     <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/aggressive" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
                                 </div>
                             </div>
@@ -1476,7 +1479,10 @@ def step3():
                                 <div class="card-header">
                                     <h4 class="fw-bold text-white">Steady Income</h4>
                                 </div>
-                                <div class="card-body p-0">
+                                <div class="card-body p-0 position-relative">
+                                    <!-- Overlay to capture clicks -->
+                                    <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
+                                         onclick="document.getElementById('steady').checked = true;"></div>
                                     <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/steady" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
                                 </div>
                             </div>
@@ -1490,7 +1496,10 @@ def step3():
                                 <div class="card-header">
                                     <h4 class="fw-bold text-white">Passive Income</h4>
                                 </div>
-                                <div class="card-body p-0">
+                                <div class="card-body p-0 position-relative">
+                                    <!-- Overlay to capture clicks -->
+                                    <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
+                                         onclick="document.getElementById('passive').checked = true;"></div>
                                     <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/passive" width="100%" height="450" frameborder="0" style="background: transparent;"></iframe>
                                 </div>
                             </div>
