@@ -327,7 +327,7 @@ def get_current_price(symbol):
 
 def score_etf(symbol):
     """
-    Calculate the 5-factor technical score for an ETF.
+    Calculate the 5-factor technical score for an ETF using Polygon API.
     
     Args:
         symbol (str): The ETF symbol
@@ -336,36 +336,65 @@ def score_etf(symbol):
         dict: A dictionary with score and detailed metrics
     """
     try:
-        # Fetch data
+        logger.info(f"[POLYGON API] Starting technical analysis for {symbol}")
+        
+        # Fetch data from Polygon API
         df_daily = fetch_daily_data(symbol)
         df_hourly = fetch_hourly_data(symbol)
         
+        # Log data retrieval results
+        if not df_daily.empty:
+            logger.info(f"[POLYGON API] Successfully fetched daily data for {symbol}: {len(df_daily)} days")
+        else:
+            logger.error(f"[POLYGON API] Failed to fetch daily data for {symbol}")
+            
+        if not df_hourly.empty:
+            logger.info(f"[POLYGON API] Successfully fetched hourly data for {symbol}: {len(df_hourly)} hours")
+        else:
+            logger.error(f"[POLYGON API] Failed to fetch hourly data for {symbol}")
+        
         if df_daily.empty or df_hourly.empty:
+            logger.error(f"[POLYGON API] Insufficient data for {symbol} score calculation")
             return {
                 "Symbol": symbol,
                 "Score": 0,
-                "Error": "Insufficient data",
+                "Error": "Insufficient data from Polygon API",
                 "Price": 0,
                 "RSI": 0
             }
         
-        # Extract current price
-        current_price = float(df_daily['Close'].iloc[-1] if not hasattr(df_daily['Close'].iloc[-1], 'iloc') 
+        # Get current price from Polygon API
+        polygon_price = get_current_price(symbol)
+        
+        # Extract current price from historical data as fallback
+        historical_price = float(df_daily['Close'].iloc[-1] if not hasattr(df_daily['Close'].iloc[-1], 'iloc') 
                               else df_daily['Close'].iloc[-1].iloc[0])
         
-        # Calculate technical indicators
+        # Use Polygon price if available, otherwise use historical price
+        current_price = polygon_price if polygon_price is not None else historical_price
+        
+        logger.info(f"[POLYGON API] Current price for {symbol}: ${current_price:.2f}")
+        
+        # Calculate technical indicators using Polygon data
+        logger.info(f"[POLYGON API] Calculating technical indicators for {symbol}")
+        
         ema20 = calculate_ema(df_daily['Close'], 20).iloc[-1]
         ema20 = float(ema20 if not hasattr(ema20, 'iloc') else ema20.iloc[0])
+        logger.info(f"[POLYGON API] 20-day EMA for {symbol}: ${ema20:.2f}")
         
         ema100 = calculate_ema(df_daily['Close'], 100).iloc[-1]
         ema100 = float(ema100 if not hasattr(ema100, 'iloc') else ema100.iloc[0])
+        logger.info(f"[POLYGON API] 100-day EMA for {symbol}: ${ema100:.2f}")
         
         rsi_value = calculate_rsi(df_hourly)
+        logger.info(f"[POLYGON API] RSI value for {symbol}: {rsi_value:.2f}")
         
         weekly_close = get_latest_weekly_close(df_daily)
+        logger.info(f"[POLYGON API] Weekly close for {symbol}: ${weekly_close:.2f}")
         
         atr3 = calculate_atr(df_daily, 3)
         atr6 = calculate_atr(df_daily, 6)
+        logger.info(f"[POLYGON API] ATR values for {symbol}: 3-day = {atr3:.4f}, 6-day = {atr6:.4f}")
         
         # Evaluate the 5 criteria
         criteria1 = current_price > ema20  # Price > 20 EMA
@@ -383,6 +412,14 @@ def score_etf(symbol):
         snapback_desc = f"RSI ({rsi_value:.1f}) is {'below' if criteria3 else 'above'} the threshold (50)"
         momentum_desc = f"Current price (${current_price:.2f}) is {'above' if criteria4 else 'below'} last week's close (${weekly_close:.2f})"
         stabilizing_desc = f"3-day ATR ({atr3:.2f}) is {'lower' if criteria5 else 'higher'} than 6-day ATR ({atr6:.2f})"
+        
+        # Log criteria results
+        logger.info(f"[POLYGON API] Criteria 1 (Price > 20 EMA): {'PASS' if criteria1 else 'FAIL'}")
+        logger.info(f"[POLYGON API] Criteria 2 (Price > 100 EMA): {'PASS' if criteria2 else 'FAIL'}")
+        logger.info(f"[POLYGON API] Criteria 3 (RSI < 50): {'PASS' if criteria3 else 'FAIL'}")
+        logger.info(f"[POLYGON API] Criteria 4 (Price > Weekly Close): {'PASS' if criteria4 else 'FAIL'}")
+        logger.info(f"[POLYGON API] Criteria 5 (3-day ATR < 6-day ATR): {'PASS' if criteria5 else 'FAIL'}")
+        logger.info(f"[POLYGON API] Final score for {symbol}: {total_score}/5")
         
         # Construct indicator details in the format used by the existing app
         indicators = {
