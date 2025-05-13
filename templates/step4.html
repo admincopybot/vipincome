@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Details - Income Machine</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <style>
+        /* Step progress styles */
+        .step-progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .step-progress::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            z-index: 1;
+        }
+        
+        .step-progress-bar {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            height: 2px;
+            background: var(--primary-color);
+            z-index: 2;
+            transition: width 0.3s ease;
+        }
+        
+        .step {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            width: 24%;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-number {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .step.completed .step-number {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .step.active .step-label {
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .step.completed .step-label {
+            color: var(--success-color);
+        }
+        
+        /* Trade Widget Styles */
+        .trade-widget-container {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 30px 0;
+            background-color: #1a1a1a;
+            height: 600px;
+            position: relative;
+        }
+        
+        .widget-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(26, 26, 26, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .widget-status {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .trade-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: transparent;
+        }
+        
+        .summary-section {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .strategy-pill {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .aggressive-pill {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--danger-color);
+        }
+        
+        .steady-pill {
+            background-color: rgba(0, 123, 255, 0.15);
+            color: var(--primary-color);
+        }
+        
+        .passive-pill {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='images/incomemachine_horizontallogo.png') }}" alt="Income Machine" height="30">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/backtest">Backtest</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/how-to-use">How To Use</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="container my-4">
+        <!-- Step Progress Bar -->
+        <div class="step-progress">
+            <div class="step-progress-bar" style="width: 75%;"></div>
+            
+            <div class="step completed">
+                <div class="step-number">1</div>
+                <div class="step-label">Scoreboard</div>
+            </div>
+            
+            <div class="step completed">
+                <div class="step-number">2</div>
+                <div class="step-label">Asset Review</div>
+            </div>
+            
+            <div class="step completed">
+                <div class="step-number">3</div>
+                <div class="step-label">Strategy Selection</div>
+            </div>
+            
+            <div class="step active">
+                <div class="step-number">4</div>
+                <div class="step-label">Trade Details</div>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="text-center mb-2">ETF Option Spreads</h1>
+                
+                <div class="text-center mb-4">
+                    <span class="fs-4">{{ etf.symbol }}</span>
+                    <span class="strategy-pill 
+                        {% if strategy.type == 'aggressive' %}
+                            aggressive-pill
+                        {% elif strategy.type == 'passive' %}
+                            passive-pill
+                        {% else %}
+                            steady-pill
+                        {% endif %}
+                    ">
+                        {{ strategy.title }}
+                    </span>
+                </div>
+                
+                <!-- ETF Option Spreads Widget -->
+                <div class="trade-widget-container">
+                    <!-- Loading overlay - will be hidden when iframe loads -->
+                    <div class="widget-loading" id="widget-loading">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="widget-status">Looking for trade opportunities...</div>
+                    </div>
+                    
+                    <!-- Iframe for embedded widget -->
+                    <div id="etf-spreads-widget">
+                        <!-- In a real implementation, this would be an actual options spread widget -->
+                        <!-- For demo purposes, we'll simulate one with HTML -->
+                        <div class="p-4 text-center">
+                            <h3>Option Spread Opportunities for {{ etf.symbol }}</h3>
+                            <p class="mb-4">Strategy: {{ strategy.title }} ({{ strategy.dte_min }}-{{ strategy.dte_max }} DTE, ~{{ strategy.roi }}% ROI)</p>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Strike</th>
+                                            <th>Expiration</th>
+                                            <th>DTE</th>
+                                            <th>Credit</th>
+                                            <th>ROI</th>
+                                            <th>Probability</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in range(3) %}
+                                        <tr>
+                                            <td>${{ (etf.price * (0.85 + (i * 0.05))) | round(1) }}</td>
+                                            <td>{{ (strategy.dte_min + (i * 7)) }}-day</td>
+                                            <td>{{ (strategy.dte_min + (i * 7)) }}</td>
+                                            <td>${{ (etf.price * (strategy.roi / 100) * (0.9 + (i * 0.1))) | round(2) }}</td>
+                                            <td>{{ (strategy.roi * (0.9 + (i * 0.1))) | round(1) }}%</td>
+                                            <td>{{ (70 + (i * 5)) }}%</td>
+                                            <td><button class="btn btn-sm btn-primary">Trade</button></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4 mb-5">
+                    <a href="/step3?etf={{ etf.symbol }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-arrow-left"></i> Change Strategy
+                    </a>
+                    <a href="/" class="btn btn-outline-primary btn-lg ms-2">
+                        <i class="bi bi-house-fill"></i> Back to Scoreboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2025 Income Machine. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3">Terms of Service</a>
+                    <a href="#" class="text-white">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide loading overlay after a delay to simulate loading
+            setTimeout(function() {
+                document.getElementById('widget-loading').style.display = 'none';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

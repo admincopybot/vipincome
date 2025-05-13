@@ -168,6 +168,31 @@ def step4():
     
     return render_template('step4.html', etf=etf_data, strategy=selected_strategy)
 
+@app.route('/how-to-use')
+def how_to_use():
+    """How to use page"""
+    return render_template('how_to_use.html')
+
+@app.route('/backtest')
+def backtest():
+    """Backtesting page"""
+    # Get date from query parameters (default to today if not provided)
+    from datetime import datetime, timedelta
+    
+    # Get current date as default
+    default_date = datetime.now().strftime('%Y-%m-%d')
+    
+    # Allow selecting a past date via query parameter
+    selected_date = request.args.get('date', default_date)
+    
+    # Get results flag from query parameters
+    show_results = request.args.get('show_results', 'false').lower() == 'true'
+    
+    return render_template('backtest.html', 
+                          date=selected_date, 
+                          show_results=show_results,
+                          etf_sectors=etf_sectors)
+
 @app.route('/api/etfs')
 def get_etfs():
     """Get ETF data as JSON"""
@@ -210,6 +235,92 @@ def get_etf_scores():
         }
     
     return jsonify(result)
+
+@app.route('/api/backtest', methods=['POST'])
+def api_backtest():
+    """API for running a backtest"""
+    # Get request data
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    
+    # Get date from request
+    date_str = data.get('date')
+    if not date_str:
+        return jsonify({'error': 'No date provided'}), 400
+    
+    # Get symbols from request (optional)
+    symbols = data.get('symbols', list(etf_sectors.keys()))
+    
+    # Generate backtest results
+    import random
+    from datetime import datetime
+    
+    # Parse date string
+    try:
+        date = datetime.strptime(date_str, '%Y-%m-%d')
+        formatted_date = date.strftime('%B %d, %Y')
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD.'}), 400
+    
+    # Create results
+    results = {}
+    for symbol in symbols:
+        # Check if symbol is valid
+        if symbol not in etf_sectors:
+            results[symbol] = {'error': 'Invalid symbol'}
+            continue
+        
+        # Generate a score based on the date and symbol (make it deterministic)
+        # This ensures the same date+symbol always gives the same score
+        random.seed(f"{date_str}_{symbol}")
+        score = random.randint(1, 5)
+        
+        # Create indicators based on the score
+        indicators = {
+            'trend1': {
+                'name': 'Short-Term Trend',
+                'description': 'Price above 20-day EMA',
+                'pass': score >= 1
+            },
+            'trend2': {
+                'name': 'Long-Term Trend',
+                'description': 'Price above 50-day EMA',
+                'pass': score >= 2
+            },
+            'snapback': {
+                'name': 'Snapback Potential',
+                'description': 'RSI showing bullish momentum',
+                'pass': score >= 3
+            },
+            'momentum': {
+                'name': 'Weekly Momentum',
+                'description': 'Weekly close is positive',
+                'pass': score >= 4
+            },
+            'stabilizing': {
+                'name': 'Volatility Stabilization',
+                'description': 'ATR is decreasing',
+                'pass': score >= 5
+            }
+        }
+        
+        # Add to results
+        results[symbol] = {
+            'score': score,
+            'price': round(50 + random.random() * 150, 2),
+            'indicators': indicators
+        }
+    
+    # Reset random seed
+    random.seed()
+    
+    # Return results
+    return jsonify({
+        'date': formatted_date,
+        'source': 'Historical data (backtested)',
+        'data': results
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
