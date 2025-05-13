@@ -1,70 +1,52 @@
-"""
-Enhanced Polygon.io Client for Income Machine
-This module provides an enhanced client for the Polygon.io API with specialized ETF analysis.
-"""
-
-import logging
 import os
-import time
+import json
+import logging
 from datetime import datetime, timedelta
 import pandas as pd
-import numpy as np
-from polygon import RESTClient
+import requests
+from ta.trend import EMAIndicator
+from ta.momentum import RSIIndicator
+from ta.volatility import AverageTrueRange
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class EnhancedPolygonService:
     """Enhanced service to fetch and analyze ETF data using Polygon.io API with TA library"""
     
-    # Singleton client instance
-    _client = None
-    
-    # Cache for API responses (symbol -> (data, timestamp))
-    _cache = {}
-    
-    @classmethod
-    def _get_client(cls):
-        """Get or create the Polygon.io client instance"""
-        if cls._client is None:
-            api_key = os.environ.get('POLYGON_API_KEY')
-            if not api_key:
-                logger.error("Missing POLYGON_API_KEY environment variable")
-                return None
-            
-            cls._client = RESTClient(api_key)
-            logger.info("Initialized Polygon.io client")
-        
-        return cls._client
-    
-    @classmethod
-    def get_etf_price(cls, symbol):
+    @staticmethod
+    def get_etf_price(symbol):
         """Get the latest price for an ETF"""
         try:
-            client = cls._get_client()
-            if not client:
+            # Using REST API directly for consistency
+            api_key = os.environ.get("POLYGON_API_KEY")
+            if api_key and len(api_key) > 8:
+                logger.info(f"Using Polygon API key (masked): {api_key[:4]}...{api_key[-4:]}")
+            else:
+                logger.warning("Polygon API key not found or invalid format")
                 return None
             
-            # Get previous day's close
-            resp = client.get_previous_close(symbol)
-            if resp and hasattr(resp, 'results') and resp.results:
-                # Get the last result
-                result = resp.results[-1]
-                price = result.c  # Closing price
-                
-                logger.info(f"Got price for {symbol}: ${price}")
-                return price
+            url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/prev?apiKey={api_key}"
+            response = requests.get(url, timeout=10)
             
-            logger.warning(f"No price data for {symbol}")
-            return None
-        
+            if response.status_code != 200:
+                error_msg = response.text
+                logger.error(f"Error getting price for {symbol}: {error_msg}")
+                return None
+            
+            data = response.json()
+            if data.get('results'):
+                # Return the closing price from previous day
+                return data['results'][0]['c']
+            else:
+                logger.warning(f"No price data found for {symbol}")
+                return None
+            
         except Exception as e:
-            logger.error(f"Error getting ETF price for {symbol}: {str(e)}")
+            logger.error(f"Error getting price for {symbol}: {str(e)}")
             return None
     
-    @classmethod
-    def get_historical_data(cls, symbol, timespan="day", multiplier=1, from_date=None, to_date=None, limit=200):
+    @staticmethod
+    def get_historical_data(symbol, timespan="day", multiplier=1, from_date=None, to_date=None, limit=200):
         """
         Get historical price data for technical analysis
         
@@ -80,119 +62,60 @@ class EnhancedPolygonService:
         - pandas DataFrame with OHLCV data
         """
         try:
-            # Generate cache key
-            cache_key = f"{symbol}_{timespan}_{multiplier}_{from_date}_{to_date}_{limit}"
-            
-            # Check cache
-            if cache_key in cls._cache:
-                data, timestamp = cls._cache[cache_key]
-                # Use cache if less than 1 hour old
-                if (time.time() - timestamp) < 3600:
-                    logger.info(f"Using cached data for {symbol}")
-                    return data
-            
-            # Get client
-            client = cls._get_client()
-            if not client:
+            api_key = os.environ.get("POLYGON_API_KEY")
+            if not api_key:
+                logger.error("No Polygon API key found in environment variables")
                 return None
             
-            # Convert string dates to datetime if needed
-            if isinstance(from_date, str):
-                from_date = datetime.strptime(from_date, '%Y-%m-%d')
-            
-            if isinstance(to_date, str):
-                to_date = datetime.strptime(to_date, '%Y-%m-%d')
-                # Set to end of day
-                to_date = to_date.replace(hour=23, minute=59, second=59)
-            
-            # Convert datetime to ISO 8601 string for API
-            from_date_str = from_date.isoformat() if from_date else None
-            to_date_str = to_date.isoformat() if to_date else None
-            
-            # Fetch data from Polygon.io API
-            logger.info(f"Fetching {timespan} data for {symbol} from {from_date_str} to {to_date_str}")
-            
-            # Get aggregates (bars) from API
-            aggs = []
-            
-            # Use pagination if needed
-            if limit > 5000:
-                pages = (limit + 4999) // 5000  # Calculate number of pages
-                for page in range(pages):
-                    page_limit = min(5000, limit - page * 5000)
-                    if page_limit <= 0:
-                        break
-                    
-                    # Adjust from_date for each page
-                    current_from_date = from_date_str
-                    if page > 0 and aggs:
-                        # Start from where the last page ended
-                        last_timestamp = aggs[-1].timestamp
-                        current_from_date = datetime.fromtimestamp(last_timestamp / 1000).isoformat()
-                    
-                    # Fetch data for this page
-                    resp = client.get_aggs(
-                        ticker=symbol,
-                        multiplier=multiplier,
-                        timespan=timespan,
-                        from_=current_from_date,
-                        to=to_date_str,
-                        limit=page_limit
-                    )
-                    
-                    if resp and hasattr(resp, 'results'):
-                        aggs.extend(resp.results)
-                    
-                    # Break if we got fewer results than requested
-                    if not resp or not hasattr(resp, 'results') or len(resp.results) < page_limit:
-                        break
-            else:
-                # Fetch data in a single request
-                resp = client.get_aggs(
-                    ticker=symbol,
-                    multiplier=multiplier,
-                    timespan=timespan,
-                    from_=from_date_str,
-                    to=to_date_str,
-                    limit=limit
-                )
+            # Default to 6 months of data if no dates specified (ensures enough for 100 EMA)
+            if not from_date:
+                from_date = (datetime.now() - timedelta(days=180)).strftime('%Y-%m-%d')
+            elif isinstance(from_date, datetime):
+                from_date = from_date.strftime('%Y-%m-%d')
                 
-                if resp and hasattr(resp, 'results'):
-                    aggs.extend(resp.results)
+            if not to_date:
+                to_date = datetime.now().strftime('%Y-%m-%d')
+            elif isinstance(to_date, datetime):
+                to_date = to_date.strftime('%Y-%m-%d')
             
-            # Create DataFrame from results
-            if not aggs:
-                logger.warning(f"No data returned for {symbol}")
+            url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/{multiplier}/{timespan}/{from_date}/{to_date}?limit={limit}&apiKey={api_key}"
+            response = requests.get(url, timeout=15)  # Longer timeout for historical data
+            
+            if response.status_code != 200:
+                error_msg = response.text
+                logger.error(f"Error getting historical data for {symbol}: {error_msg}")
+                return None
+            
+            data = response.json()
+            if not data.get('results'):
+                logger.error(f"No historical data available for {symbol}")
                 return None
             
             # Convert to DataFrame
-            df = pd.DataFrame([{
-                'timestamp': agg.timestamp,
-                'open': agg.open,
-                'high': agg.high,
-                'low': agg.low,
-                'close': agg.close,
-                'volume': agg.volume
-            } for agg in aggs])
+            df = pd.DataFrame(data['results'])
             
-            # Set timestamp as index
+            # Rename columns to standard format
+            df = df.rename(columns={
+                'o': 'Open',
+                'h': 'High',
+                'l': 'Low',
+                'c': 'Close',
+                'v': 'Volume',
+                't': 'timestamp'
+            })
+            
+            # Convert timestamp to datetime
+            df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
             df.set_index('timestamp', inplace=True)
             
-            # Sort by timestamp
-            df.sort_index(inplace=True)
-            
-            # Store in cache
-            cls._cache[cache_key] = (df, time.time())
-            
-            logger.info(f"Retrieved {len(df)} {timespan} bars for {symbol}")
             return df
-        
+            
         except Exception as e:
             logger.error(f"Error getting historical data for {symbol}: {str(e)}")
             return None
     
-    @classmethod
-    def calculate_etf_score(cls, symbol):
+    @staticmethod
+    def calculate_etf_score(symbol):
         """
         Calculate a technical score (1-5) for an ETF based on specific indicators:
         1. Trend 1: Price > 20 EMA on Daily Timeframe
@@ -204,114 +127,131 @@ class EnhancedPolygonService:
         Each indicator = 1 point, total score from 0-5
         """
         try:
-            # Set default indicator values (all false)
-            default_indicators = {
-                'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 20-day EMA'},
-                'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 100-day EMA'},
-                'snapback': {'pass': False, 'current': 0, 'threshold': 50, 'description': 'RSI < 50'},
-                'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > Previous Week\'s Close'},
-                'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': '3-day ATR < 6-day ATR'}
+            # Get current price
+            current_price = EnhancedPolygonService.get_etf_price(symbol)
+            if not current_price:
+                logger.error(f"Unable to get current price for {symbol}")
+                return EnhancedPolygonService._default_indicators()
+            
+            # Get historical data (6 months)
+            hist_data = EnhancedPolygonService.get_historical_data(symbol, timespan="day", limit=200)
+            if hist_data is None or len(hist_data) < 100:
+                logger.error(f"Not enough historical data for {symbol}")
+                return EnhancedPolygonService._default_indicators()
+            
+            score = 0
+            indicators = {}
+            
+            # 1. Trend 1: Price > 20 EMA on Daily Timeframe using TA library
+            ema_indicator = EMAIndicator(close=hist_data['Close'], window=20)
+            ema_20 = ema_indicator.ema_indicator().iloc[-1]
+            trend1_pass = current_price > ema_20
+            if trend1_pass:
+                score += 1
+            
+            trend1_desc = f"Price (${current_price:.2f}) is {'above' if trend1_pass else 'below'} the 20-day EMA (${ema_20:.2f})"
+            indicators['trend1'] = {
+                'pass': trend1_pass,
+                'current': float(current_price),
+                'threshold': float(ema_20),
+                'description': trend1_desc
             }
             
-            # Get date range (about 1 year of data)
-            to_date = datetime.now()
-            from_date = to_date - timedelta(days=365)
-            
-            # Fetch daily historical data
-            df = cls.get_historical_data(
-                symbol=symbol,
-                timespan="day",
-                from_date=from_date,
-                to_date=to_date,
-                limit=365
-            )
-            
-            if df is None or len(df) < 100:
-                logger.warning(f"Insufficient historical data for {symbol}")
-                return None
-            
-            # Get current price (latest close)
-            current_price = df['close'].iloc[-1]
-            
-            # Calculate 20-day EMA
-            df['ema_20'] = df['close'].ewm(span=20, adjust=False).mean()
-            
-            # Calculate 100-day EMA
-            df['ema_100'] = df['close'].ewm(span=100, adjust=False).mean()
-            
-            # Calculate RSI
-            delta = df['close'].diff()
-            gain = delta.where(delta > 0, 0).rolling(window=14).mean()
-            loss = -delta.where(delta < 0, 0).rolling(window=14).mean()
-            rs = gain / loss
-            df['rsi'] = 100 - (100 / (1 + rs))
-            
-            # Calculate ATR
-            df['tr1'] = abs(df['high'] - df['low'])
-            df['tr2'] = abs(df['high'] - df['close'].shift(1))
-            df['tr3'] = abs(df['low'] - df['close'].shift(1))
-            df['tr'] = df[['tr1', 'tr2', 'tr3']].max(axis=1)
-            df['atr_3'] = df['tr'].rolling(window=3).mean()
-            df['atr_6'] = df['tr'].rolling(window=6).mean()
-            
-            # Find previous week's close (5 trading days ago)
-            prev_week_close = df['close'].shift(5).iloc[-1]
-            
-            # Check indicators
-            indicators = default_indicators.copy()
-            score = 0
-            
-            # 1. Trend 1: Price > 20 EMA
-            if current_price > df['ema_20'].iloc[-1]:
-                indicators['trend1']['pass'] = True
+            # 2. Trend 2: Price > 100 EMA on Daily Timeframe using TA library
+            ema_indicator = EMAIndicator(close=hist_data['Close'], window=100)
+            ema_100 = ema_indicator.ema_indicator().iloc[-1]
+            trend2_pass = current_price > ema_100
+            if trend2_pass:
                 score += 1
-            indicators['trend1']['current'] = float(current_price)
-            indicators['trend1']['threshold'] = float(df['ema_20'].iloc[-1])
             
-            # 2. Trend 2: Price > 100 EMA
-            if current_price > df['ema_100'].iloc[-1]:
-                indicators['trend2']['pass'] = True
+            trend2_desc = f"Price (${current_price:.2f}) is {'above' if trend2_pass else 'below'} the 100-day EMA (${ema_100:.2f})"
+            indicators['trend2'] = {
+                'pass': trend2_pass,
+                'current': float(current_price),
+                'threshold': float(ema_100),
+                'description': trend2_desc
+            }
+            
+            # 3. Snapback: RSI < 50 on Daily Timeframe using TA library
+            rsi_indicator = RSIIndicator(close=hist_data['Close'], window=14)
+            current_rsi = rsi_indicator.rsi().iloc[-1]
+            
+            snapback_pass = current_rsi < 50
+            if snapback_pass:
                 score += 1
-            indicators['trend2']['current'] = float(current_price)
-            indicators['trend2']['threshold'] = float(df['ema_100'].iloc[-1])
             
-            # 3. Snapback: RSI < 50
-            current_rsi = df['rsi'].iloc[-1]
-            if current_rsi < 50:
-                indicators['snapback']['pass'] = True
+            snapback_desc = f"RSI ({current_rsi:.1f}) is {'below' if snapback_pass else 'above'} the threshold (50)"
+            indicators['snapback'] = {
+                'pass': snapback_pass,
+                'current': float(current_rsi),
+                'threshold': 50.0,
+                'description': snapback_desc
+            }
+            
+            # 4. Momentum: Above Previous Week's Closing Price (using calendar days)
+            # Find exactly 7 calendar days ago or the closest trading day before that
+            today = hist_data.index[-1]
+            seven_days_ago = today - pd.Timedelta(days=7)
+            
+            # Find the closest trading day on or before 7 days ago
+            closest_dates = hist_data.index[hist_data.index <= seven_days_ago]
+            
+            if len(closest_dates) > 0:
+                prev_week_idx = closest_dates[-1]  # Get the last date that's <= 7 days ago
+                prev_week_close = hist_data.loc[prev_week_idx, 'Close']
+            else:
+                # Fallback if we don't have data from 7 days ago (use 5 trading days as approximation)
+                prev_week_close = hist_data['Close'].iloc[-6] if len(hist_data) > 5 else hist_data['Close'].iloc[0]
+            
+            momentum_pass = current_price > prev_week_close
+            if momentum_pass:
                 score += 1
-            indicators['snapback']['current'] = float(current_rsi)
             
-            # 4. Momentum: Price > Previous Week's Close
-            if current_price > prev_week_close:
-                indicators['momentum']['pass'] = True
+            momentum_desc = f"Current price (${current_price:.2f}) is {'above' if momentum_pass else 'below'} last week's close (${prev_week_close:.2f})"
+            indicators['momentum'] = {
+                'pass': momentum_pass,
+                'current': float(current_price),
+                'threshold': float(prev_week_close),
+                'description': momentum_desc
+            }
+            
+            # 5. Stabilizing: 3 Day ATR < 6 Day ATR using TA library
+            atr_3 = AverageTrueRange(high=hist_data['High'], 
+                                   low=hist_data['Low'], 
+                                   close=hist_data['Close'], 
+                                   window=3).average_true_range().iloc[-1]
+            
+            atr_6 = AverageTrueRange(high=hist_data['High'], 
+                                   low=hist_data['Low'], 
+                                   close=hist_data['Close'], 
+                                   window=6).average_true_range().iloc[-1]
+            
+            stabilizing_pass = atr_3 < atr_6
+            if stabilizing_pass:
                 score += 1
-            indicators['momentum']['current'] = float(current_price)
-            indicators['momentum']['threshold'] = float(prev_week_close)
             
-            # 5. Stabilizing: 3-Day ATR < 6-Day ATR
-            current_atr3 = df['atr_3'].iloc[-1]
-            current_atr6 = df['atr_6'].iloc[-1]
-            if current_atr3 < current_atr6:
-                indicators['stabilizing']['pass'] = True
-                score += 1
-            indicators['stabilizing']['current'] = float(current_atr3)
-            indicators['stabilizing']['threshold'] = float(current_atr6)
+            stabilizing_desc = f"3-day ATR ({atr_3:.2f}) is {'lower' if stabilizing_pass else 'higher'} than 6-day ATR ({atr_6:.2f})"
+            indicators['stabilizing'] = {
+                'pass': stabilizing_pass,
+                'current': float(atr_3),
+                'threshold': float(atr_6),
+                'description': stabilizing_desc
+            }
             
-            logger.info(f"ETF {symbol} score: {score}/5 (price: ${current_price:.2f})")
-            return score, current_price, indicators
-        
+            logger.info(f"Calculated score: {score}/5 using enhanced Polygon data")
+            return score, indicators
+            
         except Exception as e:
-            logger.error(f"Error calculating score for {symbol}: {str(e)}")
-            return None
+            logger.error(f"Error calculating ETF score: {str(e)}")
+            return EnhancedPolygonService._default_indicators()
     
-    @classmethod
+    @staticmethod
     def _default_indicators():
         """Return default indicator values in case of errors"""
-        return {
-            'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 20-day EMA'},
-            'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 100-day EMA'},
-            'snapback': {'pass': False, 'current': 0, 'threshold': 50, 'description': 'RSI < 50'},
-            'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > Previous Week\'s Close'},
-            'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': '3-day ATR < 6-day ATR'}
+        return 3, {
+            'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Error retrieving data'},
+            'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Error retrieving data'},
+            'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Error retrieving data'},
+            'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Error retrieving data'},
+            'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Error retrieving data'}
         }
