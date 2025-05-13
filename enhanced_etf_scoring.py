@@ -182,6 +182,89 @@ def fetch_hourly_data(symbol, period='7d'):
         logger.error(f"Error fetching hourly data for {symbol}: {str(e)}")
         return pd.DataFrame()
 
+def fetch_four_hour_data(symbol, period='28d'):
+    """
+    Fetch 4-hour price data for the given symbol using Polygon API.
+    Used for RSI calculation to match TradingView's 4-hour RSI.
+    
+    Args:
+        symbol (str): The ETF symbol (e.g., 'XLP', 'SPY')
+        period (str): The time period to fetch (default: '28d' for 28 days)
+        
+    Returns:
+        pandas.DataFrame: DataFrame with OHLCV data at 4-hour timeframe
+    """
+    try:
+        api_key = os.environ.get("POLYGON_API_KEY")
+        if not api_key:
+            logger.error("No Polygon API key found in environment variables")
+            return pd.DataFrame()
+        
+        # Calculate from_date based on period
+        if period == '28d':
+            days = 28
+        elif period == '14d':
+            days = 14
+        elif period == '7d':
+            days = 7
+        else:
+            days = 28  # Default to 28 days (4 weeks)
+        
+        from_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
+        to_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Request 4-hour bars - use multiplier=4 with timespan="hour"
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{from_date}/{to_date}"
+        params = {
+            'adjusted': 'true',
+            'sort': 'asc',
+            'limit': 5000,
+            'apiKey': api_key
+        }
+        
+        logger.info(f"Fetching 4-hour data for {symbol} from {from_date} to {to_date}")
+        response = requests.get(url, params=params, timeout=15)
+        
+        if response.status_code != 200:
+            logger.error(f"Error fetching 4-hour data for {symbol}: {response.text}")
+            return pd.DataFrame()
+        
+        data = response.json()
+        
+        if 'results' not in data or not data['results']:
+            logger.warning(f"No 4-hour data found for {symbol}")
+            return pd.DataFrame()
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(data['results'])
+        
+        # Rename columns to match yfinance format
+        df = df.rename(columns={
+            'o': 'Open',
+            'h': 'High',
+            'l': 'Low',
+            'c': 'Close',
+            'v': 'Volume',
+            't': 'timestamp'
+        })
+        
+        # Convert timestamp to datetime and set as index
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
+        
+        # Remove any extra columns to match yfinance output
+        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+        
+        # Handle missing data
+        df.dropna(inplace=True)
+        
+        logger.info(f"[POLYGON API] Successfully fetched 4-hour data for {symbol}: {len(df)} bars")
+        return df
+        
+    except Exception as e:
+        logger.error(f"Error fetching 4-hour data for {symbol}: {str(e)}")
+        return pd.DataFrame()
+
 def get_latest_weekly_close(df):
     """
     Get the latest completed weekly close price.
@@ -340,7 +423,7 @@ def score_etf(symbol):
         
         # Fetch data from Polygon API
         df_daily = fetch_daily_data(symbol)
-        df_hourly = fetch_hourly_data(symbol)
+        df_four_hour = fetch_four_hour_data(symbol)  # Using 4-hour data for RSI to match TradingView
         
         # Log data retrieval results
         if not df_daily.empty:
@@ -348,12 +431,12 @@ def score_etf(symbol):
         else:
             logger.error(f"[POLYGON API] Failed to fetch daily data for {symbol}")
             
-        if not df_hourly.empty:
-            logger.info(f"[POLYGON API] Successfully fetched hourly data for {symbol}: {len(df_hourly)} hours")
+        if not df_four_hour.empty:
+            logger.info(f"[POLYGON API] Successfully fetched 4-hour data for {symbol}: {len(df_four_hour)} bars")
         else:
-            logger.error(f"[POLYGON API] Failed to fetch hourly data for {symbol}")
+            logger.error(f"[POLYGON API] Failed to fetch 4-hour data for {symbol}")
         
-        if df_daily.empty or df_hourly.empty:
+        if df_daily.empty or df_four_hour.empty:
             logger.error(f"[POLYGON API] Insufficient data for {symbol} score calculation")
             return {
                 "Symbol": symbol,
@@ -386,8 +469,8 @@ def score_etf(symbol):
         ema100 = float(ema100 if not hasattr(ema100, 'iloc') else ema100.iloc[0])
         logger.info(f"[POLYGON API] 100-day EMA for {symbol}: ${ema100:.2f}")
         
-        rsi_value = calculate_rsi(df_hourly)
-        logger.info(f"[POLYGON API] RSI value for {symbol}: {rsi_value:.2f}")
+        rsi_value = calculate_rsi(df_four_hour)  # Using 4-hour data for RSI to match TradingView
+        logger.info(f"[POLYGON API] 4-hour RSI value for {symbol}: {rsi_value:.2f}")
         
         weekly_close = get_latest_weekly_close(df_daily)
         logger.info(f"[POLYGON API] Weekly close for {symbol}: ${weekly_close:.2f}")
