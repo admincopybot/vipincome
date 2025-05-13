@@ -1,18 +1,17 @@
-import os
+from flask import Blueprint, jsonify, request
 import logging
-from datetime import datetime
-from flask import Blueprint, request, jsonify
-from models import db, HistoricalPrice, ETFScore, BacktestResult, ProcessingTask
-from database import get_cached_etf_score
-from backtest_service import BacktestService
-from background_tasks import BackgroundTaskService
+import datetime
+import json
+
 from simplified_market_data import SimplifiedMarketDataService
+from background_tasks import BackgroundTaskService
+from backtest_service import BacktestService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create Blueprint for API routes
+# Create API blueprint
 api = Blueprint('api', __name__)
 
 @api.route('/etf/score/<symbol>', methods=['GET'])
@@ -23,25 +22,10 @@ def get_etf_score(symbol):
     Query Parameters:
     - force_refresh: Set to 'true' to force calculation of a new score (default: false)
     """
+    force_refresh = request.args.get('force_refresh', 'false').lower() == 'true'
+    
     try:
-        force_refresh = request.args.get('force_refresh', 'false').lower() == 'true'
-        
-        # Check cache first unless force refresh
-        if not force_refresh:
-            cached_score = get_cached_etf_score(symbol)
-            if cached_score:
-                score, price, indicators = cached_score
-                return jsonify({
-                    'symbol': symbol,
-                    'score': score,
-                    'price': price,
-                    'indicators': indicators
-                })
-        
-        # Calculate new score
-        score, price, indicators = SimplifiedMarketDataService._calculate_etf_score(
-            symbol, force_refresh=True
-        )
+        score, price, indicators = SimplifiedMarketDataService.get_etf_score(symbol, force_refresh=force_refresh)
         
         return jsonify({
             'symbol': symbol,
@@ -49,10 +33,11 @@ def get_etf_score(symbol):
             'price': price,
             'indicators': indicators
         })
-    
     except Exception as e:
-        logger.error(f"Error getting ETF score: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error getting ETF score for {symbol}: {str(e)}")
+        return jsonify({
+            'error': f"Failed to get score for {symbol}: {str(e)}"
+        }), 500
 
 @api.route('/etf/scores', methods=['GET'])
 def get_etf_scores():
@@ -63,51 +48,24 @@ def get_etf_scores():
     - symbols: Comma-separated list of symbols (default: all tracked ETFs)
     - force_refresh: Set to 'true' to force calculation of new scores (default: false)
     """
-    try:
-        symbols_param = request.args.get('symbols', '')
-        force_refresh = request.args.get('force_refresh', 'false').lower() == 'true'
-        
-        if symbols_param:
-            symbols = symbols_param.split(',')
-        else:
-            symbols = SimplifiedMarketDataService.default_etfs
-        
-        results = {}
-        
-        for symbol in symbols:
-            try:
-                # Check cache first unless force refresh
-                if not force_refresh:
-                    cached_score = get_cached_etf_score(symbol)
-                    if cached_score:
-                        score, price, indicators = cached_score
-                        results[symbol] = {
-                            'score': score,
-                            'price': price,
-                            'indicators': indicators
-                        }
-                        continue
-                
-                # Calculate new score
-                score, price, indicators = SimplifiedMarketDataService._calculate_etf_score(
-                    symbol, force_refresh=True
-                )
-                
-                results[symbol] = {
-                    'score': score,
-                    'price': price,
-                    'indicators': indicators
-                }
-            
-            except Exception as e:
-                logger.error(f"Error getting score for {symbol}: {str(e)}")
-                results[symbol] = {'error': str(e)}
-        
-        return jsonify(results)
+    symbols_param = request.args.get('symbols', '')
+    force_refresh = request.args.get('force_refresh', 'false').lower() == 'true'
     
+    # If symbols parameter is provided, use it; otherwise use default ETFs
+    if symbols_param:
+        symbols = [s.strip().upper() for s in symbols_param.split(',')]
+    else:
+        symbols = SimplifiedMarketDataService.default_etfs
+    
+    try:
+        result = SimplifiedMarketDataService.analyze_etfs(symbols, force_refresh=force_refresh)
+        
+        return jsonify(result)
     except Exception as e:
         logger.error(f"Error getting ETF scores: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': f"Failed to get ETF scores: {str(e)}"
+        }), 500
 
 @api.route('/backtest', methods=['POST'])
 def create_backtest():
@@ -123,43 +81,34 @@ def create_backtest():
     try:
         data = request.json
         
-        # Validate date
-        date_str = data.get('date')
-        if not date_str:
+        if not data or 'date' not in data:
             return jsonify({'error': 'Date is required'}), 400
         
+        date_str = data.get('date')
+        symbols = data.get('symbols')
+        
+        # Validate date format
         try:
-            # Validate date format
-            datetime.strptime(date_str, '%Y-%m-%d')
+            datetime.datetime.strptime(date_str, '%Y-%m-%d')
         except ValueError:
             return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
         
-        # Get symbols
-        symbols = data.get('symbols', [])
+        # Run backtest
+        result = BacktestService.create_backtest(date_str, symbols, cache_result=True)
         
-        # Check for cached backtest
-        cached_result = BacktestService.get_cached_backtest(date_str)
-        if cached_result:
-            return jsonify({
-                'date': date_str,
-                'data': cached_result,
-                'source': 'cache'
-            })
-        
-        # Create new backtest
-        results = BacktestService.create_backtest(date_str, symbols)
-        
+        # Return results
         return jsonify({
             'date': date_str,
-            'data': results,
-            'source': 'calculated'
+            'source': 'polygon.io' if 'polygon' in result.get('_source', '') else 'yahoo finance',
+            'data': result
         })
-    
     except Exception as e:
         logger.error(f"Error creating backtest: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': f"Failed to create backtest: {str(e)}"
+        }), 500
 
-@api.route('/backtests/<date>', methods=['GET'])
+@api.route('/backtest/<date>', methods=['GET'])
 def get_backtest(date):
     """
     Get a cached backtest for a specific date
@@ -170,46 +119,39 @@ def get_backtest(date):
     Query Parameters:
     - force_recalculate: Set to 'true' to force calculation of a new backtest (default: false)
     """
+    force_recalculate = request.args.get('force_recalculate', 'false').lower() == 'true'
+    
     try:
         # Validate date format
         try:
-            datetime.strptime(date, '%Y-%m-%d')
+            datetime.datetime.strptime(date, '%Y-%m-%d')
         except ValueError:
             return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
         
-        force_recalculate = request.args.get('force_recalculate', 'false').lower() == 'true'
-        
-        # Check for cached backtest unless forcing recalculation
-        if not force_recalculate:
-            cached_result = BacktestService.get_cached_backtest(date)
-            if cached_result:
-                return jsonify({
-                    'date': date,
-                    'data': cached_result,
-                    'source': 'cache'
-                })
-        
-        # Get symbols
-        symbols_param = request.args.get('symbols', '')
-        if symbols_param:
-            symbols = symbols_param.split(',')
+        if force_recalculate:
+            # Run backtest with forced recalculation
+            result = BacktestService.create_backtest(date, cache_result=True)
         else:
-            symbols = SimplifiedMarketDataService.default_etfs
+            # Get cached result
+            result = BacktestService.get_cached_backtest(date)
+            
+            if not result:
+                # No cached result, run backtest
+                result = BacktestService.create_backtest(date, cache_result=True)
         
-        # Create new backtest
-        results = BacktestService.create_backtest(date, symbols)
-        
+        # Return results
         return jsonify({
             'date': date,
-            'data': results,
-            'source': 'calculated'
+            'source': 'polygon.io' if 'polygon' in result.get('_source', '') else 'yahoo finance',
+            'data': result
         })
-    
     except Exception as e:
-        logger.error(f"Error getting backtest: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error getting backtest for {date}: {str(e)}")
+        return jsonify({
+            'error': f"Failed to get backtest for {date}: {str(e)}"
+        }), 500
 
-@api.route('/tasks', methods=['POST'])
+@api.route('/task', methods=['POST'])
 def create_task():
     """
     Create a background processing task
@@ -225,68 +167,59 @@ def create_task():
     try:
         data = request.json
         
-        # Validate task type
-        task_type = data.get('type')
-        if not task_type:
+        if not data or 'type' not in data:
             return jsonify({'error': 'Task type is required'}), 400
         
-        if task_type not in ['fetch_historical_data', 'update_etf_scores', 'batch_stock_analysis']:
-            return jsonify({'error': 'Invalid task type'}), 400
-        
-        # Get parameters
+        task_type = data.get('type')
         parameters = data.get('parameters', {})
         
-        # Create task based on type
         task_id = None
         
+        # Schedule task based on type
         if task_type == 'fetch_historical_data':
-            symbols = parameters.get('symbols', [])
+            symbols = parameters.get('symbols', SimplifiedMarketDataService.default_etfs)
             days = parameters.get('days', 180)
             force_refresh = parameters.get('force_refresh', False)
-            
-            if not symbols:
-                return jsonify({'error': 'Symbols are required for fetch_historical_data task'}), 400
             
             task_id = BackgroundTaskService.schedule_fetch_historical_data(
                 symbols, days, force_refresh
             )
-        
         elif task_type == 'update_etf_scores':
-            symbols = parameters.get('symbols', [])
+            symbols = parameters.get('symbols', SimplifiedMarketDataService.default_etfs)
             force_refresh = parameters.get('force_refresh', False)
-            
-            if not symbols:
-                return jsonify({'error': 'Symbols are required for update_etf_scores task'}), 400
             
             task_id = BackgroundTaskService.schedule_update_etf_scores(
                 symbols, force_refresh
             )
-        
         elif task_type == 'batch_stock_analysis':
             symbols = parameters.get('symbols', [])
             batch_size = parameters.get('batch_size', 20)
             
             if not symbols:
-                return jsonify({'error': 'Symbols are required for batch_stock_analysis task'}), 400
+                return jsonify({'error': 'Symbols are required for batch stock analysis'}), 400
             
             task_id = BackgroundTaskService.schedule_batch_stock_analysis(
                 symbols, batch_size
             )
-        
-        if task_id:
-            return jsonify({
-                'task_id': task_id,
-                'type': task_type,
-                'status': 'pending'
-            })
         else:
-            return jsonify({'error': 'Failed to create task'}), 500
-    
+            return jsonify({'error': f'Unknown task type: {task_type}'}), 400
+        
+        if task_id is None:
+            return jsonify({'error': 'Failed to schedule task'}), 500
+        
+        # Return task ID
+        return jsonify({
+            'task_id': task_id,
+            'status': 'scheduled',
+            'type': task_type
+        })
     except Exception as e:
         logger.error(f"Error creating task: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': f"Failed to create task: {str(e)}"
+        }), 500
 
-@api.route('/tasks/<int:task_id>', methods=['GET'])
+@api.route('/task/<int:task_id>', methods=['GET'])
 def get_task(task_id):
     """
     Get the status of a background processing task
@@ -295,16 +228,17 @@ def get_task(task_id):
     - task_id: Task ID
     """
     try:
-        status = BackgroundTaskService.get_task_status(task_id)
+        task_status = BackgroundTaskService.get_task_status(task_id)
         
-        if 'error' in status and status['error'] == 'Task not found':
-            return jsonify({'error': 'Task not found'}), 404
+        if not task_status:
+            return jsonify({'error': f'Task {task_id} not found'}), 404
         
-        return jsonify(status)
-    
+        return jsonify(task_status)
     except Exception as e:
-        logger.error(f"Error getting task status: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error getting task {task_id}: {str(e)}")
+        return jsonify({
+            'error': f"Failed to get task {task_id}: {str(e)}"
+        }), 500
 
 @api.route('/vip/analyze', methods=['POST'])
 def vip_analyze():
@@ -320,28 +254,29 @@ def vip_analyze():
     try:
         data = request.json
         
-        # Validate symbols
-        symbols = data.get('symbols', [])
-        if not symbols:
+        if not data or 'symbols' not in data:
             return jsonify({'error': 'Symbols are required'}), 400
         
-        # Limit batch size to prevent abuse
-        batch_size = min(data.get('batch_size', 20), 50)
+        symbols = data.get('symbols')
+        batch_size = data.get('batch_size', 20)
         
-        # Schedule background task
+        # Schedule batch analysis task
         task_id = BackgroundTaskService.schedule_batch_stock_analysis(
             symbols, batch_size
         )
         
-        if task_id:
-            return jsonify({
-                'task_id': task_id,
-                'status': 'pending',
-                'message': f'Analysis of {len(symbols)} symbols has been scheduled'
-            })
-        else:
-            return jsonify({'error': 'Failed to schedule analysis'}), 500
-    
+        if task_id is None:
+            return jsonify({'error': 'Failed to schedule analysis task'}), 500
+        
+        # Return task ID
+        return jsonify({
+            'task_id': task_id,
+            'status': 'scheduled',
+            'type': 'batch_stock_analysis',
+            'symbols_count': len(symbols)
+        })
     except Exception as e:
-        logger.error(f"Error in VIP analysis: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error scheduling VIP analysis: {str(e)}")
+        return jsonify({
+            'error': f"Failed to schedule VIP analysis: {str(e)}"
+        }), 500

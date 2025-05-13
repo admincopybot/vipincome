@@ -1,15 +1,20 @@
-import os
-import logging
-import json
-from datetime import datetime, timedelta
-import pandas as pd
-from polygon import RESTClient
-from ta.trend import EMAIndicator
-from ta.momentum import RSIIndicator
-from ta.volatility import AverageTrueRange
+"""
+Backtest Service for Income Machine
+This module provides functionality to backtest ETF technical scores for historical dates.
+"""
 
-from models import db, HistoricalPrice, BacktestResult
+import logging
+import datetime
+import json
+import pandas as pd
+import numpy as np
+import os
+from datetime import datetime, timedelta
+
 from database import get_cached_price_data, save_price_data
+from models import BacktestResult
+from simplified_market_data import SimplifiedMarketDataService
+from enhanced_polygon_client import EnhancedPolygonService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,58 +36,42 @@ class BacktestService:
         Returns:
             tuple: (score, indicators_dict)
         """
+        logger.info(f"Calculating historical score for {symbol} on {date.strftime('%Y-%m-%d')}")
+        
         try:
-            # Get historical data up to the specified date
-            from_date = date - timedelta(days=180)  # Need 6 months for 100 EMA
-            
-            # Get data from cache or API
-            if use_cache:
-                df = get_cached_price_data(symbol, from_date=from_date)
-                
-                if df is None or len(df) < 100:
-                    # Cache miss or insufficient data, fetch from API
-                    df = BacktestService._fetch_historical_data_for_date_range(
-                        symbol, from_date, date
-                    )
-                    
-                    if df is not None and len(df) > 0:
-                        # Save to cache for future use
-                        save_price_data(symbol, df)
-                    else:
-                        logger.error(f"No historical data available for {symbol} from {from_date} to {date}")
-                        return 0, {}
-            else:
-                # Skip cache, fetch directly from API
-                df = BacktestService._fetch_historical_data_for_date_range(
-                    symbol, from_date, date
-                )
-                
-                if df is None or len(df) < 100:
-                    logger.error(f"Insufficient historical data for {symbol} from {from_date} to {date}")
-                    return 0, {}
-            
-            # Filter data to only include dates up to the specified date
+            # Convert to datetime if string
             if isinstance(date, str):
-                date = datetime.fromisoformat(date.replace('Z', '+00:00'))
+                date = datetime.strptime(date, '%Y-%m-%d')
             
-            df = df[df.index <= date]
+            # Get data for 200 days before the target date to ensure enough history
+            from_date = date - timedelta(days=200)
+            to_date = date
             
-            if len(df) < 100:
-                logger.error(f"Not enough historical data for {symbol} up to {date} - need at least 100 days")
-                return 0, {}
+            # Get historical data
+            df = BacktestService._fetch_historical_data_for_date_range(symbol, from_date, to_date)
             
-            # Get the date's closing price
-            current_price = df['Close'].iloc[-1]
+            if df is None or len(df) < 100:
+                logger.error(f"Insufficient historical data for {symbol} on {date.strftime('%Y-%m-%d')}")
+                return None, None
             
-            # Calculate indicators for the specified date
+            # Filter data up to the target date
+            df = df[df.index <= pd.Timestamp(date)]
+            
+            if df.empty:
+                logger.error(f"No data available for {symbol} up to {date.strftime('%Y-%m-%d')}")
+                return None, None
+            
+            # Get the closing price on the target date (or the last available date)
+            current_price = df.iloc[-1]['close']
+            
+            # Calculate indicators
             score, indicators = BacktestService._calculate_indicators_for_date(df, current_price)
             
-            logger.info(f"Calculated historical score for {symbol} on {date.strftime('%Y-%m-%d')}: {score}/5")
             return score, indicators
-            
+        
         except Exception as e:
-            logger.error(f"Error calculating historical ETF score: {str(e)}")
-            return 0, {}
+            logger.error(f"Error calculating historical score for {symbol} on {date}: {str(e)}")
+            return None, None
     
     @staticmethod
     def create_backtest(date_str, symbols=None, cache_result=True):
@@ -97,40 +86,66 @@ class BacktestService:
         Returns:
             dict: Backtest results by symbol
         """
-        from simplified_market_data import SimplifiedMarketDataService
+        logger.info(f"Creating backtest for {date_str}")
         
         try:
-            # Parse date
+            # Convert string to datetime
             backtest_date = datetime.strptime(date_str, '%Y-%m-%d')
             
-            # Default to all ETFs if none specified
-            if symbols is None or len(symbols) == 0:
+            # If no symbols provided, use default ETFs
+            if not symbols:
                 symbols = SimplifiedMarketDataService.default_etfs
             
-            # Calculate scores for each symbol
             results = {}
+            data_source = "unknown"
+            
+            # Calculate score for each symbol
             for symbol in symbols:
-                score, indicators = BacktestService.calculate_historical_etf_score(symbol, backtest_date)
-                results[symbol] = {
-                    'score': score,
-                    'indicators': indicators
-                }
+                try:
+                    score, indicators = BacktestService.calculate_historical_etf_score(symbol, backtest_date)
+                    
+                    if score is not None:
+                        results[symbol] = {
+                            'score': score,
+                            'indicators': indicators
+                        }
+                    else:
+                        results[symbol] = {
+                            'error': f"Failed to calculate score for {symbol} on {date_str}"
+                        }
+                except Exception as e:
+                    logger.error(f"Error calculating backtest for {symbol}: {str(e)}")
+                    results[symbol] = {
+                        'error': str(e)
+                    }
+            
+            # Add metadata
+            results['_date'] = date_str
+            results['_symbols'] = symbols
+            results['_source'] = data_source
             
             # Cache result if requested
             if cache_result:
-                backtest = BacktestResult(
-                    date=backtest_date,
-                    data=results
-                )
-                db.session.add(backtest)
-                db.session.commit()
-                logger.info(f"Cached backtest results for {date_str}")
+                try:
+                    # Create backtest result model
+                    backtest_result = BacktestResult(
+                        date=date_str,
+                        symbols=','.join(symbols),
+                        results=json.dumps(results),
+                        created_at=datetime.now()
+                    )
+                    backtest_result.save()
+                    logger.info(f"Cached backtest result for {date_str}")
+                except Exception as e:
+                    logger.error(f"Failed to cache backtest result: {str(e)}")
             
             return results
         
         except Exception as e:
-            logger.error(f"Error creating backtest: {str(e)}")
-            return {}
+            logger.error(f"Error creating backtest for {date_str}: {str(e)}")
+            return {
+                'error': f"Failed to create backtest: {str(e)}"
+            }
     
     @staticmethod
     def get_cached_backtest(date_str):
@@ -143,24 +158,25 @@ class BacktestService:
         Returns:
             dict or None: Cached backtest results or None if not found
         """
+        logger.info(f"Getting cached backtest for {date_str}")
+        
         try:
-            # Parse date
-            backtest_date = datetime.strptime(date_str, '%Y-%m-%d')
-            
-            # Query for cached backtest
-            backtest = BacktestResult.query.filter(
-                BacktestResult.date == backtest_date
+            # Query for backtest result
+            backtest_result = BacktestResult.select().where(BacktestResult.date == date_str).order_by(
+                BacktestResult.created_at.desc()
             ).first()
             
-            if backtest:
-                logger.info(f"Retrieved cached backtest for {date_str}")
-                return backtest.data
-            else:
-                logger.info(f"No cached backtest found for {date_str}")
-                return None
+            if backtest_result:
+                # Parse JSON results
+                results = json.loads(backtest_result.results)
+                logger.info(f"Found cached backtest for {date_str}")
+                return results
+            
+            logger.info(f"No cached backtest found for {date_str}")
+            return None
         
         except Exception as e:
-            logger.error(f"Error retrieving cached backtest: {str(e)}")
+            logger.error(f"Error getting cached backtest for {date_str}: {str(e)}")
             return None
     
     @staticmethod
@@ -177,60 +193,64 @@ class BacktestService:
             DataFrame or None: Historical price data or None if error
         """
         try:
-            # Get Polygon API key
-            api_key = os.environ.get("POLYGON_API_KEY")
-            if not api_key:
-                logger.error("No Polygon API key found")
-                return None
+            logger.info(f"Fetching historical data for {symbol} from {from_date.strftime('%Y-%m-%d')} to {to_date.strftime('%Y-%m-%d')}")
             
-            # Convert dates to strings
-            from_str = from_date.strftime('%Y-%m-%d')
-            to_str = to_date.strftime('%Y-%m-%d')
-            
-            # Initialize client
-            client = RESTClient(api_key=api_key)
-            
-            # Fetch data
-            aggs = client.get_aggs(
-                ticker=symbol,
-                multiplier=1,
-                timespan="day",
-                from_=from_str,
-                to=to_str,
-                limit=50000  # Maximum allowed by API
-            )
-            
-            # Convert to DataFrame
-            if aggs:
-                df = pd.DataFrame([{
-                    'timestamp': datetime.fromtimestamp(item.timestamp / 1000),
-                    'open': item.open,
-                    'high': item.high,
-                    'low': item.low,
-                    'close': item.close,
-                    'volume': item.volume
-                } for item in aggs])
+            # Try polygon.io first
+            try:
+                df = EnhancedPolygonService.get_historical_data(
+                    symbol, 
+                    timespan="day",
+                    from_date=from_date.strftime('%Y-%m-%d'),
+                    to_date=to_date.strftime('%Y-%m-%d'),
+                    limit=5000
+                )
                 
-                # Set timestamp as index
-                df.set_index('timestamp', inplace=True)
-                
-                # Rename columns
+                if df is not None and not df.empty:
+                    # Convert polygon.io data format
+                    df = pd.DataFrame({
+                        'timestamp': df.index / 1000000000,  # Convert nanoseconds to seconds
+                        'open': df['open'],
+                        'high': df['high'],
+                        'low': df['low'],
+                        'close': df['close'],
+                        'volume': df['volume']
+                    })
+                    
+                    # Convert timestamp to datetime and set as index
+                    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
+                    df.set_index('timestamp', inplace=True)
+                    
+                    logger.info(f"Successfully fetched {len(df)} days of historical data for {symbol} from polygon.io")
+                    return df
+            except Exception as e:
+                logger.warning(f"Failed to fetch data from polygon.io: {str(e)}")
+            
+            # Fall back to yfinance
+            from_date_str = from_date.strftime('%Y-%m-%d')
+            to_date_str = to_date.strftime('%Y-%m-%d')
+            
+            # Use yfinance to download data
+            import yfinance as yf
+            df = yf.download(symbol, start=from_date_str, end=to_date_str, progress=False)
+            
+            if df is not None and not df.empty:
+                # Rename columns to match our format
                 df = df.rename(columns={
-                    'open': 'Open',
-                    'high': 'High',
-                    'low': 'Low',
-                    'close': 'Close',
-                    'volume': 'Volume'
+                    'Open': 'open',
+                    'High': 'high',
+                    'Low': 'low',
+                    'Close': 'close',
+                    'Volume': 'volume'
                 })
                 
-                logger.info(f"Retrieved {len(df)} historical data points for {symbol} from Polygon API")
+                logger.info(f"Successfully fetched {len(df)} days of historical data for {symbol} from yfinance")
                 return df
-            else:
-                logger.warning(f"No historical data found for {symbol} in date range {from_str} to {to_str}")
-                return None
-                
+            
+            logger.error(f"Failed to fetch historical data for {symbol}")
+            return None
+        
         except Exception as e:
-            logger.error(f"Error fetching historical data: {str(e)}")
+            logger.error(f"Error fetching historical data for {symbol}: {str(e)}")
             return None
     
     @staticmethod
@@ -246,103 +266,82 @@ class BacktestService:
             tuple: (score, indicators_dict)
         """
         try:
-            score = 0
-            indicators = {}
+            # Calculate EMAs
+            df['ema_20'] = df['close'].ewm(span=20, adjust=False).mean()
+            df['ema_100'] = df['close'].ewm(span=100, adjust=False).mean()
             
+            # Calculate RSI
+            delta = df['close'].diff()
+            gain = delta.where(delta > 0, 0)
+            loss = -delta.where(delta < 0, 0)
+            avg_gain = gain.rolling(window=14).mean()
+            avg_loss = loss.rolling(window=14).mean()
+            rs = avg_gain / avg_loss
+            df['rsi'] = 100 - (100 / (1 + rs))
+            
+            # Calculate ATR
+            df['tr1'] = abs(df['high'] - df['low'])
+            df['tr2'] = abs(df['high'] - df['close'].shift())
+            df['tr3'] = abs(df['low'] - df['close'].shift())
+            df['tr'] = df[['tr1', 'tr2', 'tr3']].max(axis=1)
+            df['atr_3'] = df['tr'].rolling(window=3).mean()
+            df['atr_6'] = df['tr'].rolling(window=6).mean()
+            
+            # Get previous week's close
+            # Assume df is sorted by date in ascending order
+            last_week_close = df['close'].shift(5)  # Approximation, not perfect
+            
+            # Check indicators
             # 1. Trend 1: Price > 20 EMA
-            ema_indicator = EMAIndicator(close=df['Close'], window=20)
-            ema_20 = ema_indicator.ema_indicator().iloc[-1]
-            trend1_pass = current_price > ema_20
-            if trend1_pass:
-                score += 1
-            
-            trend1_desc = f"Price (${current_price:.2f}) is {'above' if trend1_pass else 'below'} the 20-day EMA (${ema_20:.2f})"
-            indicators['trend1'] = {
-                'pass': trend1_pass,
-                'current': float(current_price),
-                'threshold': float(ema_20),
-                'description': trend1_desc
-            }
+            trend1 = current_price > df['ema_20'].iloc[-1]
             
             # 2. Trend 2: Price > 100 EMA
-            ema_indicator = EMAIndicator(close=df['Close'], window=100)
-            ema_100 = ema_indicator.ema_indicator().iloc[-1]
-            trend2_pass = current_price > ema_100
-            if trend2_pass:
-                score += 1
-            
-            trend2_desc = f"Price (${current_price:.2f}) is {'above' if trend2_pass else 'below'} the 100-day EMA (${ema_100:.2f})"
-            indicators['trend2'] = {
-                'pass': trend2_pass,
-                'current': float(current_price),
-                'threshold': float(ema_100),
-                'description': trend2_desc
-            }
+            trend2 = current_price > df['ema_100'].iloc[-1]
             
             # 3. Snapback: RSI < 50
-            rsi_indicator = RSIIndicator(close=df['Close'], window=14)
-            current_rsi = rsi_indicator.rsi().iloc[-1]
+            snapback = df['rsi'].iloc[-1] < 50
             
-            snapback_pass = current_rsi < 50
-            if snapback_pass:
-                score += 1
+            # 4. Momentum: Price > Previous Week's Close
+            momentum = current_price > last_week_close.iloc[-1]
             
-            snapback_desc = f"RSI ({current_rsi:.1f}) is {'below' if snapback_pass else 'above'} the threshold (50)"
-            indicators['snapback'] = {
-                'pass': snapback_pass,
-                'current': float(current_rsi),
-                'threshold': 50.0,
-                'description': snapback_desc
-            }
+            # 5. Stabilizing: 3-Day ATR < 6-Day ATR
+            stabilizing = df['atr_3'].iloc[-1] < df['atr_6'].iloc[-1]
             
-            # 4. Momentum: Above Previous Week's Closing Price
-            # Find exactly 7 calendar days ago or the closest trading day before that
-            today = df.index[-1]
-            seven_days_ago = today - pd.Timedelta(days=7)
+            # Calculate score (1 point for each indicator)
+            score = sum([trend1, trend2, snapback, momentum, stabilizing])
             
-            # Find the closest trading day on or before 7 days ago
-            closest_dates = df.index[df.index <= seven_days_ago]
-            
-            if len(closest_dates) > 0:
-                prev_week_idx = closest_dates[-1]  # Get the last date that's <= 7 days ago
-                prev_week_close = df.loc[prev_week_idx, 'Close']
-            else:
-                # Fallback if we don't have data from 7 days ago (use 5 trading days as approximation)
-                prev_week_close = df['Close'].iloc[-6] if len(df) > 5 else df['Close'].iloc[0]
-            
-            momentum_pass = current_price > prev_week_close
-            if momentum_pass:
-                score += 1
-            
-            momentum_desc = f"Current price (${current_price:.2f}) is {'above' if momentum_pass else 'below'} last week's close (${prev_week_close:.2f})"
-            indicators['momentum'] = {
-                'pass': momentum_pass,
-                'current': float(current_price),
-                'threshold': float(prev_week_close),
-                'description': momentum_desc
-            }
-            
-            # 5. Stabilizing: 3 Day ATR < 6 Day ATR
-            atr_3 = AverageTrueRange(high=df['High'], 
-                                   low=df['Low'], 
-                                   close=df['Close'], 
-                                   window=3).average_true_range().iloc[-1]
-            
-            atr_6 = AverageTrueRange(high=df['High'], 
-                                   low=df['Low'], 
-                                   close=df['Close'], 
-                                   window=6).average_true_range().iloc[-1]
-            
-            stabilizing_pass = atr_3 < atr_6
-            if stabilizing_pass:
-                score += 1
-            
-            stabilizing_desc = f"3-day ATR ({atr_3:.2f}) is {'lower' if stabilizing_pass else 'higher'} than 6-day ATR ({atr_6:.2f})"
-            indicators['stabilizing'] = {
-                'pass': stabilizing_pass,
-                'current': float(atr_3),
-                'threshold': float(atr_6),
-                'description': stabilizing_desc
+            # Build indicator details
+            indicators = {
+                'trend1': {
+                    'pass': trend1,
+                    'current': float(current_price),
+                    'threshold': float(df['ema_20'].iloc[-1]),
+                    'description': 'Price > 20-day EMA'
+                },
+                'trend2': {
+                    'pass': trend2,
+                    'current': float(current_price),
+                    'threshold': float(df['ema_100'].iloc[-1]),
+                    'description': 'Price > 100-day EMA'
+                },
+                'snapback': {
+                    'pass': snapback,
+                    'current': float(df['rsi'].iloc[-1]),
+                    'threshold': 50.0,
+                    'description': 'RSI < 50'
+                },
+                'momentum': {
+                    'pass': momentum,
+                    'current': float(current_price),
+                    'threshold': float(last_week_close.iloc[-1]),
+                    'description': 'Price > Previous Week\'s Close'
+                },
+                'stabilizing': {
+                    'pass': stabilizing,
+                    'current': float(df['atr_3'].iloc[-1]),
+                    'threshold': float(df['atr_6'].iloc[-1]),
+                    'description': '3-day ATR < 6-day ATR'
+                }
             }
             
             return score, indicators
