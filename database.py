@@ -9,21 +9,17 @@ import time
 from datetime import datetime, timedelta
 import pandas as pd
 import os
-from flask_sqlalchemy import SQLAlchemy
-from models import HistoricalPrice, ETFScore, BacktestResult, ProcessingTask
+from db_init import db
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-db = None
-
 def init_db(app):
     """Initialize database with app context"""
-    global db
-    from app import db as app_db
-    db = app_db
-    logger.info("Database initialized")
+    # Import models here to avoid circular imports
+    from models import HistoricalPrice, ETFScore, BacktestResult, ProcessingTask
+    logger.info("Database module initialized")
 
 def get_cached_price_data(symbol, timespan="day", from_date=None, limit=200):
     """

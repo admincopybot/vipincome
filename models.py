@@ -1,164 +1,143 @@
 """
 Database models for Income Machine
-This module defines the database models for storing historical data, ETF scores, and backtest results.
+This module defines SQLAlchemy models for the database.
 """
 
-import datetime
 import json
-import logging
-from peewee import (
-    Model, SqliteDatabase, PostgresqlDatabase,
-    CharField, FloatField, IntegerField, TextField, DateTimeField,
-    BooleanField, ForeignKeyField
-)
-import os
+from datetime import datetime
+from db_init import db
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Database setup
-if os.environ.get('DATABASE_URL'):
-    # PostgreSQL - for production
-    try:
-        db = PostgresqlDatabase(
-            database=os.environ.get('PGDATABASE'),
-            user=os.environ.get('PGUSER'),
-            password=os.environ.get('PGPASSWORD'),
-            host=os.environ.get('PGHOST'),
-            port=os.environ.get('PGPORT')
-        )
-        logger.info("Using PostgreSQL database")
-    except Exception as e:
-        logger.error(f"Error connecting to PostgreSQL: {str(e)}")
-        # Fallback to SQLite
-        db = SqliteDatabase('income_machine.db')
-        logger.warning("Falling back to SQLite database")
-else:
-    # SQLite - for development
-    db = SqliteDatabase('income_machine.db')
-    logger.info("Using SQLite database")
-
-class BaseModel(Model):
-    """Base model class for all database models"""
+class BaseModel(db.Model):
+    """Base model with common methods"""
+    __abstract__ = True
     
-    class Meta:
-        database = db
+    def to_dict(self):
+        """Convert model to dictionary"""
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class HistoricalPrice(BaseModel):
-    """
-    Model for caching historical price data
-    """
-    symbol = CharField(max_length=16)
-    date = DateTimeField()
-    open_price = FloatField()
-    high = FloatField()
-    low = FloatField()
-    close = FloatField()
-    volume = IntegerField(null=True)
-    timespan = CharField(max_length=16, default='day')  # day, hour, minute, etc.
-    source = CharField(max_length=16, default='polygon')  # polygon, yahoo, etc.
-    created_at = DateTimeField(default=datetime.datetime.now)
+    """Historical price data for a symbol"""
+    __tablename__ = 'historical_prices'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    symbol = db.Column(db.String(10), nullable=False, index=True)
+    timestamp = db.Column(db.DateTime, nullable=False, index=True)
+    timespan = db.Column(db.String(20), nullable=False, default='day')
+    open_price = db.Column(db.Float, nullable=False)
+    high_price = db.Column(db.Float, nullable=False)
+    low_price = db.Column(db.Float, nullable=False)
+    close_price = db.Column(db.Float, nullable=False)
+    volume = db.Column(db.BigInteger, nullable=False)
+    source = db.Column(db.String(20), nullable=False, default='polygon')
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     
     class Meta:
-        indexes = (
-            (('symbol', 'date', 'timespan'), True),  # Unique index
-        )
+        """Model metadata"""
+        indexes = [
+            db.Index('idx_historical_prices_symbol_timestamp', 'symbol', 'timestamp'),
+            db.Index('idx_historical_prices_timespan', 'timespan')
+        ]
+    
+    def __repr__(self):
+        return f"<HistoricalPrice {self.symbol} @ {self.timestamp}: {self.close_price}>"
 
 class ETFScore(BaseModel):
-    """
-    Model for caching ETF technical scores
-    """
-    symbol = CharField(max_length=16)
-    score = IntegerField()
-    price = FloatField()
-    indicators = TextField()  # JSON encoded indicators
-    created_at = DateTimeField(default=datetime.datetime.now)
+    """Technical score for an ETF"""
+    __tablename__ = 'etf_scores'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    symbol = db.Column(db.String(10), nullable=False, index=True)
+    score = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    indicators = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now, index=True)
     
     class Meta:
-        indexes = (
-            (('symbol',), False),  # Non-unique index
-        )
+        """Model metadata"""
+        indexes = [
+            db.Index('idx_etf_scores_symbol_timestamp', 'symbol', 'timestamp')
+        ]
+    
+    def __repr__(self):
+        return f"<ETFScore {self.symbol}: {self.score}/5 @ {self.price}>"
     
     def get_indicators(self):
-        """Get parsed indicators dictionary"""
-        try:
-            return json.loads(self.indicators)
-        except:
+        """Get indicators as dictionary"""
+        if not self.indicators:
             return {}
+        return json.loads(self.indicators)
 
 class BacktestResult(BaseModel):
-    """
-    Model for caching backtest results
-    """
-    date = CharField(max_length=10)  # YYYY-MM-DD
-    symbols = TextField()  # Comma-separated list of symbols
-    results = TextField()  # JSON encoded results
-    created_at = DateTimeField(default=datetime.datetime.now)
+    """Backtest results for a specific date"""
+    __tablename__ = 'backtest_results'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(10), nullable=False, index=True, unique=True)
+    results = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now, index=True)
     
     class Meta:
-        indexes = (
-            (('date',), False),  # Non-unique index
-        )
+        """Model metadata"""
+        indexes = [
+            db.Index('idx_backtest_results_date', 'date')
+        ]
+    
+    def __repr__(self):
+        return f"<BacktestResult {self.date}>"
+    
+    def get_results(self):
+        """Get results as dictionary"""
+        if not self.results:
+            return {}
+        return json.loads(self.results)
 
 class ProcessingTask(BaseModel):
-    """
-    Model for tracking background processing tasks
-    """
-    type = CharField(max_length=32)  # fetch_historical_data, update_etf_scores, etc.
-    parameters = TextField()  # JSON encoded parameters
-    status = CharField(max_length=16, default='pending')  # pending, running, completed, failed
-    progress = FloatField(default=0)  # 0-100
-    result = TextField(null=True)  # JSON encoded result
-    error = TextField(null=True)  # Error message if failed
-    created_at = DateTimeField(default=datetime.datetime.now)
-    updated_at = DateTimeField(default=datetime.datetime.now)
+    """Background processing task"""
+    __tablename__ = 'processing_tasks'
     
-    def update_progress(self, progress, status=None):
-        """Update task progress"""
-        self.progress = progress
-        if status:
-            self.status = status
-        self.updated_at = datetime.datetime.now()
-        self.save()
+    id = db.Column(db.Integer, primary_key=True)
+    task_type = db.Column(db.String(50), nullable=False, index=True)
+    parameters = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), nullable=False, default='pending', index=True)
+    progress = db.Column(db.Integer, nullable=False, default=0)
+    results = db.Column(db.Text, nullable=True)
+    error = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now, index=True)
+    started_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
     
-    def complete(self, result=None):
-        """Mark task as completed"""
-        self.status = 'completed'
-        if result:
-            self.result = json.dumps(result)
-        self.progress = 100
-        self.updated_at = datetime.datetime.now()
-        self.save()
-    
-    def fail(self, error):
-        """Mark task as failed"""
-        self.status = 'failed'
-        self.error = str(error)
-        self.updated_at = datetime.datetime.now()
-        self.save()
+    def __repr__(self):
+        return f"<ProcessingTask {self.id}: {self.task_type} ({self.status})>"
     
     def get_parameters(self):
-        """Get parsed parameters dictionary"""
-        try:
-            return json.loads(self.parameters)
-        except:
+        """Get parameters as dictionary"""
+        if not self.parameters:
             return {}
+        return json.loads(self.parameters)
     
-    def get_result(self):
-        """Get parsed result dictionary"""
-        try:
-            return json.loads(self.result) if self.result else None
-        except:
-            return None
-
-# Create tables
-def create_tables():
-    """Create database tables for all models"""
-    with db:
-        db.create_tables([HistoricalPrice, ETFScore, BacktestResult, ProcessingTask])
-        logger.info("Database tables created")
-
-# Create tables if running as main
-if __name__ == '__main__':
-    create_tables()
+    def get_results(self):
+        """Get results as dictionary"""
+        if not self.results:
+            return {}
+        return json.loads(self.results)
+    
+    def update_status(self, status, progress=None, results=None, error=None):
+        """Update task status"""
+        self.status = status
+        
+        if progress is not None:
+            self.progress = progress
+        
+        if status == 'running' and not self.started_at:
+            self.started_at = datetime.now()
+        
+        if status in ['completed', 'failed']:
+            self.completed_at = datetime.now()
+        
+        if results:
+            self.results = json.dumps(results) if isinstance(results, dict) else results
+        
+        if error:
+            self.error = error
+        
+        return self

@@ -1,106 +1,323 @@
-from flask import Flask, render_template, redirect, url_for
-import logging
+"""
+Income Machine - Web application for ETF spread analysis
+"""
+
 import os
+import logging
 import threading
 import time
-from dotenv import load_dotenv
+import atexit
+from datetime import datetime, timedelta
+from functools import wraps
+import json
 
-from database import init_db
-from api_routes import api
-from background_tasks import BackgroundTaskService
-from simplified_market_data import SimplifiedMarketDataService
-from tradelist_websocket_client import get_websocket_client
-
-# Load environment variables from .env file if it exists
-load_dotenv()
+from flask import Flask, render_template, request, jsonify, redirect, url_for, abort
+from db_init import db, init_app
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Flask application
+# Create Flask application
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "income_machine_demo")
+
+# Configure app
+app.secret_key = os.environ.get("SESSION_SECRET", "income-machine-secret-key")
+
+# Database configuration
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
 
 # Initialize database
-try:
-    init_db(app)
-    logger.info("Database initialized successfully")
-except Exception as e:
-    logger.error(f"Error initializing database: {str(e)}")
+init_app(app)
 
-# Register blueprints
-app.register_blueprint(api, url_prefix='/api')
+# Dictionary to track real-time price updates (symbol -> price)
+price_updates = {}
 
-# Initialize WebSocket connection for real-time data
+# Flag to track whether the WebSocket client is connected
+websocket_connected = False
+
+# Background thread for real-time price updates
+update_thread = None
+stop_update_thread = threading.Event()
+
 def initialize_websocket_client():
     """Initialize and connect to TheTradeList WebSocket API"""
     try:
-        logger.info("Initializing WebSocket connection to TheTradeList API...")
-        ws_client = get_websocket_client()
-        if ws_client:
-            # Add all our ETF symbols to track
-            ws_client.symbols_to_track = SimplifiedMarketDataService.default_etfs.copy()
-            
-            # Connect to the WebSocket
-            success = ws_client.connect()
-            if success:
-                logger.info(f"WebSocket client initialized with {len(ws_client.symbols_to_track)} symbols to track")
-                return True
-            else:
-                logger.error("Failed to connect WebSocket client")
+        from tradelist_websocket_client import initialize_websocket
+        from simplified_market_data import SimplifiedMarketDataService
+        
+        # Get ETF symbols to track
+        symbols = SimplifiedMarketDataService.default_etfs
+        
+        # Initialize WebSocket
+        result = initialize_websocket(symbols)
+        
+        if result:
+            global websocket_connected
+            websocket_connected = True
+            logger.info("WebSocket client initialized successfully")
         else:
-            logger.error("Failed to get WebSocket client instance - check API key")
+            logger.warning("Failed to initialize WebSocket client")
+        
+        return result
+    
     except Exception as e:
         logger.error(f"Error initializing WebSocket client: {str(e)}")
+        return False
+
+def start_update_thread():
+    """Start background thread for ETF price updates"""
+    global update_thread, stop_update_thread
     
-    return False
+    if update_thread and update_thread.is_alive():
+        logger.info("Update thread already running")
+        return
+    
+    # Clear event flag
+    stop_update_thread.clear()
+    
+    # Start thread
+    update_thread = threading.Thread(target=update_prices_thread)
+    update_thread.daemon = True
+    update_thread.start()
+    
+    logger.info("Started ETF price update thread")
 
-# Start background task service
-BackgroundTaskService.start_worker()
+def stop_update_thread():
+    """Stop background thread for ETF price updates"""
+    global update_thread, stop_update_thread
+    
+    if not update_thread or not update_thread.is_alive():
+        logger.info("Update thread not running")
+        return
+    
+    # Set event flag to stop thread
+    stop_update_thread.set()
+    
+    # Wait for thread to stop (with timeout)
+    update_thread.join(timeout=5)
+    
+    if update_thread.is_alive():
+        logger.warning("Update thread did not stop cleanly")
+    else:
+        logger.info("Stopped ETF price update thread")
 
-# Initialize WebSocket connection
-initialize_websocket_client()
+def update_prices_thread():
+    """Background thread for updating ETF prices"""
+    try:
+        from tradelist_websocket_client import get_websocket_client
+        from simplified_market_data import SimplifiedMarketDataService
+        
+        # Get ETF symbols to track
+        symbols = SimplifiedMarketDataService.default_etfs
+        logger.info(f"Starting price updates for {len(symbols)} ETFs")
+        
+        # Flag to recalculate scores periodically (every 15 minutes)
+        last_score_update = datetime.now()
+        
+        while not stop_update_thread.is_set():
+            try:
+                # Get WebSocket client
+                ws_client = get_websocket_client()
+                
+                if not ws_client:
+                    logger.warning("WebSocket client not available")
+                    time.sleep(10)
+                    continue
+                
+                # Get latest prices
+                updates = {}
+                for symbol in symbols:
+                    price_data = ws_client.get_latest_price(symbol)
+                    if price_data:
+                        updates[symbol] = price_data
+                
+                # Update price_updates dictionary
+                if updates:
+                    global price_updates
+                    price_updates.update(updates)
+                    logger.info(f"Received data for {len(updates)} symbols via WebSocket")
+                
+                # Update ETF scores (every 15 minutes)
+                now = datetime.now()
+                if (now - last_score_update).total_seconds() > 900:  # 15 minutes
+                    logger.info("Scheduled recalculation of ETF technical scores (15-minute interval)")
+                    for symbol in symbols:
+                        try:
+                            # Get real-time price
+                            price_data = updates.get(symbol)
+                            price = price_data.get('price') if price_data else None
+                            
+                            # Force refresh of score
+                            SimplifiedMarketDataService.get_etf_score(symbol, force_refresh=True, price_override=price)
+                        except Exception as e:
+                            logger.warning(f"Error calculating new score for {symbol}: {str(e)}")
+                    
+                    # Update timestamp
+                    last_score_update = now
+                
+                # Update existing scores with new prices
+                for symbol, price_data in updates.items():
+                    try:
+                        price = price_data.get('price') if price_data else None
+                        if price:
+                            # Get cached score (don't recalculate)
+                            score, old_price, indicators = SimplifiedMarketDataService.get_etf_score(
+                                symbol, 
+                                force_refresh=False,
+                                price_override=price
+                            )
+                            if score is not None and price != old_price:
+                                logger.info(f"Updated {symbol} price to ${price} from WebSocket (keeping score {score}/5)")
+                    except Exception as e:
+                        logger.warning(f"Error updating price for {symbol}: {str(e)}")
+                
+                # Sleep for 5 seconds
+                time.sleep(5)
+            
+            except Exception as e:
+                logger.error(f"Error in update thread: {str(e)}")
+                time.sleep(10)
+        
+        logger.info("ETF price update thread stopped")
+    
+    except Exception as e:
+        logger.error(f"Error in update thread (outer): {str(e)}")
 
-# Routes
+# Define routes
 @app.route('/')
 def index():
     """Home page (ETF Scoreboard)"""
-    return render_template('index.html')
+    try:
+        from simplified_market_data import SimplifiedMarketDataService
+        
+        # Get ETF scores
+        etf_scores = SimplifiedMarketDataService.analyze_etfs(
+            SimplifiedMarketDataService.default_etfs
+        )
+        
+        # Create list of ETFs with scores and prices
+        etfs = []
+        for symbol, data in etf_scores.items():
+            if 'error' in data:
+                continue
+                
+            etf = {
+                'symbol': symbol,
+                'score': data.get('score', 0),
+                'price': data.get('price', 0),
+                'sector': data.get('sector', 'Unknown'),
+                'indicators': data.get('indicators', {})
+            }
+            etfs.append(etf)
+        
+        # Sort ETFs by score (highest first)
+        etfs.sort(key=lambda x: x['score'], reverse=True)
+        
+        return render_template('index.html', 
+                              etfs=etfs, 
+                              websocket_connected=websocket_connected)
+    
+    except Exception as e:
+        logger.error(f"Error rendering index page: {str(e)}")
+        return render_template('error.html', error=str(e))
 
 @app.route('/backtest')
 def backtest():
     """Backtesting page"""
-    return render_template('backtest.html')
+    try:
+        return render_template('backtest.html')
+    
+    except Exception as e:
+        logger.error(f"Error rendering backtest page: {str(e)}")
+        return render_template('error.html', error=str(e))
 
 @app.route('/how-to-use')
 def how_to_use():
     """How to use page"""
-    return render_template('how_to_use.html')
+    try:
+        return render_template('how_to_use.html')
+    
+    except Exception as e:
+        logger.error(f"Error rendering how to use page: {str(e)}")
+        return render_template('error.html', error=str(e))
 
 @app.route('/live-classes')
 def live_classes():
     """Live classes page"""
-    return render_template('live_classes.html')
+    try:
+        return render_template('live_classes.html')
+    
+    except Exception as e:
+        logger.error(f"Error rendering live classes page: {str(e)}")
+        return render_template('error.html', error=str(e))
 
 @app.route('/special-offer')
 def special_offer():
     """Special offer page"""
-    return render_template('special_offer.html')
+    try:
+        return render_template('special_offer.html')
+    
+    except Exception as e:
+        logger.error(f"Error rendering special offer page: {str(e)}")
+        return render_template('error.html', error=str(e))
 
-# Shutdown handler to clean up resources
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    """Clean up database session on app context teardown"""
+    db.session.remove()
+
+# Register cleanup functions
+@atexit.register
 def shutdown_handler():
     """Clean up resources on shutdown"""
     logger.info("Shutting down application...")
     
-    # Stop background task worker
-    BackgroundTaskService.stop_worker()
+    # Stop update thread
+    stop_update_thread()
     
-    logger.info("Shutdown complete")
+    # Stop background tasks
+    try:
+        from background_tasks import BackgroundTaskService
+        BackgroundTaskService.stop_worker()
+    except (ImportError, Exception) as e:
+        logger.warning(f"Error stopping background tasks: {str(e)}")
+    
+    # Close WebSocket connection
+    try:
+        from tradelist_websocket_client import close_websocket
+        close_websocket()
+    except (ImportError, Exception) as e:
+        logger.warning(f"Error closing WebSocket: {str(e)}")
 
-# Register shutdown handler
-import atexit
-atexit.register(shutdown_handler)
+# Initialize database
+with app.app_context():
+    # Import models here
+    import models
+    
+    # Create database tables
+    db.create_all()
+    
+    # Initialize database
+    from database import init_db
+    init_db(app)
+    
+    # Initialize WebSocket client
+    initialize_websocket_client()
+    
+    # Start ETF price update thread
+    start_update_thread()
+    
+    # Start background task worker
+    try:
+        from background_tasks import BackgroundTaskService
+        BackgroundTaskService.start_worker()
+    except (ImportError, Exception) as e:
+        logger.warning(f"Error starting background task worker: {str(e)}")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
