@@ -4,7 +4,8 @@ This module provides an improved implementation of the 5-factor technical scorin
 for ETFs, with reliable calculations that match TradingView's results.
 """
 
-import yfinance as yf
+import os
+import requests
 import pandas as pd
 import numpy as np
 import logging
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def fetch_daily_data(symbol, period='2y'):
     """
-    Fetch daily price data for the given symbol.
+    Fetch daily price data for the given symbol using Polygon API.
     
     Args:
         symbol (str): The ETF symbol (e.g., 'XLP', 'SPY')
@@ -25,12 +26,70 @@ def fetch_daily_data(symbol, period='2y'):
         pandas.DataFrame: DataFrame with OHLCV data at daily timeframe
     """
     try:
-        # Get more data to ensure we have enough for weekly analysis
-        df = yf.download(symbol, period=period, interval='1d', progress=False)
-        df.dropna(inplace=True)
+        api_key = os.environ.get("POLYGON_API_KEY")
+        if not api_key:
+            logger.error("No Polygon API key found in environment variables")
+            return pd.DataFrame()
         
-        # Ensure datetime index
-        df.index = pd.to_datetime(df.index)
+        # Calculate from_date based on period
+        if period == '2y':
+            days = 730
+        elif period == '1y':
+            days = 365
+        elif period == '6mo':
+            days = 180
+        elif period == '3mo':
+            days = 90
+        else:
+            days = 730  # Default to 2 years
+        
+        from_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
+        to_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Use the v2/aggs/ticker/{stocksTicker}/range endpoint for historical data
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/day/{from_date}/{to_date}"
+        params = {
+            'adjusted': 'true',
+            'sort': 'asc',
+            'limit': 5000,
+            'apiKey': api_key
+        }
+        
+        logger.info(f"Fetching daily data for {symbol} from {from_date} to {to_date}")
+        response = requests.get(url, params=params, timeout=15)
+        
+        if response.status_code != 200:
+            logger.error(f"Error fetching daily data for {symbol}: {response.text}")
+            return pd.DataFrame()
+        
+        data = response.json()
+        
+        if 'results' not in data or not data['results']:
+            logger.warning(f"No daily data found for {symbol}")
+            return pd.DataFrame()
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(data['results'])
+        
+        # Rename columns to match yfinance format
+        df = df.rename(columns={
+            'o': 'Open',
+            'h': 'High',
+            'l': 'Low',
+            'c': 'Close',
+            'v': 'Volume',
+            't': 'timestamp'
+        })
+        
+        # Convert timestamp to datetime and set as index
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
+        
+        # Remove any extra columns to match yfinance output
+        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+        
+        # Handle missing data
+        df.dropna(inplace=True)
         
         # Validate that we have enough data
         if len(df) < 100:  # Minimum required for 100-day EMA
@@ -43,7 +102,7 @@ def fetch_daily_data(symbol, period='2y'):
 
 def fetch_hourly_data(symbol, period='7d'):
     """
-    Fetch hourly price data for the given symbol.
+    Fetch hourly price data for the given symbol using Polygon API.
     
     Args:
         symbol (str): The ETF symbol (e.g., 'XLP', 'SPY')
@@ -53,11 +112,70 @@ def fetch_hourly_data(symbol, period='7d'):
         pandas.DataFrame: DataFrame with OHLCV data at hourly timeframe
     """
     try:
-        df = yf.download(symbol, period=period, interval='1h', progress=False)
-        df.dropna(inplace=True)
+        api_key = os.environ.get("POLYGON_API_KEY")
+        if not api_key:
+            logger.error("No Polygon API key found in environment variables")
+            return pd.DataFrame()
         
-        # Ensure datetime index
-        df.index = pd.to_datetime(df.index)
+        # Calculate from_date based on period
+        if period == '7d':
+            days = 7
+        elif period == '5d':
+            days = 5
+        elif period == '3d':
+            days = 3
+        elif period == '1d':
+            days = 1
+        else:
+            days = 7  # Default to 7 days
+        
+        from_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
+        to_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Use the v2/aggs/ticker/{stocksTicker}/range endpoint for historical data
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/hour/{from_date}/{to_date}"
+        params = {
+            'adjusted': 'true',
+            'sort': 'asc',
+            'limit': 5000,
+            'apiKey': api_key
+        }
+        
+        logger.info(f"Fetching hourly data for {symbol} from {from_date} to {to_date}")
+        response = requests.get(url, params=params, timeout=15)
+        
+        if response.status_code != 200:
+            logger.error(f"Error fetching hourly data for {symbol}: {response.text}")
+            return pd.DataFrame()
+        
+        data = response.json()
+        
+        if 'results' not in data or not data['results']:
+            logger.warning(f"No hourly data found for {symbol}")
+            return pd.DataFrame()
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(data['results'])
+        
+        # Rename columns to match yfinance format
+        df = df.rename(columns={
+            'o': 'Open',
+            'h': 'High',
+            'l': 'Low',
+            'c': 'Close',
+            'v': 'Volume',
+            't': 'timestamp'
+        })
+        
+        # Convert timestamp to datetime and set as index
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
+        
+        # Remove any extra columns to match yfinance output
+        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+        
+        # Handle missing data
+        df.dropna(inplace=True)
         
         return df
     except Exception as e:
@@ -164,6 +282,48 @@ def calculate_atr(df, window):
     # Get the most recent valid ATR value
     current_atr = atr.dropna().iloc[-1]
     return float(current_atr if not hasattr(current_atr, 'iloc') else current_atr.iloc[0])
+
+def get_current_price(symbol):
+    """
+    Get the current price for a symbol using Polygon API's previous close endpoint.
+    
+    Args:
+        symbol (str): The ETF symbol
+        
+    Returns:
+        float: The current price, or None if not available
+    """
+    try:
+        api_key = os.environ.get("POLYGON_API_KEY")
+        if not api_key:
+            logger.error("No Polygon API key found in environment variables")
+            return None
+        
+        # Use the previous close endpoint which is available on free tier
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/prev"
+        params = {
+            'apiKey': api_key
+        }
+        
+        logger.info(f"Fetching current price for {symbol}")
+        response = requests.get(url, params=params, timeout=10)
+        
+        if response.status_code != 200:
+            logger.error(f"Error fetching current price for {symbol}: {response.text}")
+            return None
+        
+        data = response.json()
+        
+        if 'results' in data and data['results']:
+            # Return the closing price from previous day
+            return data['results'][0]['c']
+        else:
+            logger.warning(f"No current price data found for {symbol}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error getting current price for {symbol}: {str(e)}")
+        return None
 
 def score_etf(symbol):
     """

@@ -1,0 +1,159 @@
+Polygon.io API Integration for ETF Data in Flask Application
+To replace yfinance with Polygon.io in your Flask application, utilize the following endpoints:
+
+Current Price Data: Use the Snapshot Endpoint to retrieve the latest price data for a specific ticker.
+Polygon
++10
+Polygon
++10
+Polygon
++10
+
+Historical Daily Data: Utilize the Aggregates (Bars) Endpoint with a 1 day interval to fetch historical daily OHLCV data.
+
+Historical Hourly Data: Use the same Aggregates (Bars) Endpoint with a 1 hour interval to obtain historical hourly OHLCV data.
+
+Parameters:
+
+adjusted: Set to true to retrieve data adjusted for splits.
+Stack Overflow
++3
+Polygon
++3
+Stack Overflow
++3
+
+sort: Set to asc to sort results in ascending order.
+
+limit: Define the maximum number of results to return.
+Polygon
+
+Data Formatting:
+
+After fetching data from Polygon.io, format it into pandas DataFrames with the following structure to maintain compatibility with your existing code:
+
+Index: DatetimeIndex converted from Polygon's timestamps.
+
+Columns: Open, High, Low, Close, Volume.
+
+Datetime Conversion:
+
+Polygon.io returns timestamps in milliseconds since the Unix epoch. Convert them to pandas DatetimeIndex as follows:
+
+python
+Copy
+Edit
+df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+df.set_index('timestamp', inplace=True)
+Error Handling:
+
+Implement error handling to manage API errors and rate limits. For example:
+
+python
+Copy
+Edit
+try:
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    data = response.json()
+except requests.exceptions.HTTPError as err:
+    print(f"HTTP error occurred: {err}")
+except Exception as err:
+    print(f"An error occurred: {err}")
+Rate Limits:
+
+Free Tier: 5 API requests per minute.
+GitHub
++5
+Polygon
++5
+Intercom
++5
+
+Paid Plans: Higher limits; refer to Polygon.io Pricing for details.
+Polygon
++1
+Atlas Beta Help Center
++1
+
+Handling Market Holidays and Missing Data:
+
+Polygon.io may not provide data for market holidays or periods with no trading activity. When constructing DataFrames:
+
+Use pd.date_range to create a complete range of expected dates.
+
+Reindex your DataFrame to this range, filling missing values as appropriate.
+
+Code Examples:
+
+Below are code examples for fetching and formatting data from Polygon.io:
+
+Fetching Historical Daily Data:
+
+python
+Copy
+Edit
+import os
+import requests
+import pandas as pd
+
+def fetch_daily_data(symbol, from_date, to_date):
+    api_key = os.getenv('POLYGON_API_KEY')
+    url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/day/{from_date}/{to_date}"
+    params = {
+        'adjusted': 'true',
+        'sort': 'asc',
+        'limit': 5000,
+        'apiKey': api_key
+    }
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    data = response.json().get('results', [])
+    df = pd.DataFrame(data)
+    df['timestamp'] = pd.to_datetime(df['t'], unit='ms')
+    df.set_index('timestamp', inplace=True)
+    df.rename(columns={'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'v': 'Volume'}, inplace=True)
+    df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+    return df
+Fetching Historical Hourly Data:
+
+python
+Copy
+Edit
+def fetch_hourly_data(symbol, from_date, to_date):
+    api_key = os.getenv('POLYGON_API_KEY')
+    url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/hour/{from_date}/{to_date}"
+    params = {
+        'adjusted': 'true',
+        'sort': 'asc',
+        'limit': 5000,
+        'apiKey': api_key
+    }
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    data = response.json().get('results', [])
+    df = pd.DataFrame(data)
+    df['timestamp'] = pd.to_datetime(df['t'], unit='ms')
+    df.set_index('timestamp', inplace=True)
+    df.rename(columns={'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'v': 'Volume'}, inplace=True)
+    df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+    return df
+Fetching Current Price Data:
+
+python
+Copy
+Edit
+def fetch_current_price(symbol):
+    api_key = os.getenv('POLYGON_API_KEY')
+    url = f"https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/{symbol}"
+    params = {
+        'apiKey': api_key
+    }
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    data = response.json()
+    last_trade = data.get('ticker', {}).get('lastTrade', {})
+    return last_trade.get('p')  # 'p' is the price
+Ensure to replace symbol, from_date, and to_date with appropriate values when calling these functions.
+
+By integrating these functions into your Flask application, you can effectively replace yfinance with Polygon.io for ETF data analysis and technical scoring.
