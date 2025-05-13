@@ -8,6 +8,7 @@ from datetime import datetime
 import simplified_market_data as market_data  # Using simplified market data service with reliable indicators
 from tradelist_client import TradeListApiService
 from tradelist_websocket_client import get_websocket_client
+import enhanced_etf_scoring  # Import for direct Polygon API testing
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -2042,6 +2043,29 @@ def test_websocket():
         response['raw_websocket_data'] = raw_data
     
     return jsonify(response)
+
+@app.route('/api/test/polygon')
+def test_polygon_api():
+    """Test endpoint to verify Polygon API integration with detailed logging
+    
+    Query Parameters:
+    - ticker: The ETF symbol to test (default: XLK)
+    """
+    ticker = request.args.get('ticker', 'XLK')
+    
+    logger.info(f"Testing Polygon API integration for {ticker}")
+    
+    # Directly call the score_etf function to test Polygon API
+    score, current_price, indicators = enhanced_etf_scoring.score_etf(ticker)
+    
+    return jsonify({
+        'symbol': ticker,
+        'score': score,
+        'current_price': current_price,
+        'indicators': indicators,
+        'message': f"Polygon API test completed for {ticker} with score {score}/5",
+        'data_source': 'Polygon.io API'
+    })
 
 @app.route('/api/test/tradelist')
 def test_tradelist_api():
