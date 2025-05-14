@@ -1149,6 +1149,17 @@ def step2():
     if etf not in etf_scores:
         return redirect(url_for('index'))
     
+    # CRITICAL FIX: Always recalculate score based on the actual indicators before displaying
+    # This ensures score is never out of sync with the indicator checkboxes
+    if 'indicators' in etf_scores[etf]:
+        # Count the number of passing indicators
+        passing_indicators = sum(1 for indicator in etf_scores[etf]['indicators'].values() if indicator['pass'])
+        
+        # Update the score to match the actual indicator values
+        if etf_scores[etf]['score'] != passing_indicators:
+            etf_scores[etf]['score'] = passing_indicators
+            logger.info(f"Fixed score for {etf} to match indicators when viewing details: {passing_indicators}/5")
+    
     template = """
     <!DOCTYPE html>
     <html lang="en">
@@ -1994,6 +2005,18 @@ def api_etf_data():
     Returns:
         JSON: Current ETF data including prices and scores
     """
+    # CRITICAL FIX: Always recalculate score based on the actual indicators before serving API data
+    # This ensures score is never out of sync with the indicator checkboxes
+    for etf, etf_data in etf_scores.items():
+        if 'indicators' in etf_data:
+            # Count the number of passing indicators
+            passing_indicators = sum(1 for indicator in etf_data['indicators'].values() if indicator['pass'])
+            
+            # Update the score to match the actual indicator values
+            if etf_data['score'] != passing_indicators:
+                etf_data['score'] = passing_indicators
+                logger.info(f"Fixed score for {etf} to match indicators before API response: {passing_indicators}/5")
+    
     # Return the current ETF data with timestamp for client-side tracking
     data = {}
     for etf, etf_data in etf_scores.items():
