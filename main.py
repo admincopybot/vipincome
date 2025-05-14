@@ -921,6 +921,9 @@ def step3():
     </html>
     """
     
+    # Add the countdown banner
+    template = add_countdown_banner(raw_template)
+    
     return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css)
 
 # Route for Step 4: Trade Details
@@ -934,7 +937,7 @@ def step4():
     
     trade = recommended_trades[etf][strategy]
     
-    template = """
+    raw_template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -1116,6 +1119,9 @@ def step4():
     </html>
     """
     
+    # Add the countdown banner
+    template = add_countdown_banner(raw_template)
+    
     return render_template_string(
         template, 
         etf=etf, 
@@ -1129,7 +1135,7 @@ def step4():
 # Route for How to Use page
 @app.route('/how-to-use')
 def how_to_use():
-    template = """
+    raw_template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
