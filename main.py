@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, redirect, url_for
+from flask import Flask, request, render_template_string, redirect, url_for, jsonify
 import logging
 import os
 
@@ -448,6 +448,7 @@ def index():
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/countdown-banner.css') }}">
         <script src="{{ url_for('static', filename='js/countdown-timer.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}"></script>
         <style>
             {{ global_css }}
             
@@ -614,6 +615,9 @@ def step2():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Income Machine DEMO - ETF Selection - {{ etf }}</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/countdown-banner.css') }}">
+        <script src="{{ url_for('static', filename='js/countdown-timer.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}"></script>
         <style>
             {{ global_css }}
             
@@ -1384,6 +1388,20 @@ def special_offer():
     </html>
     """
     return render_template_string(template, global_css=global_css)
+
+# API endpoint for ETF data
+@app.route('/api/etf-data', methods=['GET'])
+def get_etf_data():
+    """
+    API endpoint to get real-time ETF data for AJAX updates
+    Returns JSON with ETF data including latest prices and scores
+    """
+    try:
+        # Return current ETF data
+        return jsonify(etf_scores)
+    except Exception as e:
+        logging.error(f"Error fetching ETF data API: {str(e)}")
+        return jsonify({"error": "Could not fetch ETF data"}), 500
 
 # Run the Flask application
 if __name__ == '__main__':
