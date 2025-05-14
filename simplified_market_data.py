@@ -193,16 +193,13 @@ class SimplifiedMarketDataService:
                 polygon_score, polygon_price, polygon_indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
                 logger.info(f"Successfully calculated indicators for {ticker} using Polygon API")
                 
-                # Use these indicators for frontend display but keep TradeList score for ranking if available
+                # Always use Polygon indicators for frontend display
                 indicators = polygon_indicators
                 
-                # If TradeList score not available, use Polygon score
-                if tradelist_score <= 0:
-                    score = polygon_score
-                    logger.info(f"Using Polygon score for {ticker}: {score}/5")
-                else:
-                    score = tradelist_score
-                    logger.info(f"Using TradeList score for {ticker}: {score}/5 (with Polygon indicators)")
+                # CRITICAL FIX: Always use Polygon score to match the indicator count
+                # This ensures that the score displayed matches the actual passing indicators
+                score = polygon_score
+                logger.info(f"Using Polygon score for {ticker}: {score}/5 (based on actual indicator calculations)")
                 
                 # Use Polygon price if available
                 if polygon_price > 0:
@@ -223,7 +220,9 @@ class SimplifiedMarketDataService:
                     'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'}
                 }
                 indicators = polygon_indicators
-                score = tradelist_score  # Use TradeList score if available, otherwise 0
+                # Calculate score from indicators, should be 0 if all indicators are FALSE
+                score = sum(1 for indicator in polygon_indicators.values() if indicator['pass'])
+                logger.info(f"Using calculated score of {score}/5 for {ticker} based on indicator pass/fail states")
                 current_price = 0.0
                 
                 # Try to get current price from WebSocket if available
