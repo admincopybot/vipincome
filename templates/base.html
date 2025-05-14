@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Income Machine DEMO{% endblock %}</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/countdown-banner.css') }}">
+    <script src="{{ url_for('static', filename='js/countdown-timer.js') }}"></script>
+    <style>
+        {{ global_css }}
+        {% block additional_css %}{% endblock %}
+    </style>
+    {% block head_scripts %}{% endblock %}
+</head>
+<body data-bs-theme="dark">
+    <!-- Countdown Banner -->
+    <div class="countdown-banner">
+        <div class="container">
+            <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+            <span id="countdown-banner-timer">402D 11H 17M 42S</span>
+        </div>
+    </div>
+    
+    <div class="container py-4">
+        <header class="pb-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="{{ url_for('index') }}" class="text-decoration-none">
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
+                </a>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('index') }}" class="link-light">ETF Scoreboard</a>
+                    <a href="{{ url_for('how_to_use') }}" class="link-light">How to Use</a>
+                    <a href="{{ url_for('live_classes') }}" class="link-light">Live Classes</a>
+                    <a href="{{ url_for('special_offer') }}" class="link-light">Special Offer</a>
+                </div>
+            </div>
+        </header>
+
+        {% block content %}{% endblock %}
+
+        <footer class="pt-3 mt-4 text-body-secondary border-top">
+            &copy; 2023 Income Machine DEMO
+        </footer>
+    </div>
+    {% block body_scripts %}{% endblock %}
+</body>
+</html>
