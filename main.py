@@ -386,9 +386,30 @@ logo_header = """
 <div class="countdown-banner">
     <div class="container">
         <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-        <span id="countdown-banner-timer">67D 04H 42M 18S</span>
+        <span id="countdown-banner-timer"></span>
     </div>
 </div>
+
+<script>
+// Countdown timer to June 20, 2025
+function updateCountdown() {
+    const endDate = new Date("June 20, 2025 23:59:59").getTime();
+    const now = new Date().getTime();
+    const timeLeft = endDate - now;
+    
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    
+    document.getElementById("countdown-banner-timer").innerHTML = 
+        days + "D " + hours + "H " + minutes + "M " + seconds + "S";
+}
+
+// Update the countdown every second
+setInterval(updateCountdown, 1000);
+updateCountdown(); // Initial call
+</script>
 
 <header class="py-3 mb-4 border-bottom">
     <div class="container-fluid d-flex flex-wrap justify-content-between align-items-end" style="padding-left: 0;">
