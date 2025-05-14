@@ -163,97 +163,67 @@ class SimplifiedMarketDataService:
         Returns tuple of (score, current_price, indicator_details_dict)
         """
         try:
-            # First try using TradeList API for scoring if available
+            # Get score from TradeList API (for ranking) but ALWAYS use Polygon indicators (for frontend display)
+            tradelist_score = 0
+            tradelist_price = 0
+            
             try:
                 logger.info(f"Attempting to calculate technical score for {ticker} using TradeList API")
                 
-                # Use TradeList API to calculate scores
-                tradelist_score, tradelist_price, tradelist_indicators = TradeListApiService.calculate_etf_score(ticker)
+                # Use TradeList API to calculate scores (for ranking purposes)
+                tradelist_score, tradelist_price, _ = TradeListApiService.calculate_etf_score(ticker)
                 
-                # If we got valid data from TradeList API
+                # If we got valid data from TradeList API, log it
                 if tradelist_score > 0 and tradelist_price > 0:
                     logger.info(f"Successfully calculated score for {ticker} using TradeList API: {tradelist_score}/5")
-                    
-                    # Transform indicators to the expected format for UI
-                    ui_indicators = {
-                        # 1. Trend 1: Price > 20/50 EMA
-                        'trend1': {
-                            'pass': tradelist_indicators.get('trend_short', False),
-                            'current': tradelist_price,
-                            'threshold': 0,  # We don't have the actual EMA value
-                            'description': 'Price > 50 EMA (Short-Term Trend)'
-                        },
-                        
-                        # 2. Trend 2: Price > 100 EMA
-                        'trend2': {
-                            'pass': tradelist_indicators.get('trend_long', False),
-                            'current': tradelist_price,
-                            'threshold': 0,  # We don't have the actual EMA value
-                            'description': 'Price > 100 EMA (Long-Term Trend)'
-                        },
-                        
-                        # 3. Snapback: RSI < 50 (approximated)
-                        'snapback': {
-                            'pass': tradelist_indicators.get('snapback', False),
-                            'current': 0,  # We don't have the actual RSI value
-                            'threshold': 50,
-                            'description': 'Market Snapback Potential'
-                        },
-                        
-                        # 4. Momentum: Price > Previous Week's Close
-                        'momentum': {
-                            'pass': tradelist_indicators.get('momentum', False),
-                            'current': tradelist_price,
-                            'threshold': 0,  # We don't have the actual previous week close
-                            'description': 'Price > Weekly Close (Momentum)'
-                        },
-                        
-                        # 5. Stabilizing: Volatility decreasing
-                        'stabilizing': {
-                            'pass': tradelist_indicators.get('stabilizing', False),
-                            'current': 0,  # We don't have the actual ATR values
-                            'threshold': 0,
-                            'description': 'Volatility Stabilizing'
-                        }
-                    }
-                    
-                    # Use price override if provided
-                    if price_override is not None:
-                        logger.info(f"Using price override for {ticker}: ${price_override} (TradeList: ${tradelist_price})")
-                        tradelist_price = price_override
-                    
-                    return tradelist_score, float(tradelist_price), ui_indicators
             except Exception as tradelist_error:
-                logger.warning(f"Error calculating score with TradeList API, falling back: {str(tradelist_error)}")
-                # Fall through to enhanced scoring system
+                logger.warning(f"Error calculating score with TradeList API, using Polygon only: {str(tradelist_error)}")
+                # We'll continue and use Polygon data completely
             
             # Use the enhanced ETF scoring system that matches TradingView
             logger.info(f"Calculating technical score for {ticker} using enhanced ETF scoring system")
             
+            # ALWAYS calculate the indicators using Polygon API for accurate display in UI
+            polygon_score = 0
+            polygon_price = 0
+            polygon_indicators = {}
+            
             try:
-                # Get the ETF score from the enhanced service
-                # This may fail due to Yahoo Finance rate limiting
-                score, current_price, indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
+                # Get the ETF score and indicators from the enhanced Polygon API service
+                polygon_score, polygon_price, polygon_indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
+                logger.info(f"Successfully calculated indicators for {ticker} using Polygon API")
                 
-                logger.info(f"Successfully calculated score for {ticker}: {score}/5")
+                # Use these indicators for frontend display but keep TradeList score for ranking if available
+                indicators = polygon_indicators
+                
+                # If TradeList score not available, use Polygon score
+                if tradelist_score <= 0:
+                    score = polygon_score
+                    logger.info(f"Using Polygon score for {ticker}: {score}/5")
+                else:
+                    score = tradelist_score
+                    logger.info(f"Using TradeList score for {ticker}: {score}/5 (with Polygon indicators)")
+                
+                # Use Polygon price if available
+                if polygon_price > 0:
+                    current_price = polygon_price
+                    logger.info(f"Using Polygon price for {ticker}: ${current_price}")
+                else:
+                    current_price = 0.0
                 
             except Exception as calc_error:
-                logger.warning(f"Error in ETF score calculation for {ticker}: {str(calc_error)}")
+                logger.warning(f"Error in Polygon API ETF calculation for {ticker}: {str(calc_error)}")
                 
-                if "Too Many Requests" in str(calc_error) or "rate limit" in str(calc_error).lower():
-                    logger.warning("Yahoo Finance rate limit hit - using fallback score")
-                
-                # Create a default set of indicators
-                indicators = {
-                    'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'},
-                    'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'},
-                    'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'},
-                    'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'},
-                    'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API rate limit reached'}
+                # Create a default set of indicators if Polygon fails
+                polygon_indicators = {
+                    'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'},
+                    'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'},
+                    'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'},
+                    'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'},
+                    'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'}
                 }
-                
-                # Set default values
-                score = 0
+                indicators = polygon_indicators
+                score = tradelist_score  # Use TradeList score if available, otherwise 0
                 current_price = 0.0
                 
                 # Try to get current price from WebSocket if available
