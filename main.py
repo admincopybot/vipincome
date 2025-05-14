@@ -174,10 +174,22 @@ def on_websocket_data_update(updates):
                         etf_scores[symbol]['price'] = websocket_price
                         etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
                         
-                        # Restore original score if current score is 0
-                        if etf_scores[symbol]['score'] == 0 and symbol in original_etf_scores:
-                            etf_scores[symbol]['score'] = original_etf_scores[symbol]
-                            logger.info(f"Restored original score {original_etf_scores[symbol]}/5 for {symbol} after calculation error: {str(e)}")
+                        # CRITICAL FIX: Always recalculate score based on the actual indicators
+                        # This ensures score is never out of sync with the indicator checkboxes
+                        if 'indicators' in etf_scores[symbol]:
+                            # Count the number of passing indicators
+                            passing_indicators = sum(1 for indicator in etf_scores[symbol]['indicators'].values() if indicator['pass'])
+                            
+                            # Update the score to match the actual indicator values
+                            etf_scores[symbol]['score'] = passing_indicators
+                            current_score = passing_indicators
+                            
+                            logger.info(f"Recalculated score for {symbol} to match indicators after error: {current_score}/5")
+                        else:
+                            # If no indicators exist, try to restore from original scores
+                            if etf_scores[symbol]['score'] == 0 and symbol in original_etf_scores:
+                                etf_scores[symbol]['score'] = original_etf_scores[symbol]
+                                logger.info(f"No indicators found, restored original score {original_etf_scores[symbol]}/5 for {symbol} after error: {str(e)}")
                         
                         logger.warning(f"Error calculating new score for {symbol}: {str(e)}")
                 else:
@@ -185,17 +197,26 @@ def on_websocket_data_update(updates):
                     etf_scores[symbol]['price'] = websocket_price
                     etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
                     
-                    # Restore original score if current score is 0 and original exists
-                    current_score = etf_scores[symbol]['score']
-                    if current_score == 0 and symbol in original_etf_scores:
-                        etf_scores[symbol]['score'] = original_etf_scores[symbol]
-                        current_score = original_etf_scores[symbol]
-                        logger.info(f"Restored original score {current_score}/5 for {symbol}")
+                    # CRITICAL FIX: Always recalculate score based on the actual indicators
+                    # This ensures score is never out of sync with the indicator checkboxes
+                    if 'indicators' in etf_scores[symbol]:
+                        # Count the number of passing indicators
+                        passing_indicators = sum(1 for indicator in etf_scores[symbol]['indicators'].values() if indicator['pass'])
+                        
+                        # Update the score to match the actual indicator values
+                        etf_scores[symbol]['score'] = passing_indicators
+                        current_score = passing_indicators
+                        
+                        logger.info(f"Recalculated score for {symbol} to match indicators: {current_score}/5")
+                    else:
+                        # If no indicators exist, try to restore from original scores
+                        current_score = etf_scores[symbol]['score']
+                        if current_score == 0 and symbol in original_etf_scores:
+                            etf_scores[symbol]['score'] = original_etf_scores[symbol]
+                            current_score = original_etf_scores[symbol]
+                            logger.info(f"No indicators found, restored original score {current_score}/5 for {symbol}")
                     
-                    # DO NOT modify the indicators from the WebSocket updates
-                    # Polygon API indicators must remain intact
-                    # This ensures accurate technical indicator display while allowing price updates
-                    # Original code removed: Previously this would overwrite actual indicators with synthetic ones
+                    # DO NOT modify the indicators - keep the accurate Polygon values
                         
                     # Log the price-only update
                     logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket (keeping score {current_score}/5)")
