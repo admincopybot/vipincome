@@ -68,6 +68,33 @@ strategy_descriptions = {
     "Passive": "Monthly or longer options (30-60 DTE) with lower but steady ROI (15-20%) requiring less management."
 }
 
+# Add countdown banner to all templates
+def add_countdown_banner(html_content):
+    """
+    Insert the countdown banner HTML immediately after the body tag
+    """
+    countdown_html = """
+    <!-- Countdown Banner -->
+    <div class="countdown-banner">
+        <div class="container">
+            <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+            <span id="countdown-banner-timer">402D 11H 17M 42S</span>
+        </div>
+    </div>
+    """
+    
+    # Find the body tag and insert the countdown banner after it
+    body_pos = html_content.find("<body")
+    if body_pos != -1:
+        # Find the closing '>' of the body tag
+        body_end = html_content.find(">", body_pos)
+        if body_end != -1:
+            # Insert the countdown banner after the body tag
+            return html_content[:body_end+1] + countdown_html + html_content[body_end+1:]
+    
+    # If we couldn't find the body tag, return the original content
+    return html_content
+
 # Global CSS for Apple-like minimalist design
 global_css = """
     /* Simple Countdown Banner */
@@ -411,7 +438,7 @@ global_css = """
 # Route for Step 1: ETF Scoreboard (Home Page)
 @app.route('/')
 def index():
-    template = """
+    raw_template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -419,6 +446,8 @@ def index():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Income Machine DEMO - Daily ETF Scoreboard</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/countdown-banner.css') }}">
+        <script src="{{ url_for('static', filename='js/countdown-timer.js') }}"></script>
         <style>
             {{ global_css }}
             
@@ -535,6 +564,39 @@ def index():
     </html>
     """
     
+    # Add the countdown banner and JavaScript
+    template = add_countdown_banner(raw_template)
+    
+    # Add countdown script
+    head_end_pos = template.find("</head>")
+    if head_end_pos != -1:
+        countdown_script = """
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function updateCountdown() {
+                const endDate = new Date("June 20, 2025 23:59:59").getTime();
+                const now = new Date().getTime();
+                const timeLeft = endDate - now;
+                
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                const timerElement = document.getElementById("countdown-banner-timer");
+                if (timerElement) {
+                    timerElement.innerHTML = days + "D " + hours + "H " + minutes + "M " + seconds + "S";
+                }
+            }
+            
+            // Update the countdown every second
+            setInterval(updateCountdown, 1000);
+            updateCountdown(); // Initial call
+        });
+        </script>
+        """
+        template = template[:head_end_pos] + countdown_script + template[head_end_pos:]
+    
     return render_template_string(template, etfs=etf_scores, global_css=global_css)
 
 # Route for Step 2: ETF Selection
@@ -544,7 +606,7 @@ def step2():
     if etf not in etf_scores:
         return redirect(url_for('index'))
     
-    template = """
+    raw_template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -673,6 +735,9 @@ def step2():
     </html>
     """
     
+    # Add the countdown banner
+    template = add_countdown_banner(raw_template)
+    
     return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css)
 
 # Route for Step 3: Strategy Selection
@@ -682,7 +747,7 @@ def step3():
     if etf not in etf_scores:
         return redirect(url_for('index'))
     
-    template = """
+    raw_template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
