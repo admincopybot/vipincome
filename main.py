@@ -44,10 +44,31 @@ etf_scores = {
     "XLRE": {"name": "Real Estate", "score": 3, "price": 40.02, "indicators": default_indicators.copy()}
 }
 
-# Save original scores to preserve them during WebSocket updates
-original_etf_scores = {
-    symbol: data["score"] for symbol, data in etf_scores.items()
-}
+# CRITICAL FIX: Replace the original ETF score caching mechanism with a helper function
+# that ensures scores always match their indicators
+def synchronize_etf_scores():
+    """
+    Ensure all ETF scores match their indicators by recalculating scores directly from indicator values.
+    This function eliminates any discrepancy between the displayed score and the actual indicator checkboxes.
+    """
+    updated_count = 0
+    for etf, etf_data in etf_scores.items():
+        if 'indicators' in etf_data:
+            # Count the number of passing indicators
+            passing_indicators = sum(1 for indicator in etf_data['indicators'].values() if indicator['pass'])
+            
+            # Update the score to match the actual indicator values
+            if etf_data['score'] != passing_indicators:
+                etf_data['score'] = passing_indicators
+                updated_count += 1
+    
+    if updated_count > 0:
+        logger.info(f"Synchronized scores for {updated_count} ETFs to match their actual indicators")
+    return updated_count
+
+# Save minimal backup of scores for extreme fallback cases only
+# Note: We primarily rely on synchronize_etf_scores() to maintain consistency
+original_etf_scores = {}
 
 # Data update tracking 
 # Cache control variables
@@ -197,24 +218,10 @@ def on_websocket_data_update(updates):
                     etf_scores[symbol]['price'] = websocket_price
                     etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
                     
-                    # CRITICAL FIX: Always recalculate score based on the actual indicators
-                    # This ensures score is never out of sync with the indicator checkboxes
-                    if 'indicators' in etf_scores[symbol]:
-                        # Count the number of passing indicators
-                        passing_indicators = sum(1 for indicator in etf_scores[symbol]['indicators'].values() if indicator['pass'])
-                        
-                        # Update the score to match the actual indicator values
-                        etf_scores[symbol]['score'] = passing_indicators
-                        current_score = passing_indicators
-                        
-                        logger.info(f"Recalculated score for {symbol} to match indicators: {current_score}/5")
-                    else:
-                        # If no indicators exist, try to restore from original scores
-                        current_score = etf_scores[symbol]['score']
-                        if current_score == 0 and symbol in original_etf_scores:
-                            etf_scores[symbol]['score'] = original_etf_scores[symbol]
-                            current_score = original_etf_scores[symbol]
-                            logger.info(f"No indicators found, restored original score {current_score}/5 for {symbol}")
+                    # CRITICAL FIX: Always synchronize ETF scores with their indicators 
+                    # This ensures scores are never out of sync with the indicator checkboxes
+                    synchronize_etf_scores()
+                    current_score = etf_scores[symbol]['score']
                     
                     # DO NOT modify the indicators - keep the accurate Polygon values
                         
@@ -909,6 +916,10 @@ global_css = """
 # Route for Step 1: ETF Scoreboard (Home Page)
 @app.route('/')
 def index():
+    # CRITICAL FIX: Always synchronize ETF scores with their indicators before rendering the page
+    # This ensures scores are never out of sync with the indicators
+    synchronize_etf_scores()
+    
     # Find the ETF with the highest score
     highest_score = 0
     recommended_etf = None
@@ -1149,16 +1160,9 @@ def step2():
     if etf not in etf_scores:
         return redirect(url_for('index'))
     
-    # CRITICAL FIX: Always recalculate score based on the actual indicators before displaying
-    # This ensures score is never out of sync with the indicator checkboxes
-    if 'indicators' in etf_scores[etf]:
-        # Count the number of passing indicators
-        passing_indicators = sum(1 for indicator in etf_scores[etf]['indicators'].values() if indicator['pass'])
-        
-        # Update the score to match the actual indicator values
-        if etf_scores[etf]['score'] != passing_indicators:
-            etf_scores[etf]['score'] = passing_indicators
-            logger.info(f"Fixed score for {etf} to match indicators when viewing details: {passing_indicators}/5")
+    # CRITICAL FIX: Always synchronize ETF scores with their indicators before rendering the page
+    # This ensures scores are never out of sync with the indicator checkboxes
+    synchronize_etf_scores()
     
     template = """
     <!DOCTYPE html>
@@ -2005,17 +2009,9 @@ def api_etf_data():
     Returns:
         JSON: Current ETF data including prices and scores
     """
-    # CRITICAL FIX: Always recalculate score based on the actual indicators before serving API data
-    # This ensures score is never out of sync with the indicator checkboxes
-    for etf, etf_data in etf_scores.items():
-        if 'indicators' in etf_data:
-            # Count the number of passing indicators
-            passing_indicators = sum(1 for indicator in etf_data['indicators'].values() if indicator['pass'])
-            
-            # Update the score to match the actual indicator values
-            if etf_data['score'] != passing_indicators:
-                etf_data['score'] = passing_indicators
-                logger.info(f"Fixed score for {etf} to match indicators before API response: {passing_indicators}/5")
+    # CRITICAL FIX: Always synchronize ETF scores with their indicators before serving API data
+    # This ensures scores are never out of sync with the indicator checkboxes
+    synchronize_etf_scores()
     
     # Return the current ETF data with timestamp for client-side tracking
     data = {}
