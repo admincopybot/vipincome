@@ -2232,6 +2232,69 @@ def test_tradelist_api():
 
 
 @app.route('/api/test/options-spreads')
+@app.route('/test_weekly_momentum')
+def test_weekly_momentum():
+    """Test endpoint to check the weekly momentum calculation for a specific ETF
+    
+    Query Parameters:
+    - ticker: The ETF symbol to check weekly momentum for (default: XLC)
+    
+    Returns:
+        HTML: Detailed information about the weekly momentum calculation
+    """
+    ticker = request.args.get('ticker', 'XLC')
+    
+    try:
+        # Get daily data for the symbol
+        from enhanced_etf_scoring import fetch_daily_data, get_latest_weekly_close, get_current_price
+        
+        daily_data = fetch_daily_data(ticker)
+        if daily_data.empty:
+            return f"<h3>No daily data available for {ticker}</h3>"
+        
+        # Get the weekly close price
+        weekly_close = get_latest_weekly_close(daily_data)
+        
+        # Get current price 
+        current_price = get_current_price(ticker)
+        if current_price is None:
+            logger.warning(f"Couldn't get current price for {ticker} from Polygon API, using most recent price from daily data")
+            current_price = float(daily_data['Close'].iloc[-1])
+        
+        # Determine if the momentum criteria passes
+        criteria_passes = current_price > weekly_close
+        
+        # Build a detailed response
+        response = f"<h2>Weekly Momentum Details for {ticker}</h2>"
+        response += f"<p><strong>Current Price:</strong> ${current_price:.2f}</p>"
+        response += f"<p><strong>Latest Weekly Close:</strong> ${weekly_close:.2f}</p>"
+        response += f"<p><strong>Weekly Momentum Criteria:</strong> {'PASS ✓' if criteria_passes else 'FAIL ✗'}</p>"
+        
+        # Add some additional context about the weekly closing price calculation
+        response += "<h3>Weekly Close Calculation Details:</h3>"
+        response += "<p>Weekly close is determined by:</p>"
+        response += "<ol>"
+        response += "<li>Resampling the daily data to weekly candles that end on Friday</li>"
+        response += "<li>Using the most recently completed Friday's closing price</li>"
+        response += "<li>If today is Friday, using the previous Friday's close</li>"
+        response += "</ol>"
+        
+        # Show some raw data for verification
+        response += "<h3>Recent Daily Data:</h3>"
+        response += "<table border='1'><tr><th>Date</th><th>Open</th><th>High</th><th>Low</th><th>Close</th></tr>"
+        
+        # Display the last 10 days of data
+        for date, row in daily_data.tail(10).iterrows():
+            date_str = date.strftime('%Y-%m-%d (%A)')
+            response += f"<tr><td>{date_str}</td><td>${row['Open']:.2f}</td><td>${row['High']:.2f}</td>"
+            response += f"<td>${row['Low']:.2f}</td><td>${row['Close']:.2f}</td></tr>"
+        
+        response += "</table>"
+        
+        return response
+    except Exception as e:
+        return f"<h3>Error calculating weekly momentum:</h3><p>{str(e)}</p>"
+
 @app.route('/test_options_spreads_api')
 def test_options_spreads_api():
     """Test endpoint for TheTradeList options spreads API integration

@@ -283,26 +283,26 @@ def get_latest_weekly_close(df):
     current_day = df.index[-1].weekday()
     today_date = df.index[-1].date()
     
-    # Create weekly candles where each candle ends on Friday (W-FRI)
-    weekly_df = df['Close'].resample('W-FRI').last().dropna()
+    # CRITICAL FIX: Find the most recent Friday data point directly
+    # This ensures we get the previous Friday's close, not today's close
     
-    # We need the most recent completed weekly candle
-    if len(weekly_df) >= 2:
-        # Get the date of the last weekly candle (should be a Friday)
-        last_friday_date = weekly_df.index[-1].date()
+    # First, filter for only Friday data points (weekday=4)
+    friday_data = df[df.index.weekday == 4]
+    
+    if len(friday_data) > 0:
+        # Get the most recent Friday's close
+        most_recent_friday_close = friday_data['Close'].iloc[-1]
+        weekly_close = float(most_recent_friday_close if not hasattr(most_recent_friday_close, 'iloc') 
+                          else most_recent_friday_close.iloc[0])
         
-        # If today is the same as the last weekly candle date (i.e., today is Friday)
-        # then use the previous Friday's close
-        if today_date == last_friday_date:
-            val = weekly_df.iloc[-2]
-            weekly_close = float(val.iloc[0] if hasattr(val, 'iloc') else val)
-        else:
-            val = weekly_df.iloc[-1]
-            weekly_close = float(val.iloc[0] if hasattr(val, 'iloc') else val)
+        # Log the date we're using for the weekly close
+        most_recent_friday_date = friday_data.index[-1].strftime('%Y-%m-%d')
+        logger.info(f"Using {most_recent_friday_date} as the most recent Friday close: ${weekly_close:.2f}")
         
         return weekly_close
     else:
-        # Fallback if not enough weekly data
+        # Fallback if no Friday data available
+        logger.warning(f"No Friday data found for weekly close calculation, using oldest available data")
         return float(df['Close'].iloc[0])
 
 def calculate_ema(series, window):
