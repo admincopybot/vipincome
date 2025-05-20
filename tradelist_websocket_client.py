@@ -72,6 +72,9 @@ class TradeListWebSocketClient:
                         self.subscribe_to_symbol(symbol)
                         
                 return
+            
+            # IMPORTANT: Log the raw message for inspection
+            logger.info(f"RAW WEBSOCKET DATA: {message}")
                 
             # Try to parse as JSON
             if message.startswith('[') or message.startswith('{'):
