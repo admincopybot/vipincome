@@ -13,6 +13,7 @@ from tradelist_websocket_client import get_websocket_client
 import enhanced_etf_scoring  # Import for direct Polygon API testing
 from csv_data_loader import CsvDataLoader  # Import CSV data loader
 from gamma_rsi_calculator import GammaRSICalculator
+from database_models import ETFDatabase  # Import database models
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -27,6 +28,9 @@ app.secret_key = os.environ.get("SESSION_SECRET", "income_machine_demo")
 
 # Initialize CSV data loader
 csv_loader = CsvDataLoader()
+
+# Initialize database
+etf_db = ETFDatabase()
 
 # Initialize with default data including indicators (this will be updated with real market data)
 # Default indicator template for initial state
@@ -2393,7 +2397,7 @@ def test_csv_data():
 
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
-    """CSV upload endpoint that updates the ETF scoreboard with exact data from uploaded CSV
+    """CSV upload endpoint that updates the database with ETF scoring data from uploaded CSV
     
     Accepts:
     - File upload via 'csvfile' form field
@@ -2431,90 +2435,24 @@ def upload_csv():
                 'error': 'No CSV data provided. Send file via csvfile field, text via csv_text field, or JSON with csv_content.'
             }), 400
         
-        # Parse CSV content
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
-        updated_symbols = []
-        new_etf_data = {}
+        # Upload CSV data to database
+        result = etf_db.upload_csv_data(csv_content)
         
-        # Default sector mappings for stock symbols
-        stock_sectors = {
-            "AAPL": "Technology",
-            "GOOGL": "Technology", 
-            "MSFT": "Technology",
-            "TSLA": "Consumer Discretionary",
-            "AMZN": "Consumer Discretionary",
-            "META": "Technology",
-            "NVDA": "Technology",
-            "NFLX": "Communication Services",
-            "AMD": "Technology",
-            "INTC": "Technology"
-        }
+        if not result['success']:
+            return jsonify({
+                'error': f'Failed to upload CSV to database: {result["error"]}'
+            }), 500
         
-        for row in csv_reader:
-            symbol = row['symbol'].upper()
-            
-            # Convert CSV data to the exact format expected by frontend
-            indicators = {
-                'trend1': {
-                    'pass': row['trend1_pass'].lower() == 'true',
-                    'current': float(row['trend1_current']),
-                    'threshold': float(row['trend1_threshold']),
-                    'description': row['trend1_description']
-                },
-                'trend2': {
-                    'pass': row['trend2_pass'].lower() == 'true',
-                    'current': float(row['trend2_current']),
-                    'threshold': float(row['trend2_threshold']),
-                    'description': row['trend2_description']
-                },
-                'snapback': {
-                    'pass': row['snapback_pass'].lower() == 'true',
-                    'current': float(row['snapback_current']),
-                    'threshold': float(row['snapback_threshold']),
-                    'description': row['snapback_description']
-                },
-                'momentum': {
-                    'pass': row['momentum_pass'].lower() == 'true',
-                    'current': float(row['momentum_current']),
-                    'threshold': float(row['momentum_threshold']),
-                    'description': row['momentum_description']
-                },
-                'stabilizing': {
-                    'pass': row['stabilizing_pass'].lower() == 'true',
-                    'current': float(row['stabilizing_current']),
-                    'threshold': float(row['stabilizing_threshold']),
-                    'description': row['stabilizing_description']
-                }
-            }
-            
-            # Determine sector name
-            sector_name = stock_sectors.get(symbol, "Unknown Sector")
-            
-            # Create ETF data structure that matches exactly what frontend expects
-            new_etf_data[symbol] = {
-                "name": sector_name,
-                "score": int(row['total_score']),
-                "price": float(row['current_price']),
-                "indicators": indicators,
-                "calculation_timestamp": row.get('calculation_timestamp', ''),
-                "data_age_hours": int(row.get('data_age_hours', 0))
-            }
-            
-            updated_symbols.append(symbol)
+        # Refresh the global etf_scores from database
+        load_etf_data_from_database()
         
-        # Update global etf_scores with new data
-        # Preserve any existing ETF symbols that aren't in the CSV
-        for symbol, data in new_etf_data.items():
-            etf_scores[symbol] = data
-        
-        logger.info(f"Successfully updated {len(updated_symbols)} symbols from CSV: {', '.join(updated_symbols)}")
+        logger.info(f"Successfully uploaded {result['count']} symbols to database")
         
         # Return success response
         return jsonify({
             'success': True,
-            'message': f'Successfully updated {len(updated_symbols)} symbols',
-            'updated_symbols': updated_symbols,
-            'total_symbols_in_system': len(etf_scores)
+            'message': f'Successfully uploaded {result["count"]} symbols to database',
+            'count': result['count']
         })
         
     except Exception as e:
