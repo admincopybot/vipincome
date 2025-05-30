@@ -170,217 +170,340 @@ def index():
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1d29;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f1419;
             color: white;
             min-height: 100vh;
+            line-height: 1.5;
         }
         
         .top-banner {
-            background: linear-gradient(90deg, #00bcd4 0%, #673ab7 100%);
-            padding: 8px 0;
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #ec4899 100%);
+            padding: 12px 0;
             text-align: center;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.2);
         }
         
         .header {
-            background: #1a1d29;
-            padding: 15px 40px;
+            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
+            padding: 20px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #2a2d3a;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
         
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #00bcd4, #673ab7);
-            border-radius: 8px;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 20px;
+            font-weight: 900;
+            font-size: 18px;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-icon:hover {
+            transform: scale(1.05);
         }
         
         .logo-text {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
         
         .nav-menu {
             display: flex;
-            gap: 30px;
+            gap: 40px;
             align-items: center;
         }
         
         .nav-item {
-            color: #b0b3b8;
+            color: #94a3b8;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            transition: width 0.3s ease;
         }
         
         .nav-item:hover {
             color: white;
         }
         
+        .nav-item:hover::after {
+            width: 100%;
+        }
+        
         .get-offer-btn {
-            background: #ffd700;
-            color: #1a1d29;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1f2e;
+            padding: 12px 24px;
+            border-radius: 25px;
             text-decoration: none;
-            font-weight: bold;
-            font-size: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .get-offer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.6);
         }
         
         .step-header {
-            background: linear-gradient(90deg, #00bcd4 0%, #673ab7 100%);
-            padding: 15px 40px;
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #ec4899 100%);
+            padding: 20px 50px;
             text-align: center;
             color: white;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
         }
         
         .main-content {
-            padding: 40px;
-            max-width: 1200px;
+            padding: 50px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
         .dashboard-title {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .dashboard-subtitle {
-            color: #b0b3b8;
-            margin-bottom: 10px;
-            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 400;
         }
         
         .update-info {
-            color: #888;
+            color: #64748b;
             font-size: 14px;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
+            font-weight: 500;
         }
         
         .etf-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
         }
         
         .etf-card {
-            background: #2a2d3a;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #3a3d4a;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: linear-gradient(145deg, #1e2532 0%, #2a3441 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .etf-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed, #ec4899);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .etf-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        
+        .etf-card:hover::before {
+            opacity: 1;
         }
         
         .etf-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
         
         .etf-symbol {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
         
         .etf-score {
-            background: #00bcd4;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
             color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: bold;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-weight: 700;
             font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
         }
         
         .etf-name {
-            color: #b0b3b8;
-            margin-bottom: 15px;
-            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            font-size: 15px;
+            font-weight: 500;
         }
         
         .etf-price {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #10b981;
         }
         
         .progress-bar {
-            background: #3a3d4a;
-            height: 6px;
-            border-radius: 3px;
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 10px;
+            margin-bottom: 25px;
             overflow: hidden;
+            position: relative;
         }
         
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #00bcd4, #673ab7);
-            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed, #ec4899);
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
         
         .btn-recommended {
-            background: #ffd700;
-            color: #1a1d29;
-            padding: 12px 20px;
-            border-radius: 25px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1f2e;
+            padding: 15px 20px;
+            border-radius: 30px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 14px;
             text-align: center;
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
         }
         
         .btn-select {
-            background: linear-gradient(90deg, #00bcd4, #673ab7);
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
             color: white;
-            padding: 12px 20px;
-            border-radius: 25px;
+            padding: 15px 20px;
+            border-radius: 30px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 14px;
             text-align: center;
             flex: 1;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
         }
         
         .btn-select:hover, .btn-recommended:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn-recommended:hover {
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.6);
         }
         
         .crown-icon {
-            color: #ffd700;
+            font-size: 16px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 25px;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .nav-menu {
+                gap: 20px;
+            }
+            
+            .main-content {
+                padding: 30px 25px;
+            }
+            
+            .dashboard-title {
+                font-size: 32px;
+            }
+            
+            .etf-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
