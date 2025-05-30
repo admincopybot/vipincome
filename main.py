@@ -1233,7 +1233,7 @@ def step3(symbol=None):
             
             body {
                 font-family: 'Inter', sans-serif;
-                background: #0c0c0c;
+                background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
                 color: #ffffff;
                 min-height: 100vh;
                 line-height: 1.6;
@@ -1255,34 +1255,37 @@ def step3(symbol=None):
             .step-navigation {
                 display: flex;
                 justify-content: center;
-                gap: 8px;
+                gap: 0;
                 margin-bottom: 40px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                padding: 4px;
+                backdrop-filter: blur(10px);
             }
             
             .step-tab {
-                padding: 12px 24px;
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 12px 32px;
+                background: transparent;
+                border: none;
                 border-radius: 8px;
-                color: #64748b;
+                color: rgba(255, 255, 255, 0.7);
                 text-decoration: none;
                 font-size: 14px;
                 font-weight: 500;
                 transition: all 0.3s ease;
                 position: relative;
+                flex: 1;
+                text-align: center;
             }
             
             .step-tab.active {
-                background: rgba(59, 130, 246, 0.1);
-                border-color: rgba(59, 130, 246, 0.2);
+                background: rgba(255, 255, 255, 0.2);
                 color: #ffffff;
-                box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+                font-weight: 600;
             }
             
             .step-tab.completed {
-                background: rgba(34, 197, 94, 0.08);
-                border-color: rgba(34, 197, 94, 0.15);
-                color: #94a3b8;
+                color: rgba(255, 255, 255, 0.9);
             }
             
             .main-title {
@@ -1538,8 +1541,8 @@ def step3(symbol=None):
                     <div class="step-tab active">Step 3: Strategy</div>
                 </div>
                 
-                <h1 class="main-title">Choose Your Income Strategy</h1>
-                <p class="main-subtitle">Select the approach that matches your risk tolerance and income goals</p>
+                <h1 class="main-title">{{ symbol or 'STOCK' }} - Income Strategy Selection</h1>
+                <p class="main-subtitle">Choose the income strategy that matches your risk tolerance and investment goals.</p>
                 
                 {% if symbol %}
                 <div class="selected-symbol">
