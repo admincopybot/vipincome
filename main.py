@@ -415,125 +415,56 @@ def index():
             opacity: 1;
         }
         
-        .etf-header {
+        .card-content {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
+            padding: 10px;
         }
         
-        .etf-symbol {
-            font-size: 28px;
+        .ticker-symbol {
+            font-size: 32px;
             font-weight: 800;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            color: white;
         }
         
-        .etf-score {
+        .score-badge {
             background: linear-gradient(135deg, #00d4ff, #7c3aed);
             color: white;
-            padding: 6px 16px;
+            padding: 8px 20px;
             border-radius: 25px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 16px;
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
         }
         
-        .etf-name {
-            color: #94a3b8;
-            margin-bottom: 20px;
-            font-size: 15px;
-            font-weight: 500;
-        }
-        
-        .etf-price {
-            font-size: 28px;
+        .current-price {
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 25px;
             color: #10b981;
         }
         
-        .progress-bar {
-            background: rgba(255, 255, 255, 0.1);
-            height: 8px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00d4ff, #7c3aed, #ec4899);
-            border-radius: 10px;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .btn-recommended {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #1a1f2e;
-            padding: 15px 20px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 14px;
-            text-align: center;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-        }
-        
-        .btn-select {
+        .choose-btn {
             background: linear-gradient(135deg, #00d4ff, #7c3aed);
             color: white;
-            padding: 15px 20px;
+            padding: 12px 24px;
             border-radius: 30px;
             text-decoration: none;
             font-weight: 700;
             font-size: 14px;
-            text-align: center;
-            flex: 1;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            width: 100%;
+            display: block;
+            text-align: center;
         }
         
-        .btn-select:hover, .btn-recommended:hover {
+        .choose-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
-        }
-        
-        .btn-recommended:hover {
-            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.6);
-        }
-        
-        .crown-icon {
-            font-size: 16px;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
         
         /* Responsive design */
@@ -594,28 +525,11 @@ def index():
             {% if loop.index <= 9 %}
             <div class="etf-card-wrapper">
                 <div class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
-                    <div class="etf-header">
-                        <div class="etf-symbol">{{ symbol }}</div>
-                        <div class="etf-score">{{ etf.score }}/5</div>
-                    </div>
-                    {% if etf.name %}
-                    <div class="etf-name">{{ etf.name }}</div>
-                    {% endif %}
-                    <div class="etf-price">${{ "%.2f"|format(etf.price) }}</div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: {{ (etf.score / 5 * 100) }}%"></div>
-                    </div>
-                    
-                    <div class="action-buttons">
-                        {% if etf.score >= 4 %}
-                        <a href="#" class="btn-recommended">
-                            <span class="crown-icon">👑</span> Recommended Asset
-                        </a>
-                        <a href="#" class="btn-select" style="background: #4a4d5a; font-size: 12px;">Select {{ symbol }}</a>
-                        {% else %}
-                        <a href="#" class="btn-select">Select {{ symbol }}</a>
-                        {% endif %}
+                    <div class="card-content">
+                        <div class="ticker-symbol">{{ symbol }}</div>
+                        <div class="score-badge">{{ etf.score }}/5</div>
+                        <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
+                        <a href="#" class="choose-btn">Choose Opportunity</a>
                     </div>
                 </div>
                 
