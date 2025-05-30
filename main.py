@@ -341,11 +341,14 @@ def index():
             overflow: hidden;
         }
         
+        .etf-card-wrapper {
+            position: relative;
+        }
+        
         .etf-card.blurred {
             filter: blur(3px);
             opacity: 0.6;
             pointer-events: none;
-            position: relative;
         }
         
         .etf-card.blurred::after {
@@ -356,7 +359,7 @@ def index():
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(2px);
             z-index: 2;
         }
         
@@ -370,11 +373,12 @@ def index():
             color: white;
             font-weight: 700;
             font-size: 16px;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             padding: 20px;
             border-radius: 15px;
             border: 2px solid #fbbf24;
             box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+            pointer-events: none;
         }
         
         .free-version-text {
@@ -588,37 +592,39 @@ def index():
             {% set sorted_etfs = etf_scores.items() | list %}
             {% for symbol, etf in sorted_etfs %}
             {% if loop.index <= 9 %}
-            <div class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
+            <div class="etf-card-wrapper">
+                <div class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
+                    <div class="etf-header">
+                        <div class="etf-symbol">{{ symbol }}</div>
+                        <div class="etf-score">{{ etf.score }}/5</div>
+                    </div>
+                    {% if etf.name %}
+                    <div class="etf-name">{{ etf.name }}</div>
+                    {% endif %}
+                    <div class="etf-price">${{ "%.2f"|format(etf.price) }}</div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ (etf.score / 5 * 100) }}%"></div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        {% if etf.score >= 4 %}
+                        <a href="#" class="btn-recommended">
+                            <span class="crown-icon">👑</span> Recommended Asset
+                        </a>
+                        <a href="#" class="btn-select" style="background: #4a4d5a; font-size: 12px;">Select {{ symbol }}</a>
+                        {% else %}
+                        <a href="#" class="btn-select">Select {{ symbol }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+                
                 {% if loop.index > 3 %}
                 <div class="free-version-overlay">
                     <div class="free-version-text">You're currently viewing the</div>
                     <div class="upgrade-text">FREE Version</div>
                 </div>
                 {% endif %}
-                
-                <div class="etf-header">
-                    <div class="etf-symbol">{{ symbol }}</div>
-                    <div class="etf-score">{{ etf.score }}/5</div>
-                </div>
-                {% if etf.name %}
-                <div class="etf-name">{{ etf.name }}</div>
-                {% endif %}
-                <div class="etf-price">${{ "%.2f"|format(etf.price) }}</div>
-                
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ (etf.score / 5 * 100) }}%"></div>
-                </div>
-                
-                <div class="action-buttons">
-                    {% if etf.score >= 4 %}
-                    <a href="#" class="btn-recommended">
-                        <span class="crown-icon">👑</span> Recommended Asset
-                    </a>
-                    <a href="#" class="btn-select" style="background: #4a4d5a; font-size: 12px;">Select {{ symbol }}</a>
-                    {% else %}
-                    <a href="#" class="btn-select">Select {{ symbol }}</a>
-                    {% endif %}
-                </div>
             </div>
             {% endif %}
             {% endfor %}
