@@ -192,12 +192,12 @@ def index():
         }
         
         .header {
-            background: #111827;
+            background: rgba(15, 23, 42, 0.95);
             padding: 20px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #374151;
+            border-bottom: 1px solid #374151;
         }
         
         .logo {
@@ -265,15 +265,14 @@ def index():
         }
         
         .step-header {
-            background: #1a1f2e;
+            background: rgba(15, 23, 42, 0.8);
             padding: 20px 50px;
             text-align: center;
-            color: #2563eb;
+            color: #f1f5f9;
             font-size: 20px;
             font-weight: 600;
             letter-spacing: 1px;
-            border: 1px solid #2563eb;
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+            border-bottom: 1px solid #374151;
         }
         
         .main-content {
@@ -313,13 +312,11 @@ def index():
         }
         
         .etf-card {
-            background: #1a1f2e;
-            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 16px;
             padding: 30px;
-            border: 1px solid #3b82f6;
-            box-shadow: 
-                0 4px 15px rgba(0, 0, 0, 0.3),
-                0 0 10px rgba(59, 130, 246, 0.1);
+            border: 1px solid #374151;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
             position: relative;
             text-decoration: none;
@@ -330,10 +327,8 @@ def index():
         
         .etf-card:hover {
             transform: translateY(-4px);
-            border-color: #60a5fa;
-            box-shadow: 
-                0 8px 25px rgba(0, 0, 0, 0.4),
-                0 0 20px rgba(96, 165, 250, 0.2);
+            border-color: #475569;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         }
         
         .etf-card-wrapper {
