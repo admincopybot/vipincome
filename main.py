@@ -339,6 +339,10 @@ def index():
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
         }
         
         .etf-card-wrapper {
@@ -447,24 +451,22 @@ def index():
             color: #10b981;
         }
         
-        .choose-btn {
+        .choose-btn-text {
             background: linear-gradient(135deg, #00d4ff, #7c3aed);
             color: white;
             padding: 12px 24px;
             border-radius: 30px;
-            text-decoration: none;
             font-weight: 700;
             font-size: 14px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
             width: 100%;
-            display: block;
             text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .choose-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        .etf-card:hover .choose-btn-text {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
         }
         
         /* Responsive design */
@@ -524,14 +526,14 @@ def index():
             {% for symbol, etf in sorted_etfs %}
             {% if loop.index <= 9 %}
             <div class="etf-card-wrapper">
-                <div class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
+                <a href="#" class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
                     <div class="card-content">
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="score-badge">{{ etf.score }}/5</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
-                        <a href="#" class="choose-btn">Choose Opportunity</a>
+                        <div class="choose-btn-text">Choose Opportunity</div>
                     </div>
-                </div>
+                </a>
                 
                 {% if loop.index > 3 %}
                 <div class="free-version-overlay">
