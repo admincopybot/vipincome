@@ -9,6 +9,7 @@ import simplified_market_data as market_data  # Using simplified market data ser
 from tradelist_client import TradeListApiService
 from tradelist_websocket_client import get_websocket_client
 import enhanced_etf_scoring  # Import for direct Polygon API testing
+from csv_data_loader import CsvDataLoader  # Import CSV data loader
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -20,6 +21,9 @@ logger = logging.getLogger(__name__)
 # Initialize Flask application
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "income_machine_demo")
+
+# Initialize CSV data loader
+csv_loader = CsvDataLoader()
 
 # Initialize with default data including indicators (this will be updated with real market data)
 # Default indicator template for initial state
@@ -83,19 +87,38 @@ def update_market_data_background():
     while True:
         current_time = time.time()
         
-        # For WebSocket-only approach, we don't need to actively update market data
-        # The data will be updated by the WebSocket callback on_websocket_data_update
-        # We keep this thread primarily for continuity and in case we need to implement
-        # fallback mechanisms in the future
+        # Load ETF data from CSV file instead of doing real-time calculations
+        # This preserves the exact same frontend appearance while using pre-calculated data
         
         if current_time - last_update_time > update_interval or force_refresh:
             try:
-                logger.info("Market data primarily updated via WebSocket. Background updater still active.")
-                # No market data update via yfinance
+                logger.info("In production, this would refresh data from database...")
+                
+                # Load data from CSV instead of doing real-time calculations
+                csv_data = csv_loader.get_etf_data(force_refresh=True)
+                
+                if csv_data:
+                    # Update etf_scores with CSV data, preserving WebSocket price updates
+                    for symbol, csv_etf_data in csv_data.items():
+                        if symbol in etf_scores:
+                            # Keep current price if it was updated by WebSocket recently
+                            current_price = etf_scores[symbol].get('price', csv_etf_data['price'])
+                            
+                            # Update with CSV data but preserve real-time prices from WebSocket
+                            etf_scores[symbol].update({
+                                'name': csv_etf_data['name'],
+                                'score': csv_etf_data['score'],
+                                'indicators': csv_etf_data['indicators'],
+                                'price': current_price  # Keep WebSocket price if available
+                            })
+                        else:
+                            # New symbol from CSV
+                            etf_scores[symbol] = csv_etf_data
+                
                 last_update_time = current_time
                 force_refresh = False  # Reset the force refresh flag
             except Exception as e:
-                logger.error(f"Error in market data background thread: {str(e)}")
+                logger.error(f"Error loading CSV data: {str(e)}")
         
         # Sleep for a longer interval since WebSocket handles real-time updates
         time.sleep(60)
