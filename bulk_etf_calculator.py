@@ -384,32 +384,52 @@ class TechnicalCalculator:
     @staticmethod
     def calculate_rsi(df: pd.DataFrame, window: int = 14) -> float:
         """
-        Calculate RSI using Wilder's smoothing method (matches TradingView exactly)
-        Uses exponential moving averages instead of simple moving averages
+        Calculate RSI using exact TradingView Pine Script formula
+        Uses ta.rma() equivalent (Wilder's smoothing method)
+        
+        Pine Script formula:
+        change = ta.change(rsiSourceInput)
+        up = ta.rma(math.max(change, 0), rsiLengthInput)
+        down = ta.rma(-math.min(change, 0), rsiLengthInput)
+        rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down))
         """
-        if len(df) < window + 1:  # Need extra period for initial calculation
+        if len(df) < window + 1:
             logger.warning(f"Insufficient data for RSI calculation: {len(df)} < {window + 1}")
-            return 50.0  # Neutral RSI value
+            return 50.0
             
-        delta = df['Close'].diff()
-        gain = delta.where(delta > 0, 0)
-        loss = -delta.where(delta < 0, 0)
+        # Calculate price change (equivalent to ta.change())
+        change = df['Close'].diff()
         
-        # Use Wilder's smoothing (exponential moving average with alpha = 1/window)
-        # This matches TradingView's RSI calculation exactly
+        # Calculate up and down moves (equivalent to math.max/min)
+        up_moves = change.where(change > 0, 0)  # max(change, 0)
+        down_moves = (-change).where(change < 0, 0)  # -min(change, 0)
+        
+        # Apply ta.rma() equivalent (Wilder's smoothing)
+        # ta.rma() is exponential moving average with alpha = 1/length
         alpha = 1.0 / window
-        avg_gain = gain.ewm(alpha=alpha, adjust=False).mean()
-        avg_loss = loss.ewm(alpha=alpha, adjust=False).mean()
+        up_avg = up_moves.ewm(alpha=alpha, adjust=False).mean()
+        down_avg = down_moves.ewm(alpha=alpha, adjust=False).mean()
         
-        # Handle division by zero - matches original implementation
-        avg_loss = avg_loss.replace(0, 0.00001)
+        # Apply exact Pine Script RSI formula
+        rsi_values = []
+        for i in range(len(up_avg)):
+            if pd.isna(up_avg.iloc[i]) or pd.isna(down_avg.iloc[i]):
+                rsi_values.append(np.nan)
+            elif down_avg.iloc[i] == 0:
+                rsi_values.append(100.0)
+            elif up_avg.iloc[i] == 0:
+                rsi_values.append(0.0)
+            else:
+                rs = up_avg.iloc[i] / down_avg.iloc[i]
+                rsi_val = 100 - (100 / (1 + rs))
+                rsi_values.append(rsi_val)
         
-        rs = avg_gain / avg_loss
-        rsi = 100 - (100 / (1 + rs))
-        
-        # Get most recent valid RSI value
-        current_rsi = rsi.dropna().iloc[-1]
-        return float(current_rsi if not hasattr(current_rsi, 'iloc') else current_rsi.iloc[0])
+        # Get the most recent valid RSI value
+        valid_rsi = [val for val in rsi_values if not pd.isna(val)]
+        if len(valid_rsi) > 0:
+            return float(valid_rsi[-1])
+        else:
+            return 50.0
     
     @staticmethod
     def calculate_atr(df: pd.DataFrame, window: int) -> float:
