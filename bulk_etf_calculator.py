@@ -533,7 +533,7 @@ class BulkEtfCalculator:
             if force_full_update:
                 # Fetch full historical data
                 daily_start = (datetime.now() - timedelta(days=730)).strftime('%Y-%m-%d')  # 2 years
-                four_hour_start = (datetime.now() - timedelta(days=28)).strftime('%Y-%m-%d')  # 28 days
+                four_hour_start = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')  # 60 days for proper RSI
             else:
                 # Get last update dates from metadata
                 with self.db.conn.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -547,11 +547,11 @@ class BulkEtfCalculator:
                 if metadata and metadata['last_daily_update']:
                     # Incremental update - start from last update
                     daily_start = metadata['last_daily_update'].strftime('%Y-%m-%d')
-                    four_hour_start = metadata['last_4hour_update'].strftime('%Y-%m-%d') if metadata['last_4hour_update'] else (datetime.now() - timedelta(days=28)).strftime('%Y-%m-%d')
+                    four_hour_start = metadata['last_4hour_update'].strftime('%Y-%m-%d') if metadata['last_4hour_update'] else (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
                 else:
                     # First time - fetch full historical data
                     daily_start = (datetime.now() - timedelta(days=730)).strftime('%Y-%m-%d')
-                    four_hour_start = (datetime.now() - timedelta(days=28)).strftime('%Y-%m-%d')
+                    four_hour_start = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
             
             # Fetch daily data
             daily_df = self.api.fetch_daily_data(symbol, daily_start, end_date)
