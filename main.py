@@ -1349,7 +1349,7 @@ def api_chart_data(symbol):
         print(f"DEBUG: Has results: {'results' in data}")
         print(f"DEBUG: Results count: {len(data.get('results', []))}")
         
-        if data.get('status') != 'OK' or 'results' not in data:
+        if data.get('status') not in ['OK', 'DELAYED'] or 'results' not in data:
             return jsonify({
                 'success': False,
                 'error': 'No data available for this symbol'
