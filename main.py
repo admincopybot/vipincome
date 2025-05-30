@@ -1552,8 +1552,7 @@ def step3(symbol=None):
         
         <div class="step-navigation">
             <a href="/" class="step-tab completed">Step 1: Scoreboard</a>
-            <a href="{% if symbol %}/step2/{{ symbol }}{% else %}#{% endif %}" class="step-tab completed">Step 2: Asset Review</a>
-            <div class="step-tab active">Step 3: Strategy</div>
+            <a href="{% if symbol %}/step2/{{ symbol }}{% else %}#{% endif %}" class="step-tab active">Step 2: Asset Review</a>
         </div>
         
         <div class="container">
