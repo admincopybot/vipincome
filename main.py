@@ -1054,7 +1054,7 @@ def step2(symbol=None):
                     Data is automatically refreshed every 15 minutes during market hours.
                 </div>
                 <div class="strategy-button-container">
-                    <a href="#" class="choose-strategy-btn">Choose Income Strategy →</a>
+                    <a href="/step3/{{ symbol }}" class="choose-strategy-btn">Choose Income Strategy →</a>
                 </div>
             </div>
         </div>
@@ -1213,8 +1213,522 @@ def step2(symbol=None):
     return render_template_string(template, symbol=symbol, ticker_data=ticker_data)
 
 @app.route('/step3')
-def step3():
-    return "<h1>Step 3: Trading Recommendations</h1><p>This page would show trading recommendations.</p><a href='/'>Back to Dashboard</a>"
+@app.route('/step3/<symbol>')
+def step3(symbol=None):
+    """Step 3: Income Strategy Selection"""
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Step 3: Income Strategy Selection - Income Machine</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Inter', sans-serif;
+                background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+                color: #ffffff;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+            
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 40px 20px;
+            }
+            
+            .header {
+                text-align: center;
+                margin-bottom: 50px;
+            }
+            
+            .step-indicator {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 30px;
+                gap: 20px;
+            }
+            
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 24px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                transition: all 0.3s ease;
+            }
+            
+            .step.active {
+                background: rgba(59, 130, 246, 0.15);
+                border-color: rgba(59, 130, 246, 0.3);
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+            }
+            
+            .step.completed {
+                background: rgba(34, 197, 94, 0.15);
+                border-color: rgba(34, 197, 94, 0.3);
+            }
+            
+            .step-number {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            
+            .step.active .step-number {
+                background: #3b82f6;
+                color: white;
+            }
+            
+            .step.completed .step-number {
+                background: #22c55e;
+                color: white;
+            }
+            
+            .step-text {
+                font-size: 14px;
+                font-weight: 500;
+            }
+            
+            .page-title {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 15px;
+                background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            
+            .page-subtitle {
+                font-size: 1.2rem;
+                color: #94a3b8;
+                margin-bottom: 20px;
+            }
+            
+            .selected-stock {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 20px;
+                background: rgba(59, 130, 246, 0.1);
+                border: 1px solid rgba(59, 130, 246, 0.3);
+                border-radius: 12px;
+                margin-bottom: 40px;
+                font-weight: 600;
+            }
+            
+            .strategies-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 30px;
+                margin-bottom: 40px;
+            }
+            
+            .strategy-card {
+                background: rgba(255, 255, 255, 0.02);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 30px;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .strategy-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--accent-color);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .strategy-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                border-color: var(--accent-color);
+            }
+            
+            .strategy-card:hover::before {
+                opacity: 1;
+            }
+            
+            .strategy-card.passive {
+                --accent-color: #22c55e;
+            }
+            
+            .strategy-card.steady {
+                --accent-color: #3b82f6;
+            }
+            
+            .strategy-card.aggressive {
+                --accent-color: #f59e0b;
+            }
+            
+            .strategy-header {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .strategy-icon {
+                width: 50px;
+                height: 50px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                background: var(--accent-color);
+                color: white;
+            }
+            
+            .strategy-title {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #ffffff;
+            }
+            
+            .strategy-subtitle {
+                font-size: 0.9rem;
+                color: #94a3b8;
+                margin-top: 5px;
+            }
+            
+            .strategy-description {
+                color: #cbd5e1;
+                line-height: 1.6;
+                margin-bottom: 25px;
+            }
+            
+            .strategy-features {
+                list-style: none;
+                margin-bottom: 25px;
+            }
+            
+            .strategy-features li {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 8px;
+                color: #e2e8f0;
+                font-size: 0.9rem;
+            }
+            
+            .strategy-features li::before {
+                content: '✓';
+                color: var(--accent-color);
+                font-weight: bold;
+                font-size: 14px;
+            }
+            
+            .strategy-metrics {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+            
+            .metric {
+                text-align: center;
+                padding: 15px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .metric-value {
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: var(--accent-color);
+                margin-bottom: 5px;
+            }
+            
+            .metric-label {
+                font-size: 0.8rem;
+                color: #94a3b8;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .select-strategy-btn {
+                width: 100%;
+                padding: 15px;
+                background: var(--accent-color);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .select-strategy-btn:hover {
+                background: var(--accent-color);
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            }
+            
+            .navigation {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 40px;
+            }
+            
+            .nav-button {
+                padding: 15px 30px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(255, 255, 255, 0.05);
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 12px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .nav-button:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: translateY(-2px);
+            }
+            
+            .back-button {
+                color: #94a3b8;
+            }
+            
+            @media (max-width: 768px) {
+                .strategies-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .navigation {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                
+                .nav-button {
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="step-indicator">
+                    <div class="step completed">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Stock Analysis</div>
+                    </div>
+                    <div class="step completed">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Technical Review</div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Income Strategy</div>
+                    </div>
+                </div>
+                
+                <h1 class="page-title">Choose Your Income Strategy</h1>
+                <p class="page-subtitle">Select the approach that matches your risk tolerance and income goals</p>
+                
+                {% if symbol %}
+                <div class="selected-stock">
+                    <span>📊</span>
+                    <span>Selected Stock: <strong>{{ symbol }}</strong></span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="strategies-grid">
+                <!-- Passive Strategy -->
+                <div class="strategy-card passive" onclick="selectStrategy('passive', '{{ symbol or '' }}')">
+                    <div class="strategy-header">
+                        <div class="strategy-icon">🌱</div>
+                        <div>
+                            <div class="strategy-title">Passive Income</div>
+                            <div class="strategy-subtitle">Conservative & Steady</div>
+                        </div>
+                    </div>
+                    
+                    <div class="strategy-description">
+                        Perfect for beginners and conservative investors. Focus on covered calls and cash-secured puts with minimal risk and steady monthly income.
+                    </div>
+                    
+                    <ul class="strategy-features">
+                        <li>Lower risk, consistent returns</li>
+                        <li>Monthly covered call writing</li>
+                        <li>Capital preservation focused</li>
+                        <li>Ideal for retirement accounts</li>
+                        <li>Minimal time commitment</li>
+                    </ul>
+                    
+                    <div class="strategy-metrics">
+                        <div class="metric">
+                            <div class="metric-value">2-4%</div>
+                            <div class="metric-label">Monthly Target</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">Low</div>
+                            <div class="metric-label">Risk Level</div>
+                        </div>
+                    </div>
+                    
+                    <button class="select-strategy-btn">Select Passive Strategy</button>
+                </div>
+                
+                <!-- Steady Strategy -->
+                <div class="strategy-card steady" onclick="selectStrategy('steady', '{{ symbol or '' }}')">
+                    <div class="strategy-header">
+                        <div class="strategy-icon">⚖️</div>
+                        <div>
+                            <div class="strategy-title">Steady Growth</div>
+                            <div class="strategy-subtitle">Balanced & Reliable</div>
+                        </div>
+                    </div>
+                    
+                    <div class="strategy-description">
+                        Balanced approach combining income and growth. Uses spreads, covered strategies, and selective wheeling for consistent performance.
+                    </div>
+                    
+                    <ul class="strategy-features">
+                        <li>Balanced risk-reward ratio</li>
+                        <li>Credit spreads and iron condors</li>
+                        <li>The wheel strategy integration</li>
+                        <li>Growth with income focus</li>
+                        <li>Moderate time investment</li>
+                    </ul>
+                    
+                    <div class="strategy-metrics">
+                        <div class="metric">
+                            <div class="metric-value">4-8%</div>
+                            <div class="metric-label">Monthly Target</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">Medium</div>
+                            <div class="metric-label">Risk Level</div>
+                        </div>
+                    </div>
+                    
+                    <button class="select-strategy-btn">Select Steady Strategy</button>
+                </div>
+                
+                <!-- Aggressive Strategy -->
+                <div class="strategy-card aggressive" onclick="selectStrategy('aggressive', '{{ symbol or '' }}')">
+                    <div class="strategy-header">
+                        <div class="strategy-icon">🚀</div>
+                        <div>
+                            <div class="strategy-title">Aggressive Income</div>
+                            <div class="strategy-subtitle">High Return Potential</div>
+                        </div>
+                    </div>
+                    
+                    <div class="strategy-description">
+                        Maximum income potential using advanced strategies. Short straddles, naked options, and leveraged positions for experienced traders.
+                    </div>
+                    
+                    <ul class="strategy-features">
+                        <li>Higher income potential</li>
+                        <li>Advanced option strategies</li>
+                        <li>Active management required</li>
+                        <li>Leveraged positions</li>
+                        <li>Experience recommended</li>
+                    </ul>
+                    
+                    <div class="strategy-metrics">
+                        <div class="metric">
+                            <div class="metric-value">8-15%</div>
+                            <div class="metric-label">Monthly Target</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">High</div>
+                            <div class="metric-label">Risk Level</div>
+                        </div>
+                    </div>
+                    
+                    <button class="select-strategy-btn">Select Aggressive Strategy</button>
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <a href="{% if symbol %}/step2/{{ symbol }}{% else %}/{% endif %}" class="nav-button back-button">
+                    ← Back to Analysis
+                </a>
+                <div class="nav-button" style="opacity: 0.5; cursor: not-allowed;">
+                    Continue to Execution →
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function selectStrategy(strategy, symbol) {
+                // Show selection feedback
+                const card = document.querySelector(`.strategy-card.${strategy}`);
+                card.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    card.style.transform = 'scale(1)';
+                }, 150);
+                
+                // Store selection and proceed
+                localStorage.setItem('selectedStrategy', strategy);
+                localStorage.setItem('selectedSymbol', symbol);
+                
+                // You could redirect to a detailed strategy page or show a confirmation
+                alert(`${strategy.charAt(0).toUpperCase() + strategy.slice(1)} Income Strategy selected for ${symbol || 'your selection'}!\\n\\nNext: Strategy execution details will be shown.`);
+                
+                // Future: Redirect to detailed strategy execution page
+                // window.location.href = `/strategy-execution/${strategy}/${symbol}`;
+            }
+            
+            // Add smooth scroll and enhanced interactions
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add hover sound effect (optional)
+                const cards = document.querySelectorAll('.strategy-card');
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-5px) scale(1.02)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0) scale(1)';
+                    });
+                });
+            });
+        </script>
+    </body>
+    </html>
+    """, symbol=symbol)
 
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
