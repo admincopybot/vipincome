@@ -174,10 +174,25 @@ def index():
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #0f1419;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 30%, #0f1419 70%, #0a0e1a 100%);
             color: white;
             min-height: 100vh;
             line-height: 1.5;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
         
         .top-banner {
@@ -332,10 +347,14 @@ def index():
         }
         
         .etf-card {
-            background: linear-gradient(145deg, #1e2532 0%, #2a3441 100%);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, #0f1419 0%, #1a1f2e 50%, #141925 100%);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(0, 212, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
@@ -343,6 +362,38 @@ def index():
             color: inherit;
             display: block;
             cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        
+        .etf-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(0, 212, 255, 0.05) 0%, 
+                rgba(124, 58, 237, 0.05) 50%, 
+                rgba(236, 72, 153, 0.05) 100%);
+            border-radius: 16px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        
+        .etf-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(0, 212, 255, 0.4),
+                0 0 20px rgba(0, 212, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .etf-card:hover::before {
+            opacity: 1;
         }
         
         .etf-card-wrapper {
@@ -429,10 +480,16 @@ def index():
         }
         
         .ticker-symbol {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
-            letter-spacing: 2px;
-            color: white;
+            letter-spacing: 1.5px;
+            color: #ffffff;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
         }
         
         .criteria-text {
