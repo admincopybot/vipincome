@@ -2662,27 +2662,28 @@ def debug_rsi(symbol):
             rsi = 100 - (100 / (1 + rs))
             return rsi.dropna()
         
-        def calculate_rsi_wilder(prices, window=14):
-            """Wilder's smoothing method (TradingView standard)"""
-            delta = prices.diff()
-            gain = delta.where(delta > 0, 0)
-            loss = -delta.where(delta < 0, 0)
-            
-            # Use Wilder's smoothing (alpha = 1/window)
-            alpha = 1.0 / window
-            avg_gain = gain.ewm(alpha=alpha, adjust=False).mean()
-            avg_loss = loss.ewm(alpha=alpha, adjust=False).mean()
-            avg_loss = avg_loss.replace(0, 0.00001)
+        def rma(series, length):
+            """Wilder's smoothing / RMA - exact TradingView implementation"""
+            return series.ewm(alpha=1 / length, adjust=False).mean()
+
+        def calculate_rsi_tradingview(close, length=14):
+            """Calculate RSI using exact TradingView Pine Script logic"""
+            delta = close.diff()
+            gain = delta.clip(lower=0)
+            loss = -delta.clip(upper=0)
+            avg_gain = rma(gain, length)
+            avg_loss = rma(loss, length)
             rs = avg_gain / avg_loss
             rsi = 100 - (100 / (1 + rs))
-            return rsi.dropna()
+            rsi = rsi.fillna(50)
+            return rsi
         
         rsi_simple = calculate_rsi_simple(df['Close'])
-        rsi_wilder = calculate_rsi_wilder(df['Close'])
+        rsi_tradingview = calculate_rsi_tradingview(df['Close'])
         
         # Get the latest values
         current_rsi_simple = rsi_simple.iloc[-1] if len(rsi_simple) > 0 else "No data"
-        current_rsi_wilder = rsi_wilder.iloc[-1] if len(rsi_wilder) > 0 else "No data"
+        current_rsi_tradingview = rsi_tradingview.iloc[-1] if len(rsi_tradingview) > 0 else "No data"
         
         # Generate HTML response with detailed breakdown
         html_response = f"""
@@ -2698,7 +2699,7 @@ def debug_rsi(symbol):
         <table border="1" style="border-collapse: collapse;">
         <tr><th>Method</th><th>Current RSI</th><th>Description</th></tr>
         <tr><td>Simple Moving Average</td><td><strong>{current_rsi_simple:.1f}</strong></td><td>Current implementation</td></tr>
-        <tr><td>Wilder's Smoothing</td><td><strong>{current_rsi_wilder:.1f}</strong></td><td>TradingView standard</td></tr>
+        <tr><td>TradingView Pine Script</td><td><strong>{current_rsi_tradingview:.1f}</strong></td><td>Exact TradingView implementation</td></tr>
         </table>
         
         <h3>4-Hour Price Data (Last 20 periods):</h3>
