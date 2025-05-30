@@ -2733,10 +2733,10 @@ def debug_rsi(symbol):
         </ul>
         
         <h3>RSI Calculation Differences:</h3>
-        <p>The difference between our calculation ({current_rsi_simple:.1f}) and TradingView's likely value ({current_rsi_wilder:.1f}) 
-        is <strong>{abs(float(current_rsi_simple) - float(current_rsi_wilder)):.1f} points</strong>.</p>
+        <p>The difference between our calculation ({current_rsi_simple:.1f}) and TradingView's Pine Script value ({current_rsi_tradingview:.1f}) 
+        is <strong>{abs(float(current_rsi_simple) - float(current_rsi_tradingview)):.1f} points</strong>.</p>
         
-        <p>TradingView uses Wilder's smoothing method which gives more weight to recent price movements, 
+        <p>TradingView uses exact Pine Script logic with RMA (Wilder's smoothing) method, 
         while our current implementation uses simple moving averages.</p>
         
         <p><a href="/">← Back to Main Application</a></p>
