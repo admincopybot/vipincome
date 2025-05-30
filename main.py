@@ -203,31 +203,12 @@ def index():
         .logo {
             display: flex;
             align-items: center;
-            gap: 15px;
         }
         
-        .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 18px;
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
-            transition: transform 0.3s ease;
-        }
-        
-        .logo-icon:hover {
-            transform: scale(1.05);
-        }
-        
-        .logo-text {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 1px;
+        .header-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
         }
         
         .nav-menu {
@@ -511,8 +492,7 @@ def index():
     
     <div class="header">
         <div class="logo">
-            <div class="logo-icon">IM</div>
-            <div class="logo-text">INCOME MACHINE</div>
+            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
         </div>
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
