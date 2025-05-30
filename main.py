@@ -1233,7 +1233,7 @@ def step3(symbol=None):
         
         body {
             font-family: 'Inter', sans-serif;
-            background: #0c0c0c;
+            background: #1a202c;
             color: #ffffff;
             min-height: 100vh;
             line-height: 1.6;
@@ -1301,35 +1301,39 @@ def step3(symbol=None):
         
         .step-navigation {
             display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 40px;
+            justify-content: space-between;
+            gap: 0;
+            margin: 20px auto 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            border-radius: 0;
+            padding: 0;
+            max-width: 100%;
         }
         
         .step-tab {
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            color: #64748b;
+            padding: 16px 32px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            color: #ffffff;
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
             transition: all 0.3s ease;
             position: relative;
+            flex: 1;
+            text-align: center;
         }
         
         .step-tab.active {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: rgba(59, 130, 246, 0.2);
+            background: rgba(255, 255, 255, 0.2);
             color: #ffffff;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+            font-weight: 600;
         }
         
         .step-tab.completed {
-            background: rgba(34, 197, 94, 0.08);
-            border-color: rgba(34, 197, 94, 0.15);
-            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
         }
         
         .container {
