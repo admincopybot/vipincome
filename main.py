@@ -656,13 +656,15 @@ def step2(symbol=None):
         }
         
         .step-tab.active {
-            background: linear-gradient(90deg, #00d4ff, #0ea5e9);
-            color: white;
+            background: rgba(51, 65, 85, 0.8);
+            color: #f1f5f9;
+            border-bottom: 2px solid #475569;
         }
         
         .step-tab.current {
-            background: linear-gradient(90deg, #7c3aed, #a855f7);
-            color: white;
+            background: rgba(71, 85, 105, 0.8);
+            color: #f1f5f9;
+            border-bottom: 2px solid #64748b;
         }
         
         .container {
