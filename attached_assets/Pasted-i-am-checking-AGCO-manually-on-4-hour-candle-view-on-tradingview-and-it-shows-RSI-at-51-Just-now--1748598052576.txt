@@ -1,0 +1,47 @@
+i am checking AGCO manually on 4 hour candle view on tradingview and it shows RSI at 51
+
+Just now
+HR
+
+herunarsson7
+You're absolutely right - that's a significant discrepancy. If TradingView shows AGCO's 4-hour RSI at 51, but our system might be calculating it differently, we need to investigate this.
+
+Let me check what our system calculated for AGCO specifically:
+
+
+Executed SQL query SELECT symbol, snapback_current as rsi_value, snapback_pass, snapback_description, total_score, calculation_timestamp FROM etf_scores WHERE symbol = 'AGCO' ORDER BY calculation_timestamp DESC LIMIT 1;
+You're absolutely right - there's a significant discrepancy here. Our system calculated AGCO's RSI at 36.5, while TradingView shows 51 on the 4-hour chart.
+
+This is a ~15 point difference, which is substantial and indicates there's likely an issue with either:
+
+Data timeframe mismatch - Our 4-hour data might not align with TradingView's timeframe
+RSI calculation period - We're using 14-period RSI, TradingView might be using different settings
+Data source timing - Our Polygon data timestamps vs TradingView's data feed timing
+Calculation method - Subtle differences in the RSI formula implementation
+Let me check the actual 4-hour price data we received for AGCO to see what's causing this discrepancy:
+
+
+Executed SQL query SELECT timestamp, open_price, high_price, low_price, close_price, volume FROM four_hour_prices WHERE symbol = 'AGCO' ORDER BY timestamp DESC LIMIT 10;
+I see the issue. The data shows AGCO's recent 4-hour closes around $100-102, but there's a significant RSI calculation discrepancy.
+
+The most likely causes for this 15-point difference between our calculated RSI (36.5) and TradingView's (51) are:
+
+1. Data Timing Alignment
+
+TradingView uses specific 4-hour session boundaries (9:30 AM, 1:30 PM, etc.)
+Our Polygon data might have different timestamp boundaries
+2. RSI Calculation Period
+
+We're using 14-period RSI on 4-hour data (last 14 four-hour candles)
+TradingView might be using different period settings or smoothing
+3. Market Session Handling
+
+Extended hours vs regular hours data inclusion
+How after-hours trading affects the RSI calculation
+4. Data Source Differences
+
+Polygon's "DELAYED" status data vs TradingView's real-time feed
+Different data vendors can have slight price variations
+To verify this, can you check what RSI period TradingView is showing for AGCO? The default is usually 14, but it might be set to a different period. Also, are you looking at regular trading hours only or including extended hours?
+
+This discrepancy affects the reliability of our snapback criterion scores, so we should address it to ensure accurate technical analysis results.

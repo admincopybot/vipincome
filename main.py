@@ -2557,6 +2557,177 @@ def upload_csv_form():
     </html>
     '''
 
+@app.route('/debug_rsi/<symbol>')
+def debug_rsi(symbol):
+    """Debug RSI calculation for a specific symbol to compare with TradingView"""
+    try:
+        symbol = symbol.upper()
+        
+        # Try to get data using the enhanced ETF scoring system
+        import enhanced_etf_scoring_polygon as polygon_scoring
+        
+        # Get 4-hour data for RSI calculation
+        from datetime import datetime, timedelta
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=28)).strftime('%Y-%m-%d')
+        
+        # Fetch 4-hour data directly from Polygon
+        import requests
+        import pandas as pd
+        import numpy as np
+        
+        polygon_api_key = os.environ.get('POLYGON_API_KEY')
+        if not polygon_api_key:
+            return f"""
+            <html><body>
+            <h2>RSI Debug for {symbol}</h2>
+            <p style="color: red;">No Polygon API key found. Please provide your Polygon API key.</p>
+            <p>Set the POLYGON_API_KEY environment variable to enable real data fetching.</p>
+            </body></html>
+            """
+        
+        # Fetch 4-hour data from Polygon
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{start_date}/{end_date}"
+        params = {
+            'adjusted': 'true',
+            'sort': 'asc',
+            'limit': 5000,
+            'apiKey': polygon_api_key
+        }
+        
+        response = requests.get(url, params=params, timeout=30)
+        
+        if response.status_code != 200:
+            return f"""
+            <html><body>
+            <h2>RSI Debug for {symbol}</h2>
+            <p style="color: red;">API Error: {response.status_code}</p>
+            <p>Response: {response.text}</p>
+            </body></html>
+            """
+        
+        data = response.json()
+        
+        if not data or 'results' not in data or not data['results']:
+            return f"""
+            <html><body>
+            <h2>RSI Debug for {symbol}</h2>
+            <p style="color: red;">No 4-hour data found for {symbol}</p>
+            </body></html>
+            """
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(data['results'])
+        df = df.rename(columns={
+            'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'v': 'Volume', 't': 'timestamp'
+        })
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
+        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+        df.dropna(inplace=True)
+        
+        # Calculate RSI using both methods
+        def calculate_rsi_simple(prices, window=14):
+            """Simple moving average method (current implementation)"""
+            delta = prices.diff()
+            gain = delta.where(delta > 0, 0)
+            loss = -delta.where(delta < 0, 0)
+            avg_gain = gain.rolling(window=window).mean()
+            avg_loss = loss.rolling(window=window).mean()
+            avg_loss = avg_loss.replace(0, 0.00001)
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
+            return rsi.dropna()
+        
+        def calculate_rsi_wilder(prices, window=14):
+            """Wilder's smoothing method (TradingView standard)"""
+            delta = prices.diff()
+            gain = delta.where(delta > 0, 0)
+            loss = -delta.where(delta < 0, 0)
+            
+            # Use Wilder's smoothing (alpha = 1/window)
+            alpha = 1.0 / window
+            avg_gain = gain.ewm(alpha=alpha, adjust=False).mean()
+            avg_loss = loss.ewm(alpha=alpha, adjust=False).mean()
+            avg_loss = avg_loss.replace(0, 0.00001)
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
+            return rsi.dropna()
+        
+        rsi_simple = calculate_rsi_simple(df['Close'])
+        rsi_wilder = calculate_rsi_wilder(df['Close'])
+        
+        # Get the latest values
+        current_rsi_simple = rsi_simple.iloc[-1] if len(rsi_simple) > 0 else "No data"
+        current_rsi_wilder = rsi_wilder.iloc[-1] if len(rsi_wilder) > 0 else "No data"
+        
+        # Generate HTML response with detailed breakdown
+        html_response = f"""
+        <html>
+        <head><title>RSI Debug for {symbol}</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 20px;">
+        <h2>RSI Calculation Debug for {symbol}</h2>
+        
+        <h3>Summary:</h3>
+        <table border="1" style="border-collapse: collapse;">
+        <tr><th>Method</th><th>Current RSI</th><th>Description</th></tr>
+        <tr><td>Simple Moving Average</td><td><strong>{current_rsi_simple:.1f}</strong></td><td>Current implementation</td></tr>
+        <tr><td>Wilder's Smoothing</td><td><strong>{current_rsi_wilder:.1f}</strong></td><td>TradingView standard</td></tr>
+        </table>
+        
+        <h3>4-Hour Price Data (Last 20 periods):</h3>
+        <table border="1" style="border-collapse: collapse;">
+        <tr><th>Timestamp</th><th>Close Price</th><th>Price Change</th></tr>
+        """
+        
+        # Show last 20 periods
+        recent_data = df.tail(20)
+        for i, (timestamp, row) in enumerate(recent_data.iterrows()):
+            prev_close = recent_data.iloc[i-1]['Close'] if i > 0 else None
+            change = row['Close'] - prev_close if prev_close else 0
+            change_str = f"{change:+.2f}" if prev_close else "N/A"
+            
+            html_response += f"""
+            <tr>
+            <td>{timestamp.strftime('%Y-%m-%d %H:%M')}</td>
+            <td>${row['Close']:.2f}</td>
+            <td>{change_str}</td>
+            </tr>
+            """
+        
+        html_response += f"""
+        </table>
+        
+        <h3>Data Summary:</h3>
+        <ul>
+        <li>Total 4-hour periods: {len(df)}</li>
+        <li>Date range: {df.index[0].strftime('%Y-%m-%d %H:%M')} to {df.index[-1].strftime('%Y-%m-%d %H:%M')}</li>
+        <li>Current price: ${df['Close'].iloc[-1]:.2f}</li>
+        </ul>
+        
+        <h3>RSI Calculation Differences:</h3>
+        <p>The difference between our calculation ({current_rsi_simple:.1f}) and TradingView's likely value ({current_rsi_wilder:.1f}) 
+        is <strong>{abs(float(current_rsi_simple) - float(current_rsi_wilder)):.1f} points</strong>.</p>
+        
+        <p>TradingView uses Wilder's smoothing method which gives more weight to recent price movements, 
+        while our current implementation uses simple moving averages.</p>
+        
+        <p><a href="/">← Back to Main Application</a></p>
+        </body>
+        </html>
+        """
+        
+        return html_response
+        
+    except Exception as e:
+        return f"""
+        <html><body>
+        <h2>RSI Debug Error for {symbol}</h2>
+        <p style="color: red;">Error: {str(e)}</p>
+        <p><a href="/">← Back to Main Application</a></p>
+        </body></html>
+        """
+
 @app.route('/test_options_spreads_api')
 def test_options_spreads_api():
     """Test endpoint for TheTradeList options spreads API integration
