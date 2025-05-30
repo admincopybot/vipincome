@@ -1360,17 +1360,38 @@ def step3(symbol=None):
         }
         
         .strategy-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 16px;
             padding: 30px;
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .strategy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 16px;
+        }
+        
+        .strategy-card:hover::before {
+            opacity: 1;
         }
         
         .strategy-card:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(139, 92, 246, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
         }
         
         .strategy-header {
@@ -1454,9 +1475,9 @@ def step3(symbol=None):
         .strategy-btn {
             width: 100%;
             padding: 14px;
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.5);
             border-radius: 8px;
             font-weight: 600;
             font-size: 1rem;
@@ -1466,11 +1487,14 @@ def step3(symbol=None):
             display: inline-block;
             text-align: center;
             backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
         }
         
         .strategy-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
         }
         
         .back-to-scoreboard {
