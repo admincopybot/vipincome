@@ -501,9 +501,11 @@ def index():
         }
         
         .current-price {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 800;
             color: #10b981;
+            text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+            margin: 10px 0;
         }
         
         .choose-btn-text {
