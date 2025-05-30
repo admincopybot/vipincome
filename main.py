@@ -174,7 +174,7 @@ def index():
         
         body {
             font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f1419;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             color: white;
             min-height: 100vh;
             line-height: 1.5;
@@ -292,14 +292,14 @@ def index():
         }
         
         .dashboard-subtitle {
-            color: #94a3b8;
+            color: #f1f5f9;
             margin-bottom: 12px;
             font-size: 18px;
             font-weight: 400;
         }
         
         .update-info {
-            color: #64748b;
+            color: #e2e8f0;
             font-size: 14px;
             margin-bottom: 50px;
             font-weight: 500;
@@ -418,17 +418,17 @@ def index():
             font-size: 28px;
             font-weight: 800;
             letter-spacing: 1.5px;
-            color: #60a5fa;
+            color: #f1f5f9;
             text-transform: uppercase;
             margin-bottom: 5px;
         }
         
         .criteria-text {
             font-size: 11px;
-            color: #94a3b8;
+            color: #e2e8f0;
             margin-top: 8px;
             font-weight: 500;
-            opacity: 0.8;
+            opacity: 0.9;
         }
         
         .current-price {
@@ -440,11 +440,11 @@ def index():
         }
         
         .choose-btn-text {
-            background: rgba(37, 99, 235, 0.2);
-            color: #2563eb;
+            background: rgba(100, 116, 139, 0.2);
+            color: #e2e8f0;
             padding: 12px 24px;
             border-radius: 8px;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 14px;
             width: 100%;
             text-align: center;
