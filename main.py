@@ -268,12 +268,12 @@ def index():
             background: #1a1f2e;
             padding: 20px 50px;
             text-align: center;
-            color: #60a5fa;
+            color: #2563eb;
             font-size: 20px;
             font-weight: 600;
             letter-spacing: 1px;
-            border: 1px solid #3b82f6;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+            border: 1px solid #2563eb;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
         }
         
         .main-content {
@@ -286,7 +286,10 @@ def index():
             font-size: 42px;
             font-weight: 800;
             margin-bottom: 15px;
-            color: #60a5fa;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .dashboard-subtitle {
@@ -442,8 +445,8 @@ def index():
         }
         
         .choose-btn-text {
-            background: rgba(59, 130, 246, 0.1);
-            color: #60a5fa;
+            background: rgba(37, 99, 235, 0.2);
+            color: #2563eb;
             padding: 12px 24px;
             border-radius: 8px;
             font-weight: 700;
@@ -451,12 +454,13 @@ def index():
             width: 100%;
             text-align: center;
             transition: all 0.3s ease;
-            border: 1px solid #3b82f6;
+            border: 1px solid #2563eb;
         }
         
         .etf-card:hover .choose-btn-text {
-            background: rgba(96, 165, 250, 0.2);
-            border-color: #60a5fa;
+            background: rgba(37, 99, 235, 0.3);
+            border-color: #1d4ed8;
+            color: #1d4ed8;
         }
         
         /* Responsive design */
