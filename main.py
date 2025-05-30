@@ -2570,7 +2570,7 @@ def debug_rsi(symbol):
         # Get 4-hour data for RSI calculation - use most recent data
         from datetime import datetime, timedelta
         end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=14)).strftime('%Y-%m-%d')  # Last 2 weeks for current data
+        start_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')  # Last 60 days for proper RSI calculation
         
         # Fetch 4-hour data directly from Polygon
         import requests
