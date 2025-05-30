@@ -1,4 +1,6 @@
 from flask import Flask, request, render_template_string, redirect, url_for, jsonify
+import io
+import csv
 import logging
 import os
 import threading
@@ -2387,6 +2389,173 @@ def test_csv_data():
         </body>
         </html>
         """
+
+@app.route('/upload_csv', methods=['POST'])
+def upload_csv():
+    """CSV upload endpoint that updates the ETF scoreboard with exact data from uploaded CSV
+    
+    Accepts:
+    - File upload via 'csvfile' form field
+    - Raw CSV text via 'csv_text' form field
+    
+    Returns:
+    - Success/error response
+    """
+    global etf_scores
+    
+    try:
+        csv_content = None
+        
+        # Check for file upload
+        if 'csvfile' in request.files:
+            file = request.files['csvfile']
+            if file and file.filename and file.filename.endswith('.csv'):
+                csv_content = file.read().decode('utf-8')
+                logger.info(f"Received CSV file upload: {file.filename}")
+        
+        # Check for raw CSV text
+        elif 'csv_text' in request.form:
+            csv_content = request.form['csv_text']
+            logger.info("Received raw CSV text upload")
+        
+        # Check for JSON format (for API calls)
+        elif request.is_json:
+            json_data = request.get_json()
+            if 'csv_content' in json_data:
+                csv_content = json_data['csv_content']
+                logger.info("Received CSV content via JSON")
+        
+        if not csv_content:
+            return jsonify({
+                'error': 'No CSV data provided. Send file via csvfile field, text via csv_text field, or JSON with csv_content.'
+            }), 400
+        
+        # Parse CSV content
+        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        updated_symbols = []
+        new_etf_data = {}
+        
+        # Default sector mappings for stock symbols
+        stock_sectors = {
+            "AAPL": "Technology",
+            "GOOGL": "Technology", 
+            "MSFT": "Technology",
+            "TSLA": "Consumer Discretionary",
+            "AMZN": "Consumer Discretionary",
+            "META": "Technology",
+            "NVDA": "Technology",
+            "NFLX": "Communication Services",
+            "AMD": "Technology",
+            "INTC": "Technology"
+        }
+        
+        for row in csv_reader:
+            symbol = row['symbol'].upper()
+            
+            # Convert CSV data to the exact format expected by frontend
+            indicators = {
+                'trend1': {
+                    'pass': row['trend1_pass'].lower() == 'true',
+                    'current': float(row['trend1_current']),
+                    'threshold': float(row['trend1_threshold']),
+                    'description': row['trend1_description']
+                },
+                'trend2': {
+                    'pass': row['trend2_pass'].lower() == 'true',
+                    'current': float(row['trend2_current']),
+                    'threshold': float(row['trend2_threshold']),
+                    'description': row['trend2_description']
+                },
+                'snapback': {
+                    'pass': row['snapback_pass'].lower() == 'true',
+                    'current': float(row['snapback_current']),
+                    'threshold': float(row['snapback_threshold']),
+                    'description': row['snapback_description']
+                },
+                'momentum': {
+                    'pass': row['momentum_pass'].lower() == 'true',
+                    'current': float(row['momentum_current']),
+                    'threshold': float(row['momentum_threshold']),
+                    'description': row['momentum_description']
+                },
+                'stabilizing': {
+                    'pass': row['stabilizing_pass'].lower() == 'true',
+                    'current': float(row['stabilizing_current']),
+                    'threshold': float(row['stabilizing_threshold']),
+                    'description': row['stabilizing_description']
+                }
+            }
+            
+            # Determine sector name
+            sector_name = stock_sectors.get(symbol, "Unknown Sector")
+            
+            # Create ETF data structure that matches exactly what frontend expects
+            new_etf_data[symbol] = {
+                "name": sector_name,
+                "score": int(row['total_score']),
+                "price": float(row['current_price']),
+                "indicators": indicators,
+                "calculation_timestamp": row.get('calculation_timestamp', ''),
+                "data_age_hours": int(row.get('data_age_hours', 0))
+            }
+            
+            updated_symbols.append(symbol)
+        
+        # Update global etf_scores with new data
+        # Preserve any existing ETF symbols that aren't in the CSV
+        for symbol, data in new_etf_data.items():
+            etf_scores[symbol] = data
+        
+        logger.info(f"Successfully updated {len(updated_symbols)} symbols from CSV: {', '.join(updated_symbols)}")
+        
+        # Return success response
+        return jsonify({
+            'success': True,
+            'message': f'Successfully updated {len(updated_symbols)} symbols',
+            'updated_symbols': updated_symbols,
+            'total_symbols_in_system': len(etf_scores)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error processing CSV upload: {str(e)}")
+        return jsonify({
+            'error': f'Failed to process CSV: {str(e)}'
+        }), 500
+
+@app.route('/upload_csv_form')
+def upload_csv_form():
+    """Simple form for CSV upload testing"""
+    return '''
+    <html>
+    <head><title>CSV Upload Form</title></head>
+    <body style="font-family: Arial, sans-serif; margin: 20px;">
+    <h2>Upload CSV to Update ETF Scoreboard</h2>
+    
+    <h3>Upload CSV File:</h3>
+    <form action="/upload_csv" method="post" enctype="multipart/form-data">
+        <input type="file" name="csvfile" accept=".csv" required>
+        <button type="submit">Upload CSV File</button>
+    </form>
+    
+    <h3>Or Paste CSV Text:</h3>
+    <form action="/upload_csv" method="post">
+        <textarea name="csv_text" rows="10" cols="80" placeholder="Paste your CSV content here..."></textarea><br>
+        <button type="submit">Upload CSV Text</button>
+    </form>
+    
+    <h3>API Usage:</h3>
+    <p>POST to <code>/upload_csv</code> with:</p>
+    <ul>
+    <li>File upload: <code>csvfile</code> form field</li>
+    <li>Text upload: <code>csv_text</code> form field</li>
+    <li>JSON upload: <code>{"csv_content": "your,csv,data..."}</code></li>
+    </ul>
+    
+    <p><a href="/">← Back to Main Application</a></p>
+    <p><a href="/test_csv_data">← View Current CSV Data</a></p>
+    </body>
+    </html>
+    '''
 
 @app.route('/test_options_spreads_api')
 def test_options_spreads_api():
