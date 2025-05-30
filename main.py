@@ -163,198 +163,281 @@ def index():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Income Machine</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1d29;
+            color: white;
             min-height: 100vh;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            padding: 30px;
-        }
-        .header {
+        
+        .top-banner {
+            background: linear-gradient(90deg, #00bcd4 0%, #673ab7 100%);
+            padding: 8px 0;
             text-align: center;
-            margin-bottom: 30px;
+            color: white;
+            font-size: 14px;
         }
-        .header h1 {
-            color: #2c3e50;
-            margin: 0;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        .subtitle {
-            color: #7f8c8d;
-            font-size: 1.2em;
-            margin-top: 10px;
-        }
-        .etf-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .etf-card {
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 1px solid #dee2e6;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .etf-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .etf-header {
+        
+        .header {
+            background: #1a1d29;
+            padding: 15px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            border-bottom: 1px solid #2a2d3a;
         }
-        .etf-symbol {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .etf-price {
-            font-size: 1.3em;
-            color: #27ae60;
-            font-weight: bold;
-        }
-        .etf-name {
-            color: #7f8c8d;
-            margin-bottom: 15px;
-            font-size: 0.9em;
-        }
-        .score-display {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .score-number {
-            font-size: 3em;
-            font-weight: bold;
-            margin: 0;
-        }
-        .score-5 { color: #27ae60; }
-        .score-4 { color: #f39c12; }
-        .score-3 { color: #f39c12; }
-        .score-2 { color: #e74c3c; }
-        .score-1 { color: #e74c3c; }
-        .score-0 { color: #95a5a6; }
-        .score-label {
-            font-size: 0.9em;
-            color: #7f8c8d;
-            margin-top: 5px;
-        }
-        .indicators {
-            display: grid;
-            gap: 8px;
-        }
-        .indicator {
+        
+        .logo {
             display: flex;
             align-items: center;
-            padding: 8px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 8px;
-            font-size: 0.85em;
+            gap: 10px;
         }
-        .indicator-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00bcd4, #673ab7);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.8em;
+            font-size: 20px;
         }
-        .indicator-pass {
-            background: #27ae60;
-            color: white;
+        
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
         }
-        .indicator-fail {
-            background: #e74c3c;
-            color: white;
+        
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
         }
-        .navigation {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .nav-button {
-            background: linear-gradient(145deg, #3498db, #2980b9);
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1.1em;
-            cursor: pointer;
-            margin: 0 10px;
+        
+        .nav-item {
+            color: #b0b3b8;
             text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            font-size: 14px;
         }
-        .nav-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        
+        .nav-item:hover {
+            color: white;
         }
-        .update-time {
+        
+        .get-offer-btn {
+            background: #ffd700;
+            color: #1a1d29;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .step-header {
+            background: linear-gradient(90deg, #00bcd4 0%, #673ab7 100%);
+            padding: 15px 40px;
             text-align: center;
-            color: #7f8c8d;
-            font-size: 0.9em;
-            margin-top: 20px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .main-content {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .dashboard-subtitle {
+            color: #b0b3b8;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .update-info {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+        
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .etf-card {
+            background: #2a2d3a;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #3a3d4a;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .etf-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .etf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .etf-symbol {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .etf-score {
+            background: #00bcd4;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .etf-name {
+            color: #b0b3b8;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .etf-price {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            background: #3a3d4a;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00bcd4, #673ab7);
+            transition: width 0.3s ease;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-recommended {
+            background: #ffd700;
+            color: #1a1d29;
+            padding: 12px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .btn-select {
+            background: linear-gradient(90deg, #00bcd4, #673ab7);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .btn-select:hover, .btn-recommended:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .crown-icon {
+            color: #ffd700;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Income Machine</h1>
-            <div class="subtitle">Sector ETF Analysis Dashboard</div>
+    <div class="top-banner">
+        Free Income Machine Experience Ends in... 670 DIM 428 1485
+    </div>
+    
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">IM</div>
+            <div class="logo-text">INCOME MACHINE</div>
         </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item">Trade Classes</a>
+            <a href="#" class="get-offer-btn">Get 50% OFF</a>
+        </div>
+    </div>
+    
+    <div class="step-header">
+        Step 1: Scoreboard
+    </div>
+    
+    <div class="main-content">
+        <h1 class="dashboard-title">Daily ETF Scoreboard</h1>
+        <p class="dashboard-subtitle">Select an ETF with a score of 3+ for the highest probability income opportunity.</p>
+        <p class="update-info">Prices and scores update automatically</p>
         
         <div class="etf-grid">
             {% for symbol, etf in etf_scores.items() %}
+            {% if loop.index <= 10 %}
             <div class="etf-card">
                 <div class="etf-header">
                     <div class="etf-symbol">{{ symbol }}</div>
-                    <div class="etf-price">${{ "%.2f"|format(etf.price) }}</div>
+                    <div class="etf-score">{{ etf.score }}/5</div>
                 </div>
                 <div class="etf-name">{{ etf.name }}</div>
+                <div class="etf-price">${{ "%.2f"|format(etf.price) }}</div>
                 
-                <div class="score-display">
-                    <div class="score-number score-{{ etf.score }}">{{ etf.score }}</div>
-                    <div class="score-label">out of 5</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (etf.score / 5 * 100) }}%"></div>
                 </div>
                 
-                <div class="indicators">
-                    {% for indicator_name, indicator in etf.indicators.items() %}
-                    <div class="indicator">
-                        <div class="indicator-icon {{ 'indicator-pass' if indicator.pass else 'indicator-fail' }}">
-                            {{ '✓' if indicator.pass else '✗' }}
-                        </div>
-                        <div>{{ indicator.description }}</div>
-                    </div>
-                    {% endfor %}
+                <div class="action-buttons">
+                    {% if etf.score >= 4 %}
+                    <a href="#" class="btn-recommended">
+                        <span class="crown-icon">👑</span> Recommended Asset
+                    </a>
+                    <a href="#" class="btn-select" style="background: #4a4d5a; font-size: 12px;">Select {{ symbol }}</a>
+                    {% else %}
+                    <a href="#" class="btn-select">Select {{ symbol }}</a>
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
             {% endfor %}
-        </div>
-        
-        <div class="navigation">
-            <a href="/step2" class="nav-button">View Analysis Details</a>
-            <a href="/step3" class="nav-button">Trading Recommendations</a>
-        </div>
-        
-        <div class="update-time">
-            Data loaded from database • Updated automatically via CSV upload
         </div>
     </div>
 
