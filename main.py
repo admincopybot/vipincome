@@ -1304,7 +1304,7 @@ def step3(symbol=None):
             justify-content: space-between;
             gap: 0;
             margin: 20px auto 40px;
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
             border-radius: 0;
             padding: 0;
             max-width: 100%;
