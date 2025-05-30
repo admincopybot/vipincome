@@ -1344,6 +1344,11 @@ def api_chart_data(symbol):
         
         data = response.json()
         
+        # Debug logging
+        print(f"DEBUG: API response status: {data.get('status')}")
+        print(f"DEBUG: Has results: {'results' in data}")
+        print(f"DEBUG: Results count: {len(data.get('results', []))}")
+        
         if data.get('status') != 'OK' or 'results' not in data:
             return jsonify({
                 'success': False,
