@@ -174,7 +174,7 @@ def index():
         
         body {
             font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #000000;
+            background: #0f1419;
             color: white;
             min-height: 100vh;
             line-height: 1.5;
@@ -284,16 +284,15 @@ def index():
         }
         
         .step-header {
-            background: #0a0a0a;
+            background: #1a1f2e;
             padding: 20px 50px;
             text-align: center;
-            color: #00d4ff;
+            color: #60a5fa;
             font-size: 20px;
             font-weight: 600;
             letter-spacing: 1px;
-            border: 1px solid #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            border: 1px solid #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
         }
         
         .main-content {
@@ -306,8 +305,7 @@ def index():
             font-size: 42px;
             font-weight: 800;
             margin-bottom: 15px;
-            color: #00d4ff;
-            text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+            color: #60a5fa;
         }
         
         .dashboard-subtitle {
@@ -331,13 +329,13 @@ def index():
         }
         
         .etf-card {
-            background: #0a0a0a;
+            background: #1a1f2e;
             border-radius: 12px;
             padding: 30px;
-            border: 1px solid #00d4ff;
+            border: 1px solid #3b82f6;
             box-shadow: 
-                0 0 20px rgba(0, 212, 255, 0.2),
-                inset 0 1px 0 rgba(0, 212, 255, 0.1);
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                0 0 10px rgba(59, 130, 246, 0.1);
             transition: all 0.3s ease;
             position: relative;
             text-decoration: none;
@@ -348,11 +346,10 @@ def index():
         
         .etf-card:hover {
             transform: translateY(-4px);
-            border-color: #00d4ff;
+            border-color: #60a5fa;
             box-shadow: 
-                0 0 30px rgba(0, 212, 255, 0.4),
-                0 0 60px rgba(0, 212, 255, 0.2),
-                inset 0 1px 0 rgba(0, 212, 255, 0.2);
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(96, 165, 250, 0.2);
         }
         
         .etf-card-wrapper {
@@ -442,10 +439,9 @@ def index():
             font-size: 28px;
             font-weight: 800;
             letter-spacing: 1.5px;
-            color: #00d4ff;
+            color: #60a5fa;
             text-transform: uppercase;
             margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
         
         .criteria-text {
@@ -465,8 +461,8 @@ def index():
         }
         
         .choose-btn-text {
-            background: rgba(0, 212, 255, 0.1);
-            color: #00d4ff;
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
             padding: 12px 24px;
             border-radius: 8px;
             font-weight: 700;
@@ -474,14 +470,12 @@ def index():
             width: 100%;
             text-align: center;
             transition: all 0.3s ease;
-            border: 1px solid #00d4ff;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+            border: 1px solid #3b82f6;
         }
         
         .etf-card:hover .choose-btn-text {
-            background: rgba(0, 212, 255, 0.2);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-            text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+            background: rgba(96, 165, 250, 0.2);
+            border-color: #60a5fa;
         }
         
         /* Responsive design */
