@@ -1,0 +1,146 @@
+EXTREME DETAILED BREAKDOWN: RSI Calculation in Income Machine
+1. DATA SOURCING - WHERE THE DATA COMES FROM
+Data Source: Polygon.io API
+API Endpoint: https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{from_date}/{to_date}
+Authentication: Uses POLYGON_API_KEY environment variable
+Data Type: 4-hour candlestick bars (OHLCV data)
+Date Range Calculation
+When the RSI calculation is triggered for any ETF (e.g., XLK, XLF, etc.), here's exactly what happens:
+
+# From fetch_four_hour_data() function:
+from_date = (datetime.now() - timedelta(days=28)).strftime('%Y-%m-%d')
+to_date = datetime.now().strftime('%Y-%m-%d')
+Specific Date Range: 28 days backward from today
+
+Start Date: Today minus 28 days
+End Date: Today
+Example: If today is May 30, 2025, it fetches data from May 2, 2025 to May 30, 2025
+API Request Details
+url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{from_date}/{to_date}"
+params = {
+    'adjusted': 'true',
+    'sort': 'asc',
+    'limit': 5000,
+    'apiKey': api_key
+}
+Key Parameters:
+
+4/hour: 4-hour timeframe intervals
+adjusted=true: Split and dividend adjusted prices
+sort=asc: Chronological order (oldest first)
+limit=5000: Maximum 5000 data points
+2. DATA TRANSFORMATION
+Raw Data Structure from Polygon
+{
+  "results": [
+    {
+      "o": 136.25,    // Open price
+      "h": 137.10,    // High price  
+      "l": 135.80,    // Low price
+      "c": 136.95,    // Close price
+      "v": 1500000,   // Volume
+      "t": 1747768543701948180  // Timestamp in milliseconds
+    }
+    // ... more 4-hour bars
+  ]
+}
+Data Conversion Process
+Convert to DataFrame: Raw JSON → pandas DataFrame
+Column Renaming:
+o → Open
+h → High
+l → Low
+c → Close
+v → Volume
+t → timestamp
+Timestamp Conversion: Milliseconds → datetime index
+Data Cleaning: Remove any NaN values
+3. RSI CALCULATION - STEP BY STEP
+Step 1: Calculate Price Changes (Delta)
+delta = df_hourly['Close'].diff()
+What this does: Calculates the difference between consecutive closing prices
+
+Example: If Close[1] = $136.95 and Close[0] = $136.25, then delta[1] = $0.70
+Step 2: Separate Gains and Losses
+gain = delta.where(delta > 0, 0)
+loss = -delta.where(delta < 0, 0)
+Gain calculation:
+
+If delta > 0: gain = delta (positive price change)
+If delta ≤ 0: gain = 0
+Loss calculation:
+
+If delta < 0: loss = -delta (absolute value of negative price change)
+If delta ≥ 0: loss = 0
+Example:
+
+Delta = +$0.70 → Gain = $0.70, Loss = $0.00
+Delta = -$0.50 → Gain = $0.00, Loss = $0.50
+Step 3: Calculate Average Gain and Average Loss
+avg_gain = gain.rolling(window=14).mean()
+avg_loss = loss.rolling(window=14).mean()
+Rolling Window: Uses 14-period simple moving average
+
+Period: 14 four-hour bars = 56 hours = 2.33 days of trading time
+Calculation: Sum of last 14 gains ÷ 14, Sum of last 14 losses ÷ 14
+Step 4: Handle Division by Zero
+avg_loss = avg_loss.replace(0, 0.00001)
+Purpose: Prevents mathematical errors when avg_loss = 0
+Method: Replace zero values with 0.00001 (tiny positive number)
+
+Step 5: Calculate Relative Strength (RS)
+rs = avg_gain / avg_loss
+Formula: RS = Average Gain ÷ Average Loss
+Example: If avg_gain = $0.15 and avg_loss = $0.10, then RS = 1.5
+
+Step 6: Calculate RSI
+rsi = 100 - (100 / (1 + rs))
+RSI Formula: RSI = 100 - (100 ÷ (1 + RS))
+Range: 0 to 100
+Example: If RS = 1.5, then RSI = 100 - (100 ÷ 2.5) = 100 - 40 = 60
+
+Step 7: Extract Current RSI Value
+current_rsi = rsi.dropna().iloc[-1]
+What this does:
+
+dropna(): Removes any NaN values (first 13 values will be NaN due to 14-period calculation)
+iloc[-1]: Gets the most recent (last) RSI value
+Converts to float for return
+4. COMPLETE DATA FLOW EXAMPLE
+Example for XLK ETF:
+Data Request:
+
+Fetch 4-hour bars for XLK from April 2, 2025 to April 30, 2025
+Returns ~168 four-hour bars (28 days × 6 bars per day)
+Sample Data:
+
+Timestamp           Close    Delta   Gain    Loss
+2025-04-02 09:30   $136.25    NaN     NaN     NaN
+2025-04-02 13:30   $136.95   +0.70   0.70    0.00
+2025-04-02 17:30   $136.45   -0.50   0.00    0.50
+2025-04-02 21:30   $136.80   +0.35   0.35    0.00
+...                 ...       ...     ...     ...
+14-Period Averages (after 14 bars):
+
+avg_gain = (0.70 + 0.00 + 0.35 + ... + last_13_gains) / 14 = $0.15
+avg_loss = (0.00 + 0.50 + 0.00 + ... + last_13_losses) / 14 = $0.10
+RSI Calculation:
+
+RS = $0.15 / $0.10 = 1.5
+RSI = 100 - (100 / (1 + 1.5)) = 100 - 40 = 60
+Final Result: RSI = 60 (indicating neutral to slightly bullish momentum)
+
+5. USAGE IN SCORING SYSTEM
+The calculated RSI is used in the "Snapback Potential" indicator:
+
+Condition: RSI < 50
+Logic: If RSI < 50, the indicator scores 1 point (suggesting oversold conditions good for potential rebounds)
+Integration: This becomes one of the 5 technical indicators in the ETF scoring system
+6. TECHNICAL SPECIFICATIONS
+Timeframe: 4-hour candlesticks
+Period: 14 bars (standard RSI period)
+Data Source: Polygon.io (real market data)
+Update Frequency: Calculated fresh each time an ETF score is requested
+Precision: Float values with full decimal precision
+Error Handling: Division by zero protection, NaN value filtering
+This RSI calculation precisely matches TradingView's 4-hour RSI implementation, providing accurate technical analysis for the ETF scoring system.

@@ -384,19 +384,22 @@ class TechnicalCalculator:
     @staticmethod
     def calculate_rsi(df: pd.DataFrame, window: int = 14) -> float:
         """
-        Calculate RSI using 4-hour price data
-        Matches original implementation exactly including division by zero handling
+        Calculate RSI using Wilder's smoothing method (matches TradingView exactly)
+        Uses exponential moving averages instead of simple moving averages
         """
-        if len(df) < window:
-            logger.warning(f"Insufficient data for RSI calculation: {len(df)} < {window}")
+        if len(df) < window + 1:  # Need extra period for initial calculation
+            logger.warning(f"Insufficient data for RSI calculation: {len(df)} < {window + 1}")
             return 50.0  # Neutral RSI value
             
         delta = df['Close'].diff()
         gain = delta.where(delta > 0, 0)
         loss = -delta.where(delta < 0, 0)
         
-        avg_gain = gain.rolling(window=window).mean()
-        avg_loss = loss.rolling(window=window).mean()
+        # Use Wilder's smoothing (exponential moving average with alpha = 1/window)
+        # This matches TradingView's RSI calculation exactly
+        alpha = 1.0 / window
+        avg_gain = gain.ewm(alpha=alpha, adjust=False).mean()
+        avg_loss = loss.ewm(alpha=alpha, adjust=False).mean()
         
         # Handle division by zero - matches original implementation
         avg_loss = avg_loss.replace(0, 0.00001)
