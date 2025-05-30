@@ -1216,7 +1216,7 @@ def step2(symbol=None):
 @app.route('/step3/<symbol>')
 def step3(symbol=None):
     """Step 3: Income Strategy Selection"""
-    return render_template_string("""
+    template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -1225,437 +1225,443 @@ def step3(symbol=None):
         <title>Step 3: Income Strategy Selection - Income Machine</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .top-banner {
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-logo {
+            height: 32px;
+            width: auto;
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .nav-item {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            color: #ffffff;
+        }
+        
+        .get-offer-btn {
+            background: #ffffff;
+            color: #1e40af;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .get-offer-btn:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        
+        .step-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+        }
+        
+        .step-tab {
+            padding: 12px 32px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .step-tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .step-tab.completed {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .ticker-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .ticker-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        
+        .ticker-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .strategies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .strategy-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .strategy-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .strategy-header {
+            margin-bottom: 20px;
+        }
+        
+        .strategy-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .strategy-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .strategy-returns {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .returns-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .returns-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #22c55e;
+        }
+        
+        .strategy-details {
+            margin-bottom: 24px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .detail-value {
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .risk-high {
+            color: #ef4444;
+        }
+        
+        .risk-medium {
+            color: #f59e0b;
+        }
+        
+        .risk-low {
+            color: #22c55e;
+        }
+        
+        .strategy-btn {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .strategy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .back-to-scoreboard {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .back-scoreboard-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-scoreboard-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .strategies-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
             
-            body {
-                font-family: 'Inter', sans-serif;
-                background: #0c0c0c;
-                color: #ffffff;
-                min-height: 100vh;
-                line-height: 1.6;
+            .container {
+                padding: 20px 10px;
             }
             
-            .main-container {
-                min-height: 100vh;
-                width: 100%;
-                max-width: 1400px;
-                margin: 0 auto;
-                padding: 40px 20px;
-            }
-            
-            .header-section {
-                text-align: center;
-                margin-bottom: 40px;
-            }
-            
-            .step-navigation {
-                display: flex;
-                justify-content: center;
-                gap: 8px;
-                margin-bottom: 40px;
-            }
-            
-            .step-tab {
-                padding: 12px 24px;
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 8px;
-                color: #64748b;
-                text-decoration: none;
-                font-size: 14px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                position: relative;
-            }
-            
-            .step-tab.active {
-                background: rgba(59, 130, 246, 0.1);
-                border-color: rgba(59, 130, 246, 0.2);
-                color: #ffffff;
-                box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
-            }
-            
-            .step-tab.completed {
-                background: rgba(34, 197, 94, 0.08);
-                border-color: rgba(34, 197, 94, 0.15);
-                color: #94a3b8;
-            }
-            
-            .main-title {
-                font-size: 2.5rem;
-                font-weight: 700;
-                margin-bottom: 15px;
-                background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                text-align: center;
-            }
-            
-            .main-subtitle {
-                font-size: 1.1rem;
-                color: #94a3b8;
-                margin-bottom: 30px;
-                text-align: center;
-            }
-            
-            .selected-symbol {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 16px;
-                background: rgba(59, 130, 246, 0.1);
-                border: 1px solid rgba(59, 130, 246, 0.2);
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 600;
-                margin-bottom: 40px;
-            }
-            
-            .strategies-container {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-                gap: 24px;
-                margin-bottom: 40px;
+            .ticker-title {
+                font-size: 2rem;
             }
             
             .strategy-card {
-                background: rgba(255, 255, 255, 0.02);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 16px;
-                padding: 24px;
-                transition: all 0.3s ease;
-                cursor: pointer;
-                position: relative;
-                backdrop-filter: blur(10px);
+                padding: 20px;
             }
             
-            .strategy-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: linear-gradient(135deg, var(--glow-color) 0%, transparent 50%);
-                opacity: 0;
-                border-radius: 16px;
-                transition: opacity 0.3s ease;
-                pointer-events: none;
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
             }
             
-            .strategy-card:hover {
-                transform: translateY(-4px);
-                border-color: var(--border-color);
-                box-shadow: 0 0 30px var(--shadow-color);
+            .nav-menu {
+                gap: 20px;
             }
-            
-            .strategy-card:hover::before {
-                opacity: 0.03;
-            }
-            
-            .strategy-card.passive {
-                --glow-color: #22c55e;
-                --border-color: rgba(34, 197, 94, 0.3);
-                --shadow-color: rgba(34, 197, 94, 0.15);
-                --accent-color: #22c55e;
-            }
-            
-            .strategy-card.steady {
-                --glow-color: #3b82f6;
-                --border-color: rgba(59, 130, 246, 0.3);
-                --shadow-color: rgba(59, 130, 246, 0.15);
-                --accent-color: #3b82f6;
-            }
-            
-            .strategy-card.aggressive {
-                --glow-color: #f59e0b;
-                --border-color: rgba(245, 158, 11, 0.3);
-                --shadow-color: rgba(245, 158, 11, 0.15);
-                --accent-color: #f59e0b;
-            }
-            
-            .strategy-header {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 20px;
-            }
-            
-            .strategy-icon {
-                width: 40px;
-                height: 40px;
-                background: var(--accent-color);
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 18px;
-                color: white;
-            }
-            
-            .strategy-info h3 {
-                font-size: 1.3rem;
-                font-weight: 700;
-                color: #ffffff;
-                margin-bottom: 4px;
-            }
-            
-            .strategy-info .subtitle {
-                font-size: 0.85rem;
-                color: #94a3b8;
-            }
-            
-            .strategy-description {
-                color: #cbd5e1;
-                margin-bottom: 20px;
-                line-height: 1.6;
-                font-size: 0.95rem;
-            }
-            
-            .strategy-features {
-                list-style: none;
-                margin-bottom: 20px;
-            }
-            
-            .strategy-features li {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 6px;
-                color: #e2e8f0;
-                font-size: 0.9rem;
-            }
-            
-            .strategy-features li::before {
-                content: '✓';
-                color: var(--accent-color);
-                font-weight: 600;
-                font-size: 12px;
-            }
-            
-            .strategy-metrics {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-                margin-bottom: 24px;
-            }
-            
-            .metric-item {
-                text-align: center;
-                padding: 12px;
-                background: rgba(255, 255, 255, 0.04);
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 8px;
-            }
-            
-            .metric-value {
-                font-size: 1.1rem;
-                font-weight: 700;
-                color: var(--accent-color);
-                margin-bottom: 4px;
-            }
-            
-            .metric-label {
-                font-size: 0.75rem;
-                color: #94a3b8;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-            
-            .strategy-button {
-                width: 100%;
-                padding: 12px;
-                background: var(--accent-color);
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-size: 0.95rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-            
-            .strategy-button:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            }
-            
-            .back-to-scoreboard {
-                text-align: center;
-                margin-top: 40px;
-            }
-            
-            .back-scoreboard-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 12px 24px;
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 8px;
-                color: #94a3b8;
-                text-decoration: none;
-                font-weight: 500;
-                transition: all 0.3s ease;
-            }
-            
-            .back-scoreboard-btn:hover {
-                background: rgba(255, 255, 255, 0.06);
-                border-color: rgba(255, 255, 255, 0.15);
-                color: #ffffff;
-                transform: translateY(-2px);
-            }
-            
-            @media (max-width: 768px) {
-                .strategies-container {
-                    grid-template-columns: 1fr;
-                }
-                
-                .step-navigation {
-                    flex-direction: column;
-                    gap: 8px;
-                }
-                
-                .main-title {
-                    font-size: 2rem;
-                }
-            }
+        }
         </style>
     </head>
     <body>
-        <div class="main-container">
-            <div class="header-section">
-                <div class="step-navigation">
-                    <a href="/" class="step-tab completed">Step 1: Analysis</a>
-                    <a href="{% if symbol %}/step2/{{ symbol }}{% else %}#{% endif %}" class="step-tab completed">Step 2: Review</a>
-                    <div class="step-tab active">Step 3: Strategy</div>
-                </div>
-                
-                <h1 class="main-title">{{ symbol or 'STOCK' }} - Income Strategy Selection</h1>
-                <p class="main-subtitle">Choose the income strategy that matches your risk tolerance and investment goals.</p>
-                
-                {% if symbol %}
-                <div class="selected-symbol">
-                    <span>📊</span>
-                    <span>Selected: <strong>{{ symbol }}</strong></span>
-                </div>
-                {% endif %}
+        <div class="top-banner">
+            Free Income Machine Experience Ends in... 670 DIM 428 1485
+        </div>
+        
+        <div class="header">
+            <div class="logo">
+                <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item">How to Use</a>
+                <a href="#" class="nav-item">Trade Classes</a>
+                <a href="#" class="get-offer-btn">Get 50% OFF</a>
+            </div>
+        </div>
+        
+        <div class="step-navigation">
+            <a href="/" class="step-tab completed">Step 1: Scoreboard</a>
+            <a href="{% if symbol %}/step2/{{ symbol }}{% else %}#{% endif %}" class="step-tab completed">Step 2: Asset Review</a>
+            <div class="step-tab active">Step 3: Strategy</div>
+        </div>
+        
+        <div class="container">
+            <div class="ticker-header">
+                <div class="ticker-title">{{ symbol or 'STOCK' }} - Income Strategy Selection</div>
+                <div class="ticker-subtitle">Choose the income strategy that matches your risk tolerance and investment goals.</div>
             </div>
             
-            <div class="strategies-container">
-                <!-- Passive Strategy -->
-                <div class="strategy-card passive" onclick="selectStrategy('passive', '{{ symbol or '' }}')">
+            <div class="strategies-grid">
+                <div class="strategy-card">
                     <div class="strategy-header">
-                        <div class="strategy-icon">🌱</div>
-                        <div class="strategy-info">
-                            <h3>Passive Income</h3>
-                            <div class="subtitle">Conservative & Steady</div>
+                        <h3 class="strategy-title">Passive Income Strategy</h3>
+                        <p class="strategy-subtitle">Conservative approach with steady returns</p>
+                    </div>
+                    
+                    <div class="strategy-returns">
+                        <div class="returns-label">Monthly Target</div>
+                        <div class="returns-value">2-4%</div>
+                    </div>
+                    
+                    <div class="strategy-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Risk Level:</span>
+                            <span class="detail-value risk-low">Low</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Time Commitment:</span>
+                            <span class="detail-value">5-10 min/week</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Strategy Type:</span>
+                            <span class="detail-value">Covered Calls</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Capital Required:</span>
+                            <span class="detail-value">$5,000+</span>
                         </div>
                     </div>
                     
-                    <div class="strategy-description">
-                        Perfect for beginners and conservative investors. Focus on covered calls and cash-secured puts with minimal risk and steady monthly income.
-                    </div>
-                    
-                    <ul class="strategy-features">
-                        <li>Lower risk, consistent returns</li>
-                        <li>Monthly covered call writing</li>
-                        <li>Capital preservation focused</li>
-                        <li>Ideal for retirement accounts</li>
-                        <li>Minimal time commitment</li>
-                    </ul>
-                    
-                    <div class="strategy-metrics">
-                        <div class="metric-item">
-                            <div class="metric-value">2-4%</div>
-                            <div class="metric-label">Monthly Target</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-value">Low</div>
-                            <div class="metric-label">Risk Level</div>
-                        </div>
-                    </div>
-                    
-                    <button class="strategy-button">Select Passive Strategy</button>
+                    <a href="#" class="strategy-btn">Select Passive Strategy</a>
                 </div>
                 
-                <!-- Steady Strategy -->
-                <div class="strategy-card steady" onclick="selectStrategy('steady', '{{ symbol or '' }}')">
+                <div class="strategy-card">
                     <div class="strategy-header">
-                        <div class="strategy-icon">⚖️</div>
-                        <div class="strategy-info">
-                            <h3>Steady Growth</h3>
-                            <div class="subtitle">Balanced & Reliable</div>
+                        <h3 class="strategy-title">Steady Income Strategy</h3>
+                        <p class="strategy-subtitle">Balanced risk with moderate returns</p>
+                    </div>
+                    
+                    <div class="strategy-returns">
+                        <div class="returns-label">Monthly Target</div>
+                        <div class="returns-value">4-8%</div>
+                    </div>
+                    
+                    <div class="strategy-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Risk Level:</span>
+                            <span class="detail-value risk-medium">Medium</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Time Commitment:</span>
+                            <span class="detail-value">15-30 min/week</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Strategy Type:</span>
+                            <span class="detail-value">Credit Spreads</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Capital Required:</span>
+                            <span class="detail-value">$10,000+</span>
                         </div>
                     </div>
                     
-                    <div class="strategy-description">
-                        Balanced approach combining income and growth. Uses spreads, covered strategies, and selective wheeling for consistent performance.
-                    </div>
-                    
-                    <ul class="strategy-features">
-                        <li>Balanced risk-reward ratio</li>
-                        <li>Credit spreads and iron condors</li>
-                        <li>The wheel strategy integration</li>
-                        <li>Growth with income focus</li>
-                        <li>Moderate time investment</li>
-                    </ul>
-                    
-                    <div class="strategy-metrics">
-                        <div class="metric-item">
-                            <div class="metric-value">4-8%</div>
-                            <div class="metric-label">Monthly Target</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-value">Medium</div>
-                            <div class="metric-label">Risk Level</div>
-                        </div>
-                    </div>
-                    
-                    <button class="strategy-button">Select Steady Strategy</button>
+                    <a href="#" class="strategy-btn">Select Steady Strategy</a>
                 </div>
                 
-                <!-- Aggressive Strategy -->
-                <div class="strategy-card aggressive" onclick="selectStrategy('aggressive', '{{ symbol or '' }}')">
+                <div class="strategy-card">
                     <div class="strategy-header">
-                        <div class="strategy-icon">🚀</div>
-                        <div class="strategy-info">
-                            <h3>Aggressive Income</h3>
-                            <div class="subtitle">High Return Potential</div>
+                        <h3 class="strategy-title">Aggressive Income Strategy</h3>
+                        <p class="strategy-subtitle">Higher risk with maximum potential returns</p>
+                    </div>
+                    
+                    <div class="strategy-returns">
+                        <div class="returns-label">Monthly Target</div>
+                        <div class="returns-value">8-15%</div>
+                    </div>
+                    
+                    <div class="strategy-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Risk Level:</span>
+                            <span class="detail-value risk-high">High</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Time Commitment:</span>
+                            <span class="detail-value">1-2 hours/week</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Strategy Type:</span>
+                            <span class="detail-value">Iron Condors</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Capital Required:</span>
+                            <span class="detail-value">$25,000+</span>
                         </div>
                     </div>
                     
-                    <div class="strategy-description">
-                        Maximum income potential using advanced strategies. Short straddles, naked options, and leveraged positions for experienced traders.
-                    </div>
-                    
-                    <ul class="strategy-features">
-                        <li>Higher income potential</li>
-                        <li>Advanced option strategies</li>
-                        <li>Active management required</li>
-                        <li>Leveraged positions</li>
-                        <li>Experience recommended</li>
-                    </ul>
-                    
-                    <div class="strategy-metrics">
-                        <div class="metric-item">
-                            <div class="metric-value">8-15%</div>
-                            <div class="metric-label">Monthly Target</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-value">High</div>
-                            <div class="metric-label">Risk Level</div>
-                        </div>
-                    </div>
-                    
-                    <button class="strategy-button">Select Aggressive Strategy</button>
+                    <a href="#" class="strategy-btn">Select Aggressive Strategy</a>
                 </div>
             </div>
             
@@ -1663,24 +1669,11 @@ def step3(symbol=None):
                 <a href="{% if symbol %}/step2/{{ symbol }}{% else %}/{% endif %}" class="back-scoreboard-btn">← Back to Analysis</a>
             </div>
         </div>
-        
-        <script>
-            function selectStrategy(strategy, symbol) {
-                const card = document.querySelector(`.strategy-card.${strategy}`);
-                card.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    card.style.transform = 'scale(1)';
-                }, 150);
-                
-                localStorage.setItem('selectedStrategy', strategy);
-                localStorage.setItem('selectedSymbol', symbol);
-                
-                alert(`${strategy.charAt(0).toUpperCase() + strategy.slice(1)} Income Strategy selected for ${symbol || 'your selection'}!\\n\\nStrategy execution details coming next.`);
-            }
-        </script>
     </body>
     </html>
-    """, symbol=symbol)
+    """
+    
+    return render_template_string(template, symbol=symbol)
 
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
@@ -1693,60 +1686,36 @@ def upload_csv():
     Returns:
     - Success/error response
     """
-    global etf_scores
-    
     try:
         csv_content = None
         
-        # Check for file upload
+        # Check if file was uploaded
         if 'csvfile' in request.files:
             file = request.files['csvfile']
-            if file and file.filename and file.filename.endswith('.csv'):
+            if file and file.filename:
                 csv_content = file.read().decode('utf-8')
-                logger.info(f"Received CSV file upload: {file.filename}")
         
-        # Check for raw CSV text
-        elif 'csv_text' in request.form:
+        # Check if raw CSV text was provided
+        if not csv_content and 'csv_text' in request.form:
             csv_content = request.form['csv_text']
-            logger.info("Received raw CSV text upload")
-        
-        # Check for JSON format (for API calls)
-        elif request.is_json:
-            json_data = request.get_json()
-            if 'csv_content' in json_data:
-                csv_content = json_data['csv_content']
-                logger.info("Received CSV content via JSON")
         
         if not csv_content:
-            return jsonify({
-                'error': 'No CSV data provided. Send file via csvfile field, text via csv_text field, or JSON with csv_content.'
-            }), 400
+            return jsonify({'error': 'No CSV content provided'}), 400
         
-        # Upload CSV data to database
-        result = etf_db.upload_csv_data(csv_content)
+        # Upload to database
+        db = ETFDatabase()
+        db.upload_csv_data(csv_content)
         
-        if not result['success']:
-            return jsonify({
-                'error': f'Failed to upload CSV to database: {result["error"]}'
-            }), 500
-        
-        # Refresh the global etf_scores from database
+        # Reload ETF data from database
         load_etf_data_from_database()
         
-        logger.info(f"Successfully uploaded {result['count']} symbols to database")
-        
-        # Return success response
         return jsonify({
-            'success': True,
-            'message': f'Successfully uploaded {result["count"]} symbols to database',
-            'count': result['count']
+            'success': True, 
+            'message': f'Successfully uploaded CSV data. Loaded {len(etf_scores)} symbols.'
         })
         
     except Exception as e:
-        logger.error(f"Error processing CSV upload: {str(e)}")
-        return jsonify({
-            'error': f'Internal server error: {str(e)}'
-        }), 500
+        return jsonify({'error': f'Upload failed: {str(e)}'}), 500
 
 @app.route('/api/etf_data')
 def api_etf_data():
@@ -1755,14 +1724,7 @@ def api_etf_data():
     Returns:
         JSON: Current ETF data including prices and scores
     """
-    # Synchronize scores before returning
-    synchronize_etf_scores()
-    
-    return jsonify({
-        'success': True,
-        'data': etf_scores,
-        'timestamp': 'Database data - no real-time updates'
-    })
+    return jsonify(etf_scores)
 
 @app.route('/api/chart_data/<symbol>')
 def api_chart_data(symbol):
@@ -1771,96 +1733,66 @@ def api_chart_data(symbol):
     Returns:
         JSON: Chart data with timestamps and prices
     """
-    import os
-    import requests
-    from datetime import datetime, timedelta
-    
     try:
-        # Get API key from environment
+        import os
+        from datetime import datetime, timedelta
+        import requests
+        
         api_key = os.environ.get('POLYGON_API_KEY')
         if not api_key:
-            return jsonify({
-                'success': False,
-                'error': 'Polygon API key not configured'
-            }), 500
+            return jsonify({'error': 'POLYGON_API_KEY not configured'}), 500
         
-        # Calculate date range (last 30 days)
+        # Get 30 days of data
         end_date = datetime.now()
         start_date = end_date - timedelta(days=30)
         
-        # Format dates for Polygon API
-        from_date = start_date.strftime('%Y-%m-%d')
-        to_date = end_date.strftime('%Y-%m-%d')
+        url = f'https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/day/{start_date.strftime("%Y-%m-%d")}/{end_date.strftime("%Y-%m-%d")}'
         
-        # Fetch daily data from Polygon
-        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol.upper()}/range/1/day/{from_date}/{to_date}"
-        params = {
-            'apikey': api_key,
-            'adjusted': 'true',
-            'sort': 'asc'
-        }
+        response = requests.get(url, params={'apikey': api_key})
         
-        response = requests.get(url, params=params, timeout=10)
-        
-        if response.status_code != 200:
-            return jsonify({
-                'success': False,
-                'error': f'Polygon API returned status {response.status_code}'
-            }), 500
-        
-        data = response.json()
-        
-        if data.get('status') not in ['OK', 'DELAYED'] or 'results' not in data:
-            return jsonify({
-                'success': False,
-                'error': 'No data available for this symbol'
-            }), 404
-        
-        # Format data for Chart.js
-        chart_data = []
-        for result in data['results']:
-            timestamp = result['t']  # Unix timestamp in milliseconds
-            date_str = datetime.fromtimestamp(timestamp / 1000).strftime('%Y-%m-%d')
-            chart_data.append({
-                'date': date_str,
-                'timestamp': timestamp,
-                'open': result['o'],
-                'high': result['h'],
-                'low': result['l'],
-                'close': result['c'],
-                'volume': result['v']
-            })
-        
-        # Get additional symbol info
-        current_price = chart_data[-1]['close'] if chart_data else 0
-        price_change = 0
-        price_change_pct = 0
-        
-        if len(chart_data) >= 2:
-            yesterday_close = chart_data[-2]['close']
-            price_change = current_price - yesterday_close
-            price_change_pct = (price_change / yesterday_close) * 100 if yesterday_close > 0 else 0
-        
-        return jsonify({
-            'success': True,
-            'symbol': symbol.upper(),
-            'chart_data': chart_data,
-            'current_price': current_price,
-            'price_change': price_change,
-            'price_change_pct': price_change_pct,
-            'data_points': len(chart_data)
-        })
-        
-    except requests.RequestException as e:
-        return jsonify({
-            'success': False,
-            'error': f'Network error: {str(e)}'
-        }), 500
+        if response.status_code == 200:
+            data = response.json()
+            
+            if data.get('status') == 'OK' and data.get('results'):
+                chart_data = []
+                for result in data['results']:
+                    chart_data.append({
+                        'timestamp': result['t'],
+                        'price': result['c'],  # closing price
+                        'volume': result['v']
+                    })
+                
+                return jsonify({
+                    'symbol': symbol,
+                    'data': chart_data,
+                    'current_price': chart_data[-1]['price'] if chart_data else None,
+                    'status': 'success'
+                })
+            elif data.get('status') == 'DELAYED':
+                # Handle delayed data - still return what we have
+                chart_data = []
+                if data.get('results'):
+                    for result in data['results']:
+                        chart_data.append({
+                            'timestamp': result['t'],
+                            'price': result['c'],
+                            'volume': result['v']
+                        })
+                
+                return jsonify({
+                    'symbol': symbol,
+                    'data': chart_data,
+                    'current_price': chart_data[-1]['price'] if chart_data else None,
+                    'status': 'delayed',
+                    'message': 'Market data is delayed'
+                })
+            else:
+                return jsonify({'error': f'No data available for {symbol}'}), 404
+        else:
+            return jsonify({'error': f'API request failed: {response.status_code}'}), 500
+            
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': f'Internal error: {str(e)}'
-        }), 500
+        return jsonify({'error': f'Failed to fetch chart data: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
