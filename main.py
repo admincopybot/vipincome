@@ -1301,39 +1301,30 @@ def step3(symbol=None):
         
         .step-navigation {
             display: flex;
-            justify-content: space-between;
+            margin: 0 40px;
             gap: 0;
-            margin: 20px auto 40px;
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-            border-radius: 0;
-            padding: 0;
-            max-width: 100%;
         }
         
         .step-tab {
-            padding: 16px 32px;
-            background: transparent;
-            border: none;
-            border-radius: 0;
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
             flex: 1;
+            padding: 15px 20px;
             text-align: center;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            transition: all 0.3s ease;
         }
         
         .step-tab.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            font-weight: 600;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.4));
+            color: #e2e8f0;
+            border-bottom: 2px solid #3b82f6;
         }
         
-        .step-tab.completed {
-            background: rgba(255, 255, 255, 0.1);
+        .step-tab.current {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.4));
             color: #e2e8f0;
+            border-bottom: 2px solid #6366f1;
         }
         
         .container {
@@ -1551,8 +1542,9 @@ def step3(symbol=None):
         </div>
         
         <div class="step-navigation">
-            <a href="/" class="step-tab completed">Step 1: Scoreboard</a>
-            <a href="{% if symbol %}/step2/{{ symbol }}{% else %}#{% endif %}" class="step-tab active">Step 2: Asset Review</a>
+            <a href="/" class="step-tab active">Step 1: Scoreboard</a>
+            <a href="{% if symbol %}/step2/{{ symbol }}{% else %}#{% endif %}" class="step-tab current">Step 2: Asset Review</a>
+            <div class="step-tab active">Step 3: Strategy</div>
         </div>
         
         <div class="container">
