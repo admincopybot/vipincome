@@ -2566,10 +2566,10 @@ def debug_rsi(symbol):
         # Try to get data using the enhanced ETF scoring system
         import enhanced_etf_scoring_polygon as polygon_scoring
         
-        # Get 4-hour data for RSI calculation
+        # Get 4-hour data for RSI calculation - use most recent data
         from datetime import datetime, timedelta
         end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')  # Extended range for more data
+        start_date = (datetime.now() - timedelta(days=14)).strftime('%Y-%m-%d')  # Last 2 weeks for current data
         
         # Fetch 4-hour data directly from Polygon
         import requests
@@ -2586,8 +2586,10 @@ def debug_rsi(symbol):
             </body></html>
             """
         
-        # Fetch 4-hour data from Polygon
-        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{start_date}/{end_date}"
+        # Try to fetch current 4-hour data first, then fall back to 1-hour if needed
+        four_hour_url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{start_date}/{end_date}"
+        one_hour_url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/hour/{start_date}/{end_date}"
+        
         params = {
             'adjusted': 'true',
             'sort': 'asc',
@@ -2595,16 +2597,24 @@ def debug_rsi(symbol):
             'apiKey': polygon_api_key
         }
         
-        response = requests.get(url, params=params, timeout=30)
+        # Try 4-hour data first
+        response = requests.get(four_hour_url, params=params, timeout=30)
+        data_type = "4-hour"
         
-        if response.status_code != 200:
-            return f"""
-            <html><body>
-            <h2>RSI Debug for {symbol}</h2>
-            <p style="color: red;">API Error: {response.status_code}</p>
-            <p>Response: {response.text}</p>
-            </body></html>
-            """
+        if response.status_code != 200 or not response.json().get('results'):
+            # Fall back to 1-hour data and resample to 4-hour
+            response = requests.get(one_hour_url, params=params, timeout=30)
+            data_type = "1-hour (resampled to 4-hour)"
+            
+            if response.status_code != 200:
+                return f"""
+                <html><body>
+                <h2>RSI Debug for {symbol}</h2>
+                <p style="color: red;">API Error: {response.status_code}</p>
+                <p>Response: {response.text}</p>
+                <p>Tried both 4-hour and 1-hour data endpoints</p>
+                </body></html>
+                """
         
         data = response.json()
         
@@ -2612,7 +2622,9 @@ def debug_rsi(symbol):
             return f"""
             <html><body>
             <h2>RSI Debug for {symbol}</h2>
-            <p style="color: red;">No 4-hour data found for {symbol}</p>
+            <p style="color: red;">No price data found for {symbol}</p>
+            <p>Date range: {start_date} to {end_date}</p>
+            <p>Response: {data}</p>
             </body></html>
             """
         
@@ -2625,6 +2637,16 @@ def debug_rsi(symbol):
         df.set_index('timestamp', inplace=True)
         df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
         df.dropna(inplace=True)
+        
+        # If we got 1-hour data, resample to 4-hour periods
+        if data_type == "1-hour (resampled to 4-hour)":
+            df = df.resample('4H').agg({
+                'Open': 'first',
+                'High': 'max', 
+                'Low': 'min',
+                'Close': 'last',
+                'Volume': 'sum'
+            }).dropna()
         
         # Calculate RSI using both methods
         def calculate_rsi_simple(prices, window=14):
@@ -2667,6 +2689,9 @@ def debug_rsi(symbol):
         <head><title>RSI Debug for {symbol}</title></head>
         <body style="font-family: Arial, sans-serif; margin: 20px;">
         <h2>RSI Calculation Debug for {symbol}</h2>
+        
+        <p><strong>Data Source:</strong> {data_type} from Polygon.io</p>
+        <p><strong>Date Range:</strong> {start_date} to {end_date}</p>
         
         <h3>Summary:</h3>
         <table border="1" style="border-collapse: collapse;">
