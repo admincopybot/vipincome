@@ -285,21 +285,18 @@ def index():
             font-size: 42px;
             font-weight: 800;
             margin-bottom: 15px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #ffffff;
         }
         
         .dashboard-subtitle {
-            color: #f1f5f9;
+            color: #ffffff;
             margin-bottom: 12px;
             font-size: 18px;
             font-weight: 400;
         }
         
         .update-info {
-            color: #e2e8f0;
+            color: #ffffff;
             font-size: 14px;
             margin-bottom: 50px;
             font-weight: 500;
@@ -425,10 +422,10 @@ def index():
         
         .criteria-text {
             font-size: 11px;
-            color: #e2e8f0;
+            color: #ffffff;
             margin-top: 8px;
             font-weight: 500;
-            opacity: 0.9;
+            opacity: 0.95;
         }
         
         .current-price {
@@ -441,7 +438,7 @@ def index():
         
         .choose-btn-text {
             background: rgba(100, 116, 139, 0.2);
-            color: #e2e8f0;
+            color: #ffffff;
             padding: 12px 24px;
             border-radius: 8px;
             font-weight: 600;
@@ -449,7 +446,7 @@ def index():
             width: 100%;
             text-align: center;
             transition: all 0.3s ease;
-            border: 1px solid #2563eb;
+            border: 1px solid #475569;
         }
         
         .etf-card:hover .choose-btn-text {
