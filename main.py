@@ -983,22 +983,6 @@ def step2(symbol=None):
             <div class="ticker-subtitle">Review the selected stock details before choosing an income strategy.</div>
         </div>
         
-        <!-- Price Chart Panel -->
-        <div class="chart-panel">
-            <div class="chart-header">
-                <div class="chart-title">{{ symbol }} - 30 Day Price Chart</div>
-                <div class="price-info">
-                    <div class="current-price" id="currentPrice">Loading...</div>
-                    <div class="price-change" id="priceChange">Loading...</div>
-                </div>
-            </div>
-            <div class="chart-container">
-                <div class="loading-spinner" id="loadingSpinner">Loading chart data...</div>
-                <div class="error-message" id="errorMessage" style="display: none;"></div>
-                <canvas id="priceChart" style="display: none;"></canvas>
-            </div>
-        </div>
-        
         <div class="analysis-grid">
             <div class="etf-details-panel">
                 <div class="panel-title">Stock Details</div>
@@ -1072,6 +1056,22 @@ def step2(symbol=None):
                 <div class="strategy-button-container">
                     <a href="#" class="choose-strategy-btn">Choose Income Strategy →</a>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Price Chart Panel -->
+        <div class="chart-panel">
+            <div class="chart-header">
+                <div class="chart-title">{{ symbol }} - 30 Day Price Chart</div>
+                <div class="price-info">
+                    <div class="current-price" id="currentPrice">Loading...</div>
+                    <div class="price-change" id="priceChange">Loading...</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="loading-spinner" id="loadingSpinner">Loading chart data...</div>
+                <div class="error-message" id="errorMessage" style="display: none;"></div>
+                <canvas id="priceChart" style="display: none;"></canvas>
             </div>
         </div>
         
@@ -1343,11 +1343,6 @@ def api_chart_data(symbol):
             }), 500
         
         data = response.json()
-        
-        # Debug logging
-        print(f"DEBUG: API response status: {data.get('status')}")
-        print(f"DEBUG: Has results: {'results' in data}")
-        print(f"DEBUG: Results count: {len(data.get('results', []))}")
         
         if data.get('status') not in ['OK', 'DELAYED'] or 'results' not in data:
             return jsonify({
