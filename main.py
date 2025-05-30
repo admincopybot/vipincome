@@ -32,6 +32,82 @@ csv_loader = CsvDataLoader()
 # Initialize database
 etf_db = ETFDatabase()
 
+def load_etf_data_from_database():
+    """Load ETF data from database and update global etf_scores while keeping frontend exactly the same"""
+    global etf_scores
+    
+    try:
+        # Get all ETF data from database
+        db_data = etf_db.get_all_etfs()
+        
+        # Default sector mappings to keep frontend naming consistent
+        sector_mappings = {
+            "XLC": "Communication Services",
+            "XLF": "Financial", 
+            "XLV": "Health Care",
+            "XLI": "Industrial",
+            "XLP": "Consumer Staples",
+            "XLY": "Consumer Discretionary", 
+            "XLE": "Energy",
+            "XLB": "Materials",
+            "XLU": "Utilities",
+            "XLRE": "Real Estate"
+        }
+        
+        # Convert database format to frontend format while keeping exact same structure
+        for symbol, data in db_data.items():
+            criteria = data['criteria']
+            
+            # Create indicators structure exactly as frontend expects
+            indicators = {
+                'trend1': {
+                    'pass': criteria['trend1'],
+                    'current': 0,
+                    'threshold': 0,
+                    'description': 'Price > 20-day EMA'
+                },
+                'trend2': {
+                    'pass': criteria['trend2'], 
+                    'current': 0,
+                    'threshold': 0,
+                    'description': 'Price > 100-day EMA'
+                },
+                'snapback': {
+                    'pass': criteria['snapback'],
+                    'current': 0,
+                    'threshold': 50,
+                    'description': 'RSI < 50'
+                },
+                'momentum': {
+                    'pass': criteria['momentum'],
+                    'current': 0,
+                    'threshold': 0,
+                    'description': 'Price > Previous Week Close'
+                },
+                'stabilizing': {
+                    'pass': criteria['stabilizing'],
+                    'current': 0,
+                    'threshold': 0,
+                    'description': '3-day ATR < 6-day ATR'
+                }
+            }
+            
+            # Update etf_scores with exact same structure as before
+            etf_scores[symbol] = {
+                "name": sector_mappings.get(symbol, "Unknown Sector"),
+                "score": data['total_score'],
+                "price": data['current_price'],
+                "indicators": indicators
+            }
+        
+        logger.info(f"Loaded {len(db_data)} symbols from database into etf_scores")
+        
+    except Exception as e:
+        logger.error(f"Error loading ETF data from database: {str(e)}")
+
+# Load initial data from database
+load_etf_data_from_database()
+
 # Initialize with default data including indicators (this will be updated with real market data)
 # Default indicator template for initial state
 default_indicators = {
