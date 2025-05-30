@@ -174,7 +174,7 @@ def index():
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #0a0f1c;
+            background: #000000;
             color: white;
             min-height: 100vh;
             line-height: 1.5;
