@@ -214,7 +214,7 @@ def index():
             'price': data['price']
         }
     
-    # Global CSS from original design
+    # Original CSS exactly from backup
     global_css = """
     /* Apple-style base setup */
     body {
@@ -240,6 +240,11 @@ def index():
     
     .text-dark {
         color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .display-6 {
+        font-weight: 700;
+        font-size: 2.5rem;
     }
     
     /* Modern card styling with Apple's glass effects */
@@ -326,6 +331,18 @@ def index():
         border-color: rgba(255, 255, 255, 0.5);
         color: white;
         transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+        background: rgba(255, 69, 58, 0.8);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 69, 58, 0.3);
+    }
+    
+    .btn-danger:hover {
+        background: rgba(255, 69, 58, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 69, 58, 0.4);
     }
     
     /* Progress bars */
@@ -446,6 +463,47 @@ def index():
         border-radius: 0 12px 12px 0;
     }
     
+    /* Strategy card styling - replaced colored headers with subtle indicators */
+    .card-aggressive .card-header {
+        background: rgba(40, 40, 45, 0.6);
+        border-top: 4px solid rgba(255, 69, 58, 0.8);
+    }
+    
+    .card-steady .card-header {
+        background: rgba(40, 40, 45, 0.6);
+        border-top: 4px solid rgba(255, 214, 10, 0.8);
+    }
+    
+    .card-passive .card-header {
+        background: rgba(40, 40, 45, 0.6);
+        border-top: 4px solid rgba(48, 209, 88, 0.8);
+    }
+    
+    /* Modern badge styling */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+    }
+    
+    .badge.bg-primary {
+        background: rgba(100, 108, 255, 0.8) !important;
+    }
+    
+    /* Logo style */
+    .logo-text {
+        letter-spacing: -0.05em;
+        font-weight: 700;
+        font-size: 1.4rem;
+    }
+    
+    /* Container refinement */
+    .container {
+        padding: 2rem;
+        max-width: 1200px;
+    }
+    
     /* Progress bar colors */
     .progress-bar-score-0 { background-color: rgba(255, 69, 58, 0.5) !important; }
     .progress-bar-score-1 { background-color: rgba(255, 69, 58, 0.7) !important; }
@@ -453,9 +511,16 @@ def index():
     .progress-bar-score-3 { background-color: rgba(100, 210, 255, 0.7) !important; }
     .progress-bar-score-4 { background-color: rgba(48, 209, 88, 0.7) !important; }
     .progress-bar-score-5 { background-color: rgba(48, 209, 88, 0.9) !important; }
+    
+    /* Footer refinement */
+    footer {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        padding-top: 2rem;
+    }
     """
     
-    template = f"""
+    template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -464,15 +529,39 @@ def index():
         <title>Income Machine DEMO - Daily ETF Scoreboard</title>
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
-            {global_css}
+            {{ global_css }}
             
             /* Page-specific styles */
-            .progress-bar-score-0 {{ width: 0%; background-color: var(--bs-danger); }}
-            .progress-bar-score-1 {{ width: 20%; background-color: var(--bs-danger); }}
-            .progress-bar-score-2 {{ width: 40%; background-color: var(--bs-warning); }}
-            .progress-bar-score-3 {{ width: 60%; background-color: var(--bs-info); }}
-            .progress-bar-score-4 {{ width: 80%; background-color: var(--bs-success); }}
-            .progress-bar-score-5 {{ width: 100%; background-color: var(--bs-success); }}
+            .progress-bar-score-0 { width: 0%; background-color: var(--bs-danger); }
+            .progress-bar-score-1 { width: 20%; background-color: var(--bs-danger); }
+            .progress-bar-score-2 { width: 40%; background-color: var(--bs-warning); }
+            .progress-bar-score-3 { width: 60%; background-color: var(--bs-info); }
+            .progress-bar-score-4 { width: 80%; background-color: var(--bs-success); }
+            .progress-bar-score-5 { width: 100%; background-color: var(--bs-success); }
+            .step-indicator {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2rem;
+            }
+            .step {
+                width: 23%;
+                text-align: center;
+                padding: 0.5rem 0;
+                border-radius: 4px;
+                position: relative;
+            }
+            .step.active {
+                background-color: var(--bs-primary);
+                color: white;
+            }
+            .step.completed {
+                background-color: var(--bs-success);
+                color: white;
+            }
+            .step.upcoming {
+                background-color: var(--bs-secondary);
+                color: white;
+            }
         </style>
     </head>
     <body data-bs-theme="dark">
@@ -523,39 +612,40 @@ def index():
                         </tr>
                     </thead>
                     <tbody>
-                        {"".join([f'''
+                        {% for etf, data in etfs.items() %}
                         <tr>
-                            <td><strong>{etf}</strong></td>
-                            <td>{data["name"]}</td>
-                            <td>${data["price"]:.2f}</td>
-                            <td>{data["score"]}/5</td>
+                            <td><strong>{{ etf }}</strong></td>
+                            <td>{{ data.name }}</td>
+                            <td>${{ "%.2f"|format(data.price) }}</td>
+                            <td>{{ data.score }}/5</td>
                             <td>
                                 <div class="progress">
-                                    <div class="progress-bar progress-bar-score-{data["score"]}" role="progressbar" 
-                                         aria-valuenow="{data["score"] * 20}" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-score-{{ data.score }}" role="progressbar" 
+                                         aria-valuenow="{{ data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <a href="/step2?etf={etf}" class="btn btn-sm {'btn-success' if data["score"] >= 4 else 'btn-secondary'}">
+                                <a href="{{ url_for('step2', etf=etf) }}" class="btn btn-sm {{ 'btn-success' if data.score >= 4 else 'btn-secondary' }}">
                                     Select
                                 </a>
                             </td>
                         </tr>
-                        ''' for etf, data in etf_scores.items()])}
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
             
             <footer class="pt-3 mt-4 text-body-secondary border-top">
-                &copy; 2023 Income Machine DEMO - Database Mode
+                &copy; 2023 Income Machine DEMO
             </footer>
         </div>
     </body>
     </html>
     """
     
-    return template
+    from flask import render_template_string
+    return render_template_string(template, etfs=etf_scores, global_css=global_css)
 
 @app.route('/api/etf-data')
 def api_etf_data():
