@@ -384,51 +384,32 @@ class TechnicalCalculator:
     @staticmethod
     def calculate_rsi(df: pd.DataFrame, window: int = 14) -> float:
         """
-        Calculate RSI using exact TradingView Pine Script formula
-        Uses ta.rma() equivalent (Wilder's smoothing method)
-        
-        Pine Script formula:
-        change = ta.change(rsiSourceInput)
-        up = ta.rma(math.max(change, 0), rsiLengthInput)
-        down = ta.rma(-math.min(change, 0), rsiLengthInput)
-        rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down))
+        Calculate RSI using exact pipeline logic
+        Uses ewm(alpha=1/length, adjust=False) for RMA
         """
         if len(df) < window + 1:
             logger.warning(f"Insufficient data for RSI calculation: {len(df)} < {window + 1}")
             return 50.0
         
-        close = df['Close'].values
-        
         def rma(series, length):
-            """Wilder's smoothing / RMA - exact TradingView implementation"""
-            alpha = 1.0 / length
-            result = np.zeros_like(series)
-            result[0] = series[0]
-            
-            for i in range(1, len(series)):
-                result[i] = alpha * series[i] + (1 - alpha) * result[i-1]
-            
-            return result
+            """RMA using exact logic from pipeline"""
+            return series.ewm(alpha=1 / length, adjust=False).mean()
+
+        def compute_rsi(close, length=14):
+            """Compute RSI using exact PineScript logic from pipeline"""
+            delta = close.diff()
+            gain = delta.clip(lower=0)
+            loss = -delta.clip(upper=0)
+            avg_gain = rma(gain, length)
+            avg_loss = rma(loss, length)
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
+            rsi = rsi.fillna(50)
+            return rsi
         
-        # Calculate price changes (equivalent to ta.change())
-        change = np.diff(close, prepend=close[0])
-        
-        # Separate gains and losses (equivalent to math.max/min)
-        up = np.maximum(change, 0)
-        down = -np.minimum(change, 0)
-        
-        # Apply RMA smoothing
-        up_rma = rma(up, window)
-        down_rma = rma(down, window)
-        
-        # Calculate RSI using exact Pine Script formula
-        if down_rma[-1] == 0:
-            return 100.0
-        elif up_rma[-1] == 0:
-            return 0.0
-        else:
-            rs = up_rma[-1] / down_rma[-1]
-            return 100.0 - (100.0 / (1.0 + rs))
+        # Calculate RSI and return the latest value
+        rsi_series = compute_rsi(df['Close'], window)
+        return float(rsi_series.iloc[-1])
     
     @staticmethod
     def calculate_atr(df: pd.DataFrame, window: int) -> float:

@@ -1,0 +1,135 @@
+✅ FULL TRANSLATION PIPELINE (No manual aggregation needed)
+🧱 STEP 1: Fetch 4H Candles via Polygon
+python
+Copy
+Edit
+import requests
+import pandas as pd
+
+symbol = 'XLK'
+from_date = '2025-05-23'
+to_date = '2025-05-30'
+api_key = 'YOUR_API_KEY'
+
+url = f'https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{from_date}/{to_date}?adjusted=true&sort=asc&limit=5000&apiKey={api_key}'
+res = requests.get(url)
+data = res.json()['results']
+
+# Parse data into DataFrame
+df = pd.DataFrame(data)
+df['t'] = pd.to_datetime(df['t'], unit='ms')
+df.set_index('t', inplace=True)
+df.rename(columns={'o': 'open', 'h': 'high', 'l': 'low', 'c': 'close', 'v': 'volume'}, inplace=True)
+📈 STEP 2: Compute RSI (exact PineScript logic)
+python
+Copy
+Edit
+def rma(series, length):
+    return series.ewm(alpha=1 / length, adjust=False).mean()
+
+def compute_rsi(close, length=14):
+    delta = close.diff()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    avg_gain = rma(gain, length)
+    avg_loss = rma(loss, length)
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    rsi = rsi.fillna(50)
+    return rsi
+
+df['rsi'] = compute_rsi(df['close'], length=14)
+🧮 STEP 3: Add MA and Bollinger Bands to RSI (Smoothing)
+python
+Copy
+Edit
+def apply_ma(series, length, ma_type):
+    if ma_type == 'SMA':
+        return series.rolling(length).mean()
+    elif ma_type == 'EMA':
+        return series.ewm(span=length, adjust=False).mean()
+    elif ma_type == 'RMA':
+        return rma(series, length)
+    elif ma_type == 'WMA':
+        weights = list(range(1, length+1))
+        return series.rolling(length).apply(lambda x: (x * weights).sum() / sum(weights), raw=True)
+    else:
+        return series
+
+ma_type = 'SMA'
+ma_length = 14
+bb_mult = 2.0
+
+df['rsi_ma'] = apply_ma(df['rsi'], ma_length, ma_type)
+df['rsi_std'] = df['rsi'].rolling(ma_length).std()
+df['bb_upper'] = df['rsi_ma'] + bb_mult * df['rsi_std']
+df['bb_lower'] = df['rsi_ma'] - bb_mult * df['rsi_std']
+🧠 STEP 4: Detect RSI Divergence (Bullish/Bearish)
+python
+Copy
+Edit
+def pivot_low(series, left, right):
+    return series[(series.shift(left).rolling(left + right + 1)
+        .apply(lambda x: x[left] == x.min(), raw=True)) == 1]
+
+def pivot_high(series, left, right):
+    return series[(series.shift(left).rolling(left + right + 1)
+        .apply(lambda x: x[left] == x.max(), raw=True)) == 1]
+
+pl = pivot_low(df['rsi'], 5, 5)
+ph = pivot_high(df['rsi'], 5, 5)
+
+range_lower = 5
+range_upper = 60
+idx_list = df.index.to_list()
+
+bullish_divs = []
+bearish_divs = []
+
+for i in range(1, len(pl.index)):
+    curr = pl.index[i]
+    prev = pl.index[i - 1]
+    bars_apart = idx_list.index(curr) - idx_list.index(prev)
+    if range_lower <= bars_apart <= range_upper:
+        rsi_hl = df.loc[curr, 'rsi'] > df.loc[prev, 'rsi']
+        price_ll = df.loc[curr, 'low'] < df.loc[prev, 'low']
+        if rsi_hl and price_ll:
+            bullish_divs.append(curr)
+
+for i in range(1, len(ph.index)):
+    curr = ph.index[i]
+    prev = ph.index[i - 1]
+    bars_apart = idx_list.index(curr) - idx_list.index(prev)
+    if range_lower <= bars_apart <= range_upper:
+        rsi_lh = df.loc[curr, 'rsi'] < df.loc[prev, 'rsi']
+        price_hh = df.loc[curr, 'high'] > df.loc[prev, 'high']
+        if rsi_lh and price_hh:
+            bearish_divs.append(curr)
+📊 STEP 5: Visualize (Optional)
+python
+Copy
+Edit
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(15, 6))
+plt.plot(df.index, df['rsi'], label='RSI', color='purple')
+plt.axhline(70, color='gray', linestyle='--')
+plt.axhline(30, color='gray', linestyle='--')
+plt.axhline(50, color='gray', linestyle=':')
+
+plt.scatter(bullish_divs, df.loc[bullish_divs]['rsi'], label='Bullish Div', color='green', marker='^')
+plt.scatter(bearish_divs, df.loc[bearish_divs]['rsi'], label='Bearish Div', color='red', marker='v')
+
+plt.title("RSI with Divergence on 4H Chart")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+🚀 Final Recap
+Pine Script Component	Python Translation Equivalent
+input.*	Python variables
+ta.rma(...)	rma() using .ewm(alpha=1/N)
+pivotlow / pivothigh	Custom rolling .apply() logic
+ta.stdev	rolling().std()
+fill() & plotshape()	matplotlib.scatter()
+alertcondition	Conditional events (print/log/store signals in list)
