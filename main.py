@@ -202,291 +202,358 @@ def get_etf_data_from_database():
 
 @app.route('/')
 def index():
-    # Get ETF data from database
+    # Get ETF data from database and convert to match original format
     etf_data = get_etf_data_from_database()
     
-    # Generate the ETF cards HTML
-    etf_cards_html = ""
+    # Convert database format to original format
+    etf_scores = {}
     for symbol, data in etf_data.items():
-        score = data['score']
-        price = data['price']
-        sector = data['sector']
-        
-        # Color coding based on score
-        if score >= 4:
-            card_class = "etf-card-high"
-        elif score >= 3:
-            card_class = "etf-card-medium"
-        else:
-            card_class = "etf-card-low"
-        
-        # Generate indicator checkboxes
-        indicators_html = ""
-        for criterion, details in data['indicators'].items():
-            checked = "checked" if details['pass'] else ""
-            indicators_html += f'''
-                <div class="indicator-row">
-                    <input type="checkbox" {checked} disabled>
-                    <span class="indicator-description">{details['description']}</span>
-                </div>
-            '''
-        
-        etf_cards_html += f'''
-        <div class="etf-card {card_class}" data-symbol="{symbol}">
-            <div class="etf-header">
-                <h3>{symbol}</h3>
-                <div class="etf-price">${price:.2f}</div>
-            </div>
-            <div class="etf-sector">{sector}</div>
-            <div class="etf-score">
-                <div class="score-display">
-                    <span class="score-number">{score}</span>
-                    <span class="score-total">/5</span>
-                </div>
-            </div>
-            <div class="etf-indicators">
-                {indicators_html}
-            </div>
-            <div class="card-actions">
-                <button class="btn-primary" onclick="selectETF('{symbol}')">Select for Analysis</button>
-            </div>
-        </div>
-        '''
+        etf_scores[symbol] = {
+            'name': data['sector'],
+            'score': data['score'],
+            'price': data['price']
+        }
     
-    template = f'''
+    # Global CSS from original design
+    global_css = """
+    /* Apple-style base setup */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        letter-spacing: -0.015em;
+        background: linear-gradient(160deg, #000000 0%, #121212 100%);
+        min-height: 100vh;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Typography refinement */
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    p, .text-light, td, th, li {
+        font-weight: 400;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .text-dark {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Modern card styling with Apple's glass effects */
+    .card {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        background: rgba(40, 40, 45, 0.6);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card:hover {
+        transform: scale(1.02);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(60, 60, 70, 0.4);
+        border-radius: 16px 16px 0 0 !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .card-body {
+        border-radius: 0 0 16px 16px;
+        background: rgba(40, 40, 45, 0.3);
+    }
+    
+    /* Modern button styling */
+    .btn {
+        font-weight: 500;
+        border-radius: 12px;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        letter-spacing: -0.01em;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .btn-primary {
+        background: rgba(100, 108, 255, 0.8);
+        color: white;
+        box-shadow: 0 4px 15px rgba(100, 108, 255, 0.3);
+    }
+    
+    .btn-primary:hover {
+        background: rgba(100, 108, 255, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(100, 108, 255, 0.4);
+    }
+    
+    .btn-success {
+        background: rgba(48, 209, 88, 0.8);
+        color: white;
+        box-shadow: 0 4px 15px rgba(48, 209, 88, 0.3);
+    }
+    
+    .btn-success:hover {
+        background: rgba(48, 209, 88, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(48, 209, 88, 0.4);
+    }
+    
+    .btn-secondary {
+        background: rgba(60, 60, 70, 0.8);
+        color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-outline-light {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    /* Progress bars */
+    .progress {
+        height: 0.5rem;
+        border-radius: 100px;
+        overflow: hidden;
+        background: rgba(40, 40, 45, 0.3);
+    }
+    
+    /* Step indicators styled like Apple */
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin: 2.5rem 0;
+        gap: 10px;
+    }
+    
+    .step {
+        flex: 1;
+        border-radius: 12px;
+        padding: 1rem 0.5rem;
+        text-align: center;
+        font-weight: 500;
+        background: rgba(60, 60, 70, 0.3);
+        color: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+    
+    .step.active {
+        background: rgba(100, 108, 255, 0.8);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .step.completed {
+        background: rgba(48, 209, 88, 0.6);
+        color: white;
+        font-weight: 600;
+    }
+    
+    /* List group refinement */
+    .list-group-item {
+        border: none;
+        padding: 1.25rem;
+        margin-bottom: 0.5rem;
+        border-radius: 12px !important;
+        background: rgba(40, 40, 45, 0.4);
+        color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    
+    /* Modern header */
+    header {
+        border: none !important;
+        margin-bottom: 2rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Content area styling */
+    .bg-body-tertiary {
+        border-radius: 20px !important;
+        background: rgba(40, 40, 45, 0.5) !important;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        margin-bottom: 2.5rem;
+    }
+    
+    /* Apple-style table */
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    th {
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0.75rem 1.5rem;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+    
+    td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    tbody tr {
+        background: rgba(40, 40, 45, 0.4);
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    tbody tr:hover {
+        transform: scale(1.01);
+        background: rgba(50, 50, 55, 0.5);
+        cursor: pointer;
+    }
+    
+    tbody td:first-child {
+        border-radius: 12px 0 0 12px;
+        font-weight: 600;
+    }
+    
+    tbody td:last-child {
+        border-radius: 0 12px 12px 0;
+    }
+    
+    /* Progress bar colors */
+    .progress-bar-score-0 { background-color: rgba(255, 69, 58, 0.5) !important; }
+    .progress-bar-score-1 { background-color: rgba(255, 69, 58, 0.7) !important; }
+    .progress-bar-score-2 { background-color: rgba(255, 159, 10, 0.7) !important; }
+    .progress-bar-score-3 { background-color: rgba(100, 210, 255, 0.7) !important; }
+    .progress-bar-score-4 { background-color: rgba(48, 209, 88, 0.7) !important; }
+    .progress-bar-score-5 { background-color: rgba(48, 209, 88, 0.9) !important; }
+    """
+    
+    template = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Income Machine - ETF Technical Analysis Dashboard</title>
+        <title>Income Machine DEMO - Daily ETF Scoreboard</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <style>
-            * {{
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }}
+            {global_css}
             
-            body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                padding: 20px;
-            }}
-            
-            .container {{
-                max-width: 1400px;
-                margin: 0 auto;
-            }}
-            
-            .header {{
-                text-align: center;
-                margin-bottom: 40px;
-                color: white;
-            }}
-            
-            .header h1 {{
-                font-size: 3rem;
-                margin-bottom: 10px;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            }}
-            
-            .header p {{
-                font-size: 1.2rem;
-                opacity: 0.9;
-            }}
-            
-            .dashboard {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                gap: 25px;
-                margin-bottom: 40px;
-            }}
-            
-            .etf-card {{
-                background: white;
-                border-radius: 15px;
-                padding: 25px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-                border-left: 5px solid #ddd;
-            }}
-            
-            .etf-card:hover {{
-                transform: translateY(-5px);
-                box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            }}
-            
-            .etf-card-high {{
-                border-left-color: #28a745;
-                background: linear-gradient(145deg, #ffffff 0%, #f8fff9 100%);
-            }}
-            
-            .etf-card-medium {{
-                border-left-color: #ffc107;
-                background: linear-gradient(145deg, #ffffff 0%, #fffef8 100%);
-            }}
-            
-            .etf-card-low {{
-                border-left-color: #dc3545;
-                background: linear-gradient(145deg, #ffffff 0%, #fff8f8 100%);
-            }}
-            
-            .etf-header {{
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 15px;
-            }}
-            
-            .etf-header h3 {{
-                font-size: 1.8rem;
-                color: #333;
-                font-weight: bold;
-            }}
-            
-            .etf-price {{
-                font-size: 1.4rem;
-                font-weight: bold;
-                color: #2c3e50;
-                background: #ecf0f1;
-                padding: 5px 12px;
-                border-radius: 8px;
-            }}
-            
-            .etf-sector {{
-                font-size: 0.9rem;
-                color: #666;
-                margin-bottom: 20px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }}
-            
-            .etf-score {{
-                text-align: center;
-                margin-bottom: 25px;
-            }}
-            
-            .score-display {{
-                display: inline-block;
-                background: linear-gradient(45deg, #3498db, #2980b9);
-                color: white;
-                padding: 15px 25px;
-                border-radius: 50px;
-                font-size: 1.5rem;
-                font-weight: bold;
-                box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-            }}
-            
-            .score-number {{
-                font-size: 2rem;
-            }}
-            
-            .score-total {{
-                opacity: 0.8;
-            }}
-            
-            .etf-indicators {{
-                margin-bottom: 25px;
-            }}
-            
-            .indicator-row {{
-                display: flex;
-                align-items: flex-start;
-                margin-bottom: 12px;
-                padding: 8px;
-                border-radius: 6px;
-                background: #f8f9fa;
-            }}
-            
-            .indicator-row input[type="checkbox"] {{
-                margin-right: 12px;
-                margin-top: 2px;
-                transform: scale(1.2);
-            }}
-            
-            .indicator-description {{
-                font-size: 0.85rem;
-                color: #555;
-                line-height: 1.4;
-                flex: 1;
-            }}
-            
-            .card-actions {{
-                text-align: center;
-            }}
-            
-            .btn-primary {{
-                background: linear-gradient(45deg, #667eea, #764ba2);
-                color: white;
-                border: none;
-                padding: 12px 25px;
-                border-radius: 25px;
-                font-size: 1rem;
-                font-weight: bold;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }}
-            
-            .btn-primary:hover {{
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            }}
-            
-            .status-bar {{
-                background: rgba(255,255,255,0.1);
-                color: white;
-                padding: 15px;
-                border-radius: 10px;
-                text-align: center;
-                margin-bottom: 30px;
-                backdrop-filter: blur(10px);
-            }}
-            
-            @media (max-width: 768px) {{
-                .dashboard {{
-                    grid-template-columns: 1fr;
-                }}
-                
-                .header h1 {{
-                    font-size: 2rem;
-                }}
-            }}
+            /* Page-specific styles */
+            .progress-bar-score-0 {{ width: 0%; background-color: var(--bs-danger); }}
+            .progress-bar-score-1 {{ width: 20%; background-color: var(--bs-danger); }}
+            .progress-bar-score-2 {{ width: 40%; background-color: var(--bs-warning); }}
+            .progress-bar-score-3 {{ width: 60%; background-color: var(--bs-info); }}
+            .progress-bar-score-4 {{ width: 80%; background-color: var(--bs-success); }}
+            .progress-bar-score-5 {{ width: 100%; background-color: var(--bs-success); }}
         </style>
     </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🎯 Income Machine</h1>
-                <p>ETF Technical Analysis Dashboard - Database Display Mode</p>
+    <body data-bs-theme="dark">
+        <div class="container py-4">
+            <header class="pb-3 mb-4 border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h1 class="fs-4 text-light">Income Machine <span class="badge bg-primary">DEMO</span></h1>
+                    <div class="d-flex gap-3">
+                        <a href="/how-to-use" class="btn btn-sm btn-outline-light">How to Use</a>
+                        <a href="/live-classes" class="btn btn-sm btn-outline-light">Trade Classes</a>
+                        <a href="/special-offer" class="btn btn-sm btn-danger">Get 50% OFF</a>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="step-indicator">
+                <div class="step active">
+                    Step 1: Scoreboard
+                </div>
+                <div class="step upcoming">
+                    Step 2: ETF Selection
+                </div>
+                <div class="step upcoming">
+                    Step 3: Strategy
+                </div>
+                <div class="step upcoming">
+                    Step 4: Trade Details
+                </div>
             </div>
             
-            <div class="status-bar">
-                <strong>📊 Data Source:</strong> Database | <strong>📈 ETFs Analyzed:</strong> {len(etf_data)} | <strong>🕒 Last Update:</strong> {datetime.now().strftime('%H:%M:%S')}
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">Daily ETF Scoreboard</h2>
+                    <p class="fs-5">Select an ETF with a high score (4-5) for the best covered call opportunities.</p>
+                </div>
+            </div>
+    
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ETF</th>
+                            <th>Sector</th>
+                            <th>Price</th>
+                            <th>Score</th>
+                            <th>Strength</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {"".join([f'''
+                        <tr>
+                            <td><strong>{etf}</strong></td>
+                            <td>{data["name"]}</td>
+                            <td>${data["price"]:.2f}</td>
+                            <td>{data["score"]}/5</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-score-{data["score"]}" role="progressbar" 
+                                         aria-valuenow="{data["score"] * 20}" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="/step2?etf={etf}" class="btn btn-sm {'btn-success' if data["score"] >= 4 else 'btn-secondary'}">
+                                    Select
+                                </a>
+                            </td>
+                        </tr>
+                        ''' for etf, data in etf_scores.items()])}
+                    </tbody>
+                </table>
             </div>
             
-            <div class="dashboard">
-                {etf_cards_html}
-            </div>
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO - Database Mode
+            </footer>
         </div>
-        
-        <script>
-            function selectETF(symbol) {{
-                alert(`Selected ${{symbol}} for detailed analysis. This would redirect to step 2 with calculations from database.`);
-                // In the full app, this would redirect to step 2 with the selected ETF
-                // window.location.href = `/step2?etf=${{symbol}}`;
-            }}
-            
-            // Auto-refresh data every 30 seconds (in real app, this would call API)
-            setInterval(function() {{
-                console.log('In production, this would refresh data from database...');
-            }}, 30000);
-        </script>
     </body>
     </html>
-    '''
+    """
     
     return template
 
