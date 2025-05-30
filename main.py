@@ -697,6 +697,80 @@ def step2(symbol=None):
             margin-top: 40px;
         }
         
+        .chart-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            grid-column: 1 / -1;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .price-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .price-change {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        
+        .price-change.positive {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .price-change.negative {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            color: #94a3b8;
+        }
+        
+        .error-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            color: #ef4444;
+            text-align: center;
+        }
+        
         .etf-details-panel {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid #374151;
@@ -909,6 +983,22 @@ def step2(symbol=None):
             <div class="ticker-subtitle">Review the selected stock details before choosing an income strategy.</div>
         </div>
         
+        <!-- Price Chart Panel -->
+        <div class="chart-panel">
+            <div class="chart-header">
+                <div class="chart-title">{{ symbol }} - 30 Day Price Chart</div>
+                <div class="price-info">
+                    <div class="current-price" id="currentPrice">Loading...</div>
+                    <div class="price-change" id="priceChange">Loading...</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="loading-spinner" id="loadingSpinner">Loading chart data...</div>
+                <div class="error-message" id="errorMessage" style="display: none;"></div>
+                <canvas id="priceChart" style="display: none;"></canvas>
+            </div>
+        </div>
+        
         <div class="analysis-grid">
             <div class="etf-details-panel">
                 <div class="panel-title">Stock Details</div>
@@ -992,7 +1082,128 @@ def step2(symbol=None):
     </div>
     
     <script>
-        // Chart functionality will be added in future updates
+        let priceChart = null;
+        
+        // Load chart data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChartData('{{ symbol }}');
+        });
+        
+        async function loadChartData(symbol) {
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const chartCanvas = document.getElementById('priceChart');
+            const currentPrice = document.getElementById('currentPrice');
+            const priceChange = document.getElementById('priceChange');
+            
+            try {
+                const response = await fetch(`/api/chart_data/${symbol}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load chart data');
+                }
+                
+                // Hide loading spinner and show chart
+                loadingSpinner.style.display = 'none';
+                chartCanvas.style.display = 'block';
+                
+                // Update price info
+                currentPrice.textContent = `$${data.current_price.toFixed(2)}`;
+                
+                const changeText = `${data.price_change >= 0 ? '+' : ''}${data.price_change.toFixed(2)} (${data.price_change_pct.toFixed(2)}%)`;
+                priceChange.textContent = changeText;
+                priceChange.className = `price-change ${data.price_change >= 0 ? 'positive' : 'negative'}`;
+                
+                // Create chart
+                createPriceChart(data.chart_data);
+                
+            } catch (error) {
+                console.error('Error loading chart data:', error);
+                loadingSpinner.style.display = 'none';
+                errorMessage.style.display = 'flex';
+                errorMessage.textContent = `Unable to load chart data: ${error.message}`;
+            }
+        }
+        
+        function createPriceChart(chartData) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            // Prepare data for Chart.js
+            const labels = chartData.map(item => item.date);
+            const prices = chartData.map(item => item.close);
+            
+            // Destroy existing chart if it exists
+            if (priceChart) {
+                priceChart.destroy();
+            }
+            
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Close Price',
+                        data: prices,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#e2e8f0',
+                            borderColor: '#374151',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Price: $${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#374151',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                maxTicksLimit: 8
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#374151',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return '$' + value.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
         console.log('Step 2 loaded for {{ symbol }}');
     </script>
 </body>
@@ -1086,6 +1297,104 @@ def api_etf_data():
         'data': etf_scores,
         'timestamp': 'Database data - no real-time updates'
     })
+
+@app.route('/api/chart_data/<symbol>')
+def api_chart_data(symbol):
+    """API endpoint to get chart data for a specific symbol using Polygon API
+    
+    Returns:
+        JSON: Chart data with timestamps and prices
+    """
+    import os
+    import requests
+    from datetime import datetime, timedelta
+    
+    try:
+        # Get API key from environment
+        api_key = os.environ.get('POLYGON_API_KEY')
+        if not api_key:
+            return jsonify({
+                'success': False,
+                'error': 'Polygon API key not configured'
+            }), 500
+        
+        # Calculate date range (last 30 days)
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=30)
+        
+        # Format dates for Polygon API
+        from_date = start_date.strftime('%Y-%m-%d')
+        to_date = end_date.strftime('%Y-%m-%d')
+        
+        # Fetch daily data from Polygon
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol.upper()}/range/1/day/{from_date}/{to_date}"
+        params = {
+            'apikey': api_key,
+            'adjusted': 'true',
+            'sort': 'asc'
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        
+        if response.status_code != 200:
+            return jsonify({
+                'success': False,
+                'error': f'Polygon API returned status {response.status_code}'
+            }), 500
+        
+        data = response.json()
+        
+        if data.get('status') != 'OK' or 'results' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'No data available for this symbol'
+            }), 404
+        
+        # Format data for Chart.js
+        chart_data = []
+        for result in data['results']:
+            timestamp = result['t']  # Unix timestamp in milliseconds
+            date_str = datetime.fromtimestamp(timestamp / 1000).strftime('%Y-%m-%d')
+            chart_data.append({
+                'date': date_str,
+                'timestamp': timestamp,
+                'open': result['o'],
+                'high': result['h'],
+                'low': result['l'],
+                'close': result['c'],
+                'volume': result['v']
+            })
+        
+        # Get additional symbol info
+        current_price = chart_data[-1]['close'] if chart_data else 0
+        price_change = 0
+        price_change_pct = 0
+        
+        if len(chart_data) >= 2:
+            yesterday_close = chart_data[-2]['close']
+            price_change = current_price - yesterday_close
+            price_change_pct = (price_change / yesterday_close) * 100 if yesterday_close > 0 else 0
+        
+        return jsonify({
+            'success': True,
+            'symbol': symbol.upper(),
+            'chart_data': chart_data,
+            'current_price': current_price,
+            'price_change': price_change,
+            'price_change_pct': price_change_pct,
+            'data_points': len(chart_data)
+        })
+        
+    except requests.RequestException as e:
+        return jsonify({
+            'success': False,
+            'error': f'Network error: {str(e)}'
+        }), 500
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Internal error: {str(e)}'
+        }), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
