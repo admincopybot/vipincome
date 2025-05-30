@@ -907,20 +907,16 @@ def step2(symbol=None):
     
     <div class="container">
         <div class="ticker-header">
-            <div class="ticker-title">{{ symbol }} - Financial Sector ETF</div>
-            <div class="ticker-subtitle">Review the selected ETF details before choosing an income strategy.</div>
+            <div class="ticker-title">{{ symbol }} - Stock Analysis</div>
+            <div class="ticker-subtitle">Review the selected stock details before choosing an income strategy.</div>
         </div>
         
         <div class="analysis-grid">
             <div class="etf-details-panel">
-                <div class="panel-title">ETF Details</div>
+                <div class="panel-title">Stock Details</div>
                 <div class="detail-item">
                     <span class="detail-label">Symbol:</span>
                     <span class="detail-value">{{ symbol }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Sector:</span>
-                    <span class="detail-value">Financial</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Current Price:</span>
@@ -998,76 +994,8 @@ def step2(symbol=None):
     </div>
     
     <script>
-        // Create a simple price chart visualization
-        const ctx = document.getElementById('priceChart').getContext('2d');
-        
-        // Generate sample price data for visualization
-        const labels = [];
-        const prices = [];
-        const currentPrice = {{ ticker_data.current_price }};
-        
-        // Generate 30 days of sample data around current price
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            labels.push(date.toLocaleDateString());
-            
-            // Generate realistic price variation around current price
-            const variation = (Math.random() - 0.5) * 0.1; // ±5% variation
-            const price = currentPrice * (1 + variation * (i / 30));
-            prices.push(price);
-        }
-        
-        // Ensure the last price is the current price
-        prices[prices.length - 1] = currentPrice;
-        
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '{{ symbol }} Price',
-                    data: prices,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            color: 'white'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            color: 'white',
-                            callback: function(value) {
-                                return '$' + value.toFixed(2);
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                    }
-                }
-            }
-        });
+        // Chart functionality will be added in future updates
+        console.log('Step 2 loaded for {{ symbol }}');
     </script>
 </body>
 </html>
