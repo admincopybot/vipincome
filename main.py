@@ -435,14 +435,12 @@ def index():
             color: white;
         }
         
-        .score-badge {
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        .criteria-text {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 8px;
+            font-weight: 500;
+            opacity: 0.8;
         }
         
         .current-price {
@@ -517,9 +515,9 @@ def index():
     </div>
     
     <div class="main-content">
-        <h1 class="dashboard-title">Daily ETF Scoreboard</h1>
-        <p class="dashboard-subtitle">Select an ETF with a score of 3+ for the highest probability income opportunity.</p>
-        <p class="update-info">Prices and scores update automatically</p>
+        <h1 class="dashboard-title">Top Trade Opportunities</h1>
+        <p class="dashboard-subtitle">High-probability income opportunities that match our criteria.</p>
+        <p class="update-info">Updated daily with fresh market analysis</p>
         
         <div class="etf-grid">
             {% set sorted_etfs = etf_scores.items() | list %}
@@ -529,9 +527,9 @@ def index():
                 <a href="#" class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
                     <div class="card-content">
                         <div class="ticker-symbol">{{ symbol }}</div>
-                        <div class="score-badge">{{ etf.score }}/5</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
                         <div class="choose-btn-text">Choose Opportunity</div>
+                        <div class="criteria-text">This ticker matches ALL 5 criteria!</div>
                     </div>
                 </a>
                 
