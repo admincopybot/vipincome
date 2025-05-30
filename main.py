@@ -82,9 +82,12 @@ def load_etf_data_from_database():
                 }
             }
             
+            # Only include sector name if it's a known ETF sector
+            sector_name = sector_mappings.get(symbol, "")
+            
             # Update etf_scores with exact same structure as before
             etf_scores[symbol] = {
-                "name": sector_mappings.get(symbol, "Unknown Sector"),
+                "name": sector_name,
                 "score": data['total_score'],
                 "price": data['current_price'],
                 "indicators": indicators
@@ -338,6 +341,54 @@ def index():
             overflow: hidden;
         }
         
+        .etf-card.blurred {
+            filter: blur(3px);
+            opacity: 0.6;
+            pointer-events: none;
+            position: relative;
+        }
+        
+        .etf-card.blurred::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2;
+        }
+        
+        .free-version-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #fbbf24;
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+        }
+        
+        .free-version-text {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .upgrade-text {
+            color: #fbbf24;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
         .etf-card::before {
             content: '';
             position: absolute;
@@ -534,14 +585,24 @@ def index():
         <p class="update-info">Prices and scores update automatically</p>
         
         <div class="etf-grid">
-            {% for symbol, etf in etf_scores.items() %}
-            {% if loop.index <= 10 %}
-            <div class="etf-card">
+            {% set sorted_etfs = etf_scores.items() | list %}
+            {% for symbol, etf in sorted_etfs %}
+            {% if loop.index <= 9 %}
+            <div class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
+                {% if loop.index > 3 %}
+                <div class="free-version-overlay">
+                    <div class="free-version-text">You're currently viewing the</div>
+                    <div class="upgrade-text">FREE Version</div>
+                </div>
+                {% endif %}
+                
                 <div class="etf-header">
                     <div class="etf-symbol">{{ symbol }}</div>
                     <div class="etf-score">{{ etf.score }}/5</div>
                 </div>
+                {% if etf.name %}
                 <div class="etf-name">{{ etf.name }}</div>
+                {% endif %}
                 <div class="etf-price">${{ "%.2f"|format(etf.price) }}</div>
                 
                 <div class="progress-bar">
