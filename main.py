@@ -174,46 +174,30 @@ def index():
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 30%, #0f1419 70%, #0a0e1a 100%);
+            background: #0a0f1c;
             color: white;
             min-height: 100vh;
             line-height: 1.5;
-            position: relative;
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.02) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
         }
         
         .top-banner {
-            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #ec4899 100%);
+            background: #1e40af;
             padding: 12px 0;
             text-align: center;
             color: white;
             font-size: 13px;
             font-weight: 500;
             letter-spacing: 0.5px;
-            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.2);
+            border-bottom: 2px solid #3b82f6;
         }
         
         .header {
-            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
+            background: #111827;
             padding: 20px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #374151;
         }
         
         .logo {
@@ -320,10 +304,7 @@ def index():
             font-size: 42px;
             font-weight: 800;
             margin-bottom: 15px;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #60a5fa;
         }
         
         .dashboard-subtitle {
@@ -347,53 +328,23 @@ def index():
         }
         
         .etf-card {
-            background: linear-gradient(145deg, #0f1419 0%, #1a1f2e 50%, #141925 100%);
-            border-radius: 16px;
+            background: #1f2937;
+            border-radius: 12px;
             padding: 30px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.3),
-                0 0 0 1px rgba(0, 212, 255, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #3b82f6;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
             text-decoration: none;
             color: inherit;
             display: block;
             cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-        
-        .etf-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, 
-                rgba(0, 212, 255, 0.05) 0%, 
-                rgba(124, 58, 237, 0.05) 50%, 
-                rgba(236, 72, 153, 0.05) 100%);
-            border-radius: 16px;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            pointer-events: none;
         }
         
         .etf-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(0, 212, 255, 0.6);
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(0, 212, 255, 0.4),
-                0 0 20px rgba(0, 212, 255, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        }
-        
-        .etf-card:hover::before {
-            opacity: 1;
+            transform: translateY(-4px);
+            border-color: #60a5fa;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
         }
         
         .etf-card-wrapper {
@@ -483,12 +434,8 @@ def index():
             font-size: 28px;
             font-weight: 800;
             letter-spacing: 1.5px;
-            color: #ffffff;
+            color: #60a5fa;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
             margin-bottom: 5px;
         }
         
@@ -509,21 +456,21 @@ def index():
         }
         
         .choose-btn-text {
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            background: #3b82f6;
             color: white;
             padding: 12px 24px;
-            border-radius: 30px;
+            border-radius: 8px;
             font-weight: 700;
             font-size: 14px;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
             width: 100%;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
+            border: 2px solid #3b82f6;
         }
         
         .etf-card:hover .choose-btn-text {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+            background: #60a5fa;
+            border-color: #60a5fa;
         }
         
         /* Responsive design */
