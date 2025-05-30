@@ -12,6 +12,7 @@ from tradelist_client import TradeListApiService
 from tradelist_websocket_client import get_websocket_client
 import enhanced_etf_scoring  # Import for direct Polygon API testing
 from csv_data_loader import CsvDataLoader  # Import CSV data loader
+from gamma_rsi_calculator import GammaRSICalculator
 
 # Load environment variables from .env file if it exists
 load_dotenv()
