@@ -643,22 +643,30 @@ def step2(symbol=None):
             transform: translateY(-2px);
         }
         
-        .back-button {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid #3b82f6;
-            color: #60a5fa;
-            padding: 10px 20px;
-            border-radius: 8px;
+        .step-navigation {
+            display: flex;
+            margin: 0 40px;
+            gap: 0;
+        }
+        
+        .step-tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: 600;
             text-decoration: none;
-            font-weight: 500;
-            margin: 20px 40px;
-            display: inline-block;
+            border: none;
             transition: all 0.3s ease;
         }
         
-        .back-button:hover {
-            background: rgba(59, 130, 246, 0.2);
-            transform: translateY(-1px);
+        .step-tab.active {
+            background: linear-gradient(90deg, #00d4ff, #0ea5e9);
+            color: white;
+        }
+        
+        .step-tab.current {
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+            color: white;
         }
         
         .container {
@@ -668,31 +676,20 @@ def step2(symbol=None):
         }
         
         .ticker-header {
-            text-align: center;
             margin-bottom: 40px;
         }
         
         .ticker-title {
-            font-size: 48px;
+            font-size: 32px;
             font-weight: 800;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #60a5fa, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
         }
         
-        .ticker-price {
-            font-size: 32px;
-            font-weight: 600;
-            color: #10b981;
-            margin-bottom: 10px;
-        }
-        
-        .ticker-score {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fbbf24;
+        .ticker-subtitle {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 20px;
         }
         
         .analysis-grid {
@@ -702,7 +699,15 @@ def step2(symbol=None):
             margin-top: 40px;
         }
         
-        .criteria-panel {
+        .etf-details-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .income-potential-panel {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid #374151;
             border-radius: 16px;
@@ -711,79 +716,152 @@ def step2(symbol=None):
         }
         
         .panel-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             margin-bottom: 25px;
             color: #f1f5f9;
         }
         
-        .criteria-item {
+        .detail-item {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 15px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #374151;
         }
         
-        .criteria-item:last-child {
+        .detail-item:last-child {
             border-bottom: none;
         }
         
-        .criteria-info {
-            flex: 1;
-        }
-        
-        .criteria-name {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-        
-        .criteria-description {
-            font-size: 14px;
+        .detail-label {
             color: #94a3b8;
-            line-height: 1.4;
+            font-weight: 500;
         }
         
-        .criteria-status {
+        .detail-value {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .score-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(55, 65, 81, 0.5);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .technical-indicators {
+            margin-top: 25px;
+        }
+        
+        .indicators-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #f1f5f9;
+        }
+        
+        .indicator-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            padding: 12px 0;
         }
         
-        .status-indicator {
-            width: 24px;
-            height: 24px;
+        .indicator-name {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        
+        .indicator-status {
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 14px;
+            font-size: 16px;
         }
         
         .status-pass {
-            background: #10b981;
+            background: #3b82f6;
             color: white;
         }
         
         .status-fail {
-            background: #ef4444;
+            background: #6b7280;
             color: white;
         }
         
-        .chart-panel {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #374151;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        .score-summary {
+            color: #e2e8f0;
+            margin-bottom: 15px;
+            line-height: 1.6;
         }
         
-        .chart-container {
-            position: relative;
-            height: 400px;
+        .score-explanation {
+            color: #94a3b8;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .data-refresh {
+            color: #64748b;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+        
+        .strategy-button-container {
             margin-top: 20px;
+        }
+        
+        .choose-strategy-btn {
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        
+        .choose-strategy-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .back-to-scoreboard {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .back-scoreboard-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            color: #60a5fa;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-scoreboard-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-1px);
         }
         
         @media (max-width: 768px) {
@@ -822,86 +900,100 @@ def step2(symbol=None):
         </div>
     </div>
     
-    <a href="/" class="back-button">← Back to Scoreboard</a>
+    <div class="step-navigation">
+        <a href="/" class="step-tab active">Step 1: Scoreboard</a>
+        <div class="step-tab current">Step 2: Asset Review</div>
+    </div>
     
     <div class="container">
         <div class="ticker-header">
-            <div class="ticker-title">{{ symbol }}</div>
-            <div class="ticker-price">${{ "%.2f"|format(ticker_data.current_price) }}</div>
-            <div class="ticker-score">Score: {{ ticker_data.total_score }}/5</div>
+            <div class="ticker-title">{{ symbol }} - Financial Sector ETF</div>
+            <div class="ticker-subtitle">Review the selected ETF details before choosing an income strategy.</div>
         </div>
         
         <div class="analysis-grid">
-            <div class="criteria-panel">
-                <div class="panel-title">5-Factor Analysis</div>
+            <div class="etf-details-panel">
+                <div class="panel-title">ETF Details</div>
+                <div class="detail-item">
+                    <span class="detail-label">Symbol:</span>
+                    <span class="detail-value">{{ symbol }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Sector:</span>
+                    <span class="detail-value">Financial</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Current Price:</span>
+                    <span class="detail-value">${{ "%.2f"|format(ticker_data.current_price) }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Score:</span>
+                    <span class="detail-value">{{ ticker_data.total_score }}/5</span>
+                </div>
+                <div class="score-bar">
+                    <div class="score-fill" style="width: {{ (ticker_data.total_score / 5 * 100) }}%"></div>
+                </div>
                 
-                <div class="criteria-item">
-                    <div class="criteria-info">
-                        <div class="criteria-name">Trend 1: Short-term Uptrend</div>
-                        <div class="criteria-description">{{ ticker_data.trend1_description }}</div>
-                    </div>
-                    <div class="criteria-status">
-                        <div class="status-indicator {{ 'status-pass' if ticker_data.trend1_pass else 'status-fail' }}">
+                <div class="technical-indicators">
+                    <div class="indicators-title">Technical Indicators:</div>
+                
+                    <div class="indicator-item">
+                        <div class="indicator-name">Short Term Trend</div>
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.trend1_pass else 'status-fail' }}">
                             {{ '✓' if ticker_data.trend1_pass else '✗' }}
                         </div>
                     </div>
-                </div>
-                
-                <div class="criteria-item">
-                    <div class="criteria-info">
-                        <div class="criteria-name">Trend 2: Long-term Uptrend</div>
-                        <div class="criteria-description">{{ ticker_data.trend2_description }}</div>
-                    </div>
-                    <div class="criteria-status">
-                        <div class="status-indicator {{ 'status-pass' if ticker_data.trend2_pass else 'status-fail' }}">
+                    
+                    <div class="indicator-item">
+                        <div class="indicator-name">Long Term Trend</div>
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.trend2_pass else 'status-fail' }}">
                             {{ '✓' if ticker_data.trend2_pass else '✗' }}
                         </div>
                     </div>
-                </div>
-                
-                <div class="criteria-item">
-                    <div class="criteria-info">
-                        <div class="criteria-name">Snapback: RSI Opportunity</div>
-                        <div class="criteria-description">{{ ticker_data.snapback_description }}</div>
-                    </div>
-                    <div class="criteria-status">
-                        <div class="status-indicator {{ 'status-pass' if ticker_data.snapback_pass else 'status-fail' }}">
+                    
+                    <div class="indicator-item">
+                        <div class="indicator-name">Snapback Position</div>
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.snapback_pass else 'status-fail' }}">
                             {{ '✓' if ticker_data.snapback_pass else '✗' }}
                         </div>
                     </div>
-                </div>
-                
-                <div class="criteria-item">
-                    <div class="criteria-info">
-                        <div class="criteria-name">Momentum: Weekly Strength</div>
-                        <div class="criteria-description">{{ ticker_data.momentum_description }}</div>
-                    </div>
-                    <div class="criteria-status">
-                        <div class="status-indicator {{ 'status-pass' if ticker_data.momentum_pass else 'status-fail' }}">
+                    
+                    <div class="indicator-item">
+                        <div class="indicator-name">Weekly Momentum</div>
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.momentum_pass else 'status-fail' }}">
                             {{ '✓' if ticker_data.momentum_pass else '✗' }}
                         </div>
                     </div>
-                </div>
-                
-                <div class="criteria-item">
-                    <div class="criteria-info">
-                        <div class="criteria-name">Stabilizing: Volatility Decreasing</div>
-                        <div class="criteria-description">{{ ticker_data.stabilizing_description }}</div>
-                    </div>
-                    <div class="criteria-status">
-                        <div class="status-indicator {{ 'status-pass' if ticker_data.stabilizing_pass else 'status-fail' }}">
+                    
+                    <div class="indicator-item">
+                        <div class="indicator-name">Stabilizing</div>
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.stabilizing_pass else 'status-fail' }}">
                             {{ '✓' if ticker_data.stabilizing_pass else '✗' }}
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="chart-panel">
-                <div class="panel-title">Price Chart</div>
-                <div class="chart-container">
-                    <canvas id="priceChart"></canvas>
+            <div class="income-potential-panel">
+                <div class="panel-title">Income Potential</div>
+                <div class="score-summary">
+                    Based on the current score of <strong>{{ ticker_data.total_score }}/5</strong>, {{ symbol }} could be a strong candidate for generating options income.
+                </div>
+                <div class="score-explanation">
+                    The score is calculated using 5 technical indicators, with 1 point awarded for each condition met. Higher scores indicate more favorable market conditions for income opportunities.
+                </div>
+                <div class="data-refresh">
+                    Data is automatically refreshed every 15 minutes during market hours.
+                </div>
+                <div class="strategy-button-container">
+                    <a href="#" class="choose-strategy-btn">Choose Income Strategy →</a>
                 </div>
             </div>
+        </div>
+        
+        <div class="back-to-scoreboard">
+            <a href="/" class="back-scoreboard-btn">← Back to Scoreboard</a>
+        </div>
         </div>
     </div>
     
