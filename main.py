@@ -1233,19 +1233,18 @@ def step3(symbol=None):
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+            background: #0c0c0c;
             color: #ffffff;
             min-height: 100vh;
             line-height: 1.6;
         }
         
         .top-banner {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 12, 12, 0.8);
             text-align: center;
             padding: 8px;
             font-size: 14px;
             color: #ffffff;
-            backdrop-filter: blur(10px);
         }
         
         .header {
@@ -1253,8 +1252,7 @@ def step3(symbol=None):
             justify-content: space-between;
             align-items: center;
             padding: 20px 40px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.02);
         }
         
         .logo {
@@ -1304,38 +1302,34 @@ def step3(symbol=None):
         .step-navigation {
             display: flex;
             justify-content: center;
-            gap: 0;
-            margin: 20px auto;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 4px;
-            backdrop-filter: blur(10px);
-            max-width: 600px;
+            gap: 8px;
+            margin-bottom: 40px;
         }
         
         .step-tab {
-            padding: 12px 32px;
-            background: transparent;
-            border: none;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
-            color: rgba(255, 255, 255, 0.7);
+            color: #64748b;
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
             transition: all 0.3s ease;
             position: relative;
-            flex: 1;
-            text-align: center;
         }
         
         .step-tab.active {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
             color: #ffffff;
-            font-weight: 600;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
         }
         
         .step-tab.completed {
-            color: rgba(255, 255, 255, 0.9);
+            background: rgba(34, 197, 94, 0.08);
+            border-color: rgba(34, 197, 94, 0.15);
+            color: #94a3b8;
         }
         
         .container {
