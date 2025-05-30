@@ -2569,7 +2569,7 @@ def debug_rsi(symbol):
         # Get 4-hour data for RSI calculation
         from datetime import datetime, timedelta
         end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=28)).strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')  # Extended range for more data
         
         # Fetch 4-hour data directly from Polygon
         import requests
