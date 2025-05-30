@@ -7,7 +7,7 @@ import logging
 import os
 import io
 import csv
-from flask import Flask, request, render_template_string, jsonify
+from flask import Flask, request, render_template_string, jsonify, redirect
 from database_models import ETFDatabase
 from csv_data_loader import CsvDataLoader
 
@@ -515,7 +515,7 @@ def index():
             {% for symbol, etf in sorted_etfs %}
             {% if loop.index <= 9 %}
             <div class="etf-card-wrapper">
-                <a href="#" class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
+                <a href="/step2/{{ symbol }}" class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
                     <div class="card-content">
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
@@ -547,8 +547,441 @@ def index():
     return render_template_string(template, etf_scores=etf_scores)
 
 @app.route('/step2')
-def step2():
-    return "<h1>Step 2: Analysis Details</h1><p>This page would show detailed analysis.</p><a href='/'>Back to Dashboard</a>"
+@app.route('/step2/<symbol>')
+def step2(symbol=None):
+    """Step 2: Detailed ticker analysis page"""
+    if not symbol:
+        return redirect('/')
+    
+    # Get detailed data for the symbol from database
+    ticker_data = etf_db.get_ticker_details(symbol.upper())
+    
+    if not ticker_data:
+        return redirect('/')
+    
+    template = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ symbol }} Analysis - Income Machine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .top-banner {
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #374151;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .nav-item {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            color: #60a5fa;
+        }
+        
+        .get-offer-btn {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        
+        .get-offer-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .back-button {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            color: #60a5fa;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 20px 40px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .ticker-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .ticker-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .ticker-price {
+            font-size: 32px;
+            font-weight: 600;
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+        
+        .ticker-score {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .criteria-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .panel-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #f1f5f9;
+        }
+        
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #374151;
+        }
+        
+        .criteria-item:last-child {
+            border-bottom: none;
+        }
+        
+        .criteria-info {
+            flex: 1;
+        }
+        
+        .criteria-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .criteria-description {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+        
+        .criteria-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+        
+        .status-pass {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-fail {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .chart-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .container {
+                padding: 20px 10px;
+            }
+            
+            .ticker-title {
+                font-size: 36px;
+            }
+            
+            .ticker-price {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-banner">
+        Free Income Machine Experience Ends in... 670 DIM 428 1485
+    </div>
+    
+    <div class="header">
+        <div class="logo">
+            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item">Trade Classes</a>
+            <a href="#" class="get-offer-btn">Get 50% OFF</a>
+        </div>
+    </div>
+    
+    <a href="/" class="back-button">← Back to Scoreboard</a>
+    
+    <div class="container">
+        <div class="ticker-header">
+            <div class="ticker-title">{{ symbol }}</div>
+            <div class="ticker-price">${{ "%.2f"|format(ticker_data.current_price) }}</div>
+            <div class="ticker-score">Score: {{ ticker_data.total_score }}/5</div>
+        </div>
+        
+        <div class="analysis-grid">
+            <div class="criteria-panel">
+                <div class="panel-title">5-Factor Analysis</div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-info">
+                        <div class="criteria-name">Trend 1: Short-term Uptrend</div>
+                        <div class="criteria-description">{{ ticker_data.trend1_description }}</div>
+                    </div>
+                    <div class="criteria-status">
+                        <div class="status-indicator {{ 'status-pass' if ticker_data.trend1_pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.trend1_pass else '✗' }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-info">
+                        <div class="criteria-name">Trend 2: Long-term Uptrend</div>
+                        <div class="criteria-description">{{ ticker_data.trend2_description }}</div>
+                    </div>
+                    <div class="criteria-status">
+                        <div class="status-indicator {{ 'status-pass' if ticker_data.trend2_pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.trend2_pass else '✗' }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-info">
+                        <div class="criteria-name">Snapback: RSI Opportunity</div>
+                        <div class="criteria-description">{{ ticker_data.snapback_description }}</div>
+                    </div>
+                    <div class="criteria-status">
+                        <div class="status-indicator {{ 'status-pass' if ticker_data.snapback_pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.snapback_pass else '✗' }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-info">
+                        <div class="criteria-name">Momentum: Weekly Strength</div>
+                        <div class="criteria-description">{{ ticker_data.momentum_description }}</div>
+                    </div>
+                    <div class="criteria-status">
+                        <div class="status-indicator {{ 'status-pass' if ticker_data.momentum_pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.momentum_pass else '✗' }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="criteria-item">
+                    <div class="criteria-info">
+                        <div class="criteria-name">Stabilizing: Volatility Decreasing</div>
+                        <div class="criteria-description">{{ ticker_data.stabilizing_description }}</div>
+                    </div>
+                    <div class="criteria-status">
+                        <div class="status-indicator {{ 'status-pass' if ticker_data.stabilizing_pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.stabilizing_pass else '✗' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-panel">
+                <div class="panel-title">Price Chart</div>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Create a simple price chart visualization
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        
+        // Generate sample price data for visualization
+        const labels = [];
+        const prices = [];
+        const currentPrice = {{ ticker_data.current_price }};
+        
+        // Generate 30 days of sample data around current price
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            labels.push(date.toLocaleDateString());
+            
+            // Generate realistic price variation around current price
+            const variation = (Math.random() - 0.5) * 0.1; // ±5% variation
+            const price = currentPrice * (1 + variation * (i / 30));
+            prices.push(price);
+        }
+        
+        // Ensure the last price is the current price
+        prices[prices.length - 1] = currentPrice;
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '{{ symbol }} Price',
+                    data: prices,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'white',
+                            callback: function(value) {
+                                return '$' + value.toFixed(2);
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+"""
+    
+    return render_template_string(template, symbol=symbol, ticker_data=ticker_data)
 
 @app.route('/step3')
 def step3():

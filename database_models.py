@@ -170,3 +170,67 @@ class ETFDatabase:
         count = cursor.fetchone()[0]
         conn.close()
         return count
+    
+    def get_ticker_details(self, symbol):
+        """Get detailed scoring data for a specific ticker for Step 2 analysis"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT symbol, current_price, total_score,
+                   trend1_pass, trend1_current, trend1_threshold,
+                   trend2_pass, trend2_current, trend2_threshold,
+                   snapback_pass, snapback_rsi, snapback_threshold,
+                   momentum_pass, momentum_current, momentum_threshold,
+                   stabilizing_pass, stabilizing_current, stabilizing_threshold,
+                   calculation_time
+            FROM etf_scores 
+            WHERE UPPER(symbol) = UPPER(?)
+        ''', (symbol,))
+        
+        row = cursor.fetchone()
+        conn.close()
+        
+        if not row:
+            return None
+        
+        # Create a detailed ticker data object with descriptions
+        ticker_data = type('TickerData', (), {})()
+        
+        ticker_data.symbol = row[0]
+        ticker_data.current_price = row[1]
+        ticker_data.total_score = row[2]
+        
+        # Trend 1 data
+        ticker_data.trend1_pass = bool(row[3])
+        ticker_data.trend1_current = row[4]
+        ticker_data.trend1_threshold = row[5]
+        ticker_data.trend1_description = f"Price (${row[4]:.2f}) is {'above' if row[3] else 'below'} the 20-day EMA (${row[5]:.2f})"
+        
+        # Trend 2 data
+        ticker_data.trend2_pass = bool(row[6])
+        ticker_data.trend2_current = row[7]
+        ticker_data.trend2_threshold = row[8]
+        ticker_data.trend2_description = f"Price (${row[7]:.2f}) is {'above' if row[6] else 'below'} the 100-day EMA (${row[8]:.2f})"
+        
+        # Snapback data
+        ticker_data.snapback_pass = bool(row[9])
+        ticker_data.snapback_current = row[10]
+        ticker_data.snapback_threshold = row[11]
+        ticker_data.snapback_description = f"RSI ({row[10]:.1f}) is {'below' if row[9] else 'above'} the threshold ({row[11]:.0f})"
+        
+        # Momentum data
+        ticker_data.momentum_pass = bool(row[12])
+        ticker_data.momentum_current = row[13]
+        ticker_data.momentum_threshold = row[14]
+        ticker_data.momentum_description = f"Current price (${row[13]:.2f}) is {'above' if row[12] else 'below'} last week's close (${row[14]:.2f})"
+        
+        # Stabilizing data
+        ticker_data.stabilizing_pass = bool(row[15])
+        ticker_data.stabilizing_current = row[16]
+        ticker_data.stabilizing_threshold = row[17]
+        ticker_data.stabilizing_description = f"3-day ATR ({row[16]:.2f}) is {'lower' if row[15] else 'higher'} than 6-day ATR ({row[17]:.2f})"
+        
+        ticker_data.calculation_time = row[18]
+        
+        return ticker_data
