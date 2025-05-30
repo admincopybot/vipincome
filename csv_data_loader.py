@@ -16,7 +16,7 @@ class CsvDataLoader:
     
     def __init__(self, csv_file_path: str = None):
         # Default CSV file path - can be overridden by environment variable
-        self.csv_file_path = csv_file_path or os.environ.get('ETF_SCORES_CSV', 'etf_scores.csv')
+        self.csv_file_path = csv_file_path or os.environ.get('ETF_SCORES_CSV', 'sample_etf_scores.csv')
         self.last_loaded_time = None
         self.cached_data = {}
         self.cache_duration = 300  # 5 minutes cache

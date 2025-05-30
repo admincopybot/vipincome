@@ -2318,6 +2318,76 @@ def test_weekly_momentum():
     except Exception as e:
         return f"<h3>Error calculating weekly momentum:</h3><p>{str(e)}</p>"
 
+@app.route('/test_csv_data')
+def test_csv_data():
+    """Test endpoint to verify CSV data loading is working correctly"""
+    try:
+        # Force refresh from CSV
+        csv_data = csv_loader.get_etf_data(force_refresh=True)
+        csv_status = csv_loader.get_csv_status()
+        
+        response_html = f"""
+        <html>
+        <head><title>CSV Data Test</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 20px;">
+        <h2>CSV Data Loading Test</h2>
+        
+        <h3>CSV File Status:</h3>
+        <ul>
+        <li>File exists: {csv_status.get('exists', False)}</li>
+        <li>File path: {csv_status.get('path', 'Unknown')}</li>
+        <li>File size: {csv_status.get('size', 0)} bytes</li>
+        <li>Last modified: {csv_status.get('modified', 'Unknown')}</li>
+        </ul>
+        
+        <h3>Loaded ETF Data ({len(csv_data)} symbols):</h3>
+        <table border="1" style="border-collapse: collapse;">
+        <tr>
+        <th>Symbol</th><th>Name</th><th>Score</th><th>Price</th>
+        <th>Trend1</th><th>Trend2</th><th>Snapback</th><th>Momentum</th><th>Stabilizing</th>
+        </tr>
+        """
+        
+        for symbol, data in csv_data.items():
+            indicators = data.get('indicators', {})
+            response_html += f"""
+            <tr>
+            <td>{symbol}</td>
+            <td>{data.get('name', 'Unknown')}</td>
+            <td><strong>{data.get('score', 0)}/5</strong></td>
+            <td>${data.get('price', 0):.2f}</td>
+            <td>{'✓' if indicators.get('trend1', {}).get('pass', False) else '✗'}</td>
+            <td>{'✓' if indicators.get('trend2', {}).get('pass', False) else '✗'}</td>
+            <td>{'✓' if indicators.get('snapback', {}).get('pass', False) else '✗'}</td>
+            <td>{'✓' if indicators.get('momentum', {}).get('pass', False) else '✗'}</td>
+            <td>{'✓' if indicators.get('stabilizing', {}).get('pass', False) else '✗'}</td>
+            </tr>
+            """
+        
+        response_html += """
+        </table>
+        
+        <h3>Current etf_scores Global Variable:</h3>
+        <p>The application has successfully updated the global etf_scores with CSV data.</p>
+        <p><a href="/">← Back to Main Application</a></p>
+        </body>
+        </html>
+        """
+        
+        return response_html
+        
+    except Exception as e:
+        return f"""
+        <html>
+        <head><title>CSV Data Test - Error</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 20px;">
+        <h2>CSV Data Loading Test - Error</h2>
+        <p style="color: red;">Error loading CSV data: {str(e)}</p>
+        <p><a href="/">← Back to Main Application</a></p>
+        </body>
+        </html>
+        """
+
 @app.route('/test_options_spreads_api')
 def test_options_spreads_api():
     """Test endpoint for TheTradeList options spreads API integration
