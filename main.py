@@ -152,6 +152,179 @@ def synchronize_etf_scores():
             # Update the score to match the indicators
             etf_scores[symbol]['score'] = score
 
+def fetch_options_data(symbol, current_price):
+    """Fetch options data from Polygon API and process for each strategy"""
+    import requests
+    from datetime import datetime, timedelta
+    
+    api_key = os.environ.get('POLYGON_API_KEY')
+    if not api_key:
+        return {
+            'passive': {'error': 'API key not configured'},
+            'steady': {'error': 'API key not configured'},
+            'aggressive': {'error': 'API key not configured'}
+        }
+    
+    try:
+        # Fetch options contracts
+        url = f"https://api.polygon.io/v3/reference/options/contracts"
+        params = {
+            'underlying_ticker': symbol,
+            'limit': 1000,
+            'apikey': api_key
+        }
+        
+        response = requests.get(url, params=params)
+        if response.status_code != 200:
+            error_msg = f"API error: {response.status_code}"
+            return {
+                'passive': {'error': error_msg},
+                'steady': {'error': error_msg},
+                'aggressive': {'error': error_msg}
+            }
+        
+        data = response.json()
+        contracts = data.get('results', [])
+        
+        if not contracts:
+            no_data_msg = f"No options contracts available for {symbol}"
+            return {
+                'passive': {'error': no_data_msg},
+                'steady': {'error': no_data_msg},
+                'aggressive': {'error': no_data_msg}
+            }
+        
+        # Process options for each strategy
+        today = datetime.now()
+        strategies = process_options_strategies(contracts, current_price, today)
+        
+        return strategies
+        
+    except Exception as e:
+        error_msg = f"Error fetching options data: {str(e)}"
+        return {
+            'passive': {'error': error_msg},
+            'steady': {'error': error_msg},
+            'aggressive': {'error': error_msg}
+        }
+
+def process_options_strategies(contracts, current_price, today):
+    """Process options contracts based on strategy criteria"""
+    from datetime import datetime, timedelta
+    
+    strategies = {
+        'passive': {'error': 'No suitable options found'},
+        'steady': {'error': 'No suitable options found'},
+        'aggressive': {'error': 'No suitable options found'}
+    }
+    
+    # Filter call options only
+    call_options = [c for c in contracts if c.get('contract_type') == 'call']
+    
+    for contract in call_options:
+        try:
+            # Parse expiration date
+            exp_date_str = contract.get('expiration_date')
+            if not exp_date_str:
+                continue
+                
+            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
+            dte = (exp_date - today).days
+            
+            strike_price = float(contract.get('strike_price', 0))
+            if strike_price <= 0:
+                continue
+            
+            # Check each strategy criteria
+            check_strategy_fit(contract, dte, strike_price, current_price, strategies)
+            
+        except (ValueError, TypeError):
+            continue
+    
+    return strategies
+
+def check_strategy_fit(contract, dte, strike_price, current_price, strategies):
+    """Check if option fits strategy criteria and calculate ROI"""
+    
+    # Aggressive: 10-17 DTE, strike below current price
+    if 10 <= dte <= 17 and strike_price < current_price:
+        roi = calculate_roi(strike_price, current_price, dte)
+        if 30 <= roi <= 40:
+            if strategies['aggressive'].get('error'):
+                strategies['aggressive'] = create_strategy_data('Aggressive', contract, dte, roi, current_price)
+    
+    # Steady: 17-28 DTE, strike <2% below current price  
+    elif 17 <= dte <= 28 and strike_price >= (current_price * 0.98):
+        roi = calculate_roi(strike_price, current_price, dte)
+        if 15 <= roi <= 25:
+            if strategies['steady'].get('error'):
+                strategies['steady'] = create_strategy_data('Steady', contract, dte, roi, current_price)
+    
+    # Passive: 28-42 DTE, strike <10% below current price
+    elif 28 <= dte <= 42 and strike_price >= (current_price * 0.90):
+        roi = calculate_roi(strike_price, current_price, dte)
+        if 10 <= roi <= 15:
+            if strategies['passive'].get('error'):
+                strategies['passive'] = create_strategy_data('Passive', contract, dte, roi, current_price)
+
+def calculate_roi(strike_price, current_price, dte):
+    """Calculate estimated ROI for the option strategy"""
+    # Simplified ROI calculation - can be enhanced with real option pricing
+    price_diff_pct = ((strike_price - current_price) / current_price) * 100
+    time_value = max(1, dte / 30)  # Time factor
+    estimated_roi = abs(price_diff_pct) * time_value * 2
+    return min(estimated_roi, 50)  # Cap at 50%
+
+def create_strategy_data(strategy_name, contract, dte, roi, current_price):
+    """Create formatted strategy data for display"""
+    strike_price = float(contract.get('strike_price', 0))
+    price_diff_pct = ((strike_price - current_price) / current_price) * 100
+    
+    return {
+        'name': strategy_name,
+        'dte': dte,
+        'dte_range': get_dte_range(strategy_name),
+        'roi': round(roi, 1),
+        'roi_range': get_roi_range(strategy_name),
+        'strike_price': strike_price,
+        'current_price': current_price,
+        'strike_selection': get_strike_description(strategy_name, price_diff_pct),
+        'management': get_management_rule(strategy_name),
+        'contract_symbol': contract.get('ticker', 'N/A')
+    }
+
+def get_dte_range(strategy):
+    ranges = {
+        'Aggressive': '10 to 17 days',
+        'Steady': '17 to 28 days', 
+        'Passive': '28 to 42 days'
+    }
+    return ranges.get(strategy, '')
+
+def get_roi_range(strategy):
+    ranges = {
+        'Aggressive': '30% to 40%',
+        'Steady': '15% to 25%',
+        'Passive': '10% to 15%'
+    }
+    return ranges.get(strategy, '')
+
+def get_strike_description(strategy, price_diff_pct):
+    if strategy == 'Aggressive':
+        return 'Below current price'
+    elif strategy == 'Steady':
+        return f'At or <2% below current price'
+    else:  # Passive
+        return f'At or <10% below current price'
+
+def get_management_rule(strategy):
+    rules = {
+        'Aggressive': 'Check daily',
+        'Steady': 'Check twice per week',
+        'Passive': 'Check weekly'
+    }
+    return rules.get(strategy, '')
+
 @app.route('/')
 def index():
     # Synchronize scores before displaying
@@ -1216,6 +1389,19 @@ def step2(symbol=None):
 @app.route('/step3/<symbol>')
 def step3(symbol=None):
     """Step 3: Income Strategy Selection"""
+    # Get current price from database
+    current_price = None
+    etf_data = etf_db.get_all_etfs()
+    for etf in etf_data.get('etfs', []):
+        if etf['symbol'] == symbol:
+            current_price = etf['current_price']
+            break
+    
+    if not current_price:
+        current_price = 100.0  # Fallback if not found
+    
+    # Fetch real options data from Polygon API
+    options_data = fetch_options_data(symbol, current_price)
     template = """
     <!DOCTYPE html>
     <html lang="en">
@@ -1580,99 +1766,102 @@ def step3(symbol=None):
             <div class="strategies-grid">
                 <div class="strategy-card">
                     <div class="strategy-header">
-                        <h3 class="strategy-title">Passive Income Strategy</h3>
-                        <p class="strategy-subtitle">Conservative approach with steady returns</p>
+                        <h3 class="strategy-title">Passive Income</h3>
+                        <p class="strategy-subtitle">{{ symbol }} Passive Income Strategy</p>
                     </div>
                     
-                    <div class="strategy-returns">
-                        <div class="returns-label">Monthly Target</div>
-                        <div class="returns-value">2-4%</div>
+                    {% if options_data.passive.error %}
+                    <div class="strategy-error">
+                        <div class="error-message">{{ options_data.passive.error }}</div>
                     </div>
-                    
+                    {% else %}
                     <div class="strategy-details">
                         <div class="detail-row">
-                            <span class="detail-label">Risk Level:</span>
-                            <span class="detail-value risk-low">Low</span>
+                            <span class="detail-label">DTE:</span>
+                            <span class="detail-value">{{ options_data.passive.dte_range }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Time Commitment:</span>
-                            <span class="detail-value">5-10 min/week</span>
+                            <span class="detail-label">Target ROI:</span>
+                            <span class="detail-value">{{ options_data.passive.roi_range }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Strategy Type:</span>
-                            <span class="detail-value">Covered Calls</span>
+                            <span class="detail-label">Strike Selection:</span>
+                            <span class="detail-value">{{ options_data.passive.strike_selection }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Capital Required:</span>
-                            <span class="detail-value">$5,000+</span>
+                            <span class="detail-label">Management:</span>
+                            <span class="detail-value">{{ options_data.passive.management }}</span>
                         </div>
                     </div>
+                    {% endif %}
                     
                     <a href="#" class="strategy-btn">Select Passive Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
                     <div class="strategy-header">
-                        <h3 class="strategy-title">Steady Income Strategy</h3>
-                        <p class="strategy-subtitle">Balanced risk with moderate returns</p>
+                        <h3 class="strategy-title">Steady Income</h3>
+                        <p class="strategy-subtitle">{{ symbol }} Steady Income Strategy</p>
                     </div>
                     
-                    <div class="strategy-returns">
-                        <div class="returns-label">Monthly Target</div>
-                        <div class="returns-value">4-8%</div>
+                    {% if options_data.steady.error %}
+                    <div class="strategy-error">
+                        <div class="error-message">{{ options_data.steady.error }}</div>
                     </div>
-                    
+                    {% else %}
                     <div class="strategy-details">
                         <div class="detail-row">
-                            <span class="detail-label">Risk Level:</span>
-                            <span class="detail-value risk-medium">Medium</span>
+                            <span class="detail-label">DTE:</span>
+                            <span class="detail-value">{{ options_data.steady.dte_range }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Time Commitment:</span>
-                            <span class="detail-value">15-30 min/week</span>
+                            <span class="detail-label">Target ROI:</span>
+                            <span class="detail-value">{{ options_data.steady.roi_range }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Strategy Type:</span>
-                            <span class="detail-value">Credit Spreads</span>
+                            <span class="detail-label">Strike Selection:</span>
+                            <span class="detail-value">{{ options_data.steady.strike_selection }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Capital Required:</span>
-                            <span class="detail-value">$10,000+</span>
+                            <span class="detail-label">Management:</span>
+                            <span class="detail-value">{{ options_data.steady.management }}</span>
                         </div>
                     </div>
+                    {% endif %}
                     
                     <a href="#" class="strategy-btn">Select Steady Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
                     <div class="strategy-header">
-                        <h3 class="strategy-title">Aggressive Income Strategy</h3>
-                        <p class="strategy-subtitle">Higher risk with maximum potential returns</p>
+                        <h3 class="strategy-title">Aggressive Income</h3>
+                        <p class="strategy-subtitle">{{ symbol }} Aggressive Income Strategy</p>
                     </div>
                     
-                    <div class="strategy-returns">
-                        <div class="returns-label">Monthly Target</div>
-                        <div class="returns-value">8-15%</div>
+                    {% if options_data.aggressive.error %}
+                    <div class="strategy-error">
+                        <div class="error-message">{{ options_data.aggressive.error }}</div>
                     </div>
-                    
+                    {% else %}
                     <div class="strategy-details">
                         <div class="detail-row">
-                            <span class="detail-label">Risk Level:</span>
-                            <span class="detail-value risk-high">High</span>
+                            <span class="detail-label">DTE:</span>
+                            <span class="detail-value">{{ options_data.aggressive.dte_range }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Time Commitment:</span>
-                            <span class="detail-value">1-2 hours/week</span>
+                            <span class="detail-label">Target ROI:</span>
+                            <span class="detail-value">{{ options_data.aggressive.roi_range }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Strategy Type:</span>
-                            <span class="detail-value">Iron Condors</span>
+                            <span class="detail-label">Strike Selection:</span>
+                            <span class="detail-value">{{ options_data.aggressive.strike_selection }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Capital Required:</span>
-                            <span class="detail-value">$25,000+</span>
+                            <span class="detail-label">Management:</span>
+                            <span class="detail-value">{{ options_data.aggressive.management }}</span>
                         </div>
                     </div>
+                    {% endif %}
                     
                     <a href="#" class="strategy-btn">Select Aggressive Strategy</a>
                 </div>
