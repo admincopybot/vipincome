@@ -1,0 +1,179 @@
+Comprehensive Guide: Using Polygon.io Data for Options Trading Stock Price Scenario Analysis
+Overview of Stock Price Scenario Modeling
+The Stock Price Scenarios table uses real-time market data from Polygon.io to model how a debit call spread will perform under different future stock price conditions. This analysis is critical for options traders to understand their risk/reward profile before entering a position.
+
+Data Sources and Prerequisites
+Primary Data Requirements from Polygon.io API
+1. Current Stock Price
+
+Endpoint: /v2/aggs/ticker/{ticker}/prev
+Provides the baseline current price for scenario calculations
+Example: Current XLV price = $139.57
+2. Long Call Option Data (Lower Strike)
+
+Endpoint: /v3/snapshot/options/{ticker}/{option_id}
+Example: XLV20250613C00133500 (133.50 strike call)
+Current option price: $1.50
+3. Short Call Option Data (Higher Strike)
+
+Endpoint: /v3/snapshot/options/{ticker}/{option_id}
+Example: XLV20250613C00134500 (134.50 strike call)
+Current option price: $1.11
+4. Options Contract Details
+
+Expiration date: 2025-06-13
+Strike prices: $133.50 and $134.50
+Contract type: Call options
+Shares per contract: 100
+Mathematical Foundation for Scenario Analysis
+Step 1: Establish Base Trade Parameters
+Spread Construction:
+
+Debit Call Spread = Buy Lower Strike Call - Sell Higher Strike Call
+Spread Cost = $1.50 - $1.11 = $0.39 per share
+Maximum Value = $134.50 - $133.50 = $1.00 per share
+Maximum Profit = $1.00 - $0.39 = $0.61 per share
+Breakeven Price = $133.50 + $0.39 = $133.89
+Step 2: Define Scenario Parameters
+Percentage Changes: -7.5%, -5%, -2.5%, 0%, +2.5%, +5%, +7.5%
+
+These represent realistic stock movement ranges
+Based on typical volatility expectations
+Covers both profitable and loss scenarios
+Step 3: Calculate Future Stock Prices
+For each percentage scenario:
+
+Future Price = Current Price × (1 + Percentage Change)
+Detailed Calculations:
+
+-7.5%: $139.57 × (1 - 0.075) = $129.11
+-5.0%: $139.57 × (1 - 0.050) = $132.60
+-2.5%: $139.57 × (1 - 0.025) = $136.08
+0.0%: $139.57 × (1 + 0.000) = $139.57
++2.5%: $139.57 × (1 + 0.025) = $143.06
++5.0%: $139.57 × (1 + 0.050) = $146.55
++7.5%: $139.57 × (1 + 0.075) = $150.04
+Options Valuation at Expiration
+Intrinsic Value Calculation
+At expiration, options have only intrinsic value (no time value):
+
+Call Option Intrinsic Value = MAX(0, Stock Price - Strike Price)
+Scenario-by-Scenario Analysis
+Scenario 1: Stock at $129.11 (-7.5%)
+
+Long Call (133.50): MAX(0, $129.11 - $133.50) = $0.00
+Short Call (134.50): MAX(0, $129.11 - $134.50) = $0.00
+Spread Value: $0.00 - $0.00 = $0.00
+Profit/Loss: $0.00 - $0.39 = -$0.39
+ROI: (-$0.39 ÷ $0.39) × 100 = -100.00%
+Scenario 2: Stock at $132.60 (-5%)
+
+Long Call (133.50): MAX(0, $132.60 - $133.50) = $0.00
+Short Call (134.50): MAX(0, $132.60 - $134.50) = $0.00
+Spread Value: $0.00 - $0.00 = $0.00
+Profit/Loss: $0.00 - $0.39 = -$0.39
+ROI: (-$0.39 ÷ $0.39) × 100 = -100.00%
+Scenario 3: Stock at $136.08 (-2.5%)
+
+Long Call (133.50): MAX(0, $136.08 - $133.50) = $2.58
+Short Call (134.50): MAX(0, $136.08 - $134.50) = $1.58
+Spread Value: $2.58 - $1.58 = $1.00
+Profit/Loss: $1.00 - $0.39 = $0.61
+ROI: ($0.61 ÷ $0.39) × 100 = 156.41%
+Scenario 4: Stock at $139.57 (0%)
+
+Long Call (133.50): MAX(0, $139.57 - $133.50) = $6.07
+Short Call (134.50): MAX(0, $139.57 - $134.50) = $5.07
+Spread Value: $6.07 - $5.07 = $1.00
+Profit/Loss: $1.00 - $0.39 = $0.61
+ROI: ($0.61 ÷ $0.39) × 100 = 156.41%
+Scenarios 5-7: All Higher Prices (+2.5%, +5%, +7.5%)
+For any stock price above $134.50:
+
+Both calls finish in-the-money
+Spread achieves maximum value of $1.00
+Profit remains constant at $0.61
+ROI remains constant at 156.41%
+Critical Price Thresholds
+Breakeven Analysis
+Breakeven Point: $133.89
+
+Stock must close above this price for profitability
+Calculated as: Lower Strike + Spread Cost = $133.50 + $0.39
+Maximum Loss Threshold
+Below $133.50:
+
+Both options expire worthless
+Loss equals full spread cost: -$0.39
+ROI: -100%
+Maximum Profit Threshold
+Above $134.50:
+
+Spread reaches maximum width: $1.00
+Profit plateaus at: $0.61
+ROI plateaus at: 156.41%
+Real-Time Data Integration Considerations
+Data Accuracy Requirements
+Price Precision: Polygon provides prices to 2+ decimal places
+Timestamp Validation: Ensure data is from current trading session
+Market Hours: Consider after-hours vs. regular session pricing
+Volume Verification: Confirm adequate liquidity exists
+API Response Validation
+// Validate essential data fields
+if (!optionData.results.day.close) {
+    throw new Error("Missing current option price");
+}
+if (!optionData.results.details.strike_price) {
+    throw new Error("Missing strike price information");
+}
+if (!optionData.results.details.expiration_date) {
+    throw new Error("Missing expiration date");
+}
+Error Handling for Market Conditions
+Halted Trading: Check if underlying stock is halted
+Low Liquidity: Warn if open interest is insufficient
+Wide Spreads: Alert if bid-ask spread is unusually wide
+Stale Data: Flag if last update timestamp is too old
+Implementation Code Structure
+Core Calculation Function
+function calculateScenarioAnalysis(currentPrice, lowerStrike, higherStrike, spreadCost) {
+    const scenarios = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5];
+    
+    return scenarios.map(changePercent => {
+        const futurePrice = currentPrice * (1 + changePercent / 100);
+        
+        // Calculate intrinsic values at expiration
+        const longCallValue = Math.max(0, futurePrice - lowerStrike);
+        const shortCallValue = Math.max(0, futurePrice - higherStrike);
+        const spreadValue = longCallValue - shortCallValue;
+        
+        // Calculate profit/loss metrics
+        const profit = spreadValue - spreadCost;
+        const roi = (profit / spreadCost) * 100;
+        const outcome = profit > 0 ? "win" : "loss";
+        
+        return {
+            changePercent,
+            futurePrice: futurePrice.toFixed(2),
+            roi: roi.toFixed(2) + "%",
+            profit: profit.toFixed(2),
+            outcome
+        };
+    });
+}
+Risk Management Insights
+Probability Assessment
+Using Polygon's implied volatility data:
+
+Higher IV suggests greater price movement probability
+Lower IV indicates more stable price expectations
+Current IV helps validate scenario likelihood
+Time Decay Impact
+All scenarios assume expiration (zero time value)
+Prior to expiration, time decay (Theta) affects profitability
+Polygon's Greeks data provides precise Theta values
+Market Regime Considerations
+Bull markets favor higher scenario probabilities
+Bear markets increase lower scenario likelihood
+Sideways markets cluster around current price scenarios
+This comprehensive analysis framework ensures that stock price scenarios are grounded in real market data from Polygon.io, providing traders with accurate, actionable insights for their options trading decisions.

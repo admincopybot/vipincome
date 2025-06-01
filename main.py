@@ -575,17 +575,26 @@ def step4(symbol, strategy, option_id):
     exp_date = datetime.strptime(expiration_date, '%Y-%m-%d')
     days_to_exp = (exp_date - datetime.now()).days
     
-    # Generate scenario analysis using real current price
+    # Generate scenario analysis using the REAL current stock price from database
+    # Following the exact methodology from your comprehensive guide
     scenarios = []
     changes = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
     
+    print(f"Calculating scenarios with REAL current price: ${current_price:.2f}")
+    print(f"Spread cost: ${spread_cost:.2f}, Max profit potential: ${max_profit:.2f}")
+    
     for change in changes:
+        # Calculate future stock price using REAL current price
         future_price = current_price * (1 + change/100)
-        long_value = max(0, future_price - long_strike)
-        short_value = max(0, future_price - short_strike)
-        spread_value = long_value - short_value
+        
+        # Calculate intrinsic values at expiration (zero time value)
+        long_call_value = max(0, future_price - long_strike)
+        short_call_value = max(0, future_price - short_strike)
+        spread_value = long_call_value - short_call_value
+        
+        # Calculate profit/loss using REAL spread cost
         profit = spread_value - spread_cost
-        scenario_roi = (profit / spread_cost) * 100
+        scenario_roi = (profit / spread_cost) * 100 if spread_cost > 0 else 0
         outcome = "win" if profit > 0 else "loss"
         
         scenarios.append({
@@ -595,6 +604,8 @@ def step4(symbol, strategy, option_id):
             'profit': f"${profit:+.2f}",
             'outcome': outcome
         })
+        
+        print(f"Scenario {change:+.1f}%: Future price ${future_price:.2f}, ROI {scenario_roi:.2f}%, Profit ${profit:+.2f}")
     
     # Create short option ID by modifying the long option ID  
     short_option_id = option_id.replace(f"{int(long_strike*1000):08d}", f"{int(short_strike*1000):08d}")
