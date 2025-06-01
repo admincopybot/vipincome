@@ -578,46 +578,119 @@ def step4(symbol, strategy, option_id):
         'outcome': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["outcome"]}</div>' for s in scenarios)
     }
     
-    # Return the complete HTML page with real Polygon API data
+    # Return the complete HTML page with proper navigation and styling
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Step 4: Trade Analysis - {symbol} {strategy.title()} Strategy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ font-family: 'Inter', sans-serif; background: #2d3748; color: #ffffff; padding: 20px; line-height: 1.4; }}
-        .container {{ max-width: 1000px; margin: 0 auto; }}
-        .spread-header {{ background: #4a5568; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }}
+        body {{ font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; line-height: 1.6; }}
+        
+        .top-banner {{ background: rgba(0, 12, 12, 0.8); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; }}
+        
+        .header {{ display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.02); }}
+        .logo {{ display: flex; align-items: center; gap: 12px; }}
+        .header-logo {{ height: 32px; width: auto; }}
+        .nav-menu {{ display: flex; align-items: center; gap: 30px; }}
+        .nav-item {{ color: rgba(255, 255, 255, 0.8); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }}
+        .nav-item:hover {{ color: #ffffff; }}
+        .get-offer-btn {{ background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1f2e; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 13px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); transition: all 0.3s ease; text-transform: uppercase; }}
+        .get-offer-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6); }}
+        
+        .steps-nav {{ background: rgba(255, 255, 255, 0.05); padding: 20px 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }}
+        .steps-container {{ display: flex; justify-content: center; align-items: center; gap: 40px; }}
+        .step {{ display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-weight: 500; font-size: 14px; }}
+        .step.active {{ color: #8b5cf6; }}
+        .step.completed {{ color: rgba(255, 255, 255, 0.7); }}
+        .step-number {{ width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }}
+        .step.active .step-number {{ background: #8b5cf6; color: #ffffff; }}
+        .step.completed .step-number {{ background: rgba(255, 255, 255, 0.2); color: #ffffff; }}
+        .step:not(.active):not(.completed) .step-number {{ background: rgba(255, 255, 255, 0.1); }}
+        
+        .container {{ max-width: 1200px; margin: 0 auto; padding: 40px 20px; }}
+        .page-title {{ text-align: center; margin-bottom: 40px; }}
+        .page-title h1 {{ font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}
+        .page-subtitle {{ font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); }}
+        
+        .spread-header {{ background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }}
         .expiration-info {{ color: #e2e8f0; font-size: 14px; }}
-        .spread-title {{ color: #ffffff; font-size: 24px; font-weight: bold; }}
-        .width-badge {{ background: #805ad5; color: #ffffff; padding: 4px 12px; border-radius: 12px; font-size: 12px; }}
-        .trade-construction {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 20px; }}
-        .trade-section {{ background: #4a5568; padding: 15px; border-radius: 8px; }}
-        .section-header {{ color: #e2e8f0; font-weight: 600; margin-bottom: 10px; font-size: 16px; }}
-        .option-detail {{ color: #cbd5e0; font-size: 14px; margin-bottom: 5px; }}
-        .summary-section {{ background: #4a5568; padding: 20px; border-radius: 8px; margin-bottom: 20px; }}
-        .summary-header {{ color: #e2e8f0; font-weight: 600; margin-bottom: 15px; font-size: 18px; }}
-        .summary-row {{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }}
+        .spread-title {{ color: #ffffff; font-size: 28px; font-weight: bold; }}
+        .width-badge {{ background: #8b5cf6; color: #ffffff; padding: 6px 16px; border-radius: 12px; font-size: 12px; font-weight: 600; }}
+        
+        .trade-construction {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }}
+        .trade-section {{ background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 16px; }}
+        .section-header {{ color: #8b5cf6; font-weight: 600; margin-bottom: 12px; font-size: 16px; }}
+        .option-detail {{ color: #cbd5e0; font-size: 14px; margin-bottom: 8px; }}
+        
+        .summary-section {{ background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); padding: 25px; border-radius: 16px; margin-bottom: 30px; }}
+        .summary-header {{ color: #8b5cf6; font-weight: 600; margin-bottom: 20px; font-size: 18px; }}
+        .summary-row {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }}
         .summary-cell {{ text-align: center; }}
-        .cell-label {{ color: #a0aec0; font-size: 12px; margin-bottom: 5px; }}
+        .cell-label {{ color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-bottom: 5px; }}
         .cell-value {{ color: #ffffff; font-weight: 600; font-size: 14px; }}
-        .scenarios-section {{ background: #4a5568; padding: 20px; border-radius: 8px; margin-bottom: 20px; }}
-        .scenarios-header {{ color: #e2e8f0; font-weight: 600; margin-bottom: 15px; font-size: 18px; }}
+        
+        .scenarios-section {{ background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); padding: 25px; border-radius: 16px; margin-bottom: 30px; }}
+        .scenarios-header {{ color: #8b5cf6; font-weight: 600; margin-bottom: 20px; font-size: 18px; }}
         .scenarios-grid {{ display: grid; gap: 2px; }}
         .scenario-header-row {{ display: grid; grid-template-columns: 120px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}
         .scenario-row {{ display: grid; grid-template-columns: 120px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}
-        .scenario-cell {{ background: #2d3748; padding: 8px; text-align: center; font-size: 12px; color: #e2e8f0; }}
-        .scenario-cell-label {{ background: #2d3748; padding: 8px; text-align: right; font-size: 12px; color: #a0aec0; font-weight: 600; }}
-        .win {{ background: #38a169 !important; color: #ffffff; }}
-        .loss {{ background: #e53e3e !important; color: #ffffff; }}
-        .back-btn {{ background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.9); padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; margin-top: 20px; }}
-        .back-btn:hover {{ background: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }}
+        .scenario-cell {{ background: rgba(30, 41, 59, 0.8); padding: 8px; text-align: center; font-size: 12px; color: #e2e8f0; border-radius: 4px; }}
+        .scenario-cell-label {{ background: rgba(30, 41, 59, 0.8); padding: 8px; text-align: right; font-size: 12px; color: rgba(255, 255, 255, 0.6); font-weight: 600; border-radius: 4px; }}
+        .win {{ background: rgba(34, 197, 94, 0.8) !important; color: #ffffff; }}
+        .loss {{ background: rgba(239, 68, 68, 0.8) !important; color: #ffffff; }}
+        
+        .back-navigation {{ margin-top: 40px; text-align: center; }}
+        .back-btn {{ background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; }}
+        .back-btn:hover {{ background: rgba(139, 92, 246, 0.2); transform: translateY(-1px); }}
     </style>
 </head>
 <body>
+    <div class="top-banner">
+        Free Income Machine Experience Ends in... 670 DIM 428 1485
+    </div>
+    
+    <div class="header">
+        <div class="logo">
+            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item">Trade Classes</a>
+            <a href="#" class="get-offer-btn">Get 50% OFF</a>
+        </div>
+    </div>
+    
+    <div class="steps-nav">
+        <div class="steps-container">
+            <div class="step completed">
+                <div class="step-number">1</div>
+                <span>Scoreboard</span>
+            </div>
+            <div class="step completed">
+                <div class="step-number">2</div>
+                <span>Analysis</span>
+            </div>
+            <div class="step completed">
+                <div class="step-number">3</div>
+                <span>Strategy</span>
+            </div>
+            <div class="step active">
+                <div class="step-number">4</div>
+                <span>Trade</span>
+            </div>
+        </div>
+    </div>
+    
     <div class="container">
+        <div class="page-title">
+            <h1>{symbol} {strategy.title()} Trade Analysis</h1>
+            <div class="page-subtitle">Comprehensive options trade analysis using real-time market data</div>
+        </div>
+        
         <div class="spread-header">
             <div class="expiration-info">Expiration: {expiration_date} ({days_to_exp} days)</div>
             <div class="spread-title">${long_strike:.2f} / ${short_strike:.2f}</div>
@@ -709,7 +782,9 @@ def step4(symbol, strategy, option_id):
             </div>
         </div>
         
-        <a href="/step3/{symbol}" class="back-btn">← Back to Strategy Selection</a>
+        <div class="back-navigation">
+            <a href="/step3/{symbol}" class="back-btn">← Back to Strategy Selection</a>
+        </div>
     </div>
 </body>
 </html>"""
