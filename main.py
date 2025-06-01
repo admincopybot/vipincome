@@ -428,6 +428,84 @@ def calculate_debit_spread_analysis(long_option_data, short_option_data, current
     except Exception as e:
         return {'error': f'Calculation error: {str(e)}'}
 
+def calculate_single_option_analysis(option_data, current_stock_price):
+    """Calculate comprehensive single option analysis using real Polygon data"""
+    from datetime import datetime
+    
+    try:
+        # Extract real option data from Polygon API
+        option_price = option_data.get('day', {}).get('close', 0)
+        strike_price = float(option_data.get('details', {}).get('strike_price', 0))
+        
+        # Extract Greeks and other real data
+        greeks = option_data.get('greeks', {})
+        delta = greeks.get('delta', 0)
+        theta = greeks.get('theta', 0)
+        gamma = greeks.get('gamma', 0)
+        vega = greeks.get('vega', 0)
+        
+        implied_vol = option_data.get('implied_volatility', 0)
+        open_interest = option_data.get('open_interest', 0)
+        volume = option_data.get('day', {}).get('volume', 0)
+        
+        # Calculate days to expiration
+        exp_date_str = option_data.get('details', {}).get('expiration_date', '')
+        if exp_date_str:
+            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
+            days_to_exp = (exp_date - datetime.now()).days
+        else:
+            days_to_exp = 0
+        
+        # Calculate intrinsic and time value
+        intrinsic_value = max(0, current_stock_price - strike_price)
+        time_value = option_price - intrinsic_value
+        
+        # Generate price scenarios for single option
+        scenarios = []
+        scenario_percentages = [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10]
+        
+        for change_pct in scenario_percentages:
+            future_price = current_stock_price * (1 + change_pct/100)
+            
+            # Calculate option value at expiration (intrinsic only)
+            option_value_at_exp = max(0, future_price - strike_price)
+            
+            # Calculate profit/loss
+            profit = option_value_at_exp - option_price
+            roi = (profit / option_price) * 100 if option_price > 0 else 0
+            outcome = "profit" if profit > 0 else "loss"
+            
+            scenarios.append({
+                'change_percent': change_pct,
+                'stock_price': future_price,
+                'option_value': option_value_at_exp,
+                'profit_loss': profit,
+                'roi': roi,
+                'outcome': outcome
+            })
+        
+        return {
+            'option_price': option_price,
+            'strike_price': strike_price,
+            'current_stock_price': current_stock_price,
+            'intrinsic_value': intrinsic_value,
+            'time_value': time_value,
+            'days_to_expiration': days_to_exp,
+            'delta': delta,
+            'theta': theta,
+            'gamma': gamma,
+            'vega': vega,
+            'implied_volatility': implied_vol,
+            'open_interest': open_interest,
+            'volume': volume,
+            'scenarios': scenarios,
+            'max_loss': option_price,  # For long calls, max loss is premium paid
+            'breakeven': strike_price + option_price
+        }
+        
+    except Exception as e:
+        return {'error': f'Calculation error: {str(e)}'}
+
 @app.route('/step4/<symbol>/<strategy>/<option_id>')
 def step4(symbol, strategy, option_id):
     """Step 4: Detailed Options Trade Analysis"""
@@ -453,39 +531,10 @@ def step4(symbol, strategy, option_id):
         error_msg = long_option_data['error']
         spread_analysis = None
     else:
-        # Find the appropriate short option (higher strike, same expiration)
-        long_strike = float(long_option_data.get('details', {}).get('strike_price', 0))
-        exp_date = long_option_data.get('details', {}).get('expiration_date', '')
-        
-        # For debit spread, we need a higher strike option to sell
-        # We'll construct the short option ID by adding $1 to the strike
-        short_strike = long_strike + 1
-        
-        # Construct short option ID (this follows Polygon's naming convention)
-        # Format: O:SYMBOL{YYMMDD}C{STRIKE*1000:08d}
-        import re
-        option_match = re.match(r'O:([A-Z]+)(\d{6})C(\d{8})', option_id)
-        if option_match:
-            ticker_part = option_match.group(1)
-            date_part = option_match.group(2)
-            short_strike_padded = f"{int(short_strike * 1000):08d}"
-            short_option_id = f"O:{ticker_part}{date_part}C{short_strike_padded}"
-            
-            # Fetch short option data
-            short_option_data = fetch_option_snapshot(short_option_id, symbol)
-            
-            if 'error' not in short_option_data:
-                # Calculate spread analysis with real data
-                spread_analysis = calculate_debit_spread_analysis(
-                    long_option_data, short_option_data, current_price
-                )
-                error_msg = None
-            else:
-                error_msg = f"Could not fetch short option data: {short_option_data['error']}"
-                spread_analysis = None
-        else:
-            error_msg = "Invalid option ID format"
-            spread_analysis = None
+        # For now, let's show single option analysis with the real data we have
+        # In a production system, you'd fetch available strikes from the options chain
+        spread_analysis = calculate_single_option_analysis(long_option_data, current_price)
+        error_msg = None
     
     template = """
     <!DOCTYPE html>
@@ -769,8 +818,8 @@ def step4(symbol, strategy, option_id):
         <div class="container">
             <div class="trade-header">
                 <div class="strategy-badge strategy-{{ strategy }}">{{ strategy }} Strategy</div>
-                <div class="trade-title">{{ symbol }} Debit Call Spread Analysis</div>
-                <div class="trade-subtitle">Real-time options trade analysis using Polygon API data</div>
+                <div class="trade-title">{{ symbol }} Call Option Analysis</div>
+                <div class="trade-subtitle">Real-time options analysis using Polygon API data</div>
             </div>
             
             {% if error_msg %}
@@ -781,18 +830,18 @@ def step4(symbol, strategy, option_id):
             
             <div class="trade-grid">
                 <div class="trade-card">
-                    <div class="card-header">Trade Construction</div>
+                    <div class="card-header">Option Details</div>
                     <div class="metric-row">
-                        <span class="metric-label">Long Strike:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.long_strike) }}</span>
+                        <span class="metric-label">Strike Price:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.strike_price) }}</span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">Short Strike:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.short_strike) }}</span>
+                        <span class="metric-label">Option Price:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.option_price) }}</span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">Spread Width:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.spread_width) }}</span>
+                        <span class="metric-label">Current Stock:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.current_stock_price) }}</span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">Days to Expiry:</span>
@@ -801,42 +850,42 @@ def step4(symbol, strategy, option_id):
                 </div>
                 
                 <div class="trade-card">
-                    <div class="card-header">Cost & Profit</div>
+                    <div class="card-header">Value Analysis</div>
                     <div class="metric-row">
-                        <span class="metric-label">Spread Cost:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.spread_cost) }}</span>
+                        <span class="metric-label">Intrinsic Value:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.intrinsic_value) }}</span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">Max Profit:</span>
-                        <span class="metric-value profit">${{ "%.2f"|format(spread_analysis.max_profit) }}</span>
+                        <span class="metric-label">Time Value:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.time_value) }}</span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">Max Loss:</span>
                         <span class="metric-value loss">${{ "%.2f"|format(spread_analysis.max_loss) }}</span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">ROI:</span>
-                        <span class="metric-value">{{ "%.1f"|format(spread_analysis.roi) }}%</span>
+                        <span class="metric-label">Breakeven:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.breakeven) }}</span>
                     </div>
                 </div>
                 
                 <div class="trade-card">
-                    <div class="card-header">Option Prices</div>
+                    <div class="card-header">Greeks & Data</div>
                     <div class="metric-row">
-                        <span class="metric-label">Long Call Price:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.long_price) }}</span>
+                        <span class="metric-label">Delta:</span>
+                        <span class="metric-value">{{ "%.4f"|format(spread_analysis.delta) }}</span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">Short Call Price:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.short_price) }}</span>
+                        <span class="metric-label">Theta:</span>
+                        <span class="metric-value">{{ "%.4f"|format(spread_analysis.theta) }}</span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">Current Stock:</span>
-                        <span class="metric-value">${{ "%.2f"|format(current_price) }}</span>
+                        <span class="metric-label">Volume:</span>
+                        <span class="metric-value">{{ spread_analysis.volume }}</span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">Breakeven:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.breakeven) }}</span>
+                        <span class="metric-label">Open Interest:</span>
+                        <span class="metric-value">{{ spread_analysis.open_interest }}</span>
                     </div>
                 </div>
             </div>
@@ -848,7 +897,7 @@ def step4(symbol, strategy, option_id):
                         <tr>
                             <th>Stock Price Change</th>
                             <th>Stock Price</th>
-                            <th>Spread Value</th>
+                            <th>Option Value</th>
                             <th>Profit/Loss</th>
                             <th>ROI</th>
                             <th>Outcome</th>
@@ -859,7 +908,7 @@ def step4(symbol, strategy, option_id):
                         <tr>
                             <td>{{ "%+.1f"|format(scenario.change_percent) }}%</td>
                             <td>${{ "%.2f"|format(scenario.stock_price) }}</td>
-                            <td>${{ "%.2f"|format(scenario.spread_value) }}</td>
+                            <td>${{ "%.2f"|format(scenario.option_value) }}</td>
                             <td class="{{ scenario.outcome }}">${{ "%+.2f"|format(scenario.profit_loss) }}</td>
                             <td class="{{ scenario.outcome }}">{{ "%+.1f"|format(scenario.roi) }}%</td>
                             <td class="{{ scenario.outcome }}">{{ scenario.outcome.upper() }}</td>
