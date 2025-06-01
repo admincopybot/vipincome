@@ -1,0 +1,106 @@
+Simple Guide: How to Structure Polygon Data for Stock Price Scenarios
+Basic Setup - What You Need
+Three pieces of data from Polygon:
+
+Current stock price - where the stock is trading right now
+Long call option price - the option you're buying (lower strike)
+Short call option price - the option you're selling (higher strike)
+Step 1: Get Your Base Numbers
+From your Polygon API calls, you'll have:
+
+Current Stock Price: $139.57
+Long Call (133.50 strike): $1.50
+Short Call (134.50 strike): $1.11
+Calculate your spread cost:
+
+Spread Cost = Buy Price - Sell Price
+Spread Cost = $1.50 - $1.11 = $0.39
+Step 2: Create Your Price Scenarios
+Pick 7 different percentage changes:
+-7.5%, -5%, -2.5%, 0%, +2.5%, +5%, +7.5%
+
+Calculate the future stock prices:
+For each percentage, multiply the current price:
+
+Future Price = Current Price × (1 + percentage as decimal)
+-7.5%: $139.57 × 0.925 = $129.11
+-5%:   $139.57 × 0.95  = $132.60
+-2.5%: $139.57 × 0.975 = $136.08
+0%:    $139.57 × 1.0   = $139.57
++2.5%: $139.57 × 1.025 = $143.06
++5%:   $139.57 × 1.05  = $146.55
++7.5%: $139.57 × 1.075 = $150.04
+Step 3: Calculate What Each Option is Worth
+At expiration, options are worth their "intrinsic value":
+
+Option Value = MAX(0, Stock Price - Strike Price)
+For each scenario, calculate both options:
+
+Example: Stock at $136.08
+
+Long Call (133.50): MAX(0, $136.08 - $133.50) = $2.58
+Short Call (134.50): MAX(0, $136.08 - $134.50) = $1.58
+Step 4: Calculate Your Profit/Loss
+Spread value = What you collect - What you pay out:
+
+Spread Value = Long Call Value - Short Call Value
+Spread Value = $2.58 - $1.58 = $1.00
+Your profit = What you get - What you paid:
+
+Profit = Spread Value - Spread Cost
+Profit = $1.00 - $0.39 = $0.61
+ROI = How much you made compared to what you invested:
+
+ROI = (Profit ÷ Spread Cost) × 100
+ROI = ($0.61 ÷ $0.39) × 100 = 156.41%
+The Pattern You'll See
+When stock is below $133.50:
+
+Both options expire worthless
+You lose your entire investment ($0.39)
+ROI = -100%
+When stock is between $133.50 and $134.50:
+
+Only the long call has value
+Your profit depends on how high the stock goes
+Break-even is at $133.89 ($133.50 + $0.39 cost)
+When stock is above $134.50:
+
+Both calls have value, but spread maxes out at $1.00
+Your profit is always $0.61
+ROI is always 156.41%
+Simple Code Structure
+// 1. Get your base data from Polygon
+const currentPrice = 139.57;
+const longCallPrice = 1.50;
+const shortCallPrice = 1.11;
+const lowerStrike = 133.50;
+const higherStrike = 134.50;
+// 2. Calculate spread cost
+const spreadCost = longCallPrice - shortCallPrice; // 0.39
+// 3. Define your scenarios
+const scenarios = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5];
+// 4. Calculate each scenario
+scenarios.forEach(changePercent => {
+  // Future stock price
+  const futurePrice = currentPrice * (1 + changePercent/100);
+  
+  // Option values at expiration
+  const longValue = Math.max(0, futurePrice - lowerStrike);
+  const shortValue = Math.max(0, futurePrice - higherStrike);
+  
+  // Spread value and profit
+  const spreadValue = longValue - shortValue;
+  const profit = spreadValue - spreadCost;
+  const roi = (profit / spreadCost) * 100;
+  
+  console.log(`${changePercent}%: Price $${futurePrice.toFixed(2)}, Profit $${profit.toFixed(2)}, ROI ${roi.toFixed(2)}%`);
+});
+Key Points to Remember
+Options expire worthless below their strike price
+Spread value can never exceed the difference between strikes ($1.00 in this case)
+Your maximum loss is always the spread cost ($0.39)
+Your maximum profit is always (strike difference - spread cost)
+Break-even point is always (lower strike + spread cost)
+This gives you a complete picture of how your trade will perform under different market conditions using real Polygon data.
+

@@ -613,17 +613,26 @@ def step4(symbol, strategy, option_id):
     print(f"Spread cost: ${spread_cost:.2f}, Max profit potential: ${max_profit:.2f}")
     
     for change in changes:
-        # Calculate future stock price using REAL current price
+        # Step 1: Calculate future stock price using REAL current price
         future_price = current_price * (1 + change/100)
         
-        # Calculate intrinsic values at expiration (zero time value)
+        # Step 2: Calculate option values at expiration (intrinsic value only)
+        # Long option value = MAX(0, Stock Price - Strike Price)
         long_call_value = max(0, future_price - long_strike)
         short_call_value = max(0, future_price - short_strike)
+        
+        # Step 3: Calculate spread value = What you collect - What you pay out
         spread_value = long_call_value - short_call_value
         
-        # Calculate profit/loss using REAL spread cost
+        # Step 4: Calculate profit = Spread value - What you paid for the spread
         profit = spread_value - spread_cost
-        scenario_roi = (profit / spread_cost) * 100 if spread_cost > 0 else 0
+        
+        # Step 5: Calculate ROI = (Profit / Investment) * 100
+        if spread_cost > 0:
+            scenario_roi = (profit / spread_cost) * 100
+        else:
+            scenario_roi = 0
+            
         outcome = "win" if profit > 0 else "loss"
         
         scenarios.append({
@@ -634,7 +643,7 @@ def step4(symbol, strategy, option_id):
             'outcome': outcome
         })
         
-        print(f"Scenario {change:+.1f}%: Future price ${future_price:.2f}, ROI {scenario_roi:.2f}%, Profit ${profit:+.2f}")
+        print(f"Scenario {change:+.1f}%: Stock ${future_price:.2f} | Long ${long_call_value:.2f} | Short ${short_call_value:.2f} | Spread ${spread_value:.2f} | Profit ${profit:+.2f} | ROI {scenario_roi:.2f}%")
     
     # Create short option ID by modifying the long option ID  
     short_option_id = option_id.replace(f"{int(long_strike*1000):08d}", f"{int(short_strike*1000):08d}")
