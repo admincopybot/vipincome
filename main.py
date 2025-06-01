@@ -616,32 +616,44 @@ def step4(symbol, strategy, option_id):
         .page-title h1 {{ font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}
         .page-subtitle {{ font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); }}
         
-        .spread-header {{ background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }}
-        .expiration-info {{ color: #e2e8f0; font-size: 14px; }}
-        .spread-title {{ color: #ffffff; font-size: 28px; font-weight: bold; }}
-        .width-badge {{ background: #8b5cf6; color: #ffffff; padding: 6px 16px; border-radius: 12px; font-size: 12px; font-weight: 600; }}
+        .spread-header {{ background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; animation: pulse-glow 3s ease-in-out infinite; }}
+        .expiration-info {{ color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; }}
+        .spread-title {{ color: #ffffff; font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}
+        .width-badge {{ background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }}
         
-        .trade-construction {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }}
-        .trade-section {{ background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 16px; }}
-        .section-header {{ color: #8b5cf6; font-weight: 600; margin-bottom: 12px; font-size: 16px; }}
-        .option-detail {{ color: #cbd5e0; font-size: 14px; margin-bottom: 8px; }}
+        .trade-construction {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }}
+        .trade-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; transition: all 0.3s ease; }}
+        .trade-section:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }}
+        .section-header {{ color: #ffffff; font-weight: 700; margin-bottom: 12px; font-size: 16px; }}
+        .option-detail {{ color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 6px; }}
         
-        .summary-section {{ background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); padding: 25px; border-radius: 16px; margin-bottom: 30px; }}
-        .summary-header {{ color: #8b5cf6; font-weight: 600; margin-bottom: 20px; font-size: 18px; }}
-        .summary-row {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }}
+        .summary-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}
+        .summary-header {{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}
+        .summary-row {{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }}
         .summary-cell {{ text-align: center; }}
-        .cell-label {{ color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-bottom: 5px; }}
-        .cell-value {{ color: #ffffff; font-weight: 600; font-size: 14px; }}
+        .cell-label {{ color: rgba(255, 255, 255, 0.6); font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }}
+        .cell-value {{ color: #ffffff; font-weight: 700; font-size: 16px; }}
         
-        .scenarios-section {{ background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); padding: 25px; border-radius: 16px; margin-bottom: 30px; }}
-        .scenarios-header {{ color: #8b5cf6; font-weight: 600; margin-bottom: 20px; font-size: 18px; }}
+        .scenarios-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}
+        .scenarios-header {{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}
         .scenarios-grid {{ display: grid; gap: 2px; }}
-        .scenario-header-row {{ display: grid; grid-template-columns: 120px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}
-        .scenario-row {{ display: grid; grid-template-columns: 120px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}
-        .scenario-cell {{ background: rgba(30, 41, 59, 0.8); padding: 8px; text-align: center; font-size: 12px; color: #e2e8f0; border-radius: 4px; }}
-        .scenario-cell-label {{ background: rgba(30, 41, 59, 0.8); padding: 8px; text-align: right; font-size: 12px; color: rgba(255, 255, 255, 0.6); font-weight: 600; border-radius: 4px; }}
-        .win {{ background: rgba(34, 197, 94, 0.8) !important; color: #ffffff; }}
-        .loss {{ background: rgba(239, 68, 68, 0.8) !important; color: #ffffff; }}
+        .scenario-header-row {{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }}
+        .scenario-row {{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}
+        .scenario-cell {{ background: rgba(30, 41, 59, 0.9); padding: 10px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; }}
+        .scenario-header-cell {{ background: rgba(139, 92, 246, 0.2); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 4px; font-weight: 700; text-transform: uppercase; }}
+        .scenario-cell-label {{ background: rgba(139, 92, 246, 0.3); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; font-weight: 700; border-radius: 4px; text-transform: uppercase; }}
+        .win {{ background: linear-gradient(135deg, #10b981, #059669) !important; color: #ffffff; animation: win-pulse 2s ease-in-out infinite; }}
+        .loss {{ background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff; }}
+        
+        @keyframes pulse-glow {{
+            0%, 100% {{ box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }}
+            50% {{ box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); }}
+        }}
+        
+        @keyframes win-pulse {{
+            0%, 100% {{ box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }}
+            50% {{ box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }}
+        }}
         
         .back-navigation {{ margin-top: 40px; text-align: center; }}
         .back-btn {{ background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; }}
@@ -754,14 +766,14 @@ def step4(symbol, strategy, option_id):
             <div class="scenarios-header">Stock Price Scenarios</div>
             <div class="scenarios-grid">
                 <div class="scenario-header-row">
-                    <div class="scenario-cell">Change</div>
-                    <div class="scenario-cell">-7.5%</div>
-                    <div class="scenario-cell">-5%</div>
-                    <div class="scenario-cell">-2.5%</div>
-                    <div class="scenario-cell">0%</div>
-                    <div class="scenario-cell">+2.5%</div>
-                    <div class="scenario-cell">+5%</div>
-                    <div class="scenario-cell">+7.5%</div>
+                    <div class="scenario-cell-label">Change</div>
+                    <div class="scenario-header-cell">-7.5%</div>
+                    <div class="scenario-header-cell">-5%</div>
+                    <div class="scenario-header-cell">-2.5%</div>
+                    <div class="scenario-header-cell">0%</div>
+                    <div class="scenario-header-cell">+2.5%</div>
+                    <div class="scenario-header-cell">+5%</div>
+                    <div class="scenario-header-cell">+7.5%</div>
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Stock Price</div>
