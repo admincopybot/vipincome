@@ -526,15 +526,23 @@ def step4(symbol, strategy, option_id):
     # and find a suitable short option (higher strike, same expiration)
     
     long_option_data = fetch_option_snapshot(option_id, symbol)
+    print(f"DEBUG: Option data result: {long_option_data}")
     
     if 'error' in long_option_data:
         error_msg = long_option_data['error']
         spread_analysis = None
+        print(f"DEBUG: Error in option data: {error_msg}")
     else:
         # For now, let's show single option analysis with the real data we have
         # In a production system, you'd fetch available strikes from the options chain
-        spread_analysis = calculate_single_option_analysis(long_option_data, current_price)
-        error_msg = None
+        try:
+            spread_analysis = calculate_single_option_analysis(long_option_data, current_price)
+            error_msg = None
+            print(f"DEBUG: Analysis successful")
+        except Exception as e:
+            error_msg = f"Analysis error: {str(e)}"
+            spread_analysis = None
+            print(f"DEBUG: Analysis failed: {error_msg}")
     
     template = """
     <!DOCTYPE html>
