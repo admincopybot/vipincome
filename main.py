@@ -247,10 +247,14 @@ def analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol)
     
     print(f"Found {len(calls_by_expiration)} expiration dates with call options")
     
-    # Find best spread for each strategy
+    # Find best spread for each strategy with detailed logging
     strategies = {}
     
     for strategy_name, criteria in strategy_criteria.items():
+        print(f"\n=== Analyzing {strategy_name} strategy ===")
+        print(f"Criteria: {criteria['dte_min']}-{criteria['dte_max']} DTE, {criteria['roi_min']}-{criteria['roi_max']}% ROI")
+        print(f"Short call rule: {criteria['short_call_rule']}")
+        
         best_spread = find_optimal_spread(
             calls_by_expiration, 
             current_price, 
@@ -262,8 +266,10 @@ def analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol)
         
         if best_spread:
             strategies[strategy_name] = best_spread
+            print(f"✓ Found {strategy_name} spread: {best_spread}")
         else:
             strategies[strategy_name] = {'error': f'No suitable {strategy_name} spreads found'}
+            print(f"✗ No {strategy_name} spreads found")
     
     return strategies
 
@@ -272,17 +278,31 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
     from datetime import datetime
     
     valid_spreads = []
+    total_expirations_checked = 0
+    dte_filtered_count = 0
+    spreads_checked = 0
+    position_rule_failures = 0
+    pricing_failures = 0
+    roi_failures = 0
+    
+    print(f"Current price: ${current_price:.2f}")
     
     for exp_date_str, strikes_dict in calls_by_expiration.items():
         try:
+            total_expirations_checked += 1
             exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
             dte = (exp_date - today).days
             
+            print(f"Checking expiration {exp_date_str}: {dte} DTE, {len(strikes_dict)} strikes")
+            
             # Check DTE range
             if not (criteria['dte_min'] <= dte <= criteria['dte_max']):
+                print(f"  DTE {dte} outside range {criteria['dte_min']}-{criteria['dte_max']}")
                 continue
             
+            dte_filtered_count += 1
             strikes = sorted(strikes_dict.keys())
+            print(f"  DTE matches! Checking {len(strikes)} strikes: {strikes[:10]}..." if len(strikes) > 10 else f"  DTE matches! Checking strikes: {strikes}")
             
             # Look for $1-wide spreads
             for long_strike in strikes:
@@ -291,8 +311,12 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
                 if short_strike not in strikes_dict:
                     continue
                 
+                spreads_checked += 1
+                
                 # Check short call position rule
                 if not check_short_call_position(short_strike, current_price, criteria['short_call_rule']):
+                    position_rule_failures += 1
+                    print(f"    ${long_strike}/{short_strike}: FAILED position rule ({criteria['short_call_rule']})")
                     continue
                 
                 long_contract = strikes_dict[long_strike]
@@ -303,16 +327,21 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
                 short_price = get_contract_price(short_contract, symbol)
                 
                 if long_price is None or short_price is None:
+                    pricing_failures += 1
+                    print(f"    ${long_strike}/{short_strike}: FAILED pricing (long: {long_price}, short: {short_price})")
                     continue
                 
                 # Calculate spread metrics
                 spread_cost = long_price - short_price
                 if spread_cost <= 0:
+                    print(f"    ${long_strike}/{short_strike}: FAILED negative spread cost (${spread_cost:.2f})")
                     continue
                 
                 spread_width = 1.0  # $1 wide
                 max_profit = spread_width - spread_cost
                 roi = (max_profit / spread_cost) * 100
+                
+                print(f"    ${long_strike}/{short_strike}: Cost ${spread_cost:.2f}, ROI {roi:.1f}%")
                 
                 # Check ROI criteria
                 if criteria['roi_min'] <= roi <= criteria['roi_max']:
@@ -333,10 +362,23 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
                     }
                     valid_spreads.append(spread_data)
                     
-                    print(f"{strategy_name}: Found {long_strike}/{short_strike} spread, {dte} DTE, {roi:.1f}% ROI, ${spread_cost:.2f} cost")
+                    print(f"    ✓ VALID SPREAD: {long_strike}/{short_strike}, {dte} DTE, {roi:.1f}% ROI, ${spread_cost:.2f} cost")
+                else:
+                    roi_failures += 1
+                    print(f"    ${long_strike}/{short_strike}: FAILED ROI {roi:.1f}% (need {criteria['roi_min']}-{criteria['roi_max']}%)")
         
         except Exception as e:
+            print(f"Error processing {exp_date_str}: {e}")
             continue
+    
+    print(f"\nSUMMARY for {strategy_name}:")
+    print(f"  Total expirations: {total_expirations_checked}")
+    print(f"  DTE matches: {dte_filtered_count}")
+    print(f"  Spreads checked: {spreads_checked}")
+    print(f"  Position rule failures: {position_rule_failures}")
+    print(f"  Pricing failures: {pricing_failures}")
+    print(f"  ROI failures: {roi_failures}")
+    print(f"  Valid spreads found: {len(valid_spreads)}")
     
     # Select best spread: lowest strikes with highest ROI in target range
     if valid_spreads:
