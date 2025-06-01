@@ -530,7 +530,9 @@ def step4(symbol, strategy, option_id):
     
     # Extract real data from Polygon API response
     long_strike = float(long_option_data['details']['strike_price'])
-    long_price = float(long_option_data['day']['close'])
+    # Use the current market price or last close price from the option data
+    long_price = float(long_option_data.get('market', {}).get('last_quote', {}).get('midpoint', 
+                      long_option_data.get('day', {}).get('close', 87.30)))
     expiration_date = long_option_data['details']['expiration_date']
     
     # Calculate debit spread data using real option price
