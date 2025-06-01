@@ -331,6 +331,562 @@ def get_management_rule(strategy):
     }
     return rules.get(strategy, '')
 
+def fetch_option_snapshot(option_id, underlying_ticker):
+    """Fetch real-time option data from Polygon API"""
+    import requests
+    
+    api_key = os.environ.get('POLYGON_API_KEY')
+    if not api_key:
+        return {'error': 'API key not configured'}
+    
+    try:
+        url = f"https://api.polygon.io/v3/snapshot/options/{underlying_ticker}/{option_id}"
+        params = {'apikey': api_key}
+        
+        response = requests.get(url, params=params)
+        if response.status_code != 200:
+            return {'error': f'API error: {response.status_code}'}
+        
+        data = response.json()
+        if 'results' not in data:
+            return {'error': 'No option data available'}
+        
+        return data['results']
+        
+    except Exception as e:
+        return {'error': f'Error fetching option data: {str(e)}'}
+
+def calculate_debit_spread_analysis(long_option_data, short_option_data, current_stock_price):
+    """Calculate comprehensive debit spread analysis"""
+    from datetime import datetime
+    
+    try:
+        # Extract option prices
+        long_price = long_option_data.get('day', {}).get('close', 0)
+        short_price = short_option_data.get('day', {}).get('close', 0)
+        
+        # Extract strike prices
+        long_strike = float(long_option_data.get('details', {}).get('strike_price', 0))
+        short_strike = float(short_option_data.get('details', {}).get('strike_price', 0))
+        
+        # Calculate spread metrics
+        spread_cost = long_price - short_price
+        spread_width = short_strike - long_strike
+        max_profit = spread_width - spread_cost
+        roi = (max_profit / spread_cost) * 100 if spread_cost > 0 else 0
+        breakeven = long_strike + spread_cost
+        
+        # Calculate days to expiration
+        exp_date_str = long_option_data.get('details', {}).get('expiration_date', '')
+        if exp_date_str:
+            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
+            days_to_exp = (exp_date - datetime.now()).days
+        else:
+            days_to_exp = 0
+        
+        # Generate price scenarios
+        scenarios = []
+        scenario_percentages = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
+        
+        for change_pct in scenario_percentages:
+            future_price = current_stock_price * (1 + change_pct/100)
+            
+            # Calculate intrinsic values at expiration
+            long_call_value = max(0, future_price - long_strike)
+            short_call_value = max(0, future_price - short_strike)
+            spread_value = long_call_value - short_call_value
+            
+            # Calculate profit/loss
+            profit = spread_value - spread_cost
+            scenario_roi = (profit / spread_cost) * 100 if spread_cost > 0 else 0
+            outcome = "win" if profit > 0 else "loss"
+            
+            scenarios.append({
+                'change_percent': change_pct,
+                'stock_price': future_price,
+                'spread_value': spread_value,
+                'profit_loss': profit,
+                'roi': scenario_roi,
+                'outcome': outcome
+            })
+        
+        return {
+            'spread_cost': spread_cost,
+            'spread_width': spread_width,
+            'max_profit': max_profit,
+            'max_loss': spread_cost,
+            'roi': roi,
+            'breakeven': breakeven,
+            'days_to_expiration': days_to_exp,
+            'scenarios': scenarios,
+            'long_strike': long_strike,
+            'short_strike': short_strike,
+            'long_price': long_price,
+            'short_price': short_price
+        }
+        
+    except Exception as e:
+        return {'error': f'Calculation error: {str(e)}'}
+
+@app.route('/step4/<symbol>/<strategy>/<option_id>')
+def step4(symbol, strategy, option_id):
+    """Step 4: Detailed Options Trade Analysis"""
+    
+    # Get current stock price
+    current_price = None
+    etf_data = etf_db.get_all_etfs()
+    for etf in etf_data.get('etfs', []):
+        if etf['symbol'] == symbol:
+            current_price = etf['current_price']
+            break
+    
+    if not current_price:
+        current_price = 150.0  # Fallback
+    
+    # For debit spread, we need both long and short options
+    # For now, we'll use the provided option as the long option
+    # and find a suitable short option (higher strike, same expiration)
+    
+    long_option_data = fetch_option_snapshot(option_id, symbol)
+    
+    if 'error' in long_option_data:
+        error_msg = long_option_data['error']
+        spread_analysis = None
+    else:
+        # Find the appropriate short option (higher strike, same expiration)
+        long_strike = float(long_option_data.get('details', {}).get('strike_price', 0))
+        exp_date = long_option_data.get('details', {}).get('expiration_date', '')
+        
+        # For debit spread, we need a higher strike option to sell
+        # We'll construct the short option ID by adding $1 to the strike
+        short_strike = long_strike + 1
+        
+        # Construct short option ID (this follows Polygon's naming convention)
+        # Format: O:SYMBOL{YYMMDD}C{STRIKE*1000:08d}
+        import re
+        option_match = re.match(r'O:([A-Z]+)(\d{6})C(\d{8})', option_id)
+        if option_match:
+            ticker_part = option_match.group(1)
+            date_part = option_match.group(2)
+            short_strike_padded = f"{int(short_strike * 1000):08d}"
+            short_option_id = f"O:{ticker_part}{date_part}C{short_strike_padded}"
+            
+            # Fetch short option data
+            short_option_data = fetch_option_snapshot(short_option_id, symbol)
+            
+            if 'error' not in short_option_data:
+                # Calculate spread analysis with real data
+                spread_analysis = calculate_debit_spread_analysis(
+                    long_option_data, short_option_data, current_price
+                )
+                error_msg = None
+            else:
+                error_msg = f"Could not fetch short option data: {short_option_data['error']}"
+                spread_analysis = None
+        else:
+            error_msg = "Invalid option ID format"
+            spread_analysis = None
+    
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Step 4: Trade Analysis - {{ symbol }} {{ strategy.title() }} Strategy</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1a202c;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .top-banner {
+            background: rgba(0, 12, 12, 0.8);
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+            color: #ffffff;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-logo {
+            height: 32px;
+            width: auto;
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .nav-item {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            color: #ffffff;
+        }
+        
+        .get-offer-btn {
+            background: #ffffff;
+            color: #1e40af;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .get-offer-btn:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .trade-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .strategy-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        
+        .strategy-passive {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .strategy-steady {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .strategy-aggressive {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .trade-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        
+        .trade-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .error-container {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(220, 38, 38, 0.4);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .trade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .trade-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #8b5cf6;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .metric-value {
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .scenarios-table {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+        }
+        
+        .table-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #8b5cf6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        th {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        td {
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+        
+        .profit {
+            color: #22c55e;
+        }
+        
+        .loss {
+            color: #ef4444;
+        }
+        
+        .back-to-step3 {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        </style>
+    </head>
+    <body>
+        <div class="top-banner">
+            Free Income Machine Experience Ends in... 670 DIM 428 1485
+        </div>
+        
+        <div class="header">
+            <div class="logo">
+                <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item">How to Use</a>
+                <a href="#" class="nav-item">Trade Classes</a>
+                <a href="#" class="get-offer-btn">Get 50% OFF</a>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="trade-header">
+                <div class="strategy-badge strategy-{{ strategy }}">{{ strategy }} Strategy</div>
+                <div class="trade-title">{{ symbol }} Debit Call Spread Analysis</div>
+                <div class="trade-subtitle">Real-time options trade analysis using Polygon API data</div>
+            </div>
+            
+            {% if error_msg %}
+            <div class="error-container">
+                <div class="error-message">{{ error_msg }}</div>
+            </div>
+            {% else %}
+            
+            <div class="trade-grid">
+                <div class="trade-card">
+                    <div class="card-header">Trade Construction</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Long Strike:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.long_strike) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Short Strike:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.short_strike) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Spread Width:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.spread_width) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Days to Expiry:</span>
+                        <span class="metric-value">{{ spread_analysis.days_to_expiration }}</span>
+                    </div>
+                </div>
+                
+                <div class="trade-card">
+                    <div class="card-header">Cost & Profit</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Spread Cost:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.spread_cost) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Max Profit:</span>
+                        <span class="metric-value profit">${{ "%.2f"|format(spread_analysis.max_profit) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Max Loss:</span>
+                        <span class="metric-value loss">${{ "%.2f"|format(spread_analysis.max_loss) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">ROI:</span>
+                        <span class="metric-value">{{ "%.1f"|format(spread_analysis.roi) }}%</span>
+                    </div>
+                </div>
+                
+                <div class="trade-card">
+                    <div class="card-header">Option Prices</div>
+                    <div class="metric-row">
+                        <span class="metric-label">Long Call Price:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.long_price) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Short Call Price:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.short_price) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Current Stock:</span>
+                        <span class="metric-value">${{ "%.2f"|format(current_price) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Breakeven:</span>
+                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.breakeven) }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="scenarios-table">
+                <div class="table-header">Price Scenarios at Expiration</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stock Price Change</th>
+                            <th>Stock Price</th>
+                            <th>Spread Value</th>
+                            <th>Profit/Loss</th>
+                            <th>ROI</th>
+                            <th>Outcome</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scenario in spread_analysis.scenarios %}
+                        <tr>
+                            <td>{{ "%+.1f"|format(scenario.change_percent) }}%</td>
+                            <td>${{ "%.2f"|format(scenario.stock_price) }}</td>
+                            <td>${{ "%.2f"|format(scenario.spread_value) }}</td>
+                            <td class="{{ scenario.outcome }}">${{ "%+.2f"|format(scenario.profit_loss) }}</td>
+                            <td class="{{ scenario.outcome }}">{{ "%+.1f"|format(scenario.roi) }}%</td>
+                            <td class="{{ scenario.outcome }}">{{ scenario.outcome.upper() }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% endif %}
+            
+            <div class="back-to-step3">
+                <a href="/step3/{{ symbol }}" class="back-btn">← Back to Strategy Selection</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return render_template_string(template, 
+                                symbol=symbol, 
+                                strategy=strategy,
+                                option_id=option_id,
+                                current_price=current_price,
+                                spread_analysis=spread_analysis,
+                                error_msg=error_msg)
+
 @app.route('/')
 def index():
     # Synchronize scores before displaying
@@ -1816,7 +2372,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="#" class="strategy-btn">Select Passive Strategy</a>
+                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}" class="strategy-btn">Select Passive Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
@@ -1858,7 +2414,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="#" class="strategy-btn">Select Steady Strategy</a>
+                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.contract_symbol if not options_data.steady.error else 'none' }}" class="strategy-btn">Select Steady Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
@@ -1892,7 +2448,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="#" class="strategy-btn">Select Aggressive Strategy</a>
+                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.contract_symbol if not options_data.aggressive.error else 'none' }}" class="strategy-btn">Select Aggressive Strategy</a>
                 </div>
             </div>
             

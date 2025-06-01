@@ -1,0 +1,180 @@
+Here's an extremely thorough and detailed prompt for creating the STEP 4 page that displays the trade view with accurate calculations using Polygon API data:
+
+STEP 4 Page Requirements: Options Trade Analysis Dashboard
+Page Purpose and Context
+Create a comprehensive options trade analysis page that displays detailed information about a debit call spread trade using real-time data from Polygon.io API. This page represents the final step in a 4-step user flow where users have already:
+
+Selected a stock ticker
+Viewed stock details
+Chosen one of three trading strategies (PASSIVE, AGGRESSIVE, STEADY) with associated Option IDs
+Data Sources and API Integration
+Primary Data Source: Polygon.io Options Snapshot API
+
+Endpoint: https://api.polygon.io/v3/snapshot/options/{underlying_ticker}/{option_id}?apiKey={API_KEY}
+Example: https://api.polygon.io/v3/snapshot/options/AAPL/O:AAPL250620C00005000?apiKey=k6ECRucGkpJBim1MrodIBAJpSqTnSN1B
+Required API Calls:
+
+Long Call Option (lower strike): Get snapshot for the buy option ID
+Short Call Option (higher strike): Get snapshot for the sell option ID
+Underlying Stock: Get current stock price and details
+Key Data Fields to Extract:
+
+// From option snapshot response
+{
+  results: {
+    day: {
+      close: 196.05,           // Current option price
+      volume: 158,             // Trading volume
+      last_updated: timestamp  // Last price update
+    },
+    details: {
+      contract_type: "call",   // Confirm it's a call option
+      expiration_date: "2025-06-20", // Expiration date
+      strike_price: 5,         // Strike price
+      ticker: "O:AAPL250620C00005000" // Option ticker
+    },
+    greeks: {
+      delta: 0.998114928918506,  // Price sensitivity to stock movement
+      gamma: 0.000014712177207617, // Delta change rate
+      theta: -0.0574365969800499,  // Time decay
+      vega: 0.00232083355338472    // Volatility sensitivity
+    },
+    implied_volatility: 8.30069278536107, // Market volatility expectation
+    open_interest: 612,        // Total contracts outstanding
+    underlying_asset: {
+      ticker: "AAPL"          // Underlying stock ticker
+    }
+  }
+}
+Page Layout and Structure
+Header Section:
+
+Strategy type badge (PASSIVE/AGGRESSIVE/STEADY) with color coding
+Expiration date and days to expiration calculation
+Main spread display: "$[LOWER_STRIKE] / $[HIGHER_STRIKE]" with width badge
+Main Content Sections:
+
+1. Trade Construction Details
+┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
+│   Buy (Long)    │   Sell (Short)  │ Spread Details  │   Trade Info    │
+├─────────────────┼─────────────────┼─────────────────┼─────────────────┤
+│ Option ID:      │ Option ID:      │ Spread Cost:    │ ROI: [%]        │
+│ [OPTION_TICKER] │ [OPTION_TICKER] │ $[COST]         │ Breakeven:      │
+│ Price: $[PRICE] │ Price: $[PRICE] │ Max Value: $1.00│ $[BREAKEVEN]    │
+└─────────────────┴─────────────────┴─────────────────┴─────────────────┘
+2. Trade Summary Table
+Single-row summary with key metrics:
+
+Current Stock Price
+Spread Cost
+Call Strikes (formatted as "Strike1 & Strike2")
+Breakeven Price
+Max Profit
+Return on Investment
+3. Stock Price Scenarios Analysis
+Comprehensive scenario table showing profit/loss at different stock prices:
+
+Scenario Calculations:
+
+// Generate 7 price scenarios: -7.5%, -5%, -2.5%, 0%, +2.5%, +5%, +7.5%
+const scenarios = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5];
+const currentPrice = [CURRENT_STOCK_PRICE];
+scenarios.forEach(changePercent => {
+  const futurePrice = currentPrice * (1 + changePercent/100);
+  
+  // Calculate intrinsic values at expiration
+  const longCallValue = Math.max(0, futurePrice - lowerStrike);
+  const shortCallValue = Math.max(0, futurePrice - higherStrike);
+  const spreadValue = longCallValue - shortCallValue;
+  
+  // Calculate profit/loss
+  const profit = spreadValue - spreadCost;
+  const roi = (profit / spreadCost) * 100;
+  
+  // Determine outcome
+  const outcome = profit > 0 ? "win" : "loss";
+});
+Detailed Calculation Logic
+1. Spread Cost Calculation:
+
+// Using real option prices from Polygon API
+const spreadCost = longCallPrice - shortCallPrice;
+const maxValue = higherStrike - lowerStrike; // Always $1.00 for $1-wide spreads
+const maxProfit = maxValue - spreadCost;
+2. ROI Calculation:
+
+const roi = (maxProfit / spreadCost) * 100;
+// Format: "156.41%" with appropriate color coding
+3. Breakeven Calculation:
+
+const breakeven = lowerStrike + spreadCost;
+// This is the stock price needed at expiration to break even
+4. Days to Expiration:
+
+const expirationDate = new Date(optionDetails.expiration_date);
+const today = new Date();
+const daysToExpiration = Math.ceil((expirationDate - today) / (1000 * 60 * 60 * 24));
+Real-Time Data Integration
+Error Handling and Data Validation:
+
+Verify option IDs are valid and active
+Confirm both options have same expiration date
+Validate that higher strike > lower strike
+Check that options are calls (not puts)
+Handle API rate limits and timeouts
+Data Freshness Indicators:
+
+Display last updated timestamp for option prices
+Show market hours status
+Include volume and open interest for liquidity assessment
+Visual Design and User Experience
+Color Coding System:
+
+Green: Profitable scenarios, positive ROI
+Red: Loss scenarios, negative ROI
+Purple/Blue: Strategy type headers and key metrics
+Gray: Neutral information and labels
+Responsive Design:
+
+Mobile-friendly table layouts
+Collapsible sections for smaller screens
+Touch-friendly interactive elements
+Interactive Features:
+
+Hover tooltips explaining complex terms (Delta, Theta, etc.)
+Click to expand detailed option information
+Real-time price updates if WebSocket available
+Additional Features and Enhancements
+Risk Metrics Display:
+
+Maximum loss: Always the spread cost
+Maximum gain: Always $1.00 - spread cost
+Probability of profit based on current market conditions
+Time decay impact (Theta) on position
+Market Context:
+
+Implied volatility levels
+Volume and open interest for both strikes
+Bid/ask spreads for liquidity assessment
+Educational Components:
+
+Brief explanation of how debit spreads work
+Why this particular spread was selected
+What market conditions favor this trade
+Implementation Considerations
+API Rate Limiting:
+
+Cache option data for reasonable periods
+Implement exponential backoff for failed requests
+Use batch requests when possible
+Performance Optimization:
+
+Parallel API calls for both option strikes
+Client-side caching of static data
+Progressive loading of non-critical information
+Error States:
+
+Graceful degradation when API is unavailable
+Clear error messages for invalid option IDs
+Fallback to last known good data when appropriate
+This comprehensive specification ensures the STEP 4 page provides accurate, real-time options analysis using authentic market data from Polygon.io, matching the exact layout and functionality shown in your reference images.
