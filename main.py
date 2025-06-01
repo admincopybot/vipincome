@@ -2072,47 +2072,79 @@ def step3(symbol=None):
         }
         
         .get-offer-btn {
-            background: #ffffff;
-            color: #1e40af;
-            padding: 8px 16px;
-            border-radius: 6px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1f2e;
+            padding: 12px 24px;
+            border-radius: 25px;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
             transition: all 0.3s ease;
+            text-transform: uppercase;
         }
         
         .get-offer-btn:hover {
-            background: #f8fafc;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
         }
         
-        .step-navigation {
+        .steps-nav {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .steps-container {
             display: flex;
-            margin: 0 40px;
-            gap: 0;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .step.active {
+            color: #8b5cf6;
+        }
+        .step.completed {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .step.active .step-number {
+            background: #8b5cf6;
+            color: #ffffff;
+        }
+        .step.completed .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .step:not(.active):not(.completed) .step-number {
+            background: rgba(255, 255, 255, 0.1);
         }
         
-        .step-tab {
-            flex: 1;
-            padding: 15px 20px;
-            text-align: center;
-            font-weight: 600;
+        a.step {
             text-decoration: none;
-            border: none;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .step-tab.active {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.4));
-            color: #e2e8f0;
-            border-bottom: 2px solid #3b82f6;
-        }
-        
-        .step-tab.current {
-            background: linear-gradient(90deg, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.4));
-            color: #e2e8f0;
-            border-bottom: 2px solid #6366f1;
+        a.step:hover {
+            color: #8b5cf6;
+            transform: translateY(-1px);
         }
         
         .container {
