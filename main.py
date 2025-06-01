@@ -209,7 +209,7 @@ def fetch_options_data(symbol, current_price):
         }
 
 def process_options_strategies(contracts, current_price, today):
-    """Process options contracts based on strategy criteria"""
+    """Process options contracts to find optimal $1-wide debit spreads for each strategy"""
     from datetime import datetime, timedelta
     
     strategies = {
@@ -217,6 +217,172 @@ def process_options_strategies(contracts, current_price, today):
         'steady': {'error': 'No suitable options found'},
         'aggressive': {'error': 'No suitable options found'}
     }
+    
+    # Strategy criteria based on your specifications
+    strategy_criteria = {
+        'aggressive': {
+            'dte_min': 10,
+            'dte_max': 17,
+            'roi_min': 30,
+            'roi_max': 40,
+            'short_call_rule': 'below_current'  # Sold call must be below current price
+        },
+        'steady': {
+            'dte_min': 17,
+            'dte_max': 28,
+            'roi_min': 15,
+            'roi_max': 25,
+            'short_call_rule': 'within_2pct'  # Sold call must be <2% below current price
+        },
+        'passive': {
+            'dte_min': 28,
+            'dte_max': 42,
+            'roi_min': 10,
+            'roi_max': 15,
+            'short_call_rule': 'within_10pct'  # Sold call must be <10% below current price
+        }
+    }
+    
+    # Group contracts by expiration date
+    expirations = {}
+    for contract in contracts:
+        exp_date = contract.get('expiration_date')
+        if exp_date:
+            if exp_date not in expirations:
+                expirations[exp_date] = []
+            expirations[exp_date].append(contract)
+    
+    # Find best spread for each strategy
+    for strategy_name, criteria in strategy_criteria.items():
+        best_spread = find_best_debit_spread(
+            expirations, 
+            current_price, 
+            today, 
+            criteria
+        )
+        
+        if best_spread:
+            strategies[strategy_name] = best_spread
+    
+    return strategies
+
+def find_best_debit_spread(expirations, current_price, today, criteria):
+    """Find the best $1-wide debit spread meeting the strategy criteria"""
+    from datetime import datetime
+    
+    best_spreads = []
+    
+    for exp_date_str, contracts in expirations.items():
+        try:
+            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
+            dte = (exp_date - today).days
+            
+            # Check if expiration falls within DTE range
+            if not (criteria['dte_min'] <= dte <= criteria['dte_max']):
+                continue
+            
+            # Group calls by strike price
+            calls_by_strike = {}
+            for contract in contracts:
+                if contract.get('contract_type') == 'call':
+                    strike = float(contract.get('strike_price', 0))
+                    calls_by_strike[strike] = contract
+            
+            # Find all possible $1-wide spreads
+            strikes = sorted(calls_by_strike.keys())
+            for i, long_strike in enumerate(strikes):
+                short_strike = long_strike + 1.0
+                
+                if short_strike not in calls_by_strike:
+                    continue
+                
+                # Check short call position rule
+                if not meets_short_call_rule(short_strike, current_price, criteria['short_call_rule']):
+                    continue
+                
+                long_contract = calls_by_strike[long_strike]
+                short_contract = calls_by_strike[short_strike]
+                
+                # Calculate spread cost and ROI
+                long_price = get_option_price(long_contract)
+                short_price = get_option_price(short_contract)
+                
+                if long_price is None or short_price is None:
+                    continue
+                
+                spread_cost = long_price - short_price
+                if spread_cost <= 0:
+                    continue
+                
+                # Calculate ROI: (Width - Cost) / Cost * 100
+                spread_width = 1.0  # $1 wide spread
+                max_profit = spread_width - spread_cost
+                roi = (max_profit / spread_cost) * 100
+                
+                # Check if ROI meets criteria
+                if criteria['roi_min'] <= roi <= criteria['roi_max']:
+                    spread_data = {
+                        'long_strike': long_strike,
+                        'short_strike': short_strike,
+                        'long_price': long_price,
+                        'short_price': short_price,
+                        'spread_cost': spread_cost,
+                        'max_profit': max_profit,
+                        'roi': roi,
+                        'dte': dte,
+                        'expiration': exp_date_str,
+                        'long_contract': long_contract,
+                        'short_contract': short_contract
+                    }
+                    best_spreads.append(spread_data)
+        
+        except Exception as e:
+            continue
+    
+    # Find the best spread: lowest strikes with highest ROI in range
+    if best_spreads:
+        # Sort by strike price (ascending) then by ROI (descending)
+        best_spreads.sort(key=lambda x: (x['long_strike'], -x['roi']))
+        best = best_spreads[0]
+        
+        return create_strategy_data(
+            'debit_spread',
+            best['long_contract'],
+            best['dte'],
+            best['roi'],
+            current_price,
+            best
+        )
+    
+    return None
+
+def meets_short_call_rule(short_strike, current_price, rule):
+    """Check if short call position meets the strategy rule"""
+    if rule == 'below_current':
+        return short_strike < current_price
+    elif rule == 'within_2pct':
+        return short_strike >= current_price * 0.98  # Within 2% below
+    elif rule == 'within_10pct':
+        return short_strike >= current_price * 0.90  # Within 10% below
+    return False
+
+def get_option_price(contract):
+    """Extract option price from contract data"""
+    # Try multiple price fields from Polygon API
+    if 'last_quote' in contract:
+        quote = contract['last_quote']
+        bid = quote.get('bid', 0)
+        ask = quote.get('ask', 0)
+        if bid > 0 and ask > 0:
+            return (bid + ask) / 2
+    
+    if 'day' in contract and 'close' in contract['day']:
+        return float(contract['day']['close'])
+    
+    if 'last_trade' in contract and 'price' in contract['last_trade']:
+        return float(contract['last_trade']['price'])
+    
+    return None
     
     # Filter call options only
     call_options = [c for c in contracts if c.get('contract_type') == 'call']
