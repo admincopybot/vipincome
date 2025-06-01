@@ -806,14 +806,15 @@ def index():
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
-    # Create the exact same template as before - keeping frontend identical
+    # Create template with consistent navigation structure
     template = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Income Machine</title>
+    <title>Income Machine - Step 1: Scoreboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -822,31 +823,113 @@ def index():
         }
         
         body {
-            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
+            font-family: 'Inter', sans-serif;
+            background: #1a1f2e;
+            color: #ffffff;
             min-height: 100vh;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         
         .top-banner {
-            background: #1e40af;
-            padding: 12px 0;
+            background: rgba(0, 12, 12, 0.8);
             text-align: center;
-            color: white;
-            font-size: 13px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #3b82f6;
+            padding: 8px;
+            font-size: 14px;
+            color: #ffffff;
         }
         
         .header {
-            background: rgba(15, 23, 42, 0.95);
-            padding: 20px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #374151;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-logo {
+            height: 32px;
+            width: auto;
+        }
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .nav-item {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .nav-item:hover {
+            color: #ffffff;
+        }
+        .get-offer-btn {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1f2e;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .get-offer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+        }
+        
+        .steps-nav {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .steps-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .step.active {
+            color: #8b5cf6;
+        }
+        .step.completed {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .step.active .step-number {
+            background: #8b5cf6;
+            color: #ffffff;
+        }
+        .step.completed .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .step:not(.active):not(.completed) .step-number {
+            background: rgba(255, 255, 255, 0.1);
         }
         
         .logo {
@@ -1146,8 +1229,25 @@ def index():
         </div>
     </div>
     
-    <div class="step-header">
-        Step 1: Scoreboard
+    <div class="steps-nav">
+        <div class="steps-container">
+            <div class="step active">
+                <div class="step-number">1</div>
+                <span>Scoreboard</span>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <span>Analysis</span>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>Strategy</span>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <span>Trade</span>
+            </div>
+        </div>
     </div>
     
     <div class="main-content">
@@ -1228,76 +1328,106 @@ def step2(symbol=None):
         }
         
         .top-banner {
-            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
-            color: white;
+            background: rgba(0, 12, 12, 0.8);
             text-align: center;
             padding: 8px;
             font-size: 14px;
-            font-weight: 600;
+            color: #ffffff;
         }
         
         .header {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #374151;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.02);
         }
-        
         .logo {
             display: flex;
             align-items: center;
+            gap: 12px;
         }
-        
         .header-logo {
-            height: 50px;
+            height: 32px;
             width: auto;
-            object-fit: contain;
         }
-        
         .nav-menu {
             display: flex;
             align-items: center;
             gap: 30px;
         }
-        
         .nav-item {
-            color: #cbd5e1;
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
         }
-        
         .nav-item:hover {
-            color: #60a5fa;
+            color: #ffffff;
         }
-        
         .get-offer-btn {
-            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
-            color: white;
-            padding: 10px 20px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1f2e;
+            padding: 12px 24px;
             border-radius: 25px;
             text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.2s ease;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
         }
-        
         .get-offer-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
         }
         
-        .step-navigation {
+        .steps-nav {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .steps-container {
             display: flex;
-            margin: 0 40px;
-            gap: 0;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
         }
-        
-        .step-tab {
-            flex: 1;
-            padding: 15px 20px;
-            text-align: center;
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .step.active {
+            color: #8b5cf6;
+        }
+        .step.completed {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .step.active .step-number {
+            background: #8b5cf6;
+            color: #ffffff;
+        }
+        .step.completed .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .step:not(.active):not(.completed) .step-number {
+            background: rgba(255, 255, 255, 0.1);
+        }
             font-weight: 600;
             text-decoration: none;
             border: none;
@@ -1621,9 +1751,25 @@ def step2(symbol=None):
         </div>
     </div>
     
-    <div class="step-navigation">
-        <a href="/" class="step-tab active">Step 1: Scoreboard</a>
-        <div class="step-tab current">Step 2: Asset Review</div>
+    <div class="steps-nav">
+        <div class="steps-container">
+            <div class="step completed">
+                <div class="step-number">1</div>
+                <span>Scoreboard</span>
+            </div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <span>Analysis</span>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>Strategy</span>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <span>Trade</span>
+            </div>
+        </div>
     </div>
     
     <div class="container">
