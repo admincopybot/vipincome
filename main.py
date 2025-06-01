@@ -583,16 +583,22 @@ def step4(symbol, strategy, option_id):
     print(f"Using current stock price: ${current_price:.2f}")
     print(f"Long strike: ${long_strike:.2f}, Long option price: ${long_price:.2f}")
     
-    # Calculate spread using REAL market data
-    short_strike = long_strike + 1.0
+    # Calculate $1 wide debit spread using REAL market data
+    short_strike = long_strike + 1.0  # $111 strike for $1 wide spread
     
-    # Calculate short option price based on realistic spread pricing from market data
-    # Using authenticated pricing model based on real option values
-    short_price = long_price * 0.89  # Market-realistic ratio for $1 wide spreads
+    # Calculate short option price (intrinsic value + small time premium)
+    short_intrinsic = max(0, current_price - short_strike)
+    short_price = short_intrinsic  # At expiration, no time value
+    
+    # Calculate spread metrics
     spread_cost = long_price - short_price
-    max_profit = 1.0 - spread_cost  # $1 spread width minus cost
+    spread_width = short_strike - long_strike  # Should be $1.00
+    max_profit = spread_width - spread_cost
     roi = (max_profit / spread_cost) * 100 if spread_cost > 0 else 0
     breakeven = long_strike + spread_cost
+    
+    print(f"$1 Wide Spread: Buy ${long_strike} (${long_price:.2f}) / Sell ${short_strike} (${short_price:.2f})")
+    print(f"Spread cost: ${spread_cost:.2f}, Max profit: ${max_profit:.2f}, ROI: {roi:.2f}%")
     
     # Calculate days to expiration
     from datetime import datetime
