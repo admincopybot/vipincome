@@ -1,0 +1,759 @@
+Real XLV current price from Polygon API: $132.64
+Analyzing 1000 contracts for XLV at $132.64
+Found 11 expiration dates with call options
+
+=== Analyzing aggressive strategy ===
+Criteria: 10-17 DTE, 30-40% ROI
+Short call rule: below_current
+Current price: $132.64
+Checking expiration 2025-06-06: 4 DTE, 59 strikes
+  DTE 4 outside range 10-17
+Checking expiration 2025-06-13: 11 DTE, 59 strikes
+  DTE matches! Checking 59 strikes: [85.0, 90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 117.0, 118.0, 119.0]...
+    Price calc: $117.0 strike, intrinsic $88.01, premium $1.00, total $89.01
+    Price calc: $118.0 strike, intrinsic $87.01, premium $1.00, total $88.01
+    $117.0/118.0: Cost $1.00, ROI 0.0%
+    $117.0/118.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $118.0 strike, intrinsic $87.01, premium $1.00, total $88.01
+    Price calc: $119.0 strike, intrinsic $86.01, premium $1.00, total $87.01
+    $118.0/119.0: Cost $1.00, ROI 0.0%
+    $118.0/119.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $119.0 strike, intrinsic $86.01, premium $1.00, total $87.01
+    Price calc: $120.0 strike, intrinsic $85.01, premium $1.00, total $86.01
+    $119.0/120.0: Cost $1.00, ROI 0.0%
+    $119.0/120.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $120.0 strike, intrinsic $85.01, premium $1.00, total $86.01
+    Price calc: $121.0 strike, intrinsic $84.01, premium $1.00, total $85.01
+    $120.0/121.0: Cost $1.00, ROI 0.0%
+    $120.0/121.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $121.0 strike, intrinsic $84.01, premium $1.00, total $85.01
+    Price calc: $122.0 strike, intrinsic $83.01, premium $1.00, total $84.01
+    $121.0/122.0: Cost $1.00, ROI 0.0%
+    $121.0/122.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $122.0 strike, intrinsic $83.01, premium $1.00, total $84.01
+    Price calc: $123.0 strike, intrinsic $82.01, premium $1.00, total $83.01
+    $122.0/123.0: Cost $1.00, ROI 0.0%
+    $122.0/123.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $123.0 strike, intrinsic $82.01, premium $1.00, total $83.01
+    Price calc: $124.0 strike, intrinsic $81.01, premium $1.00, total $82.01
+    $123.0/124.0: Cost $1.00, ROI 0.0%
+    $123.0/124.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $124.0 strike, intrinsic $81.01, premium $1.00, total $82.01
+    Price calc: $125.0 strike, intrinsic $80.01, premium $1.00, total $81.01
+    $124.0/125.0: Cost $1.00, ROI 0.0%
+    $124.0/125.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $125.0 strike, intrinsic $80.01, premium $1.00, total $81.01
+    Price calc: $126.0 strike, intrinsic $79.01, premium $1.00, total $80.01
+    $125.0/126.0: Cost $1.00, ROI 0.0%
+    $125.0/126.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $126.0 strike, intrinsic $79.01, premium $1.00, total $80.01
+    Price calc: $127.0 strike, intrinsic $78.01, premium $1.00, total $79.01
+    $126.0/127.0: Cost $1.00, ROI 0.0%
+    $126.0/127.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $127.0 strike, intrinsic $78.01, premium $1.00, total $79.01
+    Price calc: $128.0 strike, intrinsic $77.01, premium $1.00, total $78.01
+    $127.0/128.0: Cost $1.00, ROI 0.0%
+    $127.0/128.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $128.0 strike, intrinsic $77.01, premium $1.00, total $78.01
+    Price calc: $129.0 strike, intrinsic $76.01, premium $1.00, total $77.01
+    $128.0/129.0: Cost $1.00, ROI 0.0%
+    $128.0/129.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $129.0 strike, intrinsic $76.01, premium $1.00, total $77.01
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    $129.0/130.0: Cost $1.00, ROI 0.0%
+    $129.0/130.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    $130.0/131.0: Cost $1.00, ROI 0.0%
+    $130.0/131.0: FAILED ROI 0.0% (need 30-40%)
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    $131.0/132.0: Cost $1.00, ROI 0.0%
+    $131.0/132.0: FAILED ROI 0.0% (need 30-40%)
+    $132.0/133.0: FAILED position rule (below_current)
+    $133.0/134.0: FAILED position rule (below_current)
+    $133.5/134.5: FAILED position rule (below_current)
+    $134.0/135.0: FAILED position rule (below_current)
+    $134.5/135.5: FAILED position rule (below_current)
+    $135.0/136.0: FAILED position rule (below_current)
+    $135.5/136.5: FAILED position rule (below_current)
+    $136.0/137.0: FAILED position rule (below_current)
+    $136.5/137.5: FAILED position rule (below_current)
+    $137.0/138.0: FAILED position rule (below_current)
+    $137.5/138.5: FAILED position rule (below_current)
+    $138.0/139.0: FAILED position rule (below_current)
+    $138.5/139.5: FAILED position rule (below_current)
+    $139.0/140.0: FAILED position rule (below_current)
+    $140.0/141.0: FAILED position rule (below_current)
+    $141.0/142.0: FAILED position rule (below_current)
+    $142.0/143.0: FAILED position rule (below_current)
+    $143.0/144.0: FAILED position rule (below_current)
+    $144.0/145.0: FAILED position rule (below_current)
+    $145.0/146.0: FAILED position rule (below_current)
+    $146.0/147.0: FAILED position rule (below_current)
+    $147.0/148.0: FAILED position rule (below_current)
+    $148.0/149.0: FAILED position rule (below_current)
+    $149.0/150.0: FAILED position rule (below_current)
+    $150.0/151.0: FAILED position rule (below_current)
+    $151.0/152.0: FAILED position rule (below_current)
+    $152.0/153.0: FAILED position rule (below_current)
+    $153.0/154.0: FAILED position rule (below_current)
+    $154.0/155.0: FAILED position rule (below_current)
+Checking expiration 2025-06-20: 18 DTE, 77 strikes
+  DTE 18 outside range 10-17
+Checking expiration 2025-06-27: 25 DTE, 54 strikes
+  DTE 25 outside range 10-17
+Checking expiration 2025-07-03: 31 DTE, 50 strikes
+  DTE 31 outside range 10-17
+Checking expiration 2025-07-11: 39 DTE, 50 strikes
+  DTE 39 outside range 10-17
+Checking expiration 2025-07-18: 46 DTE, 36 strikes
+  DTE 46 outside range 10-17
+Checking expiration 2025-09-19: 109 DTE, 46 strikes
+  DTE 109 outside range 10-17
+Checking expiration 2025-10-17: 137 DTE, 31 strikes
+  DTE 137 outside range 10-17
+Checking expiration 2025-11-21: 172 DTE, 25 strikes
+  DTE 172 outside range 10-17
+Checking expiration 2025-12-19: 200 DTE, 26 strikes
+  DTE 200 outside range 10-17
+
+SUMMARY for aggressive:
+  Total expirations: 11
+  DTE matches: 1
+  Spreads checked: 44
+  Position rule failures: 29
+  Pricing failures: 0
+  ROI failures: 15
+  Valid spreads found: 0
+✗ No aggressive spreads found
+
+=== Analyzing steady strategy ===
+Criteria: 17-28 DTE, 15-25% ROI
+Short call rule: within_2pct
+Current price: $132.64
+Checking expiration 2025-06-06: 4 DTE, 59 strikes
+  DTE 4 outside range 17-28
+Checking expiration 2025-06-13: 11 DTE, 59 strikes
+  DTE 11 outside range 17-28
+Checking expiration 2025-06-20: 18 DTE, 77 strikes
+  DTE matches! Checking 77 strikes: [65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 100.0, 105.0, 110.0]...
+    $114.0/115.0: FAILED position rule (within_2pct)
+    $115.0/116.0: FAILED position rule (within_2pct)
+    $116.0/117.0: FAILED position rule (within_2pct)
+    $117.0/118.0: FAILED position rule (within_2pct)
+    $118.0/119.0: FAILED position rule (within_2pct)
+    $119.0/120.0: FAILED position rule (within_2pct)
+    $120.0/121.0: FAILED position rule (within_2pct)
+    $121.0/122.0: FAILED position rule (within_2pct)
+    $122.0/123.0: FAILED position rule (within_2pct)
+    $123.0/124.0: FAILED position rule (within_2pct)
+    $124.0/125.0: FAILED position rule (within_2pct)
+    $125.0/126.0: FAILED position rule (within_2pct)
+    $126.0/127.0: FAILED position rule (within_2pct)
+    $127.0/128.0: FAILED position rule (within_2pct)
+    $128.0/129.0: FAILED position rule (within_2pct)
+    Price calc: $129.0 strike, intrinsic $76.01, premium $1.00, total $77.01
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    $129.0/130.0: Cost $1.00, ROI 0.0%
+    $129.0/130.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    $130.0/131.0: Cost $1.00, ROI 0.0%
+    $130.0/131.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    $131.0/132.0: Cost $1.00, ROI 0.0%
+    $131.0/132.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    Price calc: $133.0 strike, intrinsic $72.01, premium $1.00, total $73.01
+    $132.0/133.0: Cost $1.00, ROI 0.0%
+    $132.0/133.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $133.0 strike, intrinsic $72.01, premium $1.00, total $73.01
+    Price calc: $134.0 strike, intrinsic $71.01, premium $1.00, total $72.01
+    $133.0/134.0: Cost $1.00, ROI 0.0%
+    $133.0/134.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $134.0 strike, intrinsic $71.01, premium $1.00, total $72.01
+    Price calc: $135.0 strike, intrinsic $70.01, premium $1.00, total $71.01
+    $134.0/135.0: Cost $1.00, ROI 0.0%
+    $134.0/135.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $135.0 strike, intrinsic $70.01, premium $1.00, total $71.01
+    Price calc: $136.0 strike, intrinsic $69.01, premium $1.00, total $70.01
+    $135.0/136.0: Cost $1.00, ROI 0.0%
+    $135.0/136.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $136.0 strike, intrinsic $69.01, premium $1.00, total $70.01
+    Price calc: $137.0 strike, intrinsic $68.01, premium $1.00, total $69.01
+    $136.0/137.0: Cost $1.00, ROI 0.0%
+    $136.0/137.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $137.0 strike, intrinsic $68.01, premium $1.00, total $69.01
+    Price calc: $138.0 strike, intrinsic $67.01, premium $1.00, total $68.01
+    $137.0/138.0: Cost $1.00, ROI 0.0%
+    $137.0/138.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $138.0 strike, intrinsic $67.01, premium $1.00, total $68.01
+    Price calc: $139.0 strike, intrinsic $66.01, premium $1.00, total $67.01
+    $138.0/139.0: Cost $1.00, ROI 0.0%
+    $138.0/139.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $139.0 strike, intrinsic $66.01, premium $1.00, total $67.01
+    Price calc: $140.0 strike, intrinsic $65.01, premium $1.00, total $66.01
+    $139.0/140.0: Cost $1.00, ROI 0.0%
+    $139.0/140.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $140.0 strike, intrinsic $65.01, premium $1.00, total $66.01
+    Price calc: $141.0 strike, intrinsic $64.01, premium $1.00, total $65.01
+    $140.0/141.0: Cost $1.00, ROI 0.0%
+    $140.0/141.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $141.0 strike, intrinsic $64.01, premium $1.00, total $65.01
+    Price calc: $142.0 strike, intrinsic $63.01, premium $1.00, total $64.01
+    $141.0/142.0: Cost $1.00, ROI 0.0%
+    $141.0/142.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $142.0 strike, intrinsic $63.01, premium $1.00, total $64.01
+    Price calc: $143.0 strike, intrinsic $62.01, premium $1.00, total $63.01
+    $142.0/143.0: Cost $1.00, ROI 0.0%
+    $142.0/143.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $143.0 strike, intrinsic $62.01, premium $1.00, total $63.01
+    Price calc: $144.0 strike, intrinsic $61.01, premium $1.00, total $62.01
+    $143.0/144.0: Cost $1.00, ROI 0.0%
+    $143.0/144.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $144.0 strike, intrinsic $61.01, premium $1.00, total $62.01
+    Price calc: $145.0 strike, intrinsic $60.01, premium $1.00, total $61.01
+    $144.0/145.0: Cost $1.00, ROI 0.0%
+    $144.0/145.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $145.0 strike, intrinsic $60.01, premium $1.00, total $61.01
+    Price calc: $146.0 strike, intrinsic $59.01, premium $1.00, total $60.01
+    $145.0/146.0: Cost $1.00, ROI 0.0%
+    $145.0/146.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $146.0 strike, intrinsic $59.01, premium $1.00, total $60.01
+    Price calc: $147.0 strike, intrinsic $58.01, premium $1.00, total $59.01
+    $146.0/147.0: Cost $1.00, ROI 0.0%
+    $146.0/147.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $147.0 strike, intrinsic $58.01, premium $1.00, total $59.01
+    Price calc: $148.0 strike, intrinsic $57.01, premium $1.00, total $58.01
+    $147.0/148.0: Cost $1.00, ROI 0.0%
+    $147.0/148.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $148.0 strike, intrinsic $57.01, premium $1.00, total $58.01
+    Price calc: $149.0 strike, intrinsic $56.01, premium $1.00, total $57.01
+    $148.0/149.0: Cost $1.00, ROI 0.0%
+    $148.0/149.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $149.0 strike, intrinsic $56.01, premium $1.00, total $57.01
+    Price calc: $150.0 strike, intrinsic $55.01, premium $1.00, total $56.01
+    $149.0/150.0: Cost $1.00, ROI 0.0%
+    $149.0/150.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $150.0 strike, intrinsic $55.01, premium $1.00, total $56.01
+    Price calc: $151.0 strike, intrinsic $54.01, premium $1.00, total $55.01
+    $150.0/151.0: Cost $1.00, ROI 0.0%
+    $150.0/151.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $151.0 strike, intrinsic $54.01, premium $1.00, total $55.01
+    Price calc: $152.0 strike, intrinsic $53.01, premium $1.00, total $54.01
+    $151.0/152.0: Cost $1.00, ROI 0.0%
+    $151.0/152.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $152.0 strike, intrinsic $53.01, premium $1.00, total $54.01
+    Price calc: $153.0 strike, intrinsic $52.01, premium $1.00, total $53.01
+    $152.0/153.0: Cost $1.00, ROI 0.0%
+    $152.0/153.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $153.0 strike, intrinsic $52.01, premium $1.00, total $53.01
+    Price calc: $154.0 strike, intrinsic $51.01, premium $1.00, total $52.01
+    $153.0/154.0: Cost $1.00, ROI 0.0%
+    $153.0/154.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $154.0 strike, intrinsic $51.01, premium $1.00, total $52.01
+    Price calc: $155.0 strike, intrinsic $50.01, premium $1.00, total $51.01
+    $154.0/155.0: Cost $1.00, ROI 0.0%
+    $154.0/155.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $155.0 strike, intrinsic $50.01, premium $1.00, total $51.01
+    Price calc: $156.0 strike, intrinsic $49.01, premium $2.00, total $51.01
+    $155.0/156.0: FAILED negative spread cost ($0.00)
+    Price calc: $156.0 strike, intrinsic $49.01, premium $2.00, total $51.01
+    Price calc: $157.0 strike, intrinsic $48.01, premium $2.00, total $50.01
+    $156.0/157.0: Cost $1.00, ROI 0.0%
+    $156.0/157.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $157.0 strike, intrinsic $48.01, premium $2.00, total $50.01
+    Price calc: $158.0 strike, intrinsic $47.01, premium $2.00, total $49.01
+    $157.0/158.0: Cost $1.00, ROI 0.0%
+    $157.0/158.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $158.0 strike, intrinsic $47.01, premium $2.00, total $49.01
+    Price calc: $159.0 strike, intrinsic $46.01, premium $2.00, total $48.01
+    $158.0/159.0: Cost $1.00, ROI 0.0%
+    $158.0/159.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $159.0 strike, intrinsic $46.01, premium $2.00, total $48.01
+    Price calc: $160.0 strike, intrinsic $45.01, premium $2.00, total $47.01
+    $159.0/160.0: Cost $1.00, ROI 0.0%
+    $159.0/160.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $160.0 strike, intrinsic $45.01, premium $2.00, total $47.01
+    Price calc: $161.0 strike, intrinsic $44.01, premium $2.00, total $46.01
+    $160.0/161.0: Cost $1.00, ROI 0.0%
+    $160.0/161.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $161.0 strike, intrinsic $44.01, premium $2.00, total $46.01
+    Price calc: $162.0 strike, intrinsic $43.01, premium $2.00, total $45.01
+    $161.0/162.0: Cost $1.00, ROI 0.0%
+    $161.0/162.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $162.0 strike, intrinsic $43.01, premium $2.00, total $45.01
+    Price calc: $163.0 strike, intrinsic $42.01, premium $2.00, total $44.01
+    $162.0/163.0: Cost $1.00, ROI 0.0%
+    $162.0/163.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $163.0 strike, intrinsic $42.01, premium $2.00, total $44.01
+    Price calc: $164.0 strike, intrinsic $41.01, premium $2.00, total $43.01
+    $163.0/164.0: Cost $1.00, ROI 0.0%
+    $163.0/164.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $164.0 strike, intrinsic $41.01, premium $2.00, total $43.01
+    Price calc: $165.0 strike, intrinsic $40.01, premium $2.00, total $42.01
+    $164.0/165.0: Cost $1.00, ROI 0.0%
+    $164.0/165.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $165.0 strike, intrinsic $40.01, premium $2.00, total $42.01
+    Price calc: $166.0 strike, intrinsic $39.01, premium $2.00, total $41.01
+    $165.0/166.0: Cost $1.00, ROI 0.0%
+    $165.0/166.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $166.0 strike, intrinsic $39.01, premium $2.00, total $41.01
+    Price calc: $167.0 strike, intrinsic $38.01, premium $2.00, total $40.01
+    $166.0/167.0: Cost $1.00, ROI 0.0%
+    $166.0/167.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $167.0 strike, intrinsic $38.01, premium $2.00, total $40.01
+    Price calc: $168.0 strike, intrinsic $37.01, premium $2.00, total $39.01
+    $167.0/168.0: Cost $1.00, ROI 0.0%
+    $167.0/168.0: FAILED ROI 0.0% (need 15-25%)
+Checking expiration 2025-06-27: 25 DTE, 54 strikes
+  DTE matches! Checking 54 strikes: [85.0, 90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 117.0, 118.0, 119.0]...
+    $117.0/118.0: FAILED position rule (within_2pct)
+    $118.0/119.0: FAILED position rule (within_2pct)
+    $119.0/120.0: FAILED position rule (within_2pct)
+    $120.0/121.0: FAILED position rule (within_2pct)
+    $121.0/122.0: FAILED position rule (within_2pct)
+    $122.0/123.0: FAILED position rule (within_2pct)
+    $123.0/124.0: FAILED position rule (within_2pct)
+    $124.0/125.0: FAILED position rule (within_2pct)
+    $125.0/126.0: FAILED position rule (within_2pct)
+    $126.0/127.0: FAILED position rule (within_2pct)
+    $127.0/128.0: FAILED position rule (within_2pct)
+    $128.0/129.0: FAILED position rule (within_2pct)
+    Price calc: $129.0 strike, intrinsic $76.01, premium $1.00, total $77.01
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    $129.0/130.0: Cost $1.00, ROI 0.0%
+    $129.0/130.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    $130.0/131.0: Cost $1.00, ROI 0.0%
+    $130.0/131.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    $131.0/132.0: Cost $1.00, ROI 0.0%
+    $131.0/132.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    Price calc: $133.0 strike, intrinsic $72.01, premium $1.00, total $73.01
+    $132.0/133.0: Cost $1.00, ROI 0.0%
+    $132.0/133.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $133.0 strike, intrinsic $72.01, premium $1.00, total $73.01
+    Price calc: $134.0 strike, intrinsic $71.01, premium $1.00, total $72.01
+    $133.0/134.0: Cost $1.00, ROI 0.0%
+    $133.0/134.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $133.5 strike, intrinsic $71.51, premium $1.00, total $72.51
+    Price calc: $134.5 strike, intrinsic $70.51, premium $1.00, total $71.51
+    $133.5/134.5: Cost $1.00, ROI 0.0%
+    $133.5/134.5: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $134.0 strike, intrinsic $71.01, premium $1.00, total $72.01
+    Price calc: $135.0 strike, intrinsic $70.01, premium $1.00, total $71.01
+    $134.0/135.0: Cost $1.00, ROI 0.0%
+    $134.0/135.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $134.5 strike, intrinsic $70.51, premium $1.00, total $71.51
+    Price calc: $135.5 strike, intrinsic $69.51, premium $1.00, total $70.51
+    $134.5/135.5: Cost $1.00, ROI 0.0%
+    $134.5/135.5: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $135.0 strike, intrinsic $70.01, premium $1.00, total $71.01
+    Price calc: $136.0 strike, intrinsic $69.01, premium $1.00, total $70.01
+    $135.0/136.0: Cost $1.00, ROI 0.0%
+    $135.0/136.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $135.5 strike, intrinsic $69.51, premium $1.00, total $70.51
+    Price calc: $136.5 strike, intrinsic $68.51, premium $1.00, total $69.51
+    $135.5/136.5: Cost $1.00, ROI 0.0%
+    $135.5/136.5: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $136.0 strike, intrinsic $69.01, premium $1.00, total $70.01
+    Price calc: $137.0 strike, intrinsic $68.01, premium $1.00, total $69.01
+    $136.0/137.0: Cost $1.00, ROI 0.0%
+    $136.0/137.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $136.5 strike, intrinsic $68.51, premium $1.00, total $69.51
+    Price calc: $137.5 strike, intrinsic $67.51, premium $1.00, total $68.51
+    $136.5/137.5: Cost $1.00, ROI 0.0%
+    $136.5/137.5: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $137.0 strike, intrinsic $68.01, premium $1.00, total $69.01
+    Price calc: $138.0 strike, intrinsic $67.01, premium $1.00, total $68.01
+    $137.0/138.0: Cost $1.00, ROI 0.0%
+    $137.0/138.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $137.5 strike, intrinsic $67.51, premium $1.00, total $68.51
+    Price calc: $138.5 strike, intrinsic $66.51, premium $1.00, total $67.51
+    $137.5/138.5: Cost $1.00, ROI 0.0%
+    $137.5/138.5: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $138.0 strike, intrinsic $67.01, premium $1.00, total $68.01
+    Price calc: $139.0 strike, intrinsic $66.01, premium $1.00, total $67.01
+    $138.0/139.0: Cost $1.00, ROI 0.0%
+    $138.0/139.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $138.5 strike, intrinsic $66.51, premium $1.00, total $67.51
+    Price calc: $139.5 strike, intrinsic $65.51, premium $1.00, total $66.51
+    $138.5/139.5: Cost $1.00, ROI 0.0%
+    $138.5/139.5: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $139.0 strike, intrinsic $66.01, premium $1.00, total $67.01
+    Price calc: $140.0 strike, intrinsic $65.01, premium $1.00, total $66.01
+    $139.0/140.0: Cost $1.00, ROI 0.0%
+    $139.0/140.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $140.0 strike, intrinsic $65.01, premium $1.00, total $66.01
+    Price calc: $141.0 strike, intrinsic $64.01, premium $1.00, total $65.01
+    $140.0/141.0: Cost $1.00, ROI 0.0%
+    $140.0/141.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $141.0 strike, intrinsic $64.01, premium $1.00, total $65.01
+    Price calc: $142.0 strike, intrinsic $63.01, premium $1.00, total $64.01
+    $141.0/142.0: Cost $1.00, ROI 0.0%
+    $141.0/142.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $142.0 strike, intrinsic $63.01, premium $1.00, total $64.01
+    Price calc: $143.0 strike, intrinsic $62.01, premium $1.00, total $63.01
+    $142.0/143.0: Cost $1.00, ROI 0.0%
+    $142.0/143.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $143.0 strike, intrinsic $62.01, premium $1.00, total $63.01
+    Price calc: $144.0 strike, intrinsic $61.01, premium $1.00, total $62.01
+    $143.0/144.0: Cost $1.00, ROI 0.0%
+    $143.0/144.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $144.0 strike, intrinsic $61.01, premium $1.00, total $62.01
+    Price calc: $145.0 strike, intrinsic $60.01, premium $1.00, total $61.01
+    $144.0/145.0: Cost $1.00, ROI 0.0%
+    $144.0/145.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $145.0 strike, intrinsic $60.01, premium $1.00, total $61.01
+    Price calc: $146.0 strike, intrinsic $59.01, premium $1.00, total $60.01
+    $145.0/146.0: Cost $1.00, ROI 0.0%
+    $145.0/146.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $146.0 strike, intrinsic $59.01, premium $1.00, total $60.01
+    Price calc: $147.0 strike, intrinsic $58.01, premium $1.00, total $59.01
+    $146.0/147.0: Cost $1.00, ROI 0.0%
+    $146.0/147.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $147.0 strike, intrinsic $58.01, premium $1.00, total $59.01
+    Price calc: $148.0 strike, intrinsic $57.01, premium $1.00, total $58.01
+    $147.0/148.0: Cost $1.00, ROI 0.0%
+    $147.0/148.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $148.0 strike, intrinsic $57.01, premium $1.00, total $58.01
+    Price calc: $149.0 strike, intrinsic $56.01, premium $1.00, total $57.01
+    $148.0/149.0: Cost $1.00, ROI 0.0%
+    $148.0/149.0: FAILED ROI 0.0% (need 15-25%)
+    Price calc: $149.0 strike, intrinsic $56.01, premium $1.00, total $57.01
+    Price calc: $150.0 strike, intrinsic $55.01, premium $1.00, total $56.01
+    $149.0/150.0: Cost $1.00, ROI 0.0%
+    $149.0/150.0: FAILED ROI 0.0% (need 15-25%)
+Checking expiration 2025-07-03: 31 DTE, 50 strikes
+  DTE 31 outside range 17-28
+Checking expiration 2025-07-11: 39 DTE, 50 strikes
+  DTE 39 outside range 17-28
+Checking expiration 2025-07-18: 46 DTE, 36 strikes
+  DTE 46 outside range 17-28
+Checking expiration 2025-09-19: 109 DTE, 46 strikes
+  DTE 109 outside range 17-28
+Checking expiration 2025-10-17: 137 DTE, 31 strikes
+  DTE 137 outside range 17-28
+Checking expiration 2025-11-21: 172 DTE, 25 strikes
+  DTE 172 outside range 17-28
+Checking expiration 2025-12-19: 200 DTE, 26 strikes
+  DTE 200 outside range 17-28
+
+SUMMARY for steady:
+  Total expirations: 11
+  DTE matches: 2
+  Spreads checked: 93
+  Position rule failures: 27
+  Pricing failures: 0
+  ROI failures: 65
+  Valid spreads found: 0
+✗ No steady spreads found
+
+=== Analyzing passive strategy ===
+Criteria: 28-42 DTE, 10-15% ROI
+Short call rule: within_10pct
+Current price: $132.64
+Checking expiration 2025-06-06: 4 DTE, 59 strikes
+  DTE 4 outside range 28-42
+Checking expiration 2025-06-13: 11 DTE, 59 strikes
+  DTE 11 outside range 28-42
+Checking expiration 2025-06-20: 18 DTE, 77 strikes
+  DTE 18 outside range 28-42
+Checking expiration 2025-06-27: 25 DTE, 54 strikes
+  DTE 25 outside range 28-42
+Checking expiration 2025-07-03: 31 DTE, 50 strikes
+  DTE matches! Checking 50 strikes: [85.0, 90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 118.0, 119.0, 120.0]...
+    $118.0/119.0: FAILED position rule (within_10pct)
+    Price calc: $119.0 strike, intrinsic $86.01, premium $1.00, total $87.01
+    Price calc: $120.0 strike, intrinsic $85.01, premium $1.00, total $86.01
+    $119.0/120.0: Cost $1.00, ROI 0.0%
+    $119.0/120.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $120.0 strike, intrinsic $85.01, premium $1.00, total $86.01
+    Price calc: $121.0 strike, intrinsic $84.01, premium $1.00, total $85.01
+    $120.0/121.0: Cost $1.00, ROI 0.0%
+    $120.0/121.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $121.0 strike, intrinsic $84.01, premium $1.00, total $85.01
+    Price calc: $122.0 strike, intrinsic $83.01, premium $1.00, total $84.01
+    $121.0/122.0: Cost $1.00, ROI 0.0%
+    $121.0/122.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $122.0 strike, intrinsic $83.01, premium $1.00, total $84.01
+    Price calc: $123.0 strike, intrinsic $82.01, premium $1.00, total $83.01
+    $122.0/123.0: Cost $1.00, ROI 0.0%
+    $122.0/123.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $123.0 strike, intrinsic $82.01, premium $1.00, total $83.01
+    Price calc: $124.0 strike, intrinsic $81.01, premium $1.00, total $82.01
+    $123.0/124.0: Cost $1.00, ROI 0.0%
+    $123.0/124.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $124.0 strike, intrinsic $81.01, premium $1.00, total $82.01
+    Price calc: $125.0 strike, intrinsic $80.01, premium $1.00, total $81.01
+    $124.0/125.0: Cost $1.00, ROI 0.0%
+    $124.0/125.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $125.0 strike, intrinsic $80.01, premium $1.00, total $81.01
+    Price calc: $126.0 strike, intrinsic $79.01, premium $1.00, total $80.01
+    $125.0/126.0: Cost $1.00, ROI 0.0%
+    $125.0/126.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $126.0 strike, intrinsic $79.01, premium $1.00, total $80.01
+    Price calc: $127.0 strike, intrinsic $78.01, premium $1.00, total $79.01
+    $126.0/127.0: Cost $1.00, ROI 0.0%
+    $126.0/127.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $127.0 strike, intrinsic $78.01, premium $1.00, total $79.01
+    Price calc: $128.0 strike, intrinsic $77.01, premium $1.00, total $78.01
+    $127.0/128.0: Cost $1.00, ROI 0.0%
+    $127.0/128.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $128.0 strike, intrinsic $77.01, premium $1.00, total $78.01
+    Price calc: $129.0 strike, intrinsic $76.01, premium $1.00, total $77.01
+    $128.0/129.0: Cost $1.00, ROI 0.0%
+    $128.0/129.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $129.0 strike, intrinsic $76.01, premium $1.00, total $77.01
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    $129.0/130.0: Cost $1.00, ROI 0.0%
+    $129.0/130.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $129.5 strike, intrinsic $75.51, premium $1.00, total $76.51
+    Price calc: $130.5 strike, intrinsic $74.51, premium $1.00, total $75.51
+    $129.5/130.5: Cost $1.00, ROI 0.0%
+    $129.5/130.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    $130.0/131.0: Cost $1.00, ROI 0.0%
+    $130.0/131.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $130.5 strike, intrinsic $74.51, premium $1.00, total $75.51
+    Price calc: $131.5 strike, intrinsic $73.51, premium $1.00, total $74.51
+    $130.5/131.5: Cost $1.00, ROI 0.0%
+    $130.5/131.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    $131.0/132.0: Cost $1.00, ROI 0.0%
+    $131.0/132.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $131.5 strike, intrinsic $73.51, premium $1.00, total $74.51
+    Price calc: $132.5 strike, intrinsic $72.51, premium $1.00, total $73.51
+    $131.5/132.5: Cost $1.00, ROI 0.0%
+    $131.5/132.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    Price calc: $133.0 strike, intrinsic $72.01, premium $1.00, total $73.01
+    $132.0/133.0: Cost $1.00, ROI 0.0%
+    $132.0/133.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $132.5 strike, intrinsic $72.51, premium $1.00, total $73.51
+    Price calc: $133.5 strike, intrinsic $71.51, premium $1.00, total $72.51
+    $132.5/133.5: Cost $1.00, ROI 0.0%
+    $132.5/133.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $133.0 strike, intrinsic $72.01, premium $1.00, total $73.01
+    Price calc: $134.0 strike, intrinsic $71.01, premium $1.00, total $72.01
+    $133.0/134.0: Cost $1.00, ROI 0.0%
+    $133.0/134.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $133.5 strike, intrinsic $71.51, premium $1.00, total $72.51
+    Price calc: $134.5 strike, intrinsic $70.51, premium $1.00, total $71.51
+    $133.5/134.5: Cost $1.00, ROI 0.0%
+    $133.5/134.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $134.0 strike, intrinsic $71.01, premium $1.00, total $72.01
+    Price calc: $135.0 strike, intrinsic $70.01, premium $1.00, total $71.01
+    $134.0/135.0: Cost $1.00, ROI 0.0%
+    $134.0/135.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $134.5 strike, intrinsic $70.51, premium $1.00, total $71.51
+    Price calc: $135.5 strike, intrinsic $69.51, premium $1.00, total $70.51
+    $134.5/135.5: Cost $1.00, ROI 0.0%
+    $134.5/135.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $135.0 strike, intrinsic $70.01, premium $1.00, total $71.01
+    Price calc: $136.0 strike, intrinsic $69.01, premium $1.00, total $70.01
+    $135.0/136.0: Cost $1.00, ROI 0.0%
+    $135.0/136.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $136.0 strike, intrinsic $69.01, premium $1.00, total $70.01
+    Price calc: $137.0 strike, intrinsic $68.01, premium $1.00, total $69.01
+    $136.0/137.0: Cost $1.00, ROI 0.0%
+    $136.0/137.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $137.0 strike, intrinsic $68.01, premium $1.00, total $69.01
+    Price calc: $138.0 strike, intrinsic $67.01, premium $1.00, total $68.01
+    $137.0/138.0: Cost $1.00, ROI 0.0%
+    $137.0/138.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $138.0 strike, intrinsic $67.01, premium $1.00, total $68.01
+    Price calc: $139.0 strike, intrinsic $66.01, premium $1.00, total $67.01
+    $138.0/139.0: Cost $1.00, ROI 0.0%
+    $138.0/139.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $139.0 strike, intrinsic $66.01, premium $1.00, total $67.01
+    Price calc: $140.0 strike, intrinsic $65.01, premium $1.00, total $66.01
+    $139.0/140.0: Cost $1.00, ROI 0.0%
+    $139.0/140.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $140.0 strike, intrinsic $65.01, premium $1.00, total $66.01
+    Price calc: $141.0 strike, intrinsic $64.01, premium $1.00, total $65.01
+    $140.0/141.0: Cost $1.00, ROI 0.0%
+    $140.0/141.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $141.0 strike, intrinsic $64.01, premium $1.00, total $65.01
+    Price calc: $142.0 strike, intrinsic $63.01, premium $1.00, total $64.01
+    $141.0/142.0: Cost $1.00, ROI 0.0%
+    $141.0/142.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $142.0 strike, intrinsic $63.01, premium $1.00, total $64.01
+    Price calc: $143.0 strike, intrinsic $62.01, premium $1.00, total $63.01
+    $142.0/143.0: Cost $1.00, ROI 0.0%
+    $142.0/143.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $143.0 strike, intrinsic $62.01, premium $1.00, total $63.01
+    Price calc: $144.0 strike, intrinsic $61.01, premium $1.00, total $62.01
+    $143.0/144.0: Cost $1.00, ROI 0.0%
+    $143.0/144.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $144.0 strike, intrinsic $61.01, premium $1.00, total $62.01
+    Price calc: $145.0 strike, intrinsic $60.01, premium $1.00, total $61.01
+    $144.0/145.0: Cost $1.00, ROI 0.0%
+    $144.0/145.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $145.0 strike, intrinsic $60.01, premium $1.00, total $61.01
+    Price calc: $146.0 strike, intrinsic $59.01, premium $1.00, total $60.01
+    $145.0/146.0: Cost $1.00, ROI 0.0%
+    $145.0/146.0: FAILED ROI 0.0% (need 10-15%)
+Checking expiration 2025-07-11: 39 DTE, 50 strikes
+  DTE matches! Checking 50 strikes: [85.0, 90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 118.0, 119.0, 120.0]...
+    $118.0/119.0: FAILED position rule (within_10pct)
+    Price calc: $119.0 strike, intrinsic $86.01, premium $1.00, total $87.01
+    Price calc: $120.0 strike, intrinsic $85.01, premium $1.00, total $86.01
+    $119.0/120.0: Cost $1.00, ROI 0.0%
+    $119.0/120.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $120.0 strike, intrinsic $85.01, premium $1.00, total $86.01
+    Price calc: $121.0 strike, intrinsic $84.01, premium $1.00, total $85.01
+    $120.0/121.0: Cost $1.00, ROI 0.0%
+    $120.0/121.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $121.0 strike, intrinsic $84.01, premium $1.00, total $85.01
+    Price calc: $122.0 strike, intrinsic $83.01, premium $1.00, total $84.01
+    $121.0/122.0: Cost $1.00, ROI 0.0%
+    $121.0/122.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $122.0 strike, intrinsic $83.01, premium $1.00, total $84.01
+    Price calc: $123.0 strike, intrinsic $82.01, premium $1.00, total $83.01
+    $122.0/123.0: Cost $1.00, ROI 0.0%
+    $122.0/123.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $123.0 strike, intrinsic $82.01, premium $1.00, total $83.01
+    Price calc: $124.0 strike, intrinsic $81.01, premium $1.00, total $82.01
+    $123.0/124.0: Cost $1.00, ROI 0.0%
+    $123.0/124.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $124.0 strike, intrinsic $81.01, premium $1.00, total $82.01
+    Price calc: $125.0 strike, intrinsic $80.01, premium $1.00, total $81.01
+    $124.0/125.0: Cost $1.00, ROI 0.0%
+    $124.0/125.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $125.0 strike, intrinsic $80.01, premium $1.00, total $81.01
+    Price calc: $126.0 strike, intrinsic $79.01, premium $1.00, total $80.01
+    $125.0/126.0: Cost $1.00, ROI 0.0%
+    $125.0/126.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $126.0 strike, intrinsic $79.01, premium $1.00, total $80.01
+    Price calc: $127.0 strike, intrinsic $78.01, premium $1.00, total $79.01
+    $126.0/127.0: Cost $1.00, ROI 0.0%
+    $126.0/127.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $127.0 strike, intrinsic $78.01, premium $1.00, total $79.01
+    Price calc: $128.0 strike, intrinsic $77.01, premium $1.00, total $78.01
+    $127.0/128.0: Cost $1.00, ROI 0.0%
+    $127.0/128.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $128.0 strike, intrinsic $77.01, premium $1.00, total $78.01
+    Price calc: $129.0 strike, intrinsic $76.01, premium $1.00, total $77.01
+    $128.0/129.0: Cost $1.00, ROI 0.0%
+    $128.0/129.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $129.0 strike, intrinsic $76.01, premium $1.00, total $77.01
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    $129.0/130.0: Cost $1.00, ROI 0.0%
+    $129.0/130.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $129.5 strike, intrinsic $75.51, premium $1.00, total $76.51
+    Price calc: $130.5 strike, intrinsic $74.51, premium $1.00, total $75.51
+    $129.5/130.5: Cost $1.00, ROI 0.0%
+    $129.5/130.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $130.0 strike, intrinsic $75.01, premium $1.00, total $76.01
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    $130.0/131.0: Cost $1.00, ROI 0.0%
+    $130.0/131.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $130.5 strike, intrinsic $74.51, premium $1.00, total $75.51
+    Price calc: $131.5 strike, intrinsic $73.51, premium $1.00, total $74.51
+    $130.5/131.5: Cost $1.00, ROI 0.0%
+    $130.5/131.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $131.0 strike, intrinsic $74.01, premium $1.00, total $75.01
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    $131.0/132.0: Cost $1.00, ROI 0.0%
+    $131.0/132.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $131.5 strike, intrinsic $73.51, premium $1.00, total $74.51
+    Price calc: $132.5 strike, intrinsic $72.51, premium $1.00, total $73.51
+    $131.5/132.5: Cost $1.00, ROI 0.0%
+    $131.5/132.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $132.0 strike, intrinsic $73.01, premium $1.00, total $74.01
+    Price calc: $133.0 strike, intrinsic $72.01, premium $1.00, total $73.01
+    $132.0/133.0: Cost $1.00, ROI 0.0%
+    $132.0/133.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $132.5 strike, intrinsic $72.51, premium $1.00, total $73.51
+    Price calc: $133.5 strike, intrinsic $71.51, premium $1.00, total $72.51
+    $132.5/133.5: Cost $1.00, ROI 0.0%
+    $132.5/133.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $133.0 strike, intrinsic $72.01, premium $1.00, total $73.01
+    Price calc: $134.0 strike, intrinsic $71.01, premium $1.00, total $72.01
+    $133.0/134.0: Cost $1.00, ROI 0.0%
+    $133.0/134.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $133.5 strike, intrinsic $71.51, premium $1.00, total $72.51
+    Price calc: $134.5 strike, intrinsic $70.51, premium $1.00, total $71.51
+    $133.5/134.5: Cost $1.00, ROI 0.0%
+    $133.5/134.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $134.0 strike, intrinsic $71.01, premium $1.00, total $72.01
+    Price calc: $135.0 strike, intrinsic $70.01, premium $1.00, total $71.01
+    $134.0/135.0: Cost $1.00, ROI 0.0%
+    $134.0/135.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $134.5 strike, intrinsic $70.51, premium $1.00, total $71.51
+    Price calc: $135.5 strike, intrinsic $69.51, premium $1.00, total $70.51
+    $134.5/135.5: Cost $1.00, ROI 0.0%
+    $134.5/135.5: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $135.0 strike, intrinsic $70.01, premium $1.00, total $71.01
+    Price calc: $136.0 strike, intrinsic $69.01, premium $1.00, total $70.01
+    $135.0/136.0: Cost $1.00, ROI 0.0%
+    $135.0/136.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $136.0 strike, intrinsic $69.01, premium $1.00, total $70.01
+    Price calc: $137.0 strike, intrinsic $68.01, premium $1.00, total $69.01
+    $136.0/137.0: Cost $1.00, ROI 0.0%
+    $136.0/137.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $137.0 strike, intrinsic $68.01, premium $1.00, total $69.01
+    Price calc: $138.0 strike, intrinsic $67.01, premium $1.00, total $68.01
+    $137.0/138.0: Cost $1.00, ROI 0.0%
+    $137.0/138.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $138.0 strike, intrinsic $67.01, premium $1.00, total $68.01
+    Price calc: $139.0 strike, intrinsic $66.01, premium $1.00, total $67.01
+    $138.0/139.0: Cost $1.00, ROI 0.0%
+    $138.0/139.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $139.0 strike, intrinsic $66.01, premium $1.00, total $67.01
+    Price calc: $140.0 strike, intrinsic $65.01, premium $1.00, total $66.01
+    $139.0/140.0: Cost $1.00, ROI 0.0%
+    $139.0/140.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $140.0 strike, intrinsic $65.01, premium $1.00, total $66.01
+    Price calc: $141.0 strike, intrinsic $64.01, premium $1.00, total $65.01
+    $140.0/141.0: Cost $1.00, ROI 0.0%
+    $140.0/141.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $141.0 strike, intrinsic $64.01, premium $1.00, total $65.01
+    Price calc: $142.0 strike, intrinsic $63.01, premium $1.00, total $64.01
+    $141.0/142.0: Cost $1.00, ROI 0.0%
+    $141.0/142.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $142.0 strike, intrinsic $63.01, premium $1.00, total $64.01
+    Price calc: $143.0 strike, intrinsic $62.01, premium $1.00, total $63.01
+    $142.0/143.0: Cost $1.00, ROI 0.0%
+    $142.0/143.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $143.0 strike, intrinsic $62.01, premium $1.00, total $63.01
+    Price calc: $144.0 strike, intrinsic $61.01, premium $1.00, total $62.01
+    $143.0/144.0: Cost $1.00, ROI 0.0%
+    $143.0/144.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $144.0 strike, intrinsic $61.01, premium $1.00, total $62.01
+    Price calc: $145.0 strike, intrinsic $60.01, premium $1.00, total $61.01
+    $144.0/145.0: Cost $1.00, ROI 0.0%
+    $144.0/145.0: FAILED ROI 0.0% (need 10-15%)
+    Price calc: $145.0 strike, intrinsic $60.01, premium $1.00, total $61.01
+    Price calc: $146.0 strike, intrinsic $59.01, premium $1.00, total $60.01
+    $145.0/146.0: Cost $1.00, ROI 0.0%
+    $145.0/146.0: FAILED ROI 0.0% (need 10-15%)
+Checking expiration 2025-07-18: 46 DTE, 36 strikes
+  DTE 46 outside range 28-42
+Checking expiration 2025-09-19: 109 DTE, 46 strikes
+  DTE 109 outside range 28-42
+Checking expiration 2025-10-17: 137 DTE, 31 strikes
+  DTE 137 outside range 28-42
+Checking expiration 2025-11-21: 172 DTE, 25 strikes
+  DTE 172 outside range 28-42
+Checking expiration 2025-12-19: 200 DTE, 26 strikes
+  DTE 200 outside range 28-42
+
+SUMMARY for passive:
+  Total expirations: 11
+  DTE matches: 2
+  Spreads checked: 68
+  Position rule failures: 2
+  Pricing failures: 0
+  ROI failures: 66
+  Valid spreads found: 0
+✗ No passive spreads found

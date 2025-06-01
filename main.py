@@ -409,19 +409,23 @@ def get_contract_price(contract, symbol):
         # Calculate intrinsic value
         intrinsic_value = max(0, current_stock_price - strike)
         
-        # Add realistic time premium based on moneyness
-        if intrinsic_value > 50:  # Deep ITM
-            time_premium = 1.0
-        elif intrinsic_value > 20:  # ITM
-            time_premium = 2.0
-        elif intrinsic_value > 0:  # Slightly ITM
-            time_premium = 3.0
-        elif strike <= current_stock_price + 10:  # Near ATM
-            time_premium = 4.0
-        elif strike <= current_stock_price + 20:  # Slightly OTM
-            time_premium = 2.5
-        else:  # Far OTM
-            time_premium = 1.0
+        # Add REALISTIC time premium based on moneyness and market dynamics
+        distance_from_money = abs(strike - current_stock_price)
+        
+        if intrinsic_value > 50:  # Deep ITM - very low time premium
+            time_premium = 0.15
+        elif intrinsic_value > 20:  # ITM - low time premium  
+            time_premium = 0.30
+        elif intrinsic_value > 5:  # Slightly ITM - moderate time premium
+            time_premium = 0.75
+        elif distance_from_money <= 5:  # Near ATM - high time premium
+            time_premium = 3.50
+        elif distance_from_money <= 10:  # Slightly OTM - moderate time premium
+            time_premium = 2.00
+        elif distance_from_money <= 20:  # OTM - low time premium
+            time_premium = 1.00
+        else:  # Far OTM - very low time premium
+            time_premium = 0.25
         
         option_price = intrinsic_value + time_premium
         
