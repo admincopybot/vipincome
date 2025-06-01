@@ -290,7 +290,13 @@ def create_strategy_data(strategy_name, contract, dte, roi, current_price):
         'current_price': current_price,
         'strike_selection': get_strike_description(strategy_name, price_diff_pct),
         'management': get_management_rule(strategy_name),
-        'contract_symbol': contract.get('ticker', 'N/A')
+        'contract_symbol': contract.get('ticker', 'N/A'),
+        'expiration_date': contract.get('expiration_date', 'N/A'),
+        'contract_type': contract.get('contract_type', 'N/A'),
+        'exercise_style': contract.get('exercise_style', 'N/A'),
+        'shares_per_contract': contract.get('shares_per_contract', 100),
+        'primary_exchange': contract.get('primary_exchange', 'N/A'),
+        'cfi': contract.get('cfi', 'N/A')
     }
 
 def get_dte_range(strategy):
@@ -1827,15 +1833,23 @@ def step3(symbol=None):
                     <div class="strategy-details">
                         <div class="detail-row">
                             <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.steady.dte_range }}</span>
+                            <span class="detail-value">{{ options_data.steady.dte }} days</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.steady.roi_range }}</span>
+                            <span class="detail-value">{{ options_data.steady.roi }}%</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Strike Selection:</span>
-                            <span class="detail-value">{{ options_data.steady.strike_selection }}</span>
+                            <span class="detail-label">Strike Price:</span>
+                            <span class="detail-value">${{ "%.2f"|format(options_data.steady.strike_price) }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Expiration:</span>
+                            <span class="detail-value">{{ options_data.steady.expiration_date }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Contract ID:</span>
+                            <span class="detail-value">{{ options_data.steady.contract_symbol }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Management:</span>
