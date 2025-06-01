@@ -1,5 +1,328 @@
-<!doctype html>
-<html lang=en>
-<title>Redirecting...</title>
-<h1>Redirecting...</h1>
-<p>You should be redirected automatically to the target URL: <a href="/">/</a>. If not, click the link.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 4: Trade Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #2d3748;
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.4;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .spread-header {
+            background: #4a5568;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .expiration-info {
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        
+        .spread-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .width-badge {
+            background: #805ad5;
+            color: #ffffff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .trade-construction {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .trade-section {
+            background: #4a5568;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .section-header {
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .option-detail {
+            color: #cbd5e0;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .summary-section {
+            background: #4a5568;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-header {
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+        }
+        
+        .summary-cell {
+            text-align: center;
+        }
+        
+        .cell-label {
+            color: #a0aec0;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .cell-value {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .scenarios-section {
+            background: #4a5568;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .scenarios-header {
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .scenarios-grid {
+            display: grid;
+            gap: 2px;
+        }
+        
+        .scenario-header-row {
+            display: grid;
+            grid-template-columns: 120px repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 2px;
+        }
+        
+        .scenario-row {
+            display: grid;
+            grid-template-columns: 120px repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 2px;
+        }
+        
+        .scenario-cell {
+            background: #2d3748;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            color: #e2e8f0;
+        }
+        
+        .scenario-cell-label {
+            background: #2d3748;
+            padding: 8px;
+            text-align: right;
+            font-size: 12px;
+            color: #a0aec0;
+            font-weight: 600;
+        }
+        
+        .win {
+            background: #38a169 !important;
+            color: #ffffff;
+        }
+        
+        .loss {
+            background: #e53e3e !important;
+            color: #ffffff;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="spread-header">
+            <div class="expiration-info">Expiration: 2025-06-13 (11 days)</div>
+            <div class="spread-title">$133.50 / $134.50</div>
+            <div class="width-badge">Width: $1</div>
+        </div>
+        
+        <!-- Main Trade Construction -->
+        <div class="trade-construction">
+            <div class="trade-section">
+                <div class="section-header">Buy ($133.50)</div>
+                <div class="option-detail">Option ID: XLV20250613C00013350</div>
+                <div class="option-detail">Price: $1.50</div>
+            </div>
+            
+            <div class="trade-section">
+                <div class="section-header">Sell ($134.50)</div>
+                <div class="option-detail">Option ID: XLV20250613C00013450</div>
+                <div class="option-detail">Price: $1.11</div>
+            </div>
+            
+            <div class="trade-section">
+                <div class="section-header">Spread Details</div>
+                <div class="option-detail">Spread Cost: $0.39</div>
+                <div class="option-detail">Max Value: $1.00</div>
+            </div>
+            
+            <div class="trade-section">
+                <div class="section-header">Trade Info</div>
+                <div class="option-detail">ROI: 156.41%</div>
+                <div class="option-detail">Breakeven: $133.89</div>
+            </div>
+        </div>
+        
+        <!-- Trade Summary Table -->
+        <div class="summary-section">
+            <div class="summary-header">Trade Summary</div>
+            <div class="summary-row">
+                <div class="summary-cell">
+                    <div class="cell-label">Current Stock Price</div>
+                    <div class="cell-value">$139.57</div>
+                </div>
+                <div class="summary-cell">
+                    <div class="cell-label">Spread Cost</div>
+                    <div class="cell-value">$0.39</div>
+                </div>
+                <div class="summary-cell">
+                    <div class="cell-label">Call Strikes</div>
+                    <div class="cell-value">$133.50 & $134.50</div>
+                </div>
+                <div class="summary-cell">
+                    <div class="cell-label">Breakeven Price</div>
+                    <div class="cell-value">$133.89</div>
+                </div>
+                <div class="summary-cell">
+                    <div class="cell-label">Max Profit</div>
+                    <div class="cell-value">$0.61</div>
+                </div>
+                <div class="summary-cell">
+                    <div class="cell-label">Return on Investment</div>
+                    <div class="cell-value">156.41%</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stock Price Scenarios -->
+        <div class="scenarios-section">
+            <div class="scenarios-header">Stock Price Scenarios</div>
+            <div class="scenarios-grid">
+                <div class="scenario-header-row">
+                    <div class="scenario-cell">Change</div>
+                    <div class="scenario-cell">-7.5%</div>
+                    <div class="scenario-cell">-5%</div>
+                    <div class="scenario-cell">-2.5%</div>
+                    <div class="scenario-cell">0%</div>
+                    <div class="scenario-cell">+2.5%</div>
+                    <div class="scenario-cell">+5%</div>
+                    <div class="scenario-cell">+7.5%</div>
+                </div>
+                
+                <div class="scenario-row">
+                    <div class="scenario-cell-label">Stock Price</div>
+                    <div class="scenario-cell">$129.11</div>
+                    <div class="scenario-cell">$132.60</div>
+                    <div class="scenario-cell">$136.08</div>
+                    <div class="scenario-cell">$139.57</div>
+                    <div class="scenario-cell">$143.06</div>
+                    <div class="scenario-cell">$146.55</div>
+                    <div class="scenario-cell">$150.04</div>
+                </div>
+                
+                <div class="scenario-row">
+                    <div class="scenario-cell-label">ROI %</div>
+                    <div class="scenario-cell loss">-100.00%</div>
+                    <div class="scenario-cell loss">-100.00%</div>
+                    <div class="scenario-cell win">156.41%</div>
+                    <div class="scenario-cell win">156.41%</div>
+                    <div class="scenario-cell win">156.41%</div>
+                    <div class="scenario-cell win">156.41%</div>
+                    <div class="scenario-cell win">156.41%</div>
+                </div>
+                
+                <div class="scenario-row">
+                    <div class="scenario-cell-label">Profit</div>
+                    <div class="scenario-cell loss">-$0.39</div>
+                    <div class="scenario-cell loss">-$0.39</div>
+                    <div class="scenario-cell win">$0.61</div>
+                    <div class="scenario-cell win">$0.61</div>
+                    <div class="scenario-cell win">$0.61</div>
+                    <div class="scenario-cell win">$0.61</div>
+                    <div class="scenario-cell win">$0.61</div>
+                </div>
+                
+                <div class="scenario-row">
+                    <div class="scenario-cell-label">Outcome</div>
+                    <div class="scenario-cell loss">loss</div>
+                    <div class="scenario-cell loss">loss</div>
+                    <div class="scenario-cell win">win</div>
+                    <div class="scenario-cell win">win</div>
+                    <div class="scenario-cell win">win</div>
+                    <div class="scenario-cell win">win</div>
+                    <div class="scenario-cell win">win</div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="/step3/AAPL" class="back-btn">← Back to Strategy Selection</a>
+    </div>
+</body>
+</html>

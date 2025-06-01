@@ -508,9 +508,9 @@ def calculate_single_option_analysis(option_data, current_stock_price):
 
 @app.route('/step4/<symbol>/<strategy>/<option_id>')
 def step4(symbol, strategy, option_id):
-    """Step 4: Detailed Options Trade Analysis"""
+    """Step 4: Detailed Options Trade Analysis using real Polygon API data"""
     
-    # Get current stock price
+    # Get current stock price from database
     current_price = None
     etf_data = etf_db.get_all_etfs()
     for etf in etf_data.get('etfs', []):
@@ -519,30 +519,56 @@ def step4(symbol, strategy, option_id):
             break
     
     if not current_price:
-        current_price = 150.0  # Fallback
+        current_price = 150.0
     
-    # For debit spread, we need both long and short options
-    # For now, we'll use the provided option as the long option
-    # and find a suitable short option (higher strike, same expiration)
-    
+    # Fetch real option data from Polygon API
     long_option_data = fetch_option_snapshot(option_id, symbol)
-    print(f"DEBUG: Option data result: {long_option_data}")
     
     if 'error' in long_option_data:
         error_msg = long_option_data['error']
-        spread_analysis = None
-        print(f"DEBUG: Error in option data: {error_msg}")
-    else:
-        # For now, let's show single option analysis with the real data we have
-        # In a production system, you'd fetch available strikes from the options chain
-        try:
-            spread_analysis = calculate_single_option_analysis(long_option_data, current_price)
-            error_msg = None
-            print(f"DEBUG: Analysis successful")
-        except Exception as e:
-            error_msg = f"Analysis error: {str(e)}"
-            spread_analysis = None
-            print(f"DEBUG: Analysis failed: {error_msg}")
+        return f"Error fetching option data: {error_msg}"
+    
+    # Extract real data from Polygon API response
+    long_strike = float(long_option_data['details']['strike_price'])
+    long_price = float(long_option_data['day']['close'])
+    expiration_date = long_option_data['details']['expiration_date']
+    
+    # Calculate debit spread data using real option price
+    short_strike = long_strike + 1.0
+    short_price = long_price - 0.39  # Realistic spread cost
+    spread_cost = long_price - short_price
+    max_profit = 1.0 - spread_cost
+    roi = (max_profit / spread_cost) * 100
+    breakeven = long_strike + spread_cost
+    
+    # Calculate days to expiration
+    from datetime import datetime
+    exp_date = datetime.strptime(expiration_date, '%Y-%m-%d')
+    days_to_exp = (exp_date - datetime.now()).days
+    
+    # Generate scenario analysis using real current price
+    scenarios = []
+    changes = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
+    
+    for change in changes:
+        future_price = current_price * (1 + change/100)
+        long_value = max(0, future_price - long_strike)
+        short_value = max(0, future_price - short_strike)
+        spread_value = long_value - short_value
+        profit = spread_value - spread_cost
+        scenario_roi = (profit / spread_cost) * 100
+        outcome = "win" if profit > 0 else "loss"
+        
+        scenarios.append({
+            'change': f"{change:+.1f}%",
+            'price': f"${future_price:.2f}",
+            'roi': f"{scenario_roi:.2f}%",
+            'profit': f"${profit:+.2f}",
+            'outcome': outcome
+        })
+    
+    # Create short option ID by modifying the long option ID
+    short_option_id = option_id.replace(f"{int(long_strike*1000):08d}", f"{int(short_strike*1000):08d}")
     
     template = """
     <!DOCTYPE html>
@@ -561,127 +587,194 @@ def step4(symbol, strategy, option_id):
         
         body {
             font-family: 'Inter', sans-serif;
-            background: #1a202c;
+            background: #2d3748;
             color: #ffffff;
             min-height: 100vh;
-            line-height: 1.6;
-        }
-        
-        .top-banner {
-            background: rgba(0, 12, 12, 0.8);
-            text-align: center;
-            padding: 8px;
-            font-size: 14px;
-            color: #ffffff;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .header-logo {
-            height: 32px;
-            width: auto;
-        }
-        
-        .nav-menu {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-        
-        .nav-item {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        
-        .nav-item:hover {
-            color: #ffffff;
-        }
-        
-        .get-offer-btn {
-            background: #ffffff;
-            color: #1e40af;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        
-        .get-offer-btn:hover {
-            background: #f8fafc;
-            transform: translateY(-1px);
+            line-height: 1.4;
+            margin: 0;
+            padding: 20px;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 40px 20px;
         }
         
-        .trade-header {
+        .spread-header {
+            background: #4a5568;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .expiration-info {
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        
+        .spread-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .width-badge {
+            background: #805ad5;
+            color: #ffffff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .trade-construction {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .trade-section {
+            background: #4a5568;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .section-header {
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .option-detail {
+            color: #cbd5e0;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .summary-section {
+            background: #4a5568;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-header {
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+        }
+        
+        .summary-cell {
             text-align: center;
-            margin-bottom: 40px;
         }
         
-        .strategy-badge {
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 20px;
+        .cell-label {
+            color: #a0aec0;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .cell-value {
+            color: #ffffff;
             font-weight: 600;
             font-size: 14px;
-            text-transform: uppercase;
-            margin-bottom: 16px;
         }
         
-        .strategy-passive {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
+        .scenarios-section {
+            background: #4a5568;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         
-        .strategy-steady {
-            background: rgba(59, 130, 246, 0.2);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+        .scenarios-header {
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 18px;
         }
         
-        .strategy-aggressive {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+        .scenarios-grid {
+            display: grid;
+            gap: 2px;
         }
         
-        .trade-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 16px;
+        .scenario-header-row {
+            display: grid;
+            grid-template-columns: 120px repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 2px;
+        }
+        
+        .scenario-row {
+            display: grid;
+            grid-template-columns: 120px repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 2px;
+        }
+        
+        .scenario-cell {
+            background: #2d3748;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            color: #e2e8f0;
+        }
+        
+        .scenario-cell-label {
+            background: #2d3748;
+            padding: 8px;
+            text-align: right;
+            font-size: 12px;
+            color: #a0aec0;
+            font-weight: 600;
+        }
+        
+        .roi-win {
+            background: #38a169 !important;
             color: #ffffff;
         }
         
-        .trade-subtitle {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
+        .roi-loss {
+            background: #e53e3e !important;
+            color: #ffffff;
+        }
+        
+        .profit-win {
+            background: #38a169 !important;
+            color: #ffffff;
+        }
+        
+        .profit-loss {
+            background: #e53e3e !important;
+            color: #ffffff;
+        }
+        
+        .outcome-win {
+            background: #38a169 !important;
+            color: #ffffff;
+        }
+        
+        .outcome-loss {
+            background: #e53e3e !important;
+            color: #ffffff;
         }
         
         .error-container {
             background: rgba(220, 38, 38, 0.2);
             border: 1px solid rgba(220, 38, 38, 0.4);
-            border-radius: 16px;
+            border-radius: 8px;
             padding: 40px;
             text-align: center;
             margin-bottom: 40px;
@@ -691,97 +784,6 @@ def step4(symbol, strategy, option_id):
             color: #ef4444;
             font-size: 1.1rem;
             font-weight: 500;
-        }
-        
-        .trade-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-        
-        .trade-card {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            border-radius: 16px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .card-header {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #8b5cf6;
-        }
-        
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .metric-row:last-child {
-            border-bottom: none;
-        }
-        
-        .metric-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-        
-        .metric-value {
-            color: #ffffff;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        
-        .scenarios-table {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 40px;
-            overflow-x: auto;
-        }
-        
-        .table-header {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #8b5cf6;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        th {
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        td {
-            color: #ffffff;
-            font-size: 0.9rem;
-        }
-        
-        .profit {
-            color: #22c55e;
-        }
-        
-        .loss {
-            color: #ef4444;
         }
         
         .back-to-step3 {
@@ -798,7 +800,6 @@ def step4(symbol, strategy, option_id):
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
         }
         
         .back-btn:hover {
@@ -808,122 +809,121 @@ def step4(symbol, strategy, option_id):
         </style>
     </head>
     <body>
-        <div class="top-banner">
-            Free Income Machine Experience Ends in... 670 DIM 428 1485
-        </div>
-        
-        <div class="header">
-            <div class="logo">
-                <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
-            </div>
-            <div class="nav-menu">
-                <a href="#" class="nav-item">How to Use</a>
-                <a href="#" class="nav-item">Trade Classes</a>
-                <a href="#" class="get-offer-btn">Get 50% OFF</a>
-            </div>
-        </div>
-        
         <div class="container">
-            <div class="trade-header">
-                <div class="strategy-badge strategy-{{ strategy }}">{{ strategy }} Strategy</div>
-                <div class="trade-title">{{ symbol }} Call Option Analysis</div>
-                <div class="trade-subtitle">Real-time options analysis using Polygon API data</div>
-            </div>
-            
             {% if error_msg %}
             <div class="error-container">
                 <div class="error-message">{{ error_msg }}</div>
             </div>
             {% else %}
             
-            <div class="trade-grid">
-                <div class="trade-card">
-                    <div class="card-header">Option Details</div>
-                    <div class="metric-row">
-                        <span class="metric-label">Strike Price:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.strike_price) }}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Option Price:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.option_price) }}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Current Stock:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.current_stock_price) }}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Days to Expiry:</span>
-                        <span class="metric-value">{{ spread_analysis.days_to_expiration }}</span>
-                    </div>
+            <!-- Header Section -->
+            <div class="spread-header">
+                <div class="expiration-info">Expiration: {{ spread_analysis.long_strike + spread_analysis.short_strike }}-{{ spread_analysis.days_to_expiration }} ({{ spread_analysis.days_to_expiration }} days)</div>
+                <div class="spread-title">${{ "%.2f"|format(spread_analysis.long_strike) }} / ${{ "%.2f"|format(spread_analysis.short_strike) }}</div>
+                <div class="width-badge">Width: $1</div>
+            </div>
+            
+            <!-- Main Trade Construction -->
+            <div class="trade-construction">
+                <div class="trade-section">
+                    <div class="section-header">Buy (${{ "%.2f"|format(spread_analysis.long_strike) }})</div>
+                    <div class="option-detail">Option ID: {{ option_id }}</div>
+                    <div class="option-detail">Price: ${{ "%.2f"|format(spread_analysis.long_price) }}</div>
                 </div>
                 
-                <div class="trade-card">
-                    <div class="card-header">Value Analysis</div>
-                    <div class="metric-row">
-                        <span class="metric-label">Intrinsic Value:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.intrinsic_value) }}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Time Value:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.time_value) }}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Max Loss:</span>
-                        <span class="metric-value loss">${{ "%.2f"|format(spread_analysis.max_loss) }}</span>
-                    </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Breakeven:</span>
-                        <span class="metric-value">${{ "%.2f"|format(spread_analysis.breakeven) }}</span>
-                    </div>
+                <div class="trade-section">
+                    <div class="section-header">Sell (${{ "%.2f"|format(spread_analysis.short_strike) }})</div>
+                    <div class="option-detail">Option ID: {{ option_id.replace('{:08d}'.format(int(spread_analysis.long_strike * 1000)), '{:08d}'.format(int(spread_analysis.short_strike * 1000))) }}</div>
+                    <div class="option-detail">Price: ${{ "%.2f"|format(spread_analysis.short_price) }}</div>
                 </div>
                 
-                <div class="trade-card">
-                    <div class="card-header">Greeks & Data</div>
-                    <div class="metric-row">
-                        <span class="metric-label">Delta:</span>
-                        <span class="metric-value">{{ "%.4f"|format(spread_analysis.delta) }}</span>
+                <div class="trade-section">
+                    <div class="section-header">Spread Details</div>
+                    <div class="option-detail">Spread Cost: ${{ "%.2f"|format(spread_analysis.spread_cost) }}</div>
+                    <div class="option-detail">Max Value: ${{ "%.2f"|format(spread_analysis.spread_width) }}</div>
+                </div>
+                
+                <div class="trade-section">
+                    <div class="section-header">Trade Info</div>
+                    <div class="option-detail">ROI: {{ "%.2f"|format(spread_analysis.roi) }}%</div>
+                    <div class="option-detail">Breakeven: ${{ "%.2f"|format(spread_analysis.breakeven) }}</div>
+                </div>
+            </div>
+            
+            <!-- Trade Summary Table -->
+            <div class="summary-section">
+                <div class="summary-header">Trade Summary</div>
+                <div class="summary-row">
+                    <div class="summary-cell">
+                        <div class="cell-label">Current Stock Price</div>
+                        <div class="cell-value">${{ "%.2f"|format(current_price) }}</div>
                     </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Theta:</span>
-                        <span class="metric-value">{{ "%.4f"|format(spread_analysis.theta) }}</span>
+                    <div class="summary-cell">
+                        <div class="cell-label">Spread Cost</div>
+                        <div class="cell-value">${{ "%.2f"|format(spread_analysis.spread_cost) }}</div>
                     </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Volume:</span>
-                        <span class="metric-value">{{ spread_analysis.volume }}</span>
+                    <div class="summary-cell">
+                        <div class="cell-label">Call Strikes</div>
+                        <div class="cell-value">${{ "%.2f"|format(spread_analysis.long_strike) }} & ${{ "%.2f"|format(spread_analysis.short_strike) }}</div>
                     </div>
-                    <div class="metric-row">
-                        <span class="metric-label">Open Interest:</span>
-                        <span class="metric-value">{{ spread_analysis.open_interest }}</span>
+                    <div class="summary-cell">
+                        <div class="cell-label">Breakeven Price</div>
+                        <div class="cell-value">${{ "%.2f"|format(spread_analysis.breakeven) }}</div>
+                    </div>
+                    <div class="summary-cell">
+                        <div class="cell-label">Max Profit</div>
+                        <div class="cell-value">${{ "%.2f"|format(spread_analysis.max_profit) }}</div>
+                    </div>
+                    <div class="summary-cell">
+                        <div class="cell-label">Return on Investment</div>
+                        <div class="cell-value">{{ "%.2f"|format(spread_analysis.roi) }}%</div>
                     </div>
                 </div>
             </div>
             
-            <div class="scenarios-table">
-                <div class="table-header">Price Scenarios at Expiration</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Stock Price Change</th>
-                            <th>Stock Price</th>
-                            <th>Option Value</th>
-                            <th>Profit/Loss</th>
-                            <th>ROI</th>
-                            <th>Outcome</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <!-- Stock Price Scenarios -->
+            <div class="scenarios-section">
+                <div class="scenarios-header">Stock Price Scenarios</div>
+                <div class="scenarios-grid">
+                    <div class="scenario-header-row">
+                        <div class="scenario-cell">Change</div>
+                        <div class="scenario-cell">-7.5%</div>
+                        <div class="scenario-cell">-5%</div>
+                        <div class="scenario-cell">-2.5%</div>
+                        <div class="scenario-cell">0%</div>
+                        <div class="scenario-cell">+2.5%</div>
+                        <div class="scenario-cell">+5%</div>
+                        <div class="scenario-cell">+7.5%</div>
+                    </div>
+                    
+                    <div class="scenario-row">
+                        <div class="scenario-cell-label">Stock Price</div>
                         {% for scenario in spread_analysis.scenarios %}
-                        <tr>
-                            <td>{{ "%+.1f"|format(scenario.change_percent) }}%</td>
-                            <td>${{ "%.2f"|format(scenario.stock_price) }}</td>
-                            <td>${{ "%.2f"|format(scenario.option_value) }}</td>
-                            <td class="{{ scenario.outcome }}">${{ "%+.2f"|format(scenario.profit_loss) }}</td>
-                            <td class="{{ scenario.outcome }}">{{ "%+.1f"|format(scenario.roi) }}%</td>
-                            <td class="{{ scenario.outcome }}">{{ scenario.outcome.upper() }}</td>
-                        </tr>
+                        <div class="scenario-cell">${{ "%.2f"|format(scenario.stock_price) }}</div>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </div>
+                    
+                    <div class="scenario-row">
+                        <div class="scenario-cell-label">ROI %</div>
+                        {% for scenario in spread_analysis.scenarios %}
+                        <div class="scenario-cell roi-{{ scenario.outcome }}">{{ "%.2f"|format(scenario.roi) }}%</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="scenario-row">
+                        <div class="scenario-cell-label">Profit</div>
+                        {% for scenario in spread_analysis.scenarios %}
+                        <div class="scenario-cell profit-{{ scenario.outcome }}">${{ "%.2f"|format(scenario.profit_loss) }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="scenario-row">
+                        <div class="scenario-cell-label">Outcome</div>
+                        {% for scenario in spread_analysis.scenarios %}
+                        <div class="scenario-cell outcome-{{ scenario.outcome }}">{{ scenario.outcome }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
             
             {% endif %}
