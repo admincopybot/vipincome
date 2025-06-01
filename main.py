@@ -1683,6 +1683,21 @@ def step3(symbol=None):
             box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
         }
         
+        .strategy-error {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(220, 38, 38, 0.4);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
         .back-to-scoreboard {
             margin-top: 40px;
             text-align: center;
@@ -1875,7 +1890,7 @@ def step3(symbol=None):
     </html>
     """
     
-    return render_template_string(template, symbol=symbol)
+    return render_template_string(template, symbol=symbol, options_data=options_data, current_price=current_price)
 
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
