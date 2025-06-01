@@ -302,7 +302,11 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
             
             dte_filtered_count += 1
             strikes = sorted(strikes_dict.keys())
-            print(f"  DTE matches! Checking {len(strikes)} strikes: {strikes[:10]}..." if len(strikes) > 10 else f"  DTE matches! Checking strikes: {strikes}")
+            # Show strikes near current price for better debugging
+            near_money_strikes = [s for s in strikes if abs(s - current_price) <= 15]
+            print(f"  DTE matches! Total strikes: {len(strikes)}")
+            print(f"  Strikes near ${current_price:.0f}: {near_money_strikes}")
+            print(f"  All strikes: {strikes[:10]}..." if len(strikes) > 10 else f"  All strikes: {strikes}")
             
             # Look for $1-wide spreads
             for long_strike in strikes:
