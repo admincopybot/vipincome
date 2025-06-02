@@ -1052,7 +1052,7 @@ def index():
         # Sort by score first (descending), then by volume (descending) for tie-breaking
         etf_list.sort(key=lambda x: (x['score'], x['avg_volume_10d']), reverse=True)
         
-        return render_template_string(open('response.html').read(), 
+        return render_template_string(open('scoreboard.html').read(), 
                                     etf_scores=etf_scores, 
                                     etf_list=etf_list)
     except Exception as e:
