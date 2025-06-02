@@ -1789,8 +1789,8 @@ def index():
                 
                 {% if loop.index > 3 %}
                 <div class="free-version-overlay">
-                    <div class="free-version-text">You're currently viewing the</div>
-                    <div class="upgrade-text">FREE Version</div>
+                    <div class="free-version-text">You're Currently Viewing the Regular Income Machine</div>
+                    <div class="upgrade-text">For MORE Income Opportunities, Upgrade to VIP</div>
                 </div>
                 {% endif %}
             </div>
