@@ -1322,6 +1322,16 @@ def index():
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
+    # Get top 3 tickers by score, then trading volume
+    top_tickers = []
+    for symbol, data in etf_scores.items():
+        if data.get('avg_volume_10d'):
+            top_tickers.append((symbol, data))
+    
+    # Sort by score (descending), then by trading volume (descending)
+    top_tickers.sort(key=lambda x: (x[1]['score'], x[1].get('avg_volume_10d', 0)), reverse=True)
+    top_3_tickers = top_tickers[:3]
+    
     # Create template with consistent navigation structure
     template = """
 <!DOCTYPE html>
@@ -1760,11 +1770,9 @@ def index():
         <p class="update-info">Updated daily with fresh market analysis</p>
         
         <div class="etf-grid">
-            {% set sorted_etfs = etf_scores.items() | list %}
-            {% for symbol, etf in sorted_etfs %}
-            {% if loop.index <= 9 %}
+            {% for symbol, etf in top_3_tickers %}
             <div class="etf-card-wrapper">
-                <a href="/step2/{{ symbol }}" class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
+                <a href="/step2/{{ symbol }}" class="etf-card">
                     <div class="card-content">
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
@@ -1786,15 +1794,7 @@ def index():
                         </div>
                     </div>
                 </a>
-                
-                {% if loop.index > 3 %}
-                <div class="free-version-overlay">
-                    <div class="free-version-text">You're currently viewing the</div>
-                    <div class="upgrade-text">FREE Version</div>
-                </div>
-                {% endif %}
             </div>
-            {% endif %}
             {% endfor %}
         </div>
     </div>
@@ -1807,7 +1807,7 @@ def index():
 </html>
 """
     
-    return render_template_string(template, etf_scores=etf_scores)
+    return render_template_string(template, etf_scores=etf_scores, top_3_tickers=top_3_tickers)
 
 @app.route('/step2')
 @app.route('/step2/<symbol>')
