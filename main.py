@@ -3112,7 +3112,7 @@ def upload_csv():
         
         return jsonify({
             'success': True, 
-            'message': f'Successfully uploaded CSV data. Loaded {len(etf_scores)} symbols.'
+            'message': f'Database refreshed successfully. Loaded {len(etf_scores)} new symbols, previous data cleared.'
         })
         
     except Exception as e:

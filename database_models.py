@@ -75,6 +75,12 @@ class ETFDatabase:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
+            # CRITICAL: Wipe all previous records before inserting new data
+            logger.info("Clearing all previous ETF records from database...")
+            cursor.execute('DELETE FROM etf_scores')
+            conn.commit()
+            logger.info("Previous records cleared successfully")
+            
             updated_count = 0
             
             for _, row in df.iterrows():
