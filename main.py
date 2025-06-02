@@ -1769,7 +1769,21 @@ def index():
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
                         <div class="choose-btn-text">Choose Opportunity</div>
-                        <div class="criteria-text">This ticker matches ALL 5 criteria!</div>
+                        <div class="criteria-text">
+                            {% if etf.score == 5 %}
+                                This ticker matches ALL 5 criteria!
+                            {% elif etf.score == 4 %}
+                                This ticker matches 4 out of 5 criteria
+                            {% elif etf.score == 3 %}
+                                This ticker matches 3 out of 5 criteria
+                            {% elif etf.score == 2 %}
+                                This ticker matches 2 out of 5 criteria
+                            {% elif etf.score == 1 %}
+                                This ticker matches 1 out of 5 criteria
+                            {% else %}
+                                This ticker matches 0 out of 5 criteria
+                            {% endif %}
+                        </div>
                     </div>
                 </a>
                 
