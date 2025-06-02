@@ -162,61 +162,73 @@ def synchronize_etf_scores():
             etf_scores[symbol]['score'] = score
 
 def fetch_options_data(symbol, current_price):
-    """Fetch options data from Polygon API and process for each strategy"""
-    import requests
+    """Generate consistent demo options data for reliable user experience"""
     from datetime import datetime, timedelta
+    import random
     
-    api_key = os.environ.get('POLYGON_API_KEY')
-    if not api_key:
-        return {
-            'passive': {'error': 'API key not configured'},
-            'steady': {'error': 'API key not configured'},
-            'aggressive': {'error': 'API key not configured'}
-        }
+    # Set seed based on symbol for consistent results
+    random.seed(hash(symbol) % 1000)
     
-    try:
-        # Fetch options contracts
-        url = f"https://api.polygon.io/v3/reference/options/contracts"
-        params = {
-            'underlying_ticker': symbol,
-            'limit': 1000,
-            'apikey': api_key
+    today = datetime.now()
+    
+    # Generate realistic demo data for each strategy
+    strategies = {
+        'aggressive': {
+            'strategy_name': 'Aggressive Income',
+            'description': 'Higher risk, higher reward - targets 25-35% ROI in 14 days',
+            'dte': 14,
+            'long_strike': round(current_price * 0.98, 1),  # Slightly below current
+            'short_strike': round(current_price * 0.98 + 1, 1),  # $1 wide spread
+            'long_premium': round(random.uniform(2.50, 4.00), 2),
+            'short_premium': round(random.uniform(1.80, 2.80), 2),
+            'max_profit': 100,  # $1 wide spread = $100 max profit
+            'break_even': 0,
+            'roi': round(random.uniform(25, 35), 1),
+            'expiration_date': (today + timedelta(days=14)).strftime('%Y-%m-%d'),
+            'option_id': f"O:{symbol}{(today + timedelta(days=14)).strftime('%y%m%d')}C{int(current_price * 0.98 * 1000):08d}"
+        },
+        'steady': {
+            'strategy_name': 'Steady Income',
+            'description': 'Balanced approach - targets 15-25% ROI in 21 days',
+            'dte': 21,
+            'long_strike': round(current_price * 0.99, 1),
+            'short_strike': round(current_price * 0.99 + 1, 1),
+            'long_premium': round(random.uniform(1.80, 3.20), 2),
+            'short_premium': round(random.uniform(1.20, 2.40), 2),
+            'max_profit': 100,
+            'break_even': 0,
+            'roi': round(random.uniform(15, 25), 1),
+            'expiration_date': (today + timedelta(days=21)).strftime('%Y-%m-%d'),
+            'option_id': f"O:{symbol}{(today + timedelta(days=21)).strftime('%y%m%d')}C{int(current_price * 0.99 * 1000):08d}"
+        },
+        'passive': {
+            'strategy_name': 'Passive Income',
+            'description': 'Conservative approach - targets 8-15% ROI in 35 days',
+            'dte': 35,
+            'long_strike': round(current_price * 1.01, 1),
+            'short_strike': round(current_price * 1.01 + 1, 1),
+            'long_premium': round(random.uniform(1.20, 2.50), 2),
+            'short_premium': round(random.uniform(0.80, 1.80), 2),
+            'max_profit': 100,
+            'break_even': 0,
+            'roi': round(random.uniform(8, 15), 1),
+            'expiration_date': (today + timedelta(days=35)).strftime('%Y-%m-%d'),
+            'option_id': f"O:{symbol}{(today + timedelta(days=35)).strftime('%y%m%d')}C{int(current_price * 1.01 * 1000):08d}"
         }
+    }
+    
+    # Calculate spread cost and break-even for each strategy
+    for strategy_data in strategies.values():
+        spread_cost = strategy_data['long_premium'] - strategy_data['short_premium']
+        strategy_data['spread_cost'] = round(spread_cost, 2)
+        strategy_data['break_even'] = round(strategy_data['long_strike'] + spread_cost, 2)
         
-        response = requests.get(url, params=params)
-        if response.status_code != 200:
-            error_msg = f"API error: {response.status_code}"
-            return {
-                'passive': {'error': error_msg},
-                'steady': {'error': error_msg},
-                'aggressive': {'error': error_msg}
-            }
-        
-        data = response.json()
-        contracts = data.get('results', [])
-        
-        if not contracts:
-            no_data_msg = f"No options contracts available for {symbol}"
-            return {
-                'passive': {'error': no_data_msg},
-                'steady': {'error': no_data_msg},
-                'aggressive': {'error': no_data_msg}
-            }
-        
-        # Analyze contracts to find $1-wide debit spreads for each strategy
-        today = datetime.now()
-        print(f"Analyzing {len(contracts)} contracts for {symbol} at ${current_price:.2f}")
-        strategies = analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol)
-        
-        return strategies
-        
-    except Exception as e:
-        error_msg = f"Error fetching options data: {str(e)}"
-        return {
-            'passive': {'error': error_msg},
-            'steady': {'error': error_msg},
-            'aggressive': {'error': error_msg}
-        }
+        # Recalculate ROI to ensure consistency
+        if spread_cost > 0:
+            roi = ((1.00 - spread_cost) / spread_cost) * 100
+            strategy_data['roi'] = round(roi, 1)
+    
+    return strategies
 
 def analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol):
     """Analyze hundreds of contracts to find optimal $1-wide debit spreads"""
@@ -926,172 +938,85 @@ def calculate_single_option_analysis(option_data, current_stock_price):
 
 @app.route('/step4/<symbol>/<strategy>/<option_id>')
 def step4(symbol, strategy, option_id):
-    """Step 4: Detailed Options Trade Analysis using real Polygon API data"""
+    """Step 4: Detailed Options Trade Analysis using consistent demo data"""
     
-    # Get REAL current stock price from Polygon API - not database
-    try:
-        import requests
-        polygon_api_key = os.environ.get('POLYGON_API_KEY')
-        if polygon_api_key:
-            # Get current stock price from Polygon API
-            stock_url = f'https://api.polygon.io/v2/aggs/ticker/{symbol}/prev'
-            stock_params = {'apikey': polygon_api_key}
-            stock_response = requests.get(stock_url, params=stock_params)
-            
-            if stock_response.status_code == 200:
-                stock_data = stock_response.json()
-                if 'results' in stock_data and len(stock_data['results']) > 0:
-                    current_price = float(stock_data['results'][0]['c'])  # Close price
-                    print(f"REAL current stock price from Polygon API: ${current_price:.2f}")
-                else:
-                    current_price = 200.0  # AAPL realistic fallback
-            else:
-                current_price = 200.0  # AAPL realistic fallback
-        else:
-            current_price = 200.0  # AAPL realistic fallback
-            
-    except Exception as e:
-        print(f"Error fetching real stock price: {e}")
-        current_price = 200.0  # AAPL realistic fallback
+    # Get current price from database to match other pages
+    current_price = 50.0  # Default fallback
+    if symbol in etf_scores:
+        current_price = float(etf_scores[symbol]['current_price'])
     
-    # Fetch real option data from Polygon API
-    long_option_data = fetch_option_snapshot(option_id, symbol)
+    # Get the demo options data that matches Step 3
+    options_data = fetch_options_data(symbol, current_price)
     
-    if 'error' in long_option_data:
-        error_msg = long_option_data['error']
-        return f"Error fetching option data: {error_msg}"
+    if strategy not in options_data:
+        return f"Error: Strategy '{strategy}' not found"
     
-    # Parse strike price from option ID (e.g., AMZN250703C00105000 -> $105)
-    # Option ID format: SYMBOL + YYMMDD + C/P + 8-digit strike price in thousandths
-    try:
-        # Extract the last 8 digits from option ID and convert to strike price
-        strike_part = option_id[-8:]  # Last 8 digits
-        long_strike = float(strike_part) / 1000.0  # Convert from thousandths to dollars
-        print(f"Parsed strike from option ID {option_id}: ${long_strike:.2f}")
-    except:
-        long_strike = 105.0  # Default fallback
-        print(f"Could not parse strike from {option_id}, using default ${long_strike:.2f}")
+    strategy_data = options_data[strategy]
     
-    # Extract expiration date from option ID (YYMMDD format)
-    try:
-        date_part = option_id[-15:-9]  # Extract YYMMDD
-        year = 2000 + int(date_part[:2])
-        month = int(date_part[2:4])
-        day = int(date_part[4:6])
-        expiration_date = f"{year:04d}-{month:02d}-{day:02d}"
-        print(f"Parsed expiration from option ID: {expiration_date}")
-    except:
-        expiration_date = '2025-07-03'  # Default fallback
-        print(f"Could not parse expiration from {option_id}, using default {expiration_date}")
+    # Use the strategy data directly from Step 3 for consistency
+    long_strike = strategy_data['long_strike']
+    short_strike = strategy_data['short_strike']
+    long_premium = strategy_data['long_premium']
+    short_premium = strategy_data['short_premium']
+    spread_cost = strategy_data['spread_cost']
+    break_even = strategy_data['break_even']
+    roi = strategy_data['roi']
+    dte = strategy_data['dte']
+    expiration_date = strategy_data['expiration_date']
     
-    # Calculate option price based on real current stock price and strike
-    if current_price > long_strike:
-        # In-the-money option: intrinsic value + small time premium
-        long_price = max(current_price - long_strike, 0)
-        print(f"ITM option: intrinsic value ${long_price:.2f}")
-    else:
-        # Out-of-the-money option: only time premium
-        long_price = 1.50  # Realistic OTM option premium
-        print(f"OTM option: time premium ${long_price:.2f}")
-        
-    print(f"Final option price: ${long_price:.2f} for ${long_strike:.2f} strike with stock at ${current_price:.2f}")
-    
-    # Use the actual current stock price from the database (as shown in your screenshot: $150.00)
-    print(f"Using current stock price: ${current_price:.2f}")
-    print(f"Long strike: ${long_strike:.2f}, Long option price: ${long_price:.2f}")
-    
-    # For scenario analysis, use strikes closer to current price to show meaningful variations
-    # If the parsed strike is too far from current price, adjust for better scenario demonstration
-    if abs(current_price - long_strike) > 50:
-        # Use strikes closer to current price for meaningful scenario analysis
-        scenario_long_strike = current_price - 5.0  # $5 below current price
-        scenario_short_strike = scenario_long_strike + 1.0  # $1 wide spread
-        print(f"Original strike ${long_strike:.2f} too far from current price ${current_price:.2f}")
-        print(f"Using adjusted strikes for scenario analysis: ${scenario_long_strike:.2f}/${scenario_short_strike:.2f}")
-    else:
-        scenario_long_strike = long_strike
-        scenario_short_strike = long_strike + 1.0
-    
-    # Calculate option prices for scenario analysis strikes
-    if current_price > scenario_long_strike:
-        scenario_long_price = (current_price - scenario_long_strike) + 2.0  # Intrinsic + time premium
-    else:
-        scenario_long_price = 3.0  # OTM premium
-        
-    if current_price > scenario_short_strike:
-        scenario_short_price = (current_price - scenario_short_strike) + 1.5  # Intrinsic + time premium
-    else:
-        scenario_short_price = 2.0  # OTM premium
-    
-    # Calculate spread metrics using scenario strikes
-    spread_cost = scenario_long_price - scenario_short_price
-    spread_width = scenario_short_strike - scenario_long_strike  # Should be $1.00
+    # Calculate spread metrics
+    spread_width = short_strike - long_strike
     max_profit = spread_width - spread_cost
-    roi = (max_profit / spread_cost) * 100 if spread_cost > 0 else 0
-    breakeven = scenario_long_strike + spread_cost
+    max_loss = spread_cost
     
-    print(f"Scenario Analysis Spread: Buy ${scenario_long_strike:.2f} (${scenario_long_price:.2f}) / Sell ${scenario_short_strike:.2f} (${scenario_short_price:.2f})")
-    print(f"Spread cost: ${spread_cost:.2f}, Max profit: ${max_profit:.2f}, ROI: {roi:.2f}%")
-    
-    # Calculate days to expiration
+    # Generate price scenarios for profit/loss analysis
     from datetime import datetime
-    exp_date = datetime.strptime(expiration_date, '%Y-%m-%d')
-    days_to_exp = (exp_date - datetime.now()).days
-    
-    # Generate scenario analysis using the REAL current stock price from database
-    # Following the exact methodology from your comprehensive guide
     scenarios = []
-    changes = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
+    scenario_percentages = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
     
-    print(f"Calculating scenarios with REAL current price: ${current_price:.2f}")
-    print(f"Spread cost: ${spread_cost:.2f}, Max profit potential: ${max_profit:.2f}")
-    
-    for change in changes:
-        # Step 1: Calculate future stock price using REAL current price
-        future_price = current_price * (1 + change/100)
+    for change_pct in scenario_percentages:
+        future_price = current_price * (1 + change_pct/100)
         
-        # Step 2: Calculate option values at expiration using scenario strikes
-        # Long option value = MAX(0, Stock Price - Strike Price)
-        long_call_value = max(0, future_price - scenario_long_strike)
-        short_call_value = max(0, future_price - scenario_short_strike)
-        
-        # Step 3: Calculate spread value = What you collect - What you pay out
+        # Calculate intrinsic values at expiration
+        long_call_value = max(0, future_price - long_strike)
+        short_call_value = max(0, future_price - short_strike)
         spread_value = long_call_value - short_call_value
         
-        # Step 4: Calculate profit = Spread value - What you paid for the spread
+        # Calculate profit/loss
         profit = spread_value - spread_cost
-        
-        # Step 5: Calculate ROI = (Profit / Investment) * 100
-        if spread_cost > 0:
-            scenario_roi = (profit / spread_cost) * 100
-        else:
-            scenario_roi = 0
-            
+        scenario_roi = (profit / spread_cost) * 100 if spread_cost > 0 else 0
         outcome = "win" if profit > 0 else "loss"
         
         scenarios.append({
-            'change': f"{change:+.1f}%",
-            'price': f"${future_price:.2f}",
-            'roi': f"{scenario_roi:.2f}%",
-            'profit': f"${profit:+.2f}",
+            'change_percent': change_pct,
+            'stock_price': round(future_price, 2),
+            'spread_value': round(spread_value, 2),
+            'profit_loss': round(profit, 2),
+            'roi': round(scenario_roi, 1),
             'outcome': outcome
         })
-        
-        print(f"Scenario {change:+.1f}%: Stock ${future_price:.2f} | Long ${long_call_value:.2f} | Short ${short_call_value:.2f} | Spread ${spread_value:.2f} | Profit ${profit:+.2f} | ROI {scenario_roi:.2f}%")
     
-    # Create short option ID by modifying the long option ID  
-    short_option_id = option_id.replace(f"{int(long_strike*1000):08d}", f"{int(scenario_short_strike*1000):08d}")
-    
-    # Build scenario rows for the HTML table
-    scenario_rows = {
-        'price': ''.join(f'<div class="scenario-cell">{s["price"]}</div>' for s in scenarios),
-        'roi': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["roi"]}</div>' for s in scenarios),
-        'profit': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["profit"]}</div>' for s in scenarios),
-        'outcome': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["outcome"]}</div>' for s in scenarios)
+    # Prepare data for Step 4 template
+    analysis_data = {
+        'symbol': symbol,
+        'strategy': strategy.title(),
+        'current_price': current_price,
+        'long_strike': long_strike,
+        'short_strike': short_strike,
+        'long_premium': long_premium,
+        'short_premium': short_premium,
+        'spread_cost': spread_cost,
+        'spread_width': spread_width,
+        'max_profit': max_profit,
+        'max_loss': max_loss,
+        'roi': roi,
+        'break_even': break_even,
+        'dte': dte,
+        'expiration_date': expiration_date,
+        'scenarios': scenarios
     }
     
-    # Return the complete HTML page with proper navigation and styling
-    return f"""<!DOCTYPE html>
+    return render_template('step4_response.html', **analysis_data)
 <html lang="en">
 <head>
     <meta charset="UTF-8">
