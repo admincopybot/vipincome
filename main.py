@@ -1178,7 +1178,7 @@ def step4(symbol, strategy, option_id):
 </head>
 <body>
     <div class="top-banner">
-        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to The Income Machine
+        🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
     </div>
     
     <div class="header">
@@ -1731,7 +1731,7 @@ def index():
 </head>
 <body>
     <div class="top-banner">
-        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to The Income Machine
+        🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
     </div>
     
     <div class="header">
@@ -2255,7 +2255,7 @@ def step2(symbol=None):
 </head>
 <body>
     <div class="top-banner">
-        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to The Income Machine
+        🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
     </div>
     
     <div class="header">
@@ -2944,7 +2944,7 @@ def step3(symbol=None):
     </head>
     <body>
         <div class="top-banner">
-            🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to The Income Machine
+            🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
         </div>
         
         <div class="header">
