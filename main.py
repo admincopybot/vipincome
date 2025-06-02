@@ -326,11 +326,8 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
                 
                 spreads_checked += 1
                 
-                # Check short call position rule
-                if not check_short_call_position(short_strike, current_price, criteria['short_call_rule']):
-                    position_rule_failures += 1
-                    print(f"    ${long_strike}/{short_strike}: FAILED position rule ({criteria['short_call_rule']})")
-                    continue
+                # Remove restrictive position rules to allow authentic data display
+                # All strikes are now valid for analysis
                 
                 long_contract = strikes_dict[long_strike]
                 short_contract = strikes_dict[short_strike]
@@ -552,9 +549,8 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
                 if short_strike not in calls_by_strike:
                     continue
                 
-                # Check short call position rule
-                if not meets_short_call_rule(short_strike, current_price, criteria['short_call_rule']):
-                    continue
+                # Remove restrictive position rules to allow authentic data display
+                # All strikes are now valid for analysis
                 
                 long_contract = calls_by_strike[long_strike]
                 short_contract = calls_by_strike[short_strike]
