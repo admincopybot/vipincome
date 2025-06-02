@@ -406,10 +406,10 @@ def check_short_call_position(short_strike, current_price, rule):
     """Check if short call position meets strategy rule"""
     if rule == 'below_current':
         return short_strike < current_price
-    elif rule == 'within_2pct':
-        return short_strike >= current_price * 0.98
-    elif rule == 'within_10pct':
-        return short_strike >= current_price * 0.90
+    elif rule == 'within_5pct':
+        return short_strike >= current_price * 0.95
+    elif rule == 'within_15pct':
+        return short_strike >= current_price * 0.85
     return False
 
 def get_contract_price(contract, symbol):
