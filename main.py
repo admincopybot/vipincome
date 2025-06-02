@@ -257,7 +257,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
         'demo_note': 'Demo spread analysis - actual options may vary'
     }
     
-    # Professional Step 4 template matching the provided design
+    # Professional Step 4 template with consistent navigation and branding
     template = """
     <!DOCTYPE html>
     <html>
@@ -274,10 +274,115 @@ def create_step4_demo_data(symbol, strategy, current_price):
             
             body {
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: #2c3e50;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
                 color: #ffffff;
                 line-height: 1.6;
                 min-height: 100vh;
+            }
+            
+            .top-nav {
+                background: rgba(0,0,0,0.8);
+                padding: 10px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                backdrop-filter: blur(10px);
+            }
+            
+            .logo {
+                display: flex;
+                align-items: center;
+                color: #ffffff;
+                font-weight: bold;
+                font-size: 16px;
+            }
+            
+            .logo::before {
+                content: "📈";
+                margin-right: 8px;
+                font-size: 20px;
+            }
+            
+            .nav-links {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+            }
+            
+            .nav-link {
+                color: #bdc3c7;
+                text-decoration: none;
+                padding: 8px 16px;
+                border-radius: 5px;
+                transition: all 0.3s ease;
+            }
+            
+            .nav-link:hover {
+                background: rgba(255,255,255,0.1);
+                color: #ffffff;
+            }
+            
+            .cta-button {
+                background: #f39c12;
+                color: #000000;
+                padding: 8px 16px;
+                border-radius: 20px;
+                text-decoration: none;
+                font-weight: bold;
+                font-size: 12px;
+                transition: all 0.3s ease;
+            }
+            
+            .cta-button:hover {
+                background: #e67e22;
+                transform: translateY(-1px);
+            }
+            
+            .step-nav {
+                background: rgba(0,0,0,0.6);
+                padding: 15px 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 30px;
+                backdrop-filter: blur(10px);
+            }
+            
+            .step-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #bdc3c7;
+                font-size: 14px;
+            }
+            
+            .step-number {
+                background: #34495e;
+                color: #ffffff;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            
+            .step-item.active .step-number {
+                background: #9b59b6;
+            }
+            
+            .step-item.active {
+                color: #ffffff;
+            }
+            
+            .banner {
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+                padding: 15px;
+                text-align: center;
+                margin-bottom: 20px;
+                border: 2px solid rgba(255,255,255,0.1);
             }
             
             .container {
@@ -486,6 +591,38 @@ def create_step4_demo_data(symbol, strategy, current_price):
         </style>
     </head>
     <body>
+        <nav class="top-nav">
+            <div class="logo">INCOME</div>
+            <div class="nav-links">
+                <a href="#" class="nav-link">How to Use</a>
+                <a href="#" class="nav-link">Trade Classes</a>
+                <a href="#" class="cta-button">GET 90% OFF</a>
+            </div>
+        </nav>
+        
+        <div class="step-nav">
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <span>Scoreboard</span>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <span>Analysis</span>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <span>Strategy</span>
+            </div>
+            <div class="step-item active">
+                <div class="step-number">4</div>
+                <span>Trade Details</span>
+            </div>
+        </div>
+        
+        <div class="banner">
+            ⏰ Free access to The Income Machine ends in 18 days
+        </div>
+        
         <div class="container">
             <div class="header-section">
                 <div class="expiration-info">
