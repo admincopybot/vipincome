@@ -1,26 +1,36 @@
-"""
-Clean Income Machine ETF Analyzer - Database Only Version
-Displays pre-calculated ETF scoring data from database with exact same frontend
-No WebSocket, API calls, or real-time calculations
-"""
-import logging
-import os
+from flask import Flask, request, render_template_string, redirect, url_for, jsonify
 import io
 import csv
-from flask import Flask, request, render_template_string, jsonify, redirect
-from database_models import ETFDatabase
-from csv_data_loader import CsvDataLoader
+import logging
+import os
+import threading
+import time
+from dotenv import load_dotenv
+from datetime import datetime
+import simplified_market_data as market_data  # Using simplified market data service with reliable indicators
+from tradelist_client import TradeListApiService
+from tradelist_websocket_client import get_websocket_client
+import enhanced_etf_scoring  # Import for direct Polygon API testing
+from csv_data_loader import CsvDataLoader  # Import CSV data loader
+from gamma_rsi_calculator import GammaRSICalculator
+from database_models import ETFDatabase  # Import database models
+
+# Load environment variables from .env file if it exists
+load_dotenv()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Initialize Flask app
+# Initialize Flask application
 app = Flask(__name__)
+app.secret_key = os.environ.get("SESSION_SECRET", "income_machine_demo")
 
-# Initialize database and CSV loader
-etf_db = ETFDatabase()
+# Initialize CSV data loader
 csv_loader = CsvDataLoader()
+
+# Initialize database
+etf_db = ETFDatabase()
 
 def load_etf_data_from_database():
     """Load ETF data from database and update global etf_scores while keeping frontend exactly the same"""
@@ -44,7 +54,7 @@ def load_etf_data_from_database():
             "XLRE": "Real Estate"
         }
         
-        # Convert database format to frontend format using new CSV structure
+        # Convert database format to frontend format while keeping exact same structure
         for symbol, data in db_data.items():
             criteria = data['criteria']
             
@@ -82,22 +92,10 @@ def load_etf_data_from_database():
                 }
             }
             
-            # Only include sector name if it's a known ETF sector
-            sector_name = sector_mappings.get(symbol, "")
-            
-            # Calculate actual score from criteria (count True values)
-            actual_score = sum([
-                criteria['trend1'],
-                criteria['trend2'], 
-                criteria['snapback'],
-                criteria['momentum'],
-                criteria['stabilizing']
-            ])
-            
             # Update etf_scores with exact same structure as before
             etf_scores[symbol] = {
-                "name": sector_name,
-                "score": actual_score,  # Use calculated score from criteria
+                "name": sector_mappings.get(symbol, "Unknown Sector"),
+                "score": data['total_score'],
                 "price": data['current_price'],
                 "indicators": indicators
             }
@@ -108,3144 +106,2370 @@ def load_etf_data_from_database():
         logger.error(f"Error loading ETF data from database: {str(e)}")
 
 # Load initial data from database
-etf_scores = {}
 load_etf_data_from_database()
 
-# Initialize with default ETF structure if database is empty
-if not etf_scores:
-    default_indicators = {
-        'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 20-day EMA'},
-        'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 100-day EMA'},
-        'snapback': {'pass': False, 'current': 0, 'threshold': 50, 'description': 'RSI < 50'},
-        'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > Previous Week Close'},
-        'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': '3-day ATR < 6-day ATR'}
-    }
+# Initialize with default data including indicators (this will be updated with real market data)
+# Default indicator template for initial state
+default_indicators = {
+    'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'},
+    'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'},
+    'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'},
+    'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'},
+    'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Data loading...'}
+}
 
-    etf_scores = {
-        "XLC": {"name": "Communication Services", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLF": {"name": "Financial", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLV": {"name": "Health Care", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLI": {"name": "Industrial", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLP": {"name": "Consumer Staples", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLY": {"name": "Consumer Discretionary", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLE": {"name": "Energy", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLB": {"name": "Materials", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLU": {"name": "Utilities", "score": 0, "price": 0, "indicators": default_indicators.copy()},
-        "XLRE": {"name": "Real Estate", "score": 0, "price": 0, "indicators": default_indicators.copy()}
-    }
+etf_scores = {
+    "XLC": {"name": "Communication Services", "score": 3, "price": 79.42, "indicators": default_indicators.copy()},
+    "XLF": {"name": "Financial", "score": 4, "price": 47.69, "indicators": default_indicators.copy()},
+    "XLV": {"name": "Health Care", "score": 3, "price": 137.98, "indicators": default_indicators.copy()},
+    "XLI": {"name": "Industrial", "score": 3, "price": 127.23, "indicators": default_indicators.copy()},
+    "XLP": {"name": "Consumer Staples", "score": 4, "price": 81.33, "indicators": default_indicators.copy()},
+    "XLY": {"name": "Consumer Discretionary", "score": 3, "price": 189.89, "indicators": default_indicators.copy()},
+    "XLE": {"name": "Energy", "score": 3, "price": 79.71, "indicators": default_indicators.copy()},
+    "XLB": {"name": "Materials", "score": 3, "price": 81.38, "indicators": default_indicators.copy()},
+    "XLU": {"name": "Utilities", "score": 4, "price": 77.94, "indicators": default_indicators.copy()},
+    "XLRE": {"name": "Real Estate", "score": 3, "price": 40.02, "indicators": default_indicators.copy()}
+}
 
+# CRITICAL FIX: Replace the original ETF score caching mechanism with a helper function
+# that ensures scores always match their indicators
 def synchronize_etf_scores():
     """
     Ensure all ETF scores match their indicators by recalculating scores directly from indicator values.
     This function eliminates any discrepancy between the displayed score and the actual indicator checkboxes.
     """
-    global etf_scores
-    
-    for symbol, etf_data in etf_scores.items():
+    updated_count = 0
+    for etf, etf_data in etf_scores.items():
         if 'indicators' in etf_data:
-            indicators = etf_data['indicators']
+            # Count the number of passing indicators
+            passing_indicators = sum(1 for indicator in etf_data['indicators'].values() if indicator['pass'])
             
-            # Count the number of criteria that pass
-            score = 0
-            if indicators.get('trend1', {}).get('pass', False):
-                score += 1
-            if indicators.get('trend2', {}).get('pass', False):
-                score += 1
-            if indicators.get('snapback', {}).get('pass', False):
-                score += 1
-            if indicators.get('momentum', {}).get('pass', False):
-                score += 1
-            if indicators.get('stabilizing', {}).get('pass', False):
-                score += 1
-            
-            # Update the score to match the indicators
-            etf_scores[symbol]['score'] = score
+            # Update the score to match the actual indicator values
+            if etf_data['score'] != passing_indicators:
+                etf_data['score'] = passing_indicators
+                updated_count += 1
+    
+    if updated_count > 0:
+        logger.info(f"Synchronized scores for {updated_count} ETFs to match their actual indicators")
+    return updated_count
 
-def fetch_options_data(symbol, current_price):
-    """Fetch options data from Polygon API and process for each strategy"""
-    import requests
-    from datetime import datetime, timedelta
+# Save minimal backup of scores for extreme fallback cases only
+# Note: We primarily rely on synchronize_etf_scores() to maintain consistency
+original_etf_scores = {}
+
+# Data update tracking 
+# Cache control variables
+last_update_time = 0  # Set to 0 to force immediate update at startup
+update_interval = 5 * 60  # 5 minutes (reduced to ensure more frequent real-time updates)
+force_refresh = False  # Flag to force refresh regardless of time interval
+
+def update_market_data_background():
+    """Background thread to update market data periodically"""
+    global etf_scores, last_update_time, force_refresh
     
-    api_key = os.environ.get('POLYGON_API_KEY')
-    if not api_key:
-        return {
-            'passive': {'error': 'API key not configured'},
-            'steady': {'error': 'API key not configured'},
-            'aggressive': {'error': 'API key not configured'}
-        }
-    
+    while True:
+        current_time = time.time()
+        
+        # Load ETF data from CSV file instead of doing real-time calculations
+        # This preserves the exact same frontend appearance while using pre-calculated data
+        
+        if current_time - last_update_time > update_interval or force_refresh:
+            try:
+                logger.info("In production, this would refresh data from database...")
+                
+                # Load data from CSV instead of doing real-time calculations
+                csv_data = csv_loader.get_etf_data(force_refresh=True)
+                
+                if csv_data:
+                    # Update etf_scores with CSV data, preserving WebSocket price updates
+                    for symbol, csv_etf_data in csv_data.items():
+                        if symbol in etf_scores:
+                            # Keep current price if it was updated by WebSocket recently
+                            current_price = etf_scores[symbol].get('price', csv_etf_data['price'])
+                            
+                            # Update with CSV data but preserve real-time prices from WebSocket
+                            etf_scores[symbol].update({
+                                'name': csv_etf_data['name'],
+                                'score': csv_etf_data['score'],
+                                'indicators': csv_etf_data['indicators'],
+                                'price': current_price  # Keep WebSocket price if available
+                            })
+                        else:
+                            # New symbol from CSV
+                            etf_scores[symbol] = csv_etf_data
+                
+                last_update_time = current_time
+                force_refresh = False  # Reset the force refresh flag
+            except Exception as e:
+                logger.error(f"Error loading CSV data: {str(e)}")
+        
+        # Sleep for a longer interval since WebSocket handles real-time updates
+        time.sleep(60)
+
+# Helper function that previously added star elements (now disabled)
+def add_stars_to_template(template_str):
+    """Previously added star elements, now just returns the original template"""
+    return template_str
+
+# Initialize WebSocket connection for real-time data
+def initialize_websocket_client():
+    """Initialize and connect to TheTradeList WebSocket API"""
     try:
-        # Fetch options contracts
-        url = f"https://api.polygon.io/v3/reference/options/contracts"
-        params = {
-            'underlying_ticker': symbol,
-            'limit': 1000,
-            'apikey': api_key
-        }
-        
-        response = requests.get(url, params=params)
-        if response.status_code != 200:
-            error_msg = f"API error: {response.status_code}"
-            return {
-                'passive': {'error': error_msg},
-                'steady': {'error': error_msg},
-                'aggressive': {'error': error_msg}
-            }
-        
-        data = response.json()
-        contracts = data.get('results', [])
-        
-        if not contracts:
-            no_data_msg = f"No options contracts available for {symbol}"
-            return {
-                'passive': {'error': no_data_msg},
-                'steady': {'error': no_data_msg},
-                'aggressive': {'error': no_data_msg}
-            }
-        
-        # Analyze contracts to find $1-wide debit spreads for each strategy
-        today = datetime.now()
-        print(f"Analyzing {len(contracts)} contracts for {symbol} at ${current_price:.2f}")
-        strategies = analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol)
-        
-        return strategies
-        
-    except Exception as e:
-        error_msg = f"Error fetching options data: {str(e)}"
-        return {
-            'passive': {'error': error_msg},
-            'steady': {'error': error_msg},
-            'aggressive': {'error': error_msg}
-        }
-
-def analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol):
-    """Analyze hundreds of contracts to find optimal $1-wide debit spreads"""
-    from datetime import datetime
-    
-    # Strategy criteria
-    strategy_criteria = {
-        'aggressive': {
-            'dte_min': 10, 'dte_max': 17,
-            'roi_min': 30, 'roi_max': 40,
-            'short_call_rule': 'below_current'
-        },
-        'steady': {
-            'dte_min': 17, 'dte_max': 28,
-            'roi_min': 15, 'roi_max': 25,
-            'short_call_rule': 'within_2pct'
-        },
-        'passive': {
-            'dte_min': 28, 'dte_max': 42,
-            'roi_min': 10, 'roi_max': 15,
-            'short_call_rule': 'within_10pct'
-        }
-    }
-    
-    # Group call options by expiration date and strike price
-    calls_by_expiration = {}
-    
-    for contract in contracts:
-        if contract.get('contract_type') == 'call':
-            exp_date = contract.get('expiration_date')
-            strike_price = float(contract.get('strike_price', 0))
+        logger.info("Initializing WebSocket connection to TheTradeList API...")
+        ws_client = get_websocket_client()
+        if ws_client:
+            # Add all our ETF symbols to track
+            ws_client.symbols_to_track = market_data.SimplifiedMarketDataService.default_etfs.copy()
             
-            if exp_date not in calls_by_expiration:
-                calls_by_expiration[exp_date] = {}
-            
-            calls_by_expiration[exp_date][strike_price] = contract
-    
-    print(f"Found {len(calls_by_expiration)} expiration dates with call options")
-    
-    # Find best spread for each strategy with detailed logging
-    strategies = {}
-    
-    for strategy_name, criteria in strategy_criteria.items():
-        print(f"\n=== Analyzing {strategy_name} strategy ===")
-        print(f"Criteria: {criteria['dte_min']}-{criteria['dte_max']} DTE, {criteria['roi_min']}-{criteria['roi_max']}% ROI")
-        print(f"Short call rule: {criteria['short_call_rule']}")
-        
-        best_spread = find_optimal_spread(
-            calls_by_expiration, 
-            current_price, 
-            today, 
-            criteria,
-            symbol,
-            strategy_name
-        )
-        
-        if best_spread:
-            strategies[strategy_name] = best_spread
-            print(f"✓ Found {strategy_name} spread: {best_spread}")
-        else:
-            strategies[strategy_name] = {'error': f'No suitable {strategy_name} spreads found'}
-            print(f"✗ No {strategy_name} spreads found")
-    
-    return strategies
-
-def find_optimal_spread(calls_by_expiration, current_price, today, criteria, symbol, strategy_name):
-    """Find the optimal $1-wide debit spread for a specific strategy"""
-    from datetime import datetime
-    
-    valid_spreads = []
-    total_expirations_checked = 0
-    dte_filtered_count = 0
-    spreads_checked = 0
-    position_rule_failures = 0
-    pricing_failures = 0
-    roi_failures = 0
-    
-    print(f"Current price: ${current_price:.2f}")
-    
-    for exp_date_str, strikes_dict in calls_by_expiration.items():
-        try:
-            total_expirations_checked += 1
-            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
-            dte = (exp_date - today).days
-            
-            print(f"Checking expiration {exp_date_str}: {dte} DTE, {len(strikes_dict)} strikes")
-            
-            # Check DTE range
-            if not (criteria['dte_min'] <= dte <= criteria['dte_max']):
-                print(f"  DTE {dte} outside range {criteria['dte_min']}-{criteria['dte_max']}")
-                continue
-            
-            dte_filtered_count += 1
-            strikes = sorted(strikes_dict.keys())
-            # Show strikes near current price for better debugging
-            near_money_strikes = [s for s in strikes if abs(s - current_price) <= 15]
-            print(f"  DTE matches! Total strikes: {len(strikes)}")
-            print(f"  Strikes near ${current_price:.0f}: {near_money_strikes}")
-            print(f"  All strikes: {strikes[:10]}..." if len(strikes) > 10 else f"  All strikes: {strikes}")
-            
-            # Look for $1-wide spreads
-            for long_strike in strikes:
-                short_strike = long_strike + 1.0
+            # Connect to the WebSocket
+            success = ws_client.connect()
+            if success:
+                logger.info(f"WebSocket client initialized with {len(ws_client.symbols_to_track)} symbols to track")
                 
-                if short_strike not in strikes_dict:
-                    continue
-                
-                spreads_checked += 1
-                
-                # Check short call position rule
-                if not check_short_call_position(short_strike, current_price, criteria['short_call_rule']):
-                    position_rule_failures += 1
-                    print(f"    ${long_strike}/{short_strike}: FAILED position rule ({criteria['short_call_rule']})")
-                    continue
-                
-                long_contract = strikes_dict[long_strike]
-                short_contract = strikes_dict[short_strike]
-                
-                # Get current prices for both options
-                long_price = get_contract_price(long_contract, symbol)
-                short_price = get_contract_price(short_contract, symbol)
-                
-                if long_price is None or short_price is None:
-                    pricing_failures += 1
-                    print(f"    ${long_strike}/{short_strike}: FAILED pricing (long: {long_price}, short: {short_price})")
-                    continue
-                
-                # Calculate spread metrics
-                spread_cost = long_price - short_price
-                if spread_cost <= 0:
-                    print(f"    ${long_strike}/{short_strike}: FAILED negative spread cost (${spread_cost:.2f})")
-                    continue
-                
-                spread_width = 1.0  # $1 wide
-                max_profit = spread_width - spread_cost
-                roi = (max_profit / spread_cost) * 100
-                
-                print(f"    ${long_strike}/{short_strike}: Cost ${spread_cost:.2f}, ROI {roi:.1f}%")
-                
-                # Check ROI criteria
-                if criteria['roi_min'] <= roi <= criteria['roi_max']:
-                    spread_data = {
-                        'strategy': strategy_name,
-                        'symbol': symbol,
-                        'long_strike': long_strike,
-                        'short_strike': short_strike,
-                        'long_price': long_price,
-                        'short_price': short_price,
-                        'spread_cost': spread_cost,
-                        'max_profit': max_profit,
-                        'roi': roi,
-                        'dte': dte,
-                        'expiration': exp_date_str,
-                        'long_option_id': long_contract.get('ticker', f"O:{symbol}{exp_date_str.replace('-', '')[-6:]}C{int(long_strike*1000):08d}"),
-                        'short_option_id': short_contract.get('ticker', f"O:{symbol}{exp_date_str.replace('-', '')[-6:]}C{int(short_strike*1000):08d}")
-                    }
-                    valid_spreads.append(spread_data)
-                    
-                    print(f"    ✓ VALID SPREAD: {long_strike}/{short_strike}, {dte} DTE, {roi:.1f}% ROI, ${spread_cost:.2f} cost")
-                else:
-                    roi_failures += 1
-                    print(f"    ${long_strike}/{short_strike}: FAILED ROI {roi:.1f}% (need {criteria['roi_min']}-{criteria['roi_max']}%)")
-        
-        except Exception as e:
-            print(f"Error processing {exp_date_str}: {e}")
-            continue
-    
-    print(f"\nSUMMARY for {strategy_name}:")
-    print(f"  Total expirations: {total_expirations_checked}")
-    print(f"  DTE matches: {dte_filtered_count}")
-    print(f"  Spreads checked: {spreads_checked}")
-    print(f"  Position rule failures: {position_rule_failures}")
-    print(f"  Pricing failures: {pricing_failures}")
-    print(f"  ROI failures: {roi_failures}")
-    print(f"  Valid spreads found: {len(valid_spreads)}")
-    
-    # Select best spread: lowest strikes with highest ROI in target range
-    if valid_spreads:
-        valid_spreads.sort(key=lambda x: (x['long_strike'], -x['roi']))
-        best = valid_spreads[0]
-        
-        return format_strategy_result(best)
-    
-    return None
-
-def check_short_call_position(short_strike, current_price, rule):
-    """Check if short call position meets strategy rule"""
-    if rule == 'below_current':
-        return short_strike < current_price
-    elif rule == 'within_2pct':
-        return short_strike >= current_price * 0.98
-    elif rule == 'within_10pct':
-        return short_strike >= current_price * 0.90
-    return False
-
-def get_contract_price(contract, symbol):
-    """Calculate realistic option price based on intrinsic value and time premium"""
-    try:
-        strike = float(contract.get('strike_price', 0))
-        # Use current stock price passed from the main function
-        current_stock_price = 205.01  # Will be passed as parameter later
-        
-        # Calculate intrinsic value
-        intrinsic_value = max(0, current_stock_price - strike)
-        
-        # Add REALISTIC time premium based on moneyness and market dynamics
-        distance_from_money = abs(strike - current_stock_price)
-        
-        if intrinsic_value > 50:  # Deep ITM - very low time premium
-            time_premium = 0.15
-        elif intrinsic_value > 20:  # ITM - low time premium  
-            time_premium = 0.30
-        elif intrinsic_value > 5:  # Slightly ITM - moderate time premium
-            time_premium = 0.75
-        elif distance_from_money <= 5:  # Near ATM - high time premium
-            time_premium = 3.50
-        elif distance_from_money <= 10:  # Slightly OTM - moderate time premium
-            time_premium = 2.00
-        elif distance_from_money <= 20:  # OTM - low time premium
-            time_premium = 1.00
-        else:  # Far OTM - very low time premium
-            time_premium = 0.25
-        
-        option_price = intrinsic_value + time_premium
-        
-        print(f"    Price calc: ${strike} strike, intrinsic ${intrinsic_value:.2f}, premium ${time_premium:.2f}, total ${option_price:.2f}")
-        
-        return option_price
-        
-    except Exception as e:
-        print(f"    Error calculating price for strike {contract.get('strike_price', 'unknown')}: {e}")
-        return None
-
-def format_strategy_result(spread_data):
-    """Format spread data for display"""
-    return {
-        'strategy': spread_data['strategy'].title(),
-        'dte': f"{spread_data['dte']} days",
-        'roi': f"{spread_data['roi']:.1f}%",
-        'strikes': f"${spread_data['long_strike']:.0f}/${spread_data['short_strike']:.0f}",
-        'cost': f"${spread_data['spread_cost']:.2f}",
-        'max_profit': f"${spread_data['max_profit']:.2f}",
-        'expiration': spread_data['expiration'],
-        'option_id': spread_data['long_option_id'],
-        'description': f"Buy ${spread_data['long_strike']:.0f} call / Sell ${spread_data['short_strike']:.0f} call"
-    }
-
-def process_options_strategies_old(contracts, current_price, today):
-    """Process options contracts to find optimal $1-wide debit spreads for each strategy"""
-    from datetime import datetime, timedelta
-    
-    strategies = {
-        'passive': {'error': 'No suitable options found'},
-        'steady': {'error': 'No suitable options found'},
-        'aggressive': {'error': 'No suitable options found'}
-    }
-    
-    # Strategy criteria based on your specifications
-    strategy_criteria = {
-        'aggressive': {
-            'dte_min': 10,
-            'dte_max': 17,
-            'roi_min': 30,
-            'roi_max': 40,
-            'short_call_rule': 'below_current'  # Sold call must be below current price
-        },
-        'steady': {
-            'dte_min': 17,
-            'dte_max': 28,
-            'roi_min': 15,
-            'roi_max': 25,
-            'short_call_rule': 'within_2pct'  # Sold call must be <2% below current price
-        },
-        'passive': {
-            'dte_min': 28,
-            'dte_max': 42,
-            'roi_min': 10,
-            'roi_max': 15,
-            'short_call_rule': 'within_10pct'  # Sold call must be <10% below current price
-        }
-    }
-    
-    # Group contracts by expiration date
-    expirations = {}
-    for contract in contracts:
-        exp_date = contract.get('expiration_date')
-        if exp_date:
-            if exp_date not in expirations:
-                expirations[exp_date] = []
-            expirations[exp_date].append(contract)
-    
-    # Find best spread for each strategy
-    for strategy_name, criteria in strategy_criteria.items():
-        best_spread = find_best_debit_spread(
-            expirations, 
-            current_price, 
-            today, 
-            criteria
-        )
-        
-        if best_spread:
-            strategies[strategy_name] = best_spread
-    
-    return strategies
-
-def find_best_debit_spread(expirations, current_price, today, criteria):
-    """Find the best $1-wide debit spread meeting the strategy criteria"""
-    from datetime import datetime
-    
-    best_spreads = []
-    
-    for exp_date_str, contracts in expirations.items():
-        try:
-            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
-            dte = (exp_date - today).days
-            
-            # Check if expiration falls within DTE range
-            if not (criteria['dte_min'] <= dte <= criteria['dte_max']):
-                continue
-            
-            # Group calls by strike price
-            calls_by_strike = {}
-            for contract in contracts:
-                if contract.get('contract_type') == 'call':
-                    strike = float(contract.get('strike_price', 0))
-                    calls_by_strike[strike] = contract
-            
-            # Find all possible $1-wide spreads
-            strikes = sorted(calls_by_strike.keys())
-            for i, long_strike in enumerate(strikes):
-                short_strike = long_strike + 1.0
-                
-                if short_strike not in calls_by_strike:
-                    continue
-                
-                # Check short call position rule
-                if not meets_short_call_rule(short_strike, current_price, criteria['short_call_rule']):
-                    continue
-                
-                long_contract = calls_by_strike[long_strike]
-                short_contract = calls_by_strike[short_strike]
-                
-                # Calculate spread cost and ROI
-                long_price = get_option_price(long_contract)
-                short_price = get_option_price(short_contract)
-                
-                if long_price is None or short_price is None:
-                    continue
-                
-                spread_cost = long_price - short_price
-                if spread_cost <= 0:
-                    continue
-                
-                # Calculate ROI: (Width - Cost) / Cost * 100
-                spread_width = 1.0  # $1 wide spread
-                max_profit = spread_width - spread_cost
-                roi = (max_profit / spread_cost) * 100
-                
-                # Check if ROI meets criteria
-                if criteria['roi_min'] <= roi <= criteria['roi_max']:
-                    spread_data = {
-                        'long_strike': long_strike,
-                        'short_strike': short_strike,
-                        'long_price': long_price,
-                        'short_price': short_price,
-                        'spread_cost': spread_cost,
-                        'max_profit': max_profit,
-                        'roi': roi,
-                        'dte': dte,
-                        'expiration': exp_date_str,
-                        'long_contract': long_contract,
-                        'short_contract': short_contract
-                    }
-                    best_spreads.append(spread_data)
-        
-        except Exception as e:
-            continue
-    
-    # Find the best spread: lowest strikes with highest ROI in range
-    if best_spreads:
-        # Sort by strike price (ascending) then by ROI (descending)
-        best_spreads.sort(key=lambda x: (x['long_strike'], -x['roi']))
-        best = best_spreads[0]
-        
-        return create_strategy_data(
-            'debit_spread',
-            best['long_contract'],
-            best['dte'],
-            best['roi'],
-            current_price,
-            best
-        )
-    
-    return None
-
-def meets_short_call_rule(short_strike, current_price, rule):
-    """Check if short call position meets the strategy rule"""
-    if rule == 'below_current':
-        return short_strike < current_price
-    elif rule == 'within_2pct':
-        return short_strike >= current_price * 0.98  # Within 2% below
-    elif rule == 'within_10pct':
-        return short_strike >= current_price * 0.90  # Within 10% below
-    return False
-
-def get_option_price(contract):
-    """Extract option price from contract data"""
-    # Try multiple price fields from Polygon API
-    if 'last_quote' in contract:
-        quote = contract['last_quote']
-        bid = quote.get('bid', 0)
-        ask = quote.get('ask', 0)
-        if bid > 0 and ask > 0:
-            return (bid + ask) / 2
-    
-    if 'day' in contract and 'close' in contract['day']:
-        return float(contract['day']['close'])
-    
-    if 'last_trade' in contract and 'price' in contract['last_trade']:
-        return float(contract['last_trade']['price'])
-    
-    return None
-    
-    # Filter call options only
-    call_options = [c for c in contracts if c.get('contract_type') == 'call']
-    
-    for contract in call_options:
-        try:
-            # Parse expiration date
-            exp_date_str = contract.get('expiration_date')
-            if not exp_date_str:
-                continue
-                
-            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
-            dte = (exp_date - today).days
-            
-            strike_price = float(contract.get('strike_price', 0))
-            if strike_price <= 0:
-                continue
-            
-            # Check each strategy criteria
-            check_strategy_fit(contract, dte, strike_price, current_price, strategies)
-            
-        except (ValueError, TypeError):
-            continue
-    
-    return strategies
-
-def check_strategy_fit(contract, dte, strike_price, current_price, strategies):
-    """Check if option fits strategy criteria and calculate ROI"""
-    
-    # Aggressive: 10-17 DTE, strike below current price
-    if 10 <= dte <= 17 and strike_price < current_price:
-        roi = calculate_roi(strike_price, current_price, dte)
-        if 30 <= roi <= 40:
-            if strategies['aggressive'].get('error'):
-                strategies['aggressive'] = create_strategy_data('Aggressive', contract, dte, roi, current_price)
-    
-    # Steady: 17-28 DTE, strike <2% below current price  
-    elif 17 <= dte <= 28 and strike_price >= (current_price * 0.98):
-        roi = calculate_roi(strike_price, current_price, dte)
-        if 15 <= roi <= 25:
-            if strategies['steady'].get('error'):
-                strategies['steady'] = create_strategy_data('Steady', contract, dte, roi, current_price)
-    
-    # Passive: 28-42 DTE, strike <10% below current price
-    elif 28 <= dte <= 42 and strike_price >= (current_price * 0.90):
-        roi = calculate_roi(strike_price, current_price, dte)
-        if 10 <= roi <= 15:
-            if strategies['passive'].get('error'):
-                strategies['passive'] = create_strategy_data('Passive', contract, dte, roi, current_price)
-
-def calculate_roi(strike_price, current_price, dte):
-    """Calculate estimated ROI for the option strategy"""
-    # Simplified ROI calculation - can be enhanced with real option pricing
-    price_diff_pct = ((strike_price - current_price) / current_price) * 100
-    time_value = max(1, dte / 30)  # Time factor
-    estimated_roi = abs(price_diff_pct) * time_value * 2
-    return min(estimated_roi, 50)  # Cap at 50%
-
-def create_strategy_data(strategy_name, contract, dte, roi, current_price):
-    """Create formatted strategy data for display"""
-    strike_price = float(contract.get('strike_price', 0))
-    price_diff_pct = ((strike_price - current_price) / current_price) * 100
-    
-    return {
-        'name': strategy_name,
-        'dte': dte,
-        'dte_range': get_dte_range(strategy_name),
-        'roi': round(roi, 1),
-        'roi_range': get_roi_range(strategy_name),
-        'strike_price': strike_price,
-        'current_price': current_price,
-        'strike_selection': get_strike_description(strategy_name, price_diff_pct),
-        'management': get_management_rule(strategy_name),
-        'contract_symbol': contract.get('ticker', 'N/A'),
-        'expiration_date': contract.get('expiration_date', 'N/A'),
-        'contract_type': contract.get('contract_type', 'N/A'),
-        'exercise_style': contract.get('exercise_style', 'N/A'),
-        'shares_per_contract': contract.get('shares_per_contract', 100),
-        'primary_exchange': contract.get('primary_exchange', 'N/A'),
-        'cfi': contract.get('cfi', 'N/A')
-    }
-
-def get_dte_range(strategy):
-    ranges = {
-        'Aggressive': '10 to 17 days',
-        'Steady': '17 to 28 days', 
-        'Passive': '28 to 42 days'
-    }
-    return ranges.get(strategy, '')
-
-def get_roi_range(strategy):
-    ranges = {
-        'Aggressive': '30% to 40%',
-        'Steady': '15% to 25%',
-        'Passive': '10% to 15%'
-    }
-    return ranges.get(strategy, '')
-
-def get_strike_description(strategy, price_diff_pct):
-    if strategy == 'Aggressive':
-        return 'Below current price'
-    elif strategy == 'Steady':
-        return f'At or <2% below current price'
-    else:  # Passive
-        return f'At or <10% below current price'
-
-def get_management_rule(strategy):
-    rules = {
-        'Aggressive': 'Check daily',
-        'Steady': 'Check twice per week',
-        'Passive': 'Check weekly'
-    }
-    return rules.get(strategy, '')
-
-def fetch_option_snapshot(option_id, underlying_ticker):
-    """Fetch real-time option data from Polygon API"""
-    import requests
-    
-    api_key = os.environ.get('POLYGON_API_KEY')
-    if not api_key:
-        return {'error': 'API key not configured'}
-    
-    try:
-        url = f"https://api.polygon.io/v3/snapshot/options/{underlying_ticker}/{option_id}"
-        params = {'apikey': api_key}
-        
-        response = requests.get(url, params=params)
-        if response.status_code != 200:
-            return {'error': f'API error: {response.status_code}'}
-        
-        data = response.json()
-        if 'results' not in data:
-            return {'error': 'No option data available'}
-        
-        return data['results']
-        
-    except Exception as e:
-        return {'error': f'Error fetching option data: {str(e)}'}
-
-def calculate_debit_spread_analysis(long_option_data, short_option_data, current_stock_price):
-    """Calculate comprehensive debit spread analysis"""
-    from datetime import datetime
-    
-    try:
-        # Extract option prices
-        long_price = long_option_data.get('day', {}).get('close', 0)
-        short_price = short_option_data.get('day', {}).get('close', 0)
-        
-        # Extract strike prices
-        long_strike = float(long_option_data.get('details', {}).get('strike_price', 0))
-        short_strike = float(short_option_data.get('details', {}).get('strike_price', 0))
-        
-        # Calculate spread metrics
-        spread_cost = long_price - short_price
-        spread_width = short_strike - long_strike
-        max_profit = spread_width - spread_cost
-        roi = (max_profit / spread_cost) * 100 if spread_cost > 0 else 0
-        breakeven = long_strike + spread_cost
-        
-        # Calculate days to expiration
-        exp_date_str = long_option_data.get('details', {}).get('expiration_date', '')
-        if exp_date_str:
-            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
-            days_to_exp = (exp_date - datetime.now()).days
-        else:
-            days_to_exp = 0
-        
-        # Generate price scenarios
-        scenarios = []
-        scenario_percentages = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
-        
-        for change_pct in scenario_percentages:
-            future_price = current_stock_price * (1 + change_pct/100)
-            
-            # Calculate intrinsic values at expiration
-            long_call_value = max(0, future_price - long_strike)
-            short_call_value = max(0, future_price - short_strike)
-            spread_value = long_call_value - short_call_value
-            
-            # Calculate profit/loss
-            profit = spread_value - spread_cost
-            scenario_roi = (profit / spread_cost) * 100 if spread_cost > 0 else 0
-            outcome = "win" if profit > 0 else "loss"
-            
-            scenarios.append({
-                'change_percent': change_pct,
-                'stock_price': future_price,
-                'spread_value': spread_value,
-                'profit_loss': profit,
-                'roi': scenario_roi,
-                'outcome': outcome
-            })
-        
-        return {
-            'spread_cost': spread_cost,
-            'spread_width': spread_width,
-            'max_profit': max_profit,
-            'max_loss': spread_cost,
-            'roi': roi,
-            'breakeven': breakeven,
-            'days_to_expiration': days_to_exp,
-            'scenarios': scenarios,
-            'long_strike': long_strike,
-            'short_strike': short_strike,
-            'long_price': long_price,
-            'short_price': short_price
-        }
-        
-    except Exception as e:
-        return {'error': f'Calculation error: {str(e)}'}
-
-def calculate_single_option_analysis(option_data, current_stock_price):
-    """Calculate comprehensive single option analysis using real Polygon data"""
-    from datetime import datetime
-    
-    try:
-        # Extract real option data from Polygon API
-        option_price = option_data.get('day', {}).get('close', 0)
-        strike_price = float(option_data.get('details', {}).get('strike_price', 0))
-        
-        # Extract Greeks and other real data
-        greeks = option_data.get('greeks', {})
-        delta = greeks.get('delta', 0)
-        theta = greeks.get('theta', 0)
-        gamma = greeks.get('gamma', 0)
-        vega = greeks.get('vega', 0)
-        
-        implied_vol = option_data.get('implied_volatility', 0)
-        open_interest = option_data.get('open_interest', 0)
-        volume = option_data.get('day', {}).get('volume', 0)
-        
-        # Calculate days to expiration
-        exp_date_str = option_data.get('details', {}).get('expiration_date', '')
-        if exp_date_str:
-            exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
-            days_to_exp = (exp_date - datetime.now()).days
-        else:
-            days_to_exp = 0
-        
-        # Calculate intrinsic and time value
-        intrinsic_value = max(0, current_stock_price - strike_price)
-        time_value = option_price - intrinsic_value
-        
-        # Generate price scenarios for single option
-        scenarios = []
-        scenario_percentages = [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10]
-        
-        for change_pct in scenario_percentages:
-            future_price = current_stock_price * (1 + change_pct/100)
-            
-            # Calculate option value at expiration (intrinsic only)
-            option_value_at_exp = max(0, future_price - strike_price)
-            
-            # Calculate profit/loss
-            profit = option_value_at_exp - option_price
-            roi = (profit / option_price) * 100 if option_price > 0 else 0
-            outcome = "profit" if profit > 0 else "loss"
-            
-            scenarios.append({
-                'change_percent': change_pct,
-                'stock_price': future_price,
-                'option_value': option_value_at_exp,
-                'profit_loss': profit,
-                'roi': roi,
-                'outcome': outcome
-            })
-        
-        return {
-            'option_price': option_price,
-            'strike_price': strike_price,
-            'current_stock_price': current_stock_price,
-            'intrinsic_value': intrinsic_value,
-            'time_value': time_value,
-            'days_to_expiration': days_to_exp,
-            'delta': delta,
-            'theta': theta,
-            'gamma': gamma,
-            'vega': vega,
-            'implied_volatility': implied_vol,
-            'open_interest': open_interest,
-            'volume': volume,
-            'scenarios': scenarios,
-            'max_loss': option_price,  # For long calls, max loss is premium paid
-            'breakeven': strike_price + option_price
-        }
-        
-    except Exception as e:
-        return {'error': f'Calculation error: {str(e)}'}
-
-@app.route('/step4/<symbol>/<strategy>/<option_id>')
-def step4(symbol, strategy, option_id):
-    """Step 4: Detailed Options Trade Analysis using real Polygon API data"""
-    
-    # Get REAL current stock price from Polygon API - not database
-    try:
-        import requests
-        polygon_api_key = os.environ.get('POLYGON_API_KEY')
-        if polygon_api_key:
-            # Get current stock price from Polygon API
-            stock_url = f'https://api.polygon.io/v2/aggs/ticker/{symbol}/prev'
-            stock_params = {'apikey': polygon_api_key}
-            stock_response = requests.get(stock_url, params=stock_params)
-            
-            if stock_response.status_code == 200:
-                stock_data = stock_response.json()
-                if 'results' in stock_data and len(stock_data['results']) > 0:
-                    current_price = float(stock_data['results'][0]['c'])  # Close price
-                    print(f"REAL current stock price from Polygon API: ${current_price:.2f}")
-                else:
-                    current_price = 200.0  # AAPL realistic fallback
+                # Register a callback to update our data when new data arrives
+                ws_client.add_data_update_callback(on_websocket_data_update)
+                return True
             else:
-                current_price = 200.0  # AAPL realistic fallback
+                logger.error("Failed to connect WebSocket client")
         else:
-            current_price = 200.0  # AAPL realistic fallback
-            
+            logger.error("Failed to get WebSocket client instance - check API key")
     except Exception as e:
-        print(f"Error fetching real stock price: {e}")
-        current_price = 200.0  # AAPL realistic fallback
+        logger.error(f"Error initializing WebSocket client: {str(e)}")
     
-    # Fetch real option data from Polygon API
-    long_option_data = fetch_option_snapshot(option_id, symbol)
+    return False
+
+def on_websocket_data_update(updates):
+    """Callback function when new data is received from WebSocket"""
+    global etf_scores, force_refresh
     
-    if 'error' in long_option_data:
-        error_msg = long_option_data['error']
-        return f"Error fetching option data: {error_msg}"
-    
-    # Parse strike price from option ID (e.g., AMZN250703C00105000 -> $105)
-    # Option ID format: SYMBOL + YYMMDD + C/P + 8-digit strike price in thousandths
     try:
-        # Extract the last 8 digits from option ID and convert to strike price
-        strike_part = option_id[-8:]  # Last 8 digits
-        long_strike = float(strike_part) / 1000.0  # Convert from thousandths to dollars
-        print(f"Parsed strike from option ID {option_id}: ${long_strike:.2f}")
-    except:
-        long_strike = 105.0  # Default fallback
-        print(f"Could not parse strike from {option_id}, using default ${long_strike:.2f}")
-    
-    # Extract expiration date from option ID (YYMMDD format)
-    try:
-        date_part = option_id[-15:-9]  # Extract YYMMDD
-        year = 2000 + int(date_part[:2])
-        month = int(date_part[2:4])
-        day = int(date_part[4:6])
-        expiration_date = f"{year:04d}-{month:02d}-{day:02d}"
-        print(f"Parsed expiration from option ID: {expiration_date}")
-    except:
-        expiration_date = '2025-07-03'  # Default fallback
-        print(f"Could not parse expiration from {option_id}, using default {expiration_date}")
-    
-    # Calculate option price based on real current stock price and strike
-    if current_price > long_strike:
-        # In-the-money option: intrinsic value + small time premium
-        long_price = max(current_price - long_strike, 0)
-        print(f"ITM option: intrinsic value ${long_price:.2f}")
-    else:
-        # Out-of-the-money option: only time premium
-        long_price = 1.50  # Realistic OTM option premium
-        print(f"OTM option: time premium ${long_price:.2f}")
+        # Log the updates
+        logger.info(f"Received data for {len(updates)} symbols via WebSocket")
         
-    print(f"Final option price: ${long_price:.2f} for ${long_strike:.2f} strike with stock at ${current_price:.2f}")
-    
-    # Use the actual current stock price from the database (as shown in your screenshot: $150.00)
-    print(f"Using current stock price: ${current_price:.2f}")
-    print(f"Long strike: ${long_strike:.2f}, Long option price: ${long_price:.2f}")
-    
-    # For scenario analysis, use strikes closer to current price to show meaningful variations
-    # If the parsed strike is too far from current price, adjust for better scenario demonstration
-    if abs(current_price - long_strike) > 50:
-        # Use strikes closer to current price for meaningful scenario analysis
-        scenario_long_strike = current_price - 5.0  # $5 below current price
-        scenario_short_strike = scenario_long_strike + 1.0  # $1 wide spread
-        print(f"Original strike ${long_strike:.2f} too far from current price ${current_price:.2f}")
-        print(f"Using adjusted strikes for scenario analysis: ${scenario_long_strike:.2f}/${scenario_short_strike:.2f}")
-    else:
-        scenario_long_strike = long_strike
-        scenario_short_strike = long_strike + 1.0
-    
-    # Calculate option prices for scenario analysis strikes
-    if current_price > scenario_long_strike:
-        scenario_long_price = (current_price - scenario_long_strike) + 2.0  # Intrinsic + time premium
-    else:
-        scenario_long_price = 3.0  # OTM premium
+        # Determine if we should recalculate scores (only do this occasionally, not with every price update)
+        # We'll use a time-based approach - only recalculate scores every 15 minutes
+        recalculate_scores = False
+        current_time = time.time()
         
-    if current_price > scenario_short_strike:
-        scenario_short_price = (current_price - scenario_short_strike) + 1.5  # Intrinsic + time premium
-    else:
-        scenario_short_price = 2.0  # OTM premium
-    
-    # Calculate spread metrics using scenario strikes
-    spread_cost = scenario_long_price - scenario_short_price
-    spread_width = scenario_short_strike - scenario_long_strike  # Should be $1.00
-    max_profit = spread_width - spread_cost
-    roi = (max_profit / spread_cost) * 100 if spread_cost > 0 else 0
-    breakeven = scenario_long_strike + spread_cost
-    
-    print(f"Scenario Analysis Spread: Buy ${scenario_long_strike:.2f} (${scenario_long_price:.2f}) / Sell ${scenario_short_strike:.2f} (${scenario_short_price:.2f})")
-    print(f"Spread cost: ${spread_cost:.2f}, Max profit: ${max_profit:.2f}, ROI: {roi:.2f}%")
-    
-    # Calculate days to expiration
-    from datetime import datetime
-    exp_date = datetime.strptime(expiration_date, '%Y-%m-%d')
-    days_to_exp = (exp_date - datetime.now()).days
-    
-    # Generate scenario analysis using the REAL current stock price from database
-    # Following the exact methodology from your comprehensive guide
-    scenarios = []
-    changes = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
-    
-    print(f"Calculating scenarios with REAL current price: ${current_price:.2f}")
-    print(f"Spread cost: ${spread_cost:.2f}, Max profit potential: ${max_profit:.2f}")
-    
-    for change in changes:
-        # Step 1: Calculate future stock price using REAL current price
-        future_price = current_price * (1 + change/100)
+        # Static variable to track last score recalculation time
+        if not hasattr(on_websocket_data_update, "last_score_update"):
+            on_websocket_data_update.last_score_update = 0
         
-        # Step 2: Calculate option values at expiration using scenario strikes
-        # Long option value = MAX(0, Stock Price - Strike Price)
-        long_call_value = max(0, future_price - scenario_long_strike)
-        short_call_value = max(0, future_price - scenario_short_strike)
+        # Check if it's time to recalculate (every 15 minutes = 900 seconds)
+        if current_time - on_websocket_data_update.last_score_update > 900:
+            recalculate_scores = True
+            on_websocket_data_update.last_score_update = current_time
+            logger.info("Scheduled recalculation of ETF technical scores (15-minute interval)")
         
-        # Step 3: Calculate spread value = What you collect - What you pay out
-        spread_value = long_call_value - short_call_value
+        # Process each symbol that was updated
+        for symbol, data in updates.items():
+            if symbol in etf_scores:
+                websocket_price = data.get('price', 0)
+                websocket_timestamp = data.get('last_updated', '')
+                
+                if websocket_price <= 0:
+                    continue  # Skip invalid prices
+                
+                if recalculate_scores:
+                    # Only recalculate score on schedule, not with every price update
+                    try:
+                        new_score, _, indicators = market_data.SimplifiedMarketDataService._calculate_etf_score(
+                            symbol, 
+                            force_refresh=True,  # Force refresh when we recalculate
+                            price_override=websocket_price
+                        )
+                        
+                        # Only update if we got a valid score
+                        if new_score > 0:
+                            # Update the full ETF data including indicators and score
+                            etf_scores[symbol]['price'] = websocket_price
+                            etf_scores[symbol]['score'] = new_score
+                            etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
+                            etf_scores[symbol]['indicators'] = indicators
+                            
+                            # Store this valid score in our original scores cache for future use
+                            original_etf_scores[symbol] = new_score
+                            
+                            # Log the update with score
+                            logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket with recalculated score {new_score}/5")
+                        else:
+                            # Just update price and keep existing score
+                            etf_scores[symbol]['price'] = websocket_price
+                            logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket but kept existing score (failed to calculate new score)")
+                    except Exception as e:
+                        # If score calculation fails, just update the price
+                        etf_scores[symbol]['price'] = websocket_price
+                        etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
+                        
+                        # CRITICAL FIX: Always recalculate score based on the actual indicators
+                        # This ensures score is never out of sync with the indicator checkboxes
+                        if 'indicators' in etf_scores[symbol]:
+                            # Count the number of passing indicators
+                            passing_indicators = sum(1 for indicator in etf_scores[symbol]['indicators'].values() if indicator['pass'])
+                            
+                            # Update the score to match the actual indicator values
+                            etf_scores[symbol]['score'] = passing_indicators
+                            current_score = passing_indicators
+                            
+                            logger.info(f"Recalculated score for {symbol} to match indicators after error: {current_score}/5")
+                        else:
+                            # If no indicators exist, try to restore from original scores
+                            if etf_scores[symbol]['score'] == 0 and symbol in original_etf_scores:
+                                etf_scores[symbol]['score'] = original_etf_scores[symbol]
+                                logger.info(f"No indicators found, restored original score {original_etf_scores[symbol]}/5 for {symbol} after error: {str(e)}")
+                        
+                        logger.warning(f"Error calculating new score for {symbol}: {str(e)}")
+                else:
+                    # Just update the price without recalculating the score
+                    etf_scores[symbol]['price'] = websocket_price
+                    etf_scores[symbol]['source'] = 'TheTradeList WebSocket'
+                    
+                    # CRITICAL FIX: Always synchronize ETF scores with their indicators 
+                    # This ensures scores are never out of sync with the indicator checkboxes
+                    synchronize_etf_scores()
+                    current_score = etf_scores[symbol]['score']
+                    
+                    # DO NOT modify the indicators - keep the accurate Polygon values
+                        
+                    # Log the price-only update
+                    logger.info(f"Updated {symbol} price to ${websocket_price:.2f} from WebSocket (keeping score {current_score}/5)")
+    except Exception as e:
+        logger.error(f"Error processing WebSocket data update: {str(e)}")
+
+# Start background thread for market data updates
+update_thread = threading.Thread(target=update_market_data_background, daemon=True)
+update_thread.start()
+
+# Initialize WebSocket connection
+initialize_websocket_client()
+
+# Force score restoration at startup - make sure ETF scores are properly initialized
+for symbol in etf_scores:
+    if etf_scores[symbol]['score'] == 0 and symbol in original_etf_scores:
+        etf_scores[symbol]['score'] = original_etf_scores[symbol]
+        logger.info(f"Restored original score {original_etf_scores[symbol]}/5 for {symbol} at startup")
+
+# Global CSS variable defined below with the strategy descriptions
+
+# Create dummy data for option recommendations with debit spread structure
+recommended_trades = {
+    "XLC": {
+        "Aggressive": {
+            "strike": 77.50, "upper_strike": 78.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "32%", 
+            "premium": 0.32, "pct_otm": -2.0, "max_profit": 0.68, "max_loss": 0.32
+        },
+        "Steady": {
+            "strike": 77.00, "upper_strike": 78.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "24%", 
+            "premium": 0.47, "pct_otm": -1.5, "max_profit": 0.53, "max_loss": 0.47
+        },
+        "Passive": {
+            "strike": 76.50, "upper_strike": 77.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "18%", 
+            "premium": 0.54, "pct_otm": -1.0, "max_profit": 0.46, "max_loss": 0.54
+        }
+    },
+    "XLF": {
+        "Aggressive": {
+            "strike": 45.50, "upper_strike": 46.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "28%", 
+            "premium": 0.35, "pct_otm": -2.5, "max_profit": 0.65, "max_loss": 0.35
+        },
+        "Steady": {
+            "strike": 45.00, "upper_strike": 46.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "22%", 
+            "premium": 0.48, "pct_otm": -1.8, "max_profit": 0.52, "max_loss": 0.48
+        },
+        "Passive": {
+            "strike": 44.50, "upper_strike": 45.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "17%", 
+            "premium": 0.56, "pct_otm": -1.2, "max_profit": 0.44, "max_loss": 0.56
+        }
+    },
+    "XLV": {
+        "Aggressive": {
+            "strike": 133.50, "upper_strike": 134.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "26%", 
+            "premium": 0.41, "pct_otm": -2.5, "max_profit": 0.59, "max_loss": 0.41
+        },
+        "Steady": {
+            "strike": 133.00, "upper_strike": 134.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "19%", 
+            "premium": 0.54, "pct_otm": -2.0, "max_profit": 0.46, "max_loss": 0.54
+        },
+        "Passive": {
+            "strike": 132.50, "upper_strike": 133.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "14%", 
+            "premium": 0.62, "pct_otm": -1.5, "max_profit": 0.38, "max_loss": 0.62
+        }
+    },
+    "XLI": {
+        "Aggressive": {
+            "strike": 122.50, "upper_strike": 123.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "30%", 
+            "premium": 0.38, "pct_otm": -2.5, "max_profit": 0.62, "max_loss": 0.38
+        },
+        "Steady": {
+            "strike": 122.00, "upper_strike": 123.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "23%", 
+            "premium": 0.46, "pct_otm": -2.0, "max_profit": 0.54, "max_loss": 0.46
+        },
+        "Passive": {
+            "strike": 121.50, "upper_strike": 122.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "16%", 
+            "premium": 0.53, "pct_otm": -1.6, "max_profit": 0.47, "max_loss": 0.53
+        }
+    },
+    "XLP": {
+        "Aggressive": {
+            "strike": 78.50, "upper_strike": 79.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "27%", 
+            "premium": 0.34, "pct_otm": -2.3, "max_profit": 0.66, "max_loss": 0.34
+        },
+        "Steady": {
+            "strike": 78.00, "upper_strike": 79.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "20%", 
+            "premium": 0.51, "pct_otm": -1.8, "max_profit": 0.49, "max_loss": 0.51
+        },
+        "Passive": {
+            "strike": 77.50, "upper_strike": 78.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "15%", 
+            "premium": 0.61, "pct_otm": -1.2, "max_profit": 0.39, "max_loss": 0.61
+        }
+    },
+    "XLY": {
+        "Aggressive": {
+            "strike": 185.50, "upper_strike": 186.50, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "34%", 
+            "premium": 0.30, "pct_otm": -2.2, "max_profit": 0.70, "max_loss": 0.30
+        },
+        "Steady": {
+            "strike": 185.00, "upper_strike": 186.00, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "26%", 
+            "premium": 0.45, "pct_otm": -1.7, "max_profit": 0.55, "max_loss": 0.45
+        },
+        "Passive": {
+            "strike": 184.50, "upper_strike": 185.50, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "19%", 
+            "premium": 0.51, "pct_otm": -1.3, "max_profit": 0.49, "max_loss": 0.51
+        }
+    },
+    "XLE": {
+        "Aggressive": {
+            "strike": 77.00, "upper_strike": 78.00, "spread_width": 1.0,
+            "expiration": "2025-04-19", "dte": 7, "roi": "31%", 
+            "premium": 0.32, "pct_otm": -2.4, "max_profit": 0.68, "max_loss": 0.32
+        },
+        "Steady": {
+            "strike": 76.50, "upper_strike": 77.50, "spread_width": 1.0,
+            "expiration": "2025-05-02", "dte": 21, "roi": "24%", 
+            "premium": 0.44, "pct_otm": -1.9, "max_profit": 0.56, "max_loss": 0.44
+        },
+        "Passive": {
+            "strike": 76.00, "upper_strike": 77.00, "spread_width": 1.0,
+            "expiration": "2025-05-23", "dte": 42, "roi": "18%", 
+            "premium": 0.54, "pct_otm": -1.3, "max_profit": 0.46, "max_loss": 0.54
+        }
+    }
+}
+
+# Strategy descriptions
+strategy_descriptions = {
+    "Aggressive": "Weekly call debit spreads (7-15 DTE) with higher ROI potential (20-35%) targeting in-the-money positions for greater probability of success but requiring more active management.",
+    "Steady": "Bi-weekly call debit spreads (14-30 DTE) balancing ROI (18-25%) with moderate management needs and balanced risk/reward ratios.",
+    "Passive": "Monthly call debit spreads (30-45 DTE) with lower but steady ROI (15-20%) prioritizing high-probability trade setups and requiring less frequent management."
+}
+
+# Global CSS for Apple-like minimalist design
+# Common HTML components for templates
+
+# Removed all stars per user request
+star_elements = ""
+
+logo_header = """
+<!-- Countdown Banner -->
+<div class="countdown-banner">
+    <div class="container">
+        <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+        <span id="countdown-banner-timer">67D 04H 42M 18S</span>
+    </div>
+</div>
+
+<header class="py-3 mb-4 border-bottom">
+    <div class="container-fluid d-flex flex-wrap justify-content-between align-items-end" style="padding-left: 0;">
+        <!-- Left section: Logo -->
+        <div style="min-width: 300px; margin-left: 15px;">
+            <a href="/" style="display: block;">
+                <img src="/static/images/incomemachine_horizontallogo.png" alt="Nate Tucci's Income Machine" height="80" style="cursor: pointer; margin: 10px 0;">
+            </a>
+        </div>
         
-        # Step 4: Calculate profit = Spread value - What you paid for the spread
-        profit = spread_value - spread_cost
+        <!-- Right section: Navigation -->
+        <nav class="d-flex flex-wrap align-items-center" style="padding-bottom: 10px;">
+            <a href="/how-to-use" class="text-decoration-none mx-2" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">How to Use</a>
+            <a href="/live-classes" class="text-decoration-none mx-2" style="font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.8); transition: all 0.2s ease;">Trade Classes</a>
+            <a href="/special-offer" class="ms-2" style="font-size: 14px; font-weight: 600; color: #000; background: #FFD700; padding: 5px 10px; border-radius: 20px; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);">Get 50% OFF</a>
+        </nav>
         
-        # Step 5: Calculate ROI = (Profit / Investment) * 100
-        if spread_cost > 0:
-            scenario_roi = (profit / spread_cost) * 100
-        else:
-            scenario_roi = 0
-            
-        outcome = "win" if profit > 0 else "loss"
-        
-        scenarios.append({
-            'change': f"{change:+.1f}%",
-            'price': f"${future_price:.2f}",
-            'roi': f"{scenario_roi:.2f}%",
-            'profit': f"${profit:+.2f}",
-            'outcome': outcome
-        })
-        
-        print(f"Scenario {change:+.1f}%: Stock ${future_price:.2f} | Long ${long_call_value:.2f} | Short ${short_call_value:.2f} | Spread ${spread_value:.2f} | Profit ${profit:+.2f} | ROI {scenario_roi:.2f}%")
+        <!-- Removed countdown from navigation bar as it's now in the banner -->
+    </div>
+</header>
+<script>
+// Countdown timer to June 20, 2025
+function updateCountdown() {
+    const endDate = new Date("June 20, 2025 23:59:59").getTime();
+    const now = new Date().getTime();
+    const timeLeft = endDate - now;
     
-    # Create short option ID by modifying the long option ID  
-    short_option_id = option_id.replace(f"{int(long_strike*1000):08d}", f"{int(scenario_short_strike*1000):08d}")
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
     
-    # Build scenario rows for the HTML table
-    scenario_rows = {
-        'price': ''.join(f'<div class="scenario-cell">{s["price"]}</div>' for s in scenarios),
-        'roi': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["roi"]}</div>' for s in scenarios),
-        'profit': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["profit"]}</div>' for s in scenarios),
-        'outcome': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["outcome"]}</div>' for s in scenarios)
+    // Update the countdown timer
+    const timerText = `${days}D ${hours}H ${minutes}M ${seconds}S`;
+    document.getElementById("countdown-banner-timer").innerHTML = timerText;
+}
+
+// Update the countdown every second
+setInterval(updateCountdown, 1000);
+updateCountdown(); // Initial call
+</script>
+<style>
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(121, 112, 255, 0.4); transform: scale(1); }
+    50% { box-shadow: 0 0 0 8px rgba(0, 200, 255, 0.2); transform: scale(1.03); }
+    100% { box-shadow: 0 0 0 0 rgba(121, 112, 255, 0); transform: scale(1); }
+}
+nav a:hover {
+    color: rgba(255, 255, 255, 1) !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+nav a:last-child:hover {
+    background: #ffc107;
+    color: #000 !important;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+    transform: translateY(-1px);
+}
+</style>
+"""
+
+global_css = """
+    /* Simple Countdown Banner */
+    .countdown-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background: linear-gradient(90deg, #00C8FF, #7970FF);
+        color: white;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+        height: 30px;
+        line-height: 30px;
     }
     
-    # Return the complete HTML page with proper navigation and styling
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step 4: Trade Analysis - {symbol} {strategy.title()} Strategy</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; line-height: 1.6; }}
-        
-        .top-banner {{ background: linear-gradient(135deg, #1e40af, #3b82f6); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; font-weight: 500; }}
-        
-        .header {{ display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.02); }}
-        .logo {{ display: flex; align-items: center; gap: 12px; }}
-        .header-logo {{ height: 32px; width: auto; }}
-        .nav-menu {{ display: flex; align-items: center; gap: 30px; }}
-        .nav-item {{ color: rgba(255, 255, 255, 0.8); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }}
-        .nav-item:hover {{ color: #ffffff; }}
-        .get-offer-btn {{ background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1f2e; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 13px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); transition: all 0.3s ease; text-transform: uppercase; }}
-        .get-offer-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6); }}
-        
-        .steps-nav {{ background: rgba(255, 255, 255, 0.05); padding: 20px 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }}
-        .steps-container {{ display: flex; justify-content: center; align-items: center; gap: 40px; }}
-        .step {{ display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-weight: 500; font-size: 14px; }}
-        .step.active {{ color: #8b5cf6; }}
-        .step.completed {{ color: rgba(255, 255, 255, 0.7); }}
-        .step-number {{ width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }}
-        .step.active .step-number {{ background: #8b5cf6; color: #ffffff; }}
-        .step.completed .step-number {{ background: rgba(255, 255, 255, 0.2); color: #ffffff; }}
-        .step:not(.active):not(.completed) .step-number {{ background: rgba(255, 255, 255, 0.1); }}
-        
-        .container {{ max-width: 1200px; margin: 0 auto; padding: 40px 20px; }}
-        .page-title {{ text-align: center; margin-bottom: 40px; }}
-        .page-title h1 {{ font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}
-        .page-subtitle {{ font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); }}
-        
-        .spread-header {{ background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; animation: pulse-glow 3s ease-in-out infinite; }}
-        .expiration-info {{ color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; }}
-        .spread-title {{ color: #ffffff; font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}
-        .width-badge {{ background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }}
-        
-        .trade-construction {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }}
-        .trade-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; transition: all 0.3s ease; }}
-        .trade-section:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }}
-        .section-header {{ color: #ffffff; font-weight: 700; margin-bottom: 12px; font-size: 16px; }}
-        .option-detail {{ color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 6px; }}
-        
-        .summary-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}
-        .summary-header {{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}
-        .summary-row {{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }}
-        .summary-cell {{ text-align: center; }}
-        .cell-label {{ color: rgba(255, 255, 255, 0.6); font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }}
-        .cell-value {{ color: #ffffff; font-weight: 700; font-size: 16px; }}
-        
-        .scenarios-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}
-        .scenarios-header {{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}
-        .scenarios-grid {{ display: grid; gap: 2px; }}
-        .scenario-header-row {{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }}
-        .scenario-row {{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}
-        .scenario-cell {{ background: rgba(30, 41, 59, 0.9); padding: 10px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; }}
-        .scenario-header-cell {{ background: rgba(139, 92, 246, 0.2); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 4px; font-weight: 700; text-transform: uppercase; }}
-        .scenario-cell-label {{ background: rgba(139, 92, 246, 0.3); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; font-weight: 700; border-radius: 4px; text-transform: uppercase; }}
-        .win {{ background: linear-gradient(135deg, #10b981, #059669) !important; color: #ffffff; animation: win-pulse 2s ease-in-out infinite; }}
-        .loss {{ background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff; }}
-        
-        @keyframes pulse-glow {{
-            0%, 100% {{ box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }}
-            50% {{ box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); }}
-        }}
-        
-        @keyframes win-pulse {{
-            0%, 100% {{ box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }}
-            50% {{ box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }}
-        }}
-        
-        .back-navigation {{ margin-top: 40px; text-align: center; }}
-        .back-btn {{ background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; }}
-        .back-btn:hover {{ background: rgba(139, 92, 246, 0.2); transform: translateY(-1px); }}
-    </style>
-</head>
-<body>
-    <div class="top-banner">
-        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to premium income opportunities!
-    </div>
+    .countdown-banner .container {
+        padding: 0;
+        height: 100%;
+    }
     
-    <div class="header">
-        <div class="logo">
-            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
-        </div>
-        <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
-            <a href="#" class="nav-item">Trade Classes</a>
-            <a href="#" class="get-offer-btn">Get 50% OFF</a>
-        </div>
-    </div>
+    .countdown-banner-text {
+        padding-right: 8px;
+    }
     
-    <div class="steps-nav">
-        <div class="steps-container">
-            <a href="/" class="step completed">
-                <div class="step-number">1</div>
-                <span>Scoreboard</span>
-            </a>
-            <a href="/step2/{symbol}" class="step completed">
-                <div class="step-number">2</div>
-                <span>Analysis</span>
-            </a>
-            <a href="/step3/{symbol}" class="step completed">
-                <div class="step-number">3</div>
-                <span>Strategy</span>
-            </a>
-            <div class="step active">
-                <div class="step-number">4</div>
-                <span>Trade</span>
-            </div>
-        </div>
-    </div>
+    #countdown-banner-timer {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0 8px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
     
-    <div class="container">
-        <div class="page-title">
-            <h1>{symbol} {strategy.title()} Trade Analysis</h1>
-            <div class="page-subtitle">Comprehensive options trade analysis using real-time market data</div>
-        </div>
-        
-        <div class="spread-header">
-            <div class="expiration-info">Expiration: {expiration_date} ({days_to_exp} days)</div>
-            <div class="spread-title">${scenario_long_strike:.2f} / ${scenario_short_strike:.2f}</div>
-            <div class="width-badge">Width: $1</div>
-        </div>
-        
-        <div class="trade-construction">
-            <div class="trade-section">
-                <div class="section-header">Buy (${scenario_long_strike:.2f})</div>
-                <div class="option-detail">Option ID: {option_id}</div>
-                <div class="option-detail">Price: ${scenario_long_price:.2f}</div>
-            </div>
-            <div class="trade-section">
-                <div class="section-header">Sell (${scenario_short_strike:.2f})</div>
-                <div class="option-detail">Option ID: {short_option_id}</div>
-                <div class="option-detail">Price: ${scenario_short_price:.2f}</div>
-            </div>
-            <div class="trade-section">
-                <div class="section-header">Spread Details</div>
-                <div class="option-detail">Spread Cost: ${spread_cost:.2f}</div>
-                <div class="option-detail">Max Value: $1.00</div>
-            </div>
-            <div class="trade-section">
-                <div class="section-header">Trade Info</div>
-                <div class="option-detail">ROI: {roi:.2f}%</div>
-                <div class="option-detail">Breakeven: ${breakeven:.2f}</div>
-            </div>
-        </div>
-        
-        <div class="summary-section">
-            <div class="summary-header">Trade Summary</div>
-            <div class="summary-row">
-                <div class="summary-cell">
-                    <div class="cell-label">Current Stock Price</div>
-                    <div class="cell-value">${current_price:.2f}</div>
-                </div>
-                <div class="summary-cell">
-                    <div class="cell-label">Spread Cost</div>
-                    <div class="cell-value">${spread_cost:.2f}</div>
-                </div>
-                <div class="summary-cell">
-                    <div class="cell-label">Call Strikes</div>
-                    <div class="cell-value">${scenario_long_strike:.2f} & ${scenario_short_strike:.2f}</div>
-                </div>
-                <div class="summary-cell">
-                    <div class="cell-label">Breakeven Price</div>
-                    <div class="cell-value">${breakeven:.2f}</div>
-                </div>
-                <div class="summary-cell">
-                    <div class="cell-label">Max Profit</div>
-                    <div class="cell-value">${max_profit:.2f}</div>
-                </div>
-                <div class="summary-cell">
-                    <div class="cell-label">Return on Investment</div>
-                    <div class="cell-value">{roi:.2f}%</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="scenarios-section">
-            <div class="scenarios-header">Stock Price Scenarios</div>
-            <div class="scenarios-grid">
-                <div class="scenario-header-row">
-                    <div class="scenario-cell-label">Change</div>
-                    <div class="scenario-header-cell">-7.5%</div>
-                    <div class="scenario-header-cell">-5%</div>
-                    <div class="scenario-header-cell">-2.5%</div>
-                    <div class="scenario-header-cell">0%</div>
-                    <div class="scenario-header-cell">+2.5%</div>
-                    <div class="scenario-header-cell">+5%</div>
-                    <div class="scenario-header-cell">+7.5%</div>
-                </div>
-                <div class="scenario-row">
-                    <div class="scenario-cell-label">Stock Price</div>
-                    {scenario_rows['price']}
-                </div>
-                <div class="scenario-row">
-                    <div class="scenario-cell-label">ROI %</div>
-                    {scenario_rows['roi']}
-                </div>
-                <div class="scenario-row">
-                    <div class="scenario-cell-label">Profit</div>
-                    {scenario_rows['profit']}
-                </div>
-                <div class="scenario-row">
-                    <div class="scenario-cell-label">Outcome</div>
-                    {scenario_rows['outcome']}
-                </div>
-            </div>
-        </div>
-        
-        <div class="back-navigation">
-            <a href="/step3/{symbol}" class="back-btn">← Back to Strategy Selection</a>
-        </div>
-    </div>
-</body>
-</html>"""
+    /* Add space at the top for the fixed banner */
+    body {
+        padding-top: 30px;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        letter-spacing: -0.015em;
+        background: #151521;
+        min-height: 100vh;
+        color: rgba(255, 255, 255, 0.95);
+        position: relative;
+        overflow-x: hidden;
+    }
+    
+    /* Vibrant background with space dust effect */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(41, 94, 163, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(100, 82, 255, 0.25) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 100%),
+            linear-gradient(#151521, #161628);
+        opacity: 1;
+        animation: pulseBackground 15s ease-in-out infinite alternate;
+    }
+    
+    /* Space dust particles */
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: 
+            radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 30% 60%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 70% 50%, rgba(100, 210, 255, 0.2) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 60% 80%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 20% 40%, rgba(100, 82, 255, 0.2) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 10% 70%, rgba(100, 210, 255, 0.2) 0%, rgba(255, 255, 255, 0) 1.5%),
+            radial-gradient(circle at 90% 85%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 1.5%);
+        background-size: 200% 200%;
+        animation: moveDust 40s linear infinite;
+        opacity: 1;
+    }
+    
+    @keyframes pulseBackground {
+        0% {
+            background-position: 0% 0%;
+        }
+        100% {
+            background-position: 100% 100%;
+        }
+    }
+    
+    @keyframes moveDust {
+        0% {
+            background-position: 0% 0%;
+        }
+        50% {
+            background-position: 100% 100%;
+        }
+        100% {
+            background-position: 0% 0%;
+        }
+    }
+    
+    /* Stars removed as requested */
+    
+    /* Gradient Elements */
+    .progress-bar {
+        background: linear-gradient(90deg, #00C8FF, #7970FF) !important;
+    }
+    
+    .step.active {
+        background: linear-gradient(135deg, #00C8FF, #7970FF) !important;
+        color: white;
+    }
+    
+    .step.completed {
+        background-color: #00C8FF !important;
+        color: white;
+    }
+    
+    .step.upcoming {
+        background-color: #6c757d !important;
+        color: white;
+    }
+    
+    .btn[style*="background: linear-gradient"]:hover {
+        background: linear-gradient(135deg, #33D5FF, #9088FF) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(121, 112, 255, 0.35) !important;
+    }
+    
+    /* Typography refinement */
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    p, .text-light, td, th, li {
+        font-weight: 400;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .text-dark {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .display-6 {
+        font-weight: 700;
+        letter-spacing: -0.04em;
+    }
+    
+    /* Monochromatic sleek card styling */
+    .card {
+        border: none;
+        border-radius: 16px;
+        background: rgba(25, 25, 28, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+        border-bottom: none;
+        padding: 1.5rem;
+        background: rgba(40, 40, 45, 0.6);
+    }
+    
+    .card-body {
+        padding: 1.75rem;
+    }
+    
+    /* Apple-style buttons */
+    .btn {
+        border-radius: 12px;
+        font-weight: 500;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.3s ease;
+        letter-spacing: -0.01em;
+        font-size: 0.95rem;
+        border: none;
+    }
+    
+    .btn-sm {
+        border-radius: 8px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-outline-light {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .btn-primary {
+        background: rgba(100, 108, 255, 0.8);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: rgba(110, 118, 255, 1);
+        transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+        background: rgba(255, 69, 58, 0.8);
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: rgba(255, 69, 58, 1);
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+        background: rgba(100, 100, 100, 0.3);
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(100, 100, 100, 0.4);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .btn-success {
+        background: rgba(48, 209, 88, 0.8);
+    }
+    
+    .btn-success:hover {
+        background: rgba(48, 209, 88, 1);
+        transform: translateY(-1px);
+    }
+    
+    /* Progress bars */
+    .progress {
+        height: 0.5rem;
+        border-radius: 100px;
+        overflow: hidden;
+        background: rgba(40, 40, 45, 0.3);
+    }
+    
+    /* Step indicators styled like image provided */
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin: 2.5rem 0;
+        gap: 10px;
+    }
+    
+    .step {
+        flex: 1;
+        border-radius: 8px;
+        padding: 0.8rem 0.5rem;
+        text-align: center;
+        font-weight: 500;
+        background: rgba(60, 60, 70, 0.3);
+        color: white;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .step:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .step.active {
+        background: linear-gradient(90deg, #555555, #777777);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .step.completed {
+        background: linear-gradient(90deg, #00C8FF, #0088FF);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .step.step1.completed {
+        background: linear-gradient(90deg, #00C8FF, #30BBFF);
+    }
+    
+    .step.step2.completed {
+        background: linear-gradient(90deg, #30BBFF, #4E9FFF);
+    }
+    
+    .step.step3 {
+        background: linear-gradient(90deg, #4E9FFF, #7970FF);
+    }
+    
+    .step.step4 {
+        background: linear-gradient(90deg, #7970FF, #9760FF);
+    }
+    
+    /* List group refinement */
+    .list-group-item {
+        border: none;
+        padding: 1.25rem;
+        margin-bottom: 0.5rem;
+        border-radius: 12px !important;
+        background: rgba(40, 40, 45, 0.4);
+        color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    
+    /* Modern header */
+    header {
+        border: none !important;
+        margin-bottom: 2rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Content area styling */
+    .bg-body-tertiary {
+        border-radius: 20px !important;
+        background: rgba(28, 28, 30, 0.7) !important;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        margin-bottom: 2.5rem;
+    }
+    
+    /* Apple-style table */
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    th {
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.95) !important;
+        padding: 0.75rem 1.5rem;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+    
+    td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        color: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    tbody tr {
+        background: rgba(28, 28, 30, 0.8);
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    tbody tr:hover {
+        transform: scale(1.01);
+        background: rgba(38, 38, 40, 0.85);
+        cursor: pointer;
+    }
+    
+    tbody td:first-child {
+        border-radius: 12px 0 0 12px;
+        font-weight: 600;
+    }
+    
+    tbody td:last-child {
+        border-radius: 0 12px 12px 0;
+    }
+    
+    .table {
+        color: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    /* Strategy card styling - with modern gradients */
+    .card-aggressive .card-header {
+        background: linear-gradient(135deg, rgba(100, 82, 255, 0.8), rgba(255, 69, 58, 0.8));
+        border-top: none;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .card-steady .card-header {
+        background: linear-gradient(135deg, rgba(64, 156, 255, 0.8), rgba(100, 82, 255, 0.8));
+        border-top: none;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .card-passive .card-header {
+        background: linear-gradient(135deg, rgba(40, 210, 255, 0.8), rgba(64, 156, 255, 0.8));
+        border-top: none;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    /* Modern badge styling */
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+    }
+    
+    .badge.bg-primary {
+        background: rgba(100, 108, 255, 0.8) !important;
+    }
+    
+    /* Logo style */
+    .logo-text {
+        letter-spacing: -0.05em;
+        font-weight: 700;
+        font-size: 1.4rem;
+    }
+    
+    /* Container refinement */
+    .container {
+        padding: 2rem;
+        max-width: 1200px;
+    }
+    
+    /* Progress bar colors */
+    .progress-bar-score-0 { background-color: rgba(255, 69, 58, 0.5) !important; }
+    .progress-bar-score-1 { background-color: rgba(255, 69, 58, 0.7) !important; }
+    .progress-bar-score-2 { background-color: rgba(255, 159, 10, 0.7) !important; }
+    .progress-bar-score-3 { background-color: rgba(100, 210, 255, 0.7) !important; }
+    .progress-bar-score-4 { background-color: rgba(48, 209, 88, 0.7) !important; }
+    .progress-bar-score-5 { background-color: rgba(48, 209, 88, 0.9) !important; }
+    
+    /* Footer refinement */
+    footer {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        padding-top: 2rem;
+    }
+"""
 
+# Route for Step 1: ETF Scoreboard (Home Page)
 @app.route('/')
 def index():
-    # Synchronize scores before displaying
+    # CRITICAL FIX: Always synchronize ETF scores with their indicators before rendering the page
+    # This ensures scores are never out of sync with the indicators
     synchronize_etf_scores()
     
-    # Create template with consistent navigation structure
-    template = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Income Machine - Step 1: Scoreboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #1a1f2e;
-            color: #ffffff;
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-        
-        .top-banner {
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
-            text-align: center;
-            padding: 8px;
-            font-size: 14px;
-            color: #ffffff;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .header-logo {
-            height: 32px;
-            width: auto;
-        }
-        .nav-menu {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-        .nav-item {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        .nav-item:hover {
-            color: #ffffff;
-        }
-        .get-offer-btn {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #1a1f2e;
-            padding: 12px 24px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 13px;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-        }
-        .get-offer-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
-        }
-        
-        .steps-nav {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px 40px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .steps-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-        }
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .step.active {
-            color: #8b5cf6;
-        }
-        .step.completed {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        .step-number {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .step.active .step-number {
-            background: #8b5cf6;
-            color: #ffffff;
-        }
-        .step.completed .step-number {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-        }
-        .step:not(.active):not(.completed) .step-number {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-        }
-        
-        .header-logo {
-            height: 50px;
-            width: auto;
-            object-fit: contain;
-        }
-        
-        .nav-menu {
-            display: flex;
-            gap: 40px;
-            align-items: center;
-        }
-        
-        .nav-item {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .nav-item::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #00d4ff, #7c3aed);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-item:hover {
-            color: white;
-        }
-        
-        .nav-item:hover::after {
-            width: 100%;
-        }
-        
-        .get-offer-btn {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #1a1f2e;
-            padding: 12px 24px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 13px;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .get-offer-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.6);
-        }
-        
-        .step-header {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 20px 50px;
-            text-align: center;
-            color: #f1f5f9;
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #374151;
-        }
-        
-        .main-content {
-            padding: 50px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .dashboard-title {
-            font-size: 42px;
-            font-weight: 800;
-            margin-bottom: 15px;
-            color: #ffffff;
-        }
-        
-        .dashboard-subtitle {
-            color: #ffffff;
-            margin-bottom: 12px;
-            font-size: 18px;
-            font-weight: 400;
-        }
-        
-        .update-info {
-            color: #ffffff;
-            font-size: 14px;
-            margin-bottom: 50px;
-            font-weight: 500;
-        }
-        
-        .etf-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-        }
-        
-        .etf-card {
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 16px;
-            padding: 30px;
-            border: 1px solid #374151;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            position: relative;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            cursor: pointer;
-        }
-        
-        .etf-card:hover {
-            transform: translateY(-4px);
-            border-color: #475569;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-        }
-        
-        .etf-card-wrapper {
-            position: relative;
-        }
-        
-        .etf-card.blurred {
-            filter: blur(3px);
-            opacity: 0.6;
-            pointer-events: none;
-        }
-        
-        .etf-card.blurred::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(2px);
-            z-index: 2;
-        }
-        
-        .free-version-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            text-align: center;
-            color: white;
-            font-weight: 700;
-            font-size: 16px;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid #fbbf24;
-            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
-            pointer-events: none;
-        }
-        
-        .free-version-text {
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        
-        .upgrade-text {
-            color: #fbbf24;
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .etf-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #00d4ff, #7c3aed, #ec4899);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .etf-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px rgba(0, 212, 255, 0.15);
-            border-color: rgba(0, 212, 255, 0.3);
-        }
-        
-        .etf-card:hover::before {
-            opacity: 1;
-        }
-        
-        .card-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 20px;
-            padding: 10px;
-        }
-        
-        .ticker-symbol {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            color: #f1f5f9;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-        
-        .criteria-text {
-            font-size: 11px;
-            color: #ffffff;
-            margin-top: 8px;
-            font-weight: 500;
-            opacity: 0.95;
-        }
-        
-        .current-price {
-            font-size: 32px;
-            font-weight: 800;
-            color: #10b981;
-            text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
-            margin: 10px 0;
-        }
-        
-        .choose-btn-text {
-            background: rgba(100, 116, 139, 0.2);
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            width: 100%;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid #475569;
-        }
-        
-        .etf-card:hover .choose-btn-text {
-            background: rgba(37, 99, 235, 0.3);
-            border-color: #1d4ed8;
-            color: #1d4ed8;
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .header {
-                padding: 15px 25px;
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .nav-menu {
-                gap: 20px;
-            }
-            
-            .main-content {
-                padding: 30px 25px;
-            }
-            
-            .dashboard-title {
-                font-size: 32px;
-            }
-            
-            .etf-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="top-banner">
-        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to premium income opportunities!
-    </div>
+    # Find the ETF with the highest score
+    highest_score = 0
+    recommended_etf = None
     
-    <div class="header">
-        <div class="logo">
-            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
-        </div>
-        <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
-            <a href="#" class="nav-item">Trade Classes</a>
-            <a href="#" class="get-offer-btn">Get 50% OFF</a>
-        </div>
-    </div>
+    for etf, data in etf_scores.items():
+        if data['score'] > highest_score:
+            highest_score = data['score']
+            recommended_etf = etf
     
-    <div class="steps-nav">
-        <div class="steps-container">
-            <div class="step active">
-                <div class="step-number">1</div>
-                <span>Scoreboard</span>
-            </div>
-        </div>
-    </div>
+    # Sort ETFs by score from highest to lowest
+    sorted_etfs = dict(sorted(etf_scores.items(), key=lambda item: item[1]['score'], reverse=True))
     
-    <div class="main-content">
-        <h1 class="dashboard-title">Top Trade Opportunities</h1>
-        <p class="dashboard-subtitle">High-probability income opportunities that match our criteria.</p>
-        <p class="update-info">Updated daily with fresh market analysis</p>
-        
-        <div class="etf-grid">
-            {% set sorted_etfs = etf_scores.items() | list %}
-            {% for symbol, etf in sorted_etfs %}
-            {% if loop.index <= 9 %}
-            <div class="etf-card-wrapper">
-                <a href="/step2/{{ symbol }}" class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
-                    <div class="card-content">
-                        <div class="ticker-symbol">{{ symbol }}</div>
-                        <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
-                        <div class="choose-btn-text">Choose Opportunity</div>
-                        <div class="criteria-text">
-                            {% if etf.score == 5 %}
-                                This ticker matches ALL 5 criteria!
-                            {% elif etf.score == 4 %}
-                                This ticker matches 4 out of 5 criteria
-                            {% elif etf.score == 3 %}
-                                This ticker matches 3 out of 5 criteria
-                            {% elif etf.score == 2 %}
-                                This ticker matches 2 out of 5 criteria
-                            {% elif etf.score == 1 %}
-                                This ticker matches 1 out of 5 criteria
-                            {% else %}
-                                This ticker matches 0 out of 5 criteria
-                            {% endif %}
-                        </div>
-                    </div>
-                </a>
-                
-                {% if loop.index > 3 %}
-                <div class="free-version-overlay">
-                    <div class="free-version-text">You're currently viewing the</div>
-                    <div class="upgrade-text">FREE Version</div>
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-
-    <script>
-        console.log('Starting real-time ETF price updates...');
-        // Frontend JavaScript kept exactly the same for compatibility
-    </script>
-</body>
-</html>
-"""
-    
-    return render_template_string(template, etf_scores=etf_scores)
-
-@app.route('/step2')
-@app.route('/step2/<symbol>')
-def step2(symbol=None):
-    """Step 2: Detailed ticker analysis page"""
-    if not symbol:
-        return redirect('/')
-    
-    # Get detailed data for the symbol from database
-    ticker_data = etf_db.get_ticker_details(symbol.upper())
-    
-    if not ticker_data:
-        return redirect('/')
-    
-    template = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ symbol }} Analysis - Income Machine</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            min-height: 100vh;
-        }
-        
-        .top-banner {
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
-            text-align: center;
-            padding: 8px;
-            font-size: 14px;
-            color: #ffffff;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .header-logo {
-            height: 32px;
-            width: auto;
-        }
-        .nav-menu {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-        .nav-item {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        .nav-item:hover {
-            color: #ffffff;
-        }
-        .get-offer-btn {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #1a1f2e;
-            padding: 12px 24px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 13px;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-        }
-        .get-offer-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
-        }
-        
-        .steps-nav {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px 40px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .steps-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-        }
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .step.active {
-            color: #8b5cf6;
-        }
-        .step.completed {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        .step-number {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .step.active .step-number {
-            background: #8b5cf6;
-            color: #ffffff;
-        }
-        .step.completed .step-number {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-        }
-        .step:not(.active):not(.completed) .step-number {
-            background: rgba(255, 255, 255, 0.1);
-        }
-            font-weight: 600;
-            text-decoration: none;
-            border: none;
-            transition: all 0.3s ease;
-        }
-        
-        .step-tab.active {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.4));
-            color: #e2e8f0;
-            border-bottom: 2px solid #3b82f6;
-        }
-        
-        .step-tab.current {
-            background: linear-gradient(90deg, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.4));
-            color: #e2e8f0;
-            border-bottom: 2px solid #6366f1;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        
-        .ticker-header {
-            margin-bottom: 40px;
-        }
-        
-        .ticker-title {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            color: white;
-        }
-        
-        .ticker-subtitle {
-            font-size: 16px;
-            color: #94a3b8;
-            margin-bottom: 20px;
-        }
-        
-        .analysis-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-top: 40px;
-        }
-        
-        .chart-panel {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #374151;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            grid-column: 1 / -1;
-            margin-bottom: 20px;
-        }
-        
-        .chart-container {
-            height: 400px;
-            position: relative;
-        }
-        
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .chart-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-        
-        .price-info {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        
-        .current-price {
-            font-size: 24px;
-            font-weight: 700;
-            color: white;
-        }
-        
-        .price-change {
-            font-size: 16px;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-        
-        .price-change.positive {
-            color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .price-change.negative {
-            color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-        }
-        
-        .loading-spinner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 400px;
-            color: #94a3b8;
-        }
-        
-        .error-message {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 400px;
-            color: #ef4444;
-            text-align: center;
-        }
-        
-        .etf-details-panel {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #374151;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .income-potential-panel {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #374151;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .panel-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: #f1f5f9;
-        }
-        
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #374151;
-        }
-        
-        .detail-item:last-child {
-            border-bottom: none;
-        }
-        
-        .detail-label {
-            color: #94a3b8;
-            font-weight: 500;
-        }
-        
-        .detail-value {
-            color: white;
-            font-weight: 600;
-        }
-        
-        .score-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(55, 65, 81, 0.5);
-            border-radius: 4px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .score-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00d4ff, #7c3aed);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-        
-        .technical-indicators {
-            margin-top: 25px;
-        }
-        
-        .indicators-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #f1f5f9;
-        }
-        
-        .indicator-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-        }
-        
-        .indicator-name {
-            color: #cbd5e1;
-            font-weight: 500;
-        }
-        
-        .indicator-status {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 16px;
-        }
-        
-        .status-pass {
-            background: #3b82f6;
-            color: white;
-        }
-        
-        .status-fail {
-            background: #6b7280;
-            color: white;
-        }
-        
-        .score-summary {
-            color: #e2e8f0;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-        
-        .score-explanation {
-            color: #94a3b8;
-            margin-bottom: 15px;
-            line-height: 1.5;
-            font-size: 14px;
-        }
-        
-        .data-refresh {
-            color: #64748b;
-            margin-bottom: 25px;
-            font-size: 13px;
-        }
-        
-        .strategy-button-container {
-            margin-top: 20px;
-        }
-        
-        .choose-strategy-btn {
-            background: linear-gradient(90deg, #7c3aed, #a855f7);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-            transition: transform 0.2s ease;
-        }
-        
-        .choose-strategy-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .back-to-scoreboard {
-            margin-top: 40px;
-            text-align: center;
-        }
-        
-        .back-scoreboard-btn {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid #3b82f6;
-            color: #60a5fa;
-            padding: 12px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .back-scoreboard-btn:hover {
-            background: rgba(59, 130, 246, 0.2);
-            transform: translateY(-1px);
-        }
-        
-        @media (max-width: 768px) {
-            .analysis-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .container {
-                padding: 20px 10px;
-            }
-            
-            .ticker-title {
-                font-size: 36px;
-            }
-            
-            .ticker-price {
-                font-size: 24px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="top-banner">
-        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to premium income opportunities!
-    </div>
-    
-    <div class="header">
-        <div class="logo">
-            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
-        </div>
-        <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
-            <a href="#" class="nav-item">Trade Classes</a>
-            <a href="#" class="get-offer-btn">Get 50% OFF</a>
-        </div>
-    </div>
-    
-    <div class="steps-nav">
-        <div class="steps-container">
-            <a href="/" class="step completed">
-                <div class="step-number">1</div>
-                <span>Scoreboard</span>
-            </a>
-            <div class="step active">
-                <div class="step-number">2</div>
-                <span>Analysis</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="container">
-        <div class="ticker-header">
-            <div class="ticker-title">{{ symbol }} - Stock Analysis</div>
-            <div class="ticker-subtitle">Review the selected stock details before choosing an income strategy.</div>
-        </div>
-        
-        <div class="analysis-grid">
-            <div class="etf-details-panel">
-                <div class="panel-title">Stock Details</div>
-                <div class="detail-item">
-                    <span class="detail-label">Symbol:</span>
-                    <span class="detail-value">{{ symbol }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Current Price:</span>
-                    <span class="detail-value">${{ "%.2f"|format(ticker_data.current_price) }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Score:</span>
-                    <span class="detail-value">{{ ticker_data.total_score }}/5</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Avg Daily Volume:</span>
-                    <span class="detail-value">{{ "{:,.0f}".format(ticker_data.avg_volume_10d) }}</span>
-                </div>
-                <div class="score-bar">
-                    <div class="score-fill" style="width: {{ (ticker_data.total_score / 5 * 100) }}%"></div>
-                </div>
-                
-                <div class="technical-indicators">
-                    <div class="indicators-title">Technical Indicators:</div>
-                
-                    <div class="indicator-item">
-                        <div class="indicator-name">Short Term Trend</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.trend1.pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.trend1.pass else '✗' }}
-                        </div>
-                    </div>
-                    
-                    <div class="indicator-item">
-                        <div class="indicator-name">Long Term Trend</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.trend2.pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.trend2.pass else '✗' }}
-                        </div>
-                    </div>
-                    
-                    <div class="indicator-item">
-                        <div class="indicator-name">Snapback Position</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.snapback.pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.snapback.pass else '✗' }}
-                        </div>
-                    </div>
-                    
-                    <div class="indicator-item">
-                        <div class="indicator-name">Weekly Momentum</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.momentum.pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.momentum.pass else '✗' }}
-                        </div>
-                    </div>
-                    
-                    <div class="indicator-item">
-                        <div class="indicator-name">Stabilizing</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.stabilizing.pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.stabilizing.pass else '✗' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="income-potential-panel">
-                <div class="panel-title">Income Potential</div>
-                <div class="score-summary">
-                    Based on the current score of <strong>{{ ticker_data.total_score }}/5</strong>, {{ symbol }} could be a strong candidate for generating options income.
-                </div>
-                <div class="score-explanation">
-                    The score is calculated using 5 technical indicators, with 1 point awarded for each condition met. Higher scores indicate more favorable market conditions for income opportunities.
-                </div>
-                <div class="data-refresh">
-                    Data is automatically refreshed every 15 minutes during market hours.
-                </div>
-                <div class="strategy-button-container">
-                    <a href="/step3/{{ symbol }}" class="choose-strategy-btn">Choose Income Strategy →</a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Price Chart Panel -->
-        <div class="chart-panel">
-            <div class="chart-header">
-                <div class="chart-title">{{ symbol }} - 30 Day Price Chart</div>
-                <div class="price-info">
-                    <div class="current-price" id="currentPrice">Loading...</div>
-                    <div class="price-change" id="priceChange">Loading...</div>
-                </div>
-            </div>
-            <div class="chart-container">
-                <div class="loading-spinner" id="loadingSpinner">Loading chart data...</div>
-                <div class="error-message" id="errorMessage" style="display: none;"></div>
-                <canvas id="priceChart" style="display: none;"></canvas>
-            </div>
-        </div>
-        
-        <div class="back-to-scoreboard">
-            <a href="/" class="back-scoreboard-btn">← Back to Scoreboard</a>
-        </div>
-        </div>
-    </div>
-    
-    <script>
-        let priceChart = null;
-        
-        // Load chart data on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadChartData('{{ symbol }}');
-        });
-        
-        async function loadChartData(symbol) {
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const errorMessage = document.getElementById('errorMessage');
-            const chartCanvas = document.getElementById('priceChart');
-            const currentPrice = document.getElementById('currentPrice');
-            const priceChange = document.getElementById('priceChange');
-            
-            try {
-                const response = await fetch(`/api/chart_data/${symbol}`);
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.error || 'Failed to load chart data');
-                }
-                
-                // Hide loading spinner and show chart
-                loadingSpinner.style.display = 'none';
-                chartCanvas.style.display = 'block';
-                
-                // Update price info
-                currentPrice.textContent = `$${data.current_price.toFixed(2)}`;
-                
-                const changeText = `${data.price_change >= 0 ? '+' : ''}${data.price_change.toFixed(2)} (${data.price_change_pct.toFixed(2)}%)`;
-                priceChange.textContent = changeText;
-                priceChange.className = `price-change ${data.price_change >= 0 ? 'positive' : 'negative'}`;
-                
-                // Create chart
-                createPriceChart(data.chart_data);
-                
-            } catch (error) {
-                console.error('Error loading chart data:', error);
-                loadingSpinner.style.display = 'none';
-                errorMessage.style.display = 'flex';
-                errorMessage.textContent = `Unable to load chart data: ${error.message}`;
-            }
-        }
-        
-        function createPriceChart(chartData) {
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            
-            // Prepare data for Chart.js
-            const labels = chartData.map(item => item.date);
-            const prices = chartData.map(item => item.close);
-            
-            // Destroy existing chart if it exists
-            if (priceChart) {
-                priceChart.destroy();
-            }
-            
-            priceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Close Price',
-                        data: prices,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleColor: '#f1f5f9',
-                            bodyColor: '#e2e8f0',
-                            borderColor: '#374151',
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return `Price: $${context.parsed.y.toFixed(2)}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                color: '#374151',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                maxTicksLimit: 8
-                            }
-                        },
-                        y: {
-                            grid: {
-                                color: '#374151',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                callback: function(value) {
-                                    return '$' + value.toFixed(2);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        console.log('Step 2 loaded for {{ symbol }}');
-    </script>
-</body>
-</html>
-"""
-    
-    return render_template_string(template, symbol=symbol, ticker_data=ticker_data)
-
-@app.route('/step3')
-@app.route('/step3/<symbol>')
-def step3(symbol=None):
-    """Step 3: Income Strategy Selection"""
-    # Get REAL current stock price from Polygon API for options analysis
-    try:
-        import requests
-        polygon_api_key = os.environ.get('POLYGON_API_KEY')
-        if polygon_api_key:
-            # Get current stock price from Polygon API
-            stock_url = f'https://api.polygon.io/v2/aggs/ticker/{symbol}/prev'
-            stock_params = {'apikey': polygon_api_key}
-            stock_response = requests.get(stock_url, params=stock_params)
-            
-            if stock_response.status_code == 200:
-                stock_data = stock_response.json()
-                if 'results' in stock_data and len(stock_data['results']) > 0:
-                    current_price = float(stock_data['results'][0]['c'])  # Close price
-                    print(f"Real {symbol} current price from Polygon API: ${current_price:.2f}")
-                else:
-                    # Try database as backup
-                    etf_data = etf_db.get_all_etfs()
-                    current_price = None
-                    for etf in etf_data.get('etfs', []):
-                        if etf['symbol'] == symbol:
-                            current_price = etf['current_price']
-                            break
-                    
-                    if not current_price:
-                        current_price = 205.0  # Realistic fallback for major stocks
-            else:
-                current_price = 205.0  # Realistic fallback
-        else:
-            current_price = 205.0  # Realistic fallback
-            
-    except Exception as e:
-        print(f"Error fetching real stock price for {symbol}: {e}")
-        current_price = 205.0  # Realistic fallback
-    
-    # Fetch real options data from Polygon API
-    options_data = fetch_options_data(symbol, current_price)
     template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Step 3: Income Strategy Selection - Income Machine</title>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <title>Income Machine DEMO - Daily ETF Scoreboard</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
         <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #1a202c;
-            color: #ffffff;
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-        
-        .top-banner {
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
-            text-align: center;
-            padding: 8px;
-            font-size: 14px;
-            color: #ffffff;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .header-logo {
-            height: 32px;
-            width: auto;
-        }
-        
-        .nav-menu {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-        
-        .nav-item {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        
-        .nav-item:hover {
-            color: #ffffff;
-        }
-        
-        .get-offer-btn {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #1a1f2e;
-            padding: 12px 24px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 13px;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-        }
-        
-        .get-offer-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
-        }
-        
-        .steps-nav {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px 40px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .steps-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-        }
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .step.active {
-            color: #8b5cf6;
-        }
-        .step.completed {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        .step-number {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .step.active .step-number {
-            background: #8b5cf6;
-            color: #ffffff;
-        }
-        .step.completed .step-number {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-        }
-        .step:not(.active):not(.completed) .step-number {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        a.step {
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        a.step:hover {
-            color: #8b5cf6;
-            transform: translateY(-1px);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        
-        .ticker-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .ticker-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: #ffffff;
-        }
-        
-        .ticker-subtitle {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .strategies-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-        
-        .strategy-card {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            border-radius: 16px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .strategy-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.05));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border-radius: 16px;
-        }
-        
-        .strategy-card:hover::before {
-            opacity: 1;
-        }
-        
-        .strategy-card:hover {
-            background: rgba(30, 41, 59, 0.9);
-            border-color: rgba(139, 92, 246, 0.5);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
-        }
-        
-        .strategy-header {
-            margin-bottom: 20px;
-        }
-        
-        .strategy-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 8px;
-        }
-        
-        .strategy-subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-        
-        .strategy-returns {
-            background: rgba(34, 197, 94, 0.2);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .returns-label {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-        
-        .returns-value {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #22c55e;
-        }
-        
-        .strategy-details {
-            margin-bottom: 24px;
-        }
-        
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-        
-        .detail-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-        
-        .detail-value {
-            color: #ffffff;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        
-        .risk-high {
-            color: #ef4444;
-        }
-        
-        .risk-medium {
-            color: #f59e0b;
-        }
-        
-        .risk-low {
-            color: #22c55e;
-        }
-        
-        .strategy-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-            border: 1px solid rgba(139, 92, 246, 0.5);
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            position: relative;
-            z-index: 1;
-        }
-        
-        .strategy-btn:hover {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
-        }
-        
-        .strategy-error {
-            background: rgba(220, 38, 38, 0.2);
-            border: 1px solid rgba(220, 38, 38, 0.4);
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .error-message {
-            color: #ef4444;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .back-to-scoreboard {
-            margin-top: 40px;
-            text-align: center;
-        }
-        
-        .back-scoreboard-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.9);
-            padding: 12px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        .back-scoreboard-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
-        }
-        
-        @media (max-width: 768px) {
-            .strategies-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
+            {{ global_css }}
             
-            .container {
-                padding: 20px 10px;
+            /* Page-specific styles */
+            .progress-bar-score-0 { width: 0%; }
+            .progress-bar-score-1 { width: 20%; }
+            .progress-bar-score-2 { width: 40%; }
+            .progress-bar-score-3 { width: 60%; }
+            .progress-bar-score-4 { width: 80%; }
+            .progress-bar-score-5 { width: 100%; }
+            .step-indicator {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2rem;
             }
-            
-            .ticker-title {
-                font-size: 2rem;
+            .step {
+                width: 23%;
+                text-align: center;
+                padding: 0.5rem 0;
+                border-radius: 4px;
+                position: relative;
             }
-            
-            .strategy-card {
-                padding: 20px;
+            .step.active {
+                background-color: var(--bs-primary);
+                color: white;
             }
-            
-            .header {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
+            .step.completed {
+                background-color: var(--bs-success);
+                color: white;
             }
-            
-            .nav-menu {
-                gap: 20px;
+            .step.upcoming {
+                background-color: var(--bs-secondary);
+                color: white;
             }
-        }
+            .recommended-asset {
+                position: absolute;
+                top: -12px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #FFD700;
+                color: #000;
+                font-size: 0.75rem;
+                font-weight: 700;
+                padding: 6px 15px;
+                border-radius: 50px;
+                box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+                white-space: nowrap;
+                z-index: 100;
+                min-height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .trophy-icon {
+                color: #000;
+                margin-right: 6px;
+                font-size: 14px;
+            }
+            .card-highlight {
+                transform: scale(1.02);
+                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2) !important;
+                border: 1px solid rgba(255, 215, 0, 0.3) !important;
+            }
+            .btn[style*="background: linear-gradient"]:hover {
+                background: linear-gradient(135deg, #33D5FF, #9088FF) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(121, 112, 255, 0.35) !important;
+            }
+            .btn[style*="background: #FFD700"]:hover {
+                background: #ffc107 !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35) !important;
+            }
+            .btn[style*="background: #00C8FF"]:hover {
+                background: #33D5FF !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(0, 200, 255, 0.35) !important;
+            }
+            .progress-bar {
+                background: linear-gradient(90deg, #00C8FF, #7970FF) !important;
+            }
         </style>
     </head>
-    <body>
-        <div class="top-banner">
-            🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to premium income opportunities!
-        </div>
-        
-        <div class="header">
-            <div class="logo">
-                <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
-            </div>
-            <div class="nav-menu">
-                <a href="#" class="nav-item">How to Use</a>
-                <a href="#" class="nav-item">Trade Classes</a>
-                <a href="#" class="get-offer-btn">Get 50% OFF</a>
-            </div>
-        </div>
-        
-        <div class="steps-nav">
-            <div class="steps-container">
-                <a href="/" class="step completed">
-                    <div class="step-number">1</div>
-                    <span>Scoreboard</span>
-                </a>
-                <a href="{% if symbol %}/step2/{{ symbol }}{% else %}#{% endif %}" class="step completed">
-                    <div class="step-number">2</div>
-                    <span>Analysis</span>
-                </a>
-                <div class="step active">
-                    <div class="step-number">3</div>
-                    <span>Strategy</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="container">
-            <div class="ticker-header">
-                <div class="ticker-title">{{ symbol or 'STOCK' }} - Income Strategy Selection</div>
-                <div class="ticker-subtitle">Choose the income strategy that matches your risk tolerance and investment goals.</div>
-            </div>
-            
-            <div class="strategies-grid">
-                <div class="strategy-card">
-                    <div class="strategy-header">
-                        <h3 class="strategy-title">Passive Income</h3>
-                        <p class="strategy-subtitle">{{ symbol }} Passive Income Strategy</p>
-                    </div>
-                    
-                    {% if options_data.passive.error %}
-                    <div class="strategy-error">
-                        <div class="error-message">{{ options_data.passive.error }}</div>
-                    </div>
-                    {% else %}
-                    <div class="strategy-details">
-                        <div class="detail-row">
-                            <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.passive.dte_range }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.passive.roi_range }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Strike Selection:</span>
-                            <span class="detail-value">{{ options_data.passive.strike_selection }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Management:</span>
-                            <span class="detail-value">{{ options_data.passive.management }}</span>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}" class="strategy-btn">Select Passive Strategy</a>
-                </div>
-                
-                <div class="strategy-card">
-                    <div class="strategy-header">
-                        <h3 class="strategy-title">Steady Income</h3>
-                        <p class="strategy-subtitle">{{ symbol }} Steady Income Strategy</p>
-                    </div>
-                    
-                    {% if options_data.steady.error %}
-                    <div class="strategy-error">
-                        <div class="error-message">{{ options_data.steady.error }}</div>
-                    </div>
-                    {% else %}
-                    <div class="strategy-details">
-                        <div class="detail-row">
-                            <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.steady.dte }} days</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.steady.roi }}%</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Strike Price:</span>
-                            <span class="detail-value">${{ "%.2f"|format(options_data.steady.strike_price) }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Expiration:</span>
-                            <span class="detail-value">{{ options_data.steady.expiration_date }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Contract ID:</span>
-                            <span class="detail-value">{{ options_data.steady.contract_symbol }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Management:</span>
-                            <span class="detail-value">{{ options_data.steady.management }}</span>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.contract_symbol if not options_data.steady.error else 'none' }}" class="strategy-btn">Select Steady Strategy</a>
-                </div>
-                
-                <div class="strategy-card">
-                    <div class="strategy-header">
-                        <h3 class="strategy-title">Aggressive Income</h3>
-                        <p class="strategy-subtitle">{{ symbol }} Aggressive Income Strategy</p>
-                    </div>
-                    
-                    {% if options_data.aggressive.error %}
-                    <div class="strategy-error">
-                        <div class="error-message">{{ options_data.aggressive.error }}</div>
-                    </div>
-                    {% else %}
-                    <div class="strategy-details">
-                        <div class="detail-row">
-                            <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.aggressive.dte_range }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.aggressive.roi_range }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Strike Selection:</span>
-                            <span class="detail-value">{{ options_data.aggressive.strike_selection }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Management:</span>
-                            <span class="detail-value">{{ options_data.aggressive.management }}</span>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.contract_symbol if not options_data.aggressive.error else 'none' }}" class="strategy-btn">Select Aggressive Strategy</a>
-                </div>
-            </div>
-            
-            <div class="back-to-scoreboard">
-                <a href="{% if symbol %}/step2/{{ symbol }}{% else %}/{% endif %}" class="back-scoreboard-btn">← Back to Analysis</a>
-            </div>
-        </div>
-    <script>
-function updateCountdown() {
-    const endDate = new Date('June 20, 2025 23:59:59');
-    const now = new Date();
-    const timeDiff = endDate - now;
-    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    
-    const countdownEl = document.getElementById("countdown");
-    if (countdownEl) {
-        countdownEl.textContent = daysLeft > 0 ? daysLeft : 0;
-    }
-}
-document.addEventListener("DOMContentLoaded", updateCountdown);
-</script>
-</body>
-    </html>
-    """
-    
-    return render_template_string(template, symbol=symbol, options_data=options_data, current_price=current_price)
-
-@app.route('/hidden-insert-csv')
-def hidden_csv_ui():
-    """Hidden CSV upload interface for manual data loading"""
-    return '''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>CSV Data Upload</title>
-        <style>
-            body { 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                max-width: 800px; margin: 50px auto; padding: 20px;
-                background: #1a1f2e; color: #e2e8f0;
-            }
-            .container { 
-                background: rgba(255,255,255,0.05); 
-                padding: 30px; border-radius: 12px;
-                border: 1px solid rgba(255,255,255,0.1);
-            }
-            h1 { color: #8b5cf6; margin-bottom: 30px; }
-            .upload-area {
-                border: 2px dashed rgba(139, 92, 246, 0.3);
-                border-radius: 8px; padding: 40px; text-align: center;
-                margin: 20px 0; background: rgba(139, 92, 246, 0.05);
-            }
-            input[type="file"] {
-                margin: 20px 0; padding: 10px;
-                background: rgba(255,255,255,0.1);
-                border: 1px solid rgba(255,255,255,0.2);
-                border-radius: 6px; color: #e2e8f0;
-            }
-            button {
-                background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-                color: white; border: none; padding: 12px 30px;
-                border-radius: 6px; font-weight: 600; cursor: pointer;
-                transition: all 0.3s ease;
-            }
-            button:hover { transform: translateY(-2px); }
-            .status { 
-                margin-top: 20px; padding: 15px; border-radius: 6px;
-                display: none;
-            }
-            .success { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; }
-            .error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
-            .info { color: #94a3b8; font-size: 14px; margin-top: 15px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>ETF Data Upload</h1>
-            <p>Upload your 292-ticker CSV file to refresh the database with new rankings.</p>
-            
-            <div class="upload-area">
-                <form id="uploadForm" enctype="multipart/form-data">
-                    <div>📊 Select CSV File</div>
-                    <input type="file" id="csvFile" name="csvfile" accept=".csv" required>
-                    <br>
-                    <button type="submit">Upload & Refresh Database</button>
-                </form>
-            </div>
-            
-            <div id="status" class="status"></div>
-            
-            <div class="info">
-                Expected CSV format: symbol, current_price, total_score, avg_volume_10d, criteria columns...<br>
-                This will completely wipe previous data and insert fresh rankings with volume tie-breaker.
+    <body data-bs-theme="dark">
+        <!-- Countdown Banner -->
+        <div class="countdown-banner">
+            <div class="container">
+                <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+                <span id="countdown-banner-timer"></span>
             </div>
         </div>
         
         <script>
-            document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const statusDiv = document.getElementById('status');
-                const fileInput = document.getElementById('csvFile');
-                const file = fileInput.files[0];
-                
-                if (!file) {
-                    showStatus('Please select a CSV file', 'error');
-                    return;
-                }
-                
-                showStatus('Uploading and processing CSV...', 'info');
-                
-                const formData = new FormData();
-                formData.append('csvfile', file);
-                
-                try {
-                    const response = await fetch('/upload_csv', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        showStatus(result.message, 'success');
-                    } else {
-                        showStatus('Upload failed: ' + result.error, 'error');
-                    }
-                } catch (error) {
-                    showStatus('Upload failed: ' + error.message, 'error');
-                }
-            });
+        // Countdown timer to June 20, 2025
+        function updateCountdown() {
+            const endDate = new Date("June 20, 2025 23:59:59").getTime();
+            const now = new Date().getTime();
+            const timeLeft = endDate - now;
             
-            function showStatus(message, type) {
-                const statusDiv = document.getElementById('status');
-                statusDiv.textContent = message;
-                statusDiv.className = 'status ' + type;
-                statusDiv.style.display = 'block';
-            }
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            document.getElementById("countdown-banner-timer").innerHTML = 
+                days + "D " + hours + "H " + minutes + "M " + seconds + "S";
+        }
+
+        // Update the countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
         </script>
-    <script>
-function updateCountdown() {
-    const endDate = new Date('June 20, 2025 23:59:59');
-    const now = new Date();
-    const timeDiff = endDate - now;
-    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        
+        <div class="container py-4">
+            {{ logo_header|safe }}
+            {% if all_zero_prices %}
+            <div class="alert alert-danger mb-4" role="alert">
+                <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> API Connection Issue</h4>
+                <p>The TradeList API is currently unavailable. The system is showing placeholder data until the connection is restored.</p>
+                <hr>
+                <p class="mb-0">Our team has been notified and is working to resolve this issue. Please check back later.</p>
+            </div>
+            {% endif %}
+            
+            <div class="step-indicator mb-4">
+                <a href="#" class="step step1 active">
+                    Step 1: Scoreboard
+                </a>
+                <!-- Hide all future steps -->
+            </div>
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">Daily ETF Scoreboard <span class="realtime-indicator">Real-time</span></h2>
+                    <p class="fs-5">Select an ETF with a score of 3+ for the highest probability income opportunity.</p>
+                    <p class="last-updated">Prices and scores update automatically</p>
+                </div>
+            </div>
     
-    const countdownEl = document.getElementById("countdown");
-    if (countdownEl) {
-        countdownEl.textContent = daysLeft > 0 ? daysLeft : 0;
-    }
-}
-document.addEventListener("DOMContentLoaded", updateCountdown);
-</script>
-</body>
+            <div class="row">
+                {% for etf, data in etfs.items() %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 position-relative {{ 'card-highlight' if etf == recommended_etf else '' }}" style="background: rgba(28, 28, 30, 0.8); border-radius: 20px; overflow: visible; border: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
+
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="card-title mb-0" style="font-weight: 700; font-size: 1.8rem; letter-spacing: -0.02em;">{{ etf }}</h3>
+                                <span class="badge" data-etf-score="{{ etf }}" style="font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 20px; background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if data.score >= 4 else '#FFD700' if data.score >= 3 else '#6c757d' }}; color: {{ '#fff' if data.score >= 4 else '#000' if data.score >= 3 else '#fff' }};">{{ data.score }}/5</span>
+                            </div>
+                            
+                            <p class="text-light mb-1" style="font-size: 1.1rem; opacity: 0.9;">{{ data.name }}</p>
+                            {% if data.price > 0 %}
+                                <p class="text-light mb-3" style="font-size: 1.5rem; font-weight: 600;" data-etf-price="{{ etf }}">${{ "%.2f"|format(data.price) }}</p>
+                            {% else %}
+                                <p class="text-danger mb-3" style="font-size: 1.1rem; font-weight: 500;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> API Connection Issue
+                                </p>
+                                <p class="text-light mb-3" style="font-size: 0.9rem; opacity: 0.7;">
+                                    The TradeList API is currently unavailable
+                                </p>
+                            {% endif %}
+                            
+                            <div class="progress mb-4" style="height: 8px; background: rgba(40, 40, 45, 0.3); overflow: hidden; border-radius: 100px;">
+                                <div class="progress-bar progress-bar-score-{{ data.score }}" role="progressbar" 
+                                    aria-valuenow="{{ data.score * 20 }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ data.score * 20 }}%;">
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                {% if etf == recommended_etf %}
+                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: #FFD700; color: #000; border-radius: 14px; padding: 0.8rem; font-weight: 600; letter-spacing: -0.01em; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(255, 215, 0, 0.2);">
+                                        <i class="bi bi-trophy-fill" style="margin-right: 5px;"></i> Recommended Asset
+                                    </a>
+                                    <div class="text-center mt-2" style="font-size: 0.8rem; color: #FFD700; font-weight: 600;">
+                                        Select {{ etf }}
+                                    </div>
+                                {% else %}
+                                    <a href="{{ url_for('step2', etf=etf) }}" class="btn" style="background: linear-gradient(135deg, #00C8FF, #7970FF); color: white; border-radius: 14px; padding: 0.8rem; font-weight: 500; letter-spacing: -0.01em; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(121, 112, 255, 0.2);">
+                                        Select {{ etf }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
     </html>
-    '''
+    """
+    
+    # Create a structured display order: recommended ETF at top, then rest sorted by score
+    ordered_etfs = {}
+    
+    # First add the recommended ETF (if any)
+    if recommended_etf:
+        ordered_etfs[recommended_etf] = sorted_etfs[recommended_etf]
+        
+    # Then add all other ETFs sorted by score
+    for etf, data in sorted_etfs.items():
+        if etf != recommended_etf:
+            ordered_etfs[etf] = data
+    
+    return render_template_string(template, etfs=ordered_etfs, global_css=global_css, logo_header=logo_header, recommended_etf=recommended_etf)
+
+# Route for Step 2: Asset Review
+@app.route('/step2')
+def step2():
+    etf = request.args.get('etf')
+    if etf not in etf_scores:
+        return redirect(url_for('index'))
+    
+    # CRITICAL FIX: Always synchronize ETF scores with their indicators before rendering the page
+    # This ensures scores are never out of sync with the indicator checkboxes
+    synchronize_etf_scores()
+    
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Income Machine DEMO - Asset Review - {{ etf }}</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
+        <style>
+            {{ global_css }}
+            
+            /* Page-specific styles */
+            .progress-bar-score-0 { width: 0%; }
+            .progress-bar-score-1 { width: 20%; }
+            .progress-bar-score-2 { width: 40%; }
+            .progress-bar-score-3 { width: 60%; }
+            .progress-bar-score-4 { width: 80%; }
+            .progress-bar-score-5 { width: 100%; }
+            .step-indicator {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2rem;
+            }
+            .step {
+                width: 23%;
+                text-align: center;
+                padding: 0.5rem 0;
+                border-radius: 4px;
+                position: relative;
+            }
+            .step.active {
+                background-color: var(--bs-primary);
+                color: white;
+            }
+            .step.completed {
+                background-color: var(--bs-success);
+                color: white;
+            }
+            .step.upcoming {
+                background-color: var(--bs-secondary);
+                color: white;
+            }
+        </style>
+    </head>
+    <body data-bs-theme="dark">
+        <!-- Countdown Banner -->
+        <div class="countdown-banner">
+            <div class="container">
+                <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+                <span id="countdown-banner-timer"></span>
+            </div>
+        </div>
+        
+        <script>
+        // Countdown timer to June 20, 2025
+        function updateCountdown() {
+            const endDate = new Date("June 20, 2025 23:59:59").getTime();
+            const now = new Date().getTime();
+            const timeLeft = endDate - now;
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            document.getElementById("countdown-banner-timer").innerHTML = 
+                days + "D " + hours + "H " + minutes + "M " + seconds + "S";
+        }
+
+        // Update the countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+        </script>
+        
+        <div class="container py-4">
+            {{ logo_header|safe }}
+            
+            <div class="step-indicator mb-4">
+                <a href="{{ url_for('index') }}" class="step step1 completed">
+                    Step 1: Scoreboard
+                </a>
+                <a href="#" class="step step2 active">
+                    Step 2: Asset Review
+                </a>
+                <!-- Hide all future steps -->
+            </div>
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">{{ etf }} - {{ etf_data.name }} Sector ETF</h2>
+                    <p class="fs-5">Review the selected ETF details before choosing an income strategy.</p>
+                </div>
+            </div>
+    
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4" style="background: rgba(28, 28, 30, 0.7); border-radius: 20px; overflow: hidden;">
+                        <div class="card-header" style="background: rgba(28, 28, 30, 0.9); border: none;">
+                            <h4>ETF Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Symbol:</strong> {{ etf }}</p>
+                            <p><strong>Sector:</strong> {{ etf_data.name }}</p>
+                            {% if etf_data.price > 0 %}
+                                <p><strong>Current Price:</strong> ${{ "%.2f"|format(etf_data.price) }}</p>
+                            {% else %}
+                                <p class="text-danger">
+                                    <strong>Price Data:</strong> 
+                                    <span class="badge bg-danger">API Connection Issue</span>
+                                </p>
+                                <p class="text-light" style="font-size: 0.9rem; opacity: 0.7;">
+                                    The TradeList API is currently unavailable
+                                </p>
+                            {% endif %}
+                            <p><strong>Score:</strong> {{ etf_data.score }}/5</p>
+                            <div class="progress mb-3" style="height: 8px; background: rgba(40, 40, 45, 0.3); overflow: hidden; border-radius: 100px;">
+                                <div class="progress-bar progress-bar-score-{{ etf_data.score }}" role="progressbar" 
+                                     aria-valuenow="{{ etf_data.score * 20 }}" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6 class="fw-bold">Technical Indicators:</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Short Term Trend</strong></span>
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.trend1.pass else '#6c757d' }}">
+                                                {{ '✓' if etf_data.indicators.trend1.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Long Term Trend</strong></span>
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.trend2.pass else '#6c757d' }}">
+                                                {{ '✓' if etf_data.indicators.trend2.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Snapback Position</strong></span>
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.snapback.pass else '#6c757d' }}">
+                                                {{ '✓' if etf_data.indicators.snapback.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Weekly Momentum</strong></span>
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.momentum.pass else '#6c757d' }}">
+                                                {{ '✓' if etf_data.indicators.momentum.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><strong>Stabilizing</strong></span>
+                                            <span class="badge rounded-pill" style="background: {{ 'linear-gradient(135deg, #00C8FF, #7970FF)' if etf_data.indicators.stabilizing.pass else '#6c757d' }}">
+                                                {{ '✓' if etf_data.indicators.stabilizing.pass else '✗' }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4" style="background: rgba(28, 28, 30, 0.7); border-radius: 20px; overflow: hidden;">
+                        <div class="card-header" style="background: rgba(28, 28, 30, 0.9); border: none;">
+                            <h4>Income Potential</h4>
+                        </div>
+                        <div class="card-body">
+                            <p>Based on the current score of <strong>{{ etf_data.score }}/5</strong>, 
+                            {{ etf }} could be a {{ 'strong' if etf_data.score >= 4 else 'moderate' if etf_data.score >= 2 else 'weak' }} 
+                            candidate for generating options income.</p>
+                            
+                            <p>The score is calculated using 5 technical indicators, with 1 point awarded for each condition met. Higher scores indicate more favorable market conditions for income opportunities.</p>
+                            
+                            <p><small>Data is automatically refreshed every 15 minutes during market hours.</small></p>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-primary" style="padding: 0.8rem 1.5rem; border-radius: 14px; font-weight: 500; letter-spacing: -0.01em;">
+                                    Choose Income Strategy →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="mt-3">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">← Back to Scoreboard</a>
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return render_template_string(template, etf=etf, etf_data=etf_scores[etf], global_css=global_css, logo_header=logo_header)
+
+# Route for Step 3: Strategy Selection
+@app.route('/step3')
+def step3():
+    etf = request.args.get('etf')
+    if etf not in etf_scores:
+        return redirect(url_for('index'))
+    
+    # Get real-time trade recommendations for each strategy
+    aggressive_trade = market_data.get_trade_recommendation(etf, 'Aggressive')
+    steady_trade = market_data.get_trade_recommendation(etf, 'Steady')
+    passive_trade = market_data.get_trade_recommendation(etf, 'Passive')
+    
+    # Create a dictionary of trades for easier access in the template
+    trades = {
+        'Aggressive': aggressive_trade,
+        'Steady': steady_trade,
+        'Passive': passive_trade
+    }
+    
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Income Machine DEMO - Strategy Selection for {{ etf }}</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
+        <style>
+            {{ global_css }}
+            
+            /* Page-specific styles */
+            .progress-bar-score-0 { width: 0%; }
+            .progress-bar-score-1 { width: 20%; }
+            .progress-bar-score-2 { width: 40%; }
+            .progress-bar-score-3 { width: 60%; }
+            .progress-bar-score-4 { width: 80%; }
+            .progress-bar-score-5 { width: 100%; }
+            .step-indicator {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2rem;
+            }
+            .step {
+                width: 23%;
+                text-align: center;
+                padding: 0.5rem 0;
+                border-radius: 4px;
+                position: relative;
+            }
+            .step.active {
+                background-color: var(--bs-primary);
+                color: white;
+            }
+            .step.completed {
+                background-color: var(--bs-success);
+                color: white;
+            }
+            .step.upcoming {
+                background-color: var(--bs-secondary);
+                color: white;
+            }
+        </style>
+    </head>
+    <body data-bs-theme="dark">
+        <div class="container py-4">
+            {{ logo_header|safe }}
+            
+            <div class="step-indicator mb-4">
+                <a href="{{ url_for('index') }}" class="step step1 completed">
+                    Step 1: Scoreboard
+                </a>
+                <a href="{{ url_for('step2', etf=etf) }}" class="step step2 completed">
+                    Step 2: Asset Review
+                </a>
+                <a href="#" class="step step3 active">
+                    Step 3: Strategy
+                </a>
+                <!-- Hide all future steps -->
+            </div>
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">Choose an Income Strategy for {{ etf }}</h2>
+                    <p class="fs-5">Select the income opportunity approach that matches your income goals and risk tolerance.</p>
+                </div>
+            </div>
+    
+            <form action="{{ url_for('step4') }}" method="get">
+                <input type="hidden" name="etf" value="{{ etf }}">
+                
+                <style>
+                    .strategy-card {
+                        transition: all 0.2s ease-in-out;
+                        cursor: pointer;
+                        border: 2px solid transparent;
+                    }
+                    .strategy-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+                    }
+                    .strategy-card input[type="radio"] {
+                        position: absolute;
+                        opacity: 0;
+                    }
+                    .strategy-card input[type="radio"]:checked + .card {
+                        border: 2px solid var(--bs-info);
+                        box-shadow: 0 0 15px var(--bs-info);
+                    }
+                    /* Strategy card styling */
+                    .card-header h4 {
+                        margin-bottom: 0;
+                    }
+                    .income-metrics {
+                        background: linear-gradient(45deg, rgba(100, 210, 255, 0.1), rgba(180, 100, 255, 0.1));
+                        border-radius: 8px;
+                        padding: 10px;
+                        margin-top: 10px;
+                    }
+                </style>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="strategy-card w-100">
+                            <input type="radio" name="strategy" id="aggressive" value="Aggressive" required>
+                            <div class="card card-aggressive mb-4">
+                                <div class="card-header">
+                                    <h4 class="fw-bold text-white">Aggressive Income</h4>
+                                </div>
+                                <div class="card-body p-0 position-relative">
+                                    <!-- Overlay to capture clicks -->
+                                    <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
+                                         onclick="document.getElementById('aggressive').checked = true;"></div>
+                                    <!-- Loading indicator -->
+                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
+                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem; margin-bottom: 1rem;">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="text-light">Looking for trade...</p>
+                                    </div>
+                                    <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/aggressive" width="100%" height="450" frameborder="0" style="background: transparent;" onload="this.previousElementSibling.style.display='none';"></iframe>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label class="strategy-card w-100">
+                            <input type="radio" name="strategy" id="steady" value="Steady" required>
+                            <div class="card card-steady mb-4">
+                                <div class="card-header">
+                                    <h4 class="fw-bold text-white">Steady Income</h4>
+                                </div>
+                                <div class="card-body p-0 position-relative">
+                                    <!-- Overlay to capture clicks -->
+                                    <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
+                                         onclick="document.getElementById('steady').checked = true;"></div>
+                                    <!-- Loading indicator -->
+                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
+                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem; margin-bottom: 1rem;">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="text-light">Looking for trade...</p>
+                                    </div>
+                                    <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/steady" width="100%" height="450" frameborder="0" style="background: transparent;" onload="this.previousElementSibling.style.display='none';"></iframe>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label class="strategy-card w-100">
+                            <input type="radio" name="strategy" id="passive" value="Passive" required>
+                            <div class="card card-passive mb-4">
+                                <div class="card-header">
+                                    <h4 class="fw-bold text-white">Passive Income</h4>
+                                </div>
+                                <div class="card-body p-0 position-relative">
+                                    <!-- Overlay to capture clicks -->
+                                    <div class="iframe-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; z-index: 10; cursor: pointer;" 
+                                         onclick="document.getElementById('passive').checked = true;"></div>
+                                    <!-- Loading indicator -->
+                                    <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 450px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
+                                        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem; margin-bottom: 1rem;">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="text-light">Looking for trade...</p>
+                                    </div>
+                                    <iframe src="https://sector-spread-scanner-income-machine.replit.app/embed/strategy-card/{{ etf }}/passive" width="100%" height="450" frameborder="0" style="background: transparent;" onload="this.previousElementSibling.style.display='none';"></iframe>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 col-6 mx-auto mt-3">
+                    <button type="submit" class="btn btn-primary btn-lg">Get Trade Recommendation →</button>
+                </div>
+                
+                <div class="mt-3">
+                    <a href="{{ url_for('step2', etf=etf) }}" class="btn btn-secondary">← Back to Asset Review</a>
+                </div>
+            </form>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    
+    # Add script tag for strategy card selection
+    script_tag = """
+    <script>
+        // Make iframe strategy cards clickable
+        document.addEventListener('DOMContentLoaded', function() {
+            // For each strategy card
+            document.querySelectorAll('.strategy-card').forEach(function(card) {
+                // When the card is clicked
+                card.addEventListener('click', function() {
+                    // Select the radio button
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                });
+            });
+        });
+    </script>
+    """
+    
+    # Insert the script tag right before the closing body tag
+    template = template.replace('</body>', script_tag + '</body>')
+    
+    return render_template_string(template, etf=etf, strategy_descriptions=strategy_descriptions, global_css=global_css, logo_header=logo_header, trades=trades)
+
+# Route for Step 4: Trade Details
+@app.route('/step4')
+def step4():
+    etf = request.args.get('etf')
+    strategy = request.args.get('strategy')
+    
+    if etf not in etf_scores or strategy not in ['Aggressive', 'Steady', 'Passive']:
+        return redirect(url_for('index'))
+    
+    logger.info(f"Showing options spreads widget for {etf} with {strategy} strategy")
+    
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Income Machine DEMO - Trade Details - {{ etf }} {{ strategy }}</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
+        <style>
+            {{ global_css }}
+            
+            /* Page-specific styles */
+            .step-indicator {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2rem;
+            }
+            .step {
+                width: 23%;
+                text-align: center;
+                padding: 0.5rem 0;
+                border-radius: 4px;
+                position: relative;
+            }
+            .step.active {
+                background-color: var(--bs-primary);
+                color: white;
+            }
+            .step.completed {
+                background-color: var(--bs-success);
+                color: white;
+            }
+            .step.upcoming {
+                background-color: var(--bs-secondary);
+                color: white;
+            }
+            .iframe-container {
+                height: 85vh;
+                min-height: 700px;
+                overflow: hidden;
+                background-color: #121212;  /* Match dark theme background */
+            }
+            .card {
+                border: none;
+                background-color: #121212;  /* Match embed background */
+                overflow: hidden;
+            }
+            .card-header {
+                background-color: #121212;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .card-footer {
+                background-color: #121212;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        </style>
+    </head>
+    <body data-bs-theme="dark">
+        <div class="container py-4">
+            {{ logo_header|safe }}
+            
+            <div class="step-indicator mb-4">
+                <a href="{{ url_for('index') }}" class="step step1 completed">
+                    Step 1: Scoreboard
+                </a>
+                <a href="{{ url_for('step2', etf=etf) }}" class="step step2 completed">
+                    Step 2: Asset Review
+                </a>
+                <a href="{{ url_for('step3', etf=etf) }}" class="step step3 completed">
+                    Step 3: Strategy
+                </a>
+                <a href="#" class="step step4 active">
+                    Step 4: Trade Details
+                </a>
+            </div>
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">Real-Time Options Spreads</h2>
+                    <p class="fs-5">{{ etf }} income opportunities using {{ strategy }} strategy</p>
+                </div>
+            </div>
+    
+            <!-- ETF Option Spreads Widget from TradeList -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4" style="background: transparent;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-0">{{ etf }} Options - {{ strategy }} Strategy</h4>
+                                <small>Current ETF price: <span data-etf-price="{{ etf }}">${{ "%.2f"|format(etf_data.price) }}</span> <span class="realtime-indicator">Real-time</span></small>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('step3', etf=etf) }}" class="btn btn-sm btn-secondary me-2">← Back</a>
+                                <a href="{{ url_for('index') }}" class="btn btn-sm btn-primary">New Search</a>
+                            </div>
+                        </div>
+                        <div class="card-body p-0 m-0">
+                            <div class="iframe-container position-relative" style="width: 100%;">
+                                <!-- Loading indicator for Step 4 -->
+                                <div class="iframe-loading-indicator" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(18, 18, 18, 0.7); z-index: 5;">
+                                    <div class="spinner-border text-light" role="status" style="width: 3.5rem; height: 3.5rem; margin-bottom: 1rem;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="text-light">Looking for trade...</p>
+                                </div>
+                                <iframe 
+                                    src="https://sector-spread-scanner-income-machine.replit.app/embed/{{ etf }}/{{ strategy.lower() }}"
+                                    width="100%"
+                                    height="100%"
+                                    frameborder="0"
+                                    scrolling="no"
+                                    style="border: none; overflow: hidden; margin: 0; padding: 0; display: block;"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen
+                                    onload="this.previousElementSibling.style.display='none';">
+                                </iframe>
+                            </div>
+                            <div class="card-footer text-muted">
+                                <small>Real-time options spread data from TheTradeList API</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return render_template_string(
+        template, 
+        etf=etf, 
+        strategy=strategy, 
+        etf_data=etf_scores[etf], 
+        strategy_descriptions=strategy_descriptions,
+        global_css=global_css,
+        logo_header=logo_header
+    )
+
+# Route for How to Use page
+@app.route('/how-to-use')
+def how_to_use():
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>How to Use the Income Machine</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
+        <style>
+            {{ global_css }}
+        </style>
+    </head>
+    <body data-bs-theme="dark">
+
+        <div class="container py-4">
+            {{ logo_header|safe }}
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">How to Use the Income Machine</h2>
+                    <p class="fs-5">Learn how to get the most out of this powerful options income tool.</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Step-by-Step Guide</h4>
+                </div>
+                <div class="card-body">
+                    <h5>1. Check the ETF Scoreboard</h5>
+                    <p>The scoreboard ranks sector ETFs based on their current income potential. Higher scores (4-5) indicate stronger opportunities.</p>
+                    
+                    <h5>2. Select an ETF</h5>
+                    <p>Click on an ETF with a good score to view more details about its current price and income potential.</p>
+                    
+                    <h5>3. Choose a Strategy</h5>
+                    <p>Select between Aggressive, Steady, or Passive strategies based on your risk tolerance and how actively you want to manage your positions.</p>
+                    
+                    <h5>4. Review Trade Details</h5>
+                    <p>See the specific income opportunity trade recommendation with strike price, expiration, potential return, and other key metrics.</p>
+                </div>
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(template, global_css=global_css, logo_header=logo_header, etf=etf, strategy=strategy, trade=trade, etf_score=etf_scores.get(etf, {}).get("score", 0), current_price=etf_scores.get(etf, {}).get("price", 0), strategy_description=strategy_descriptions.get(strategy, ""))
+
+# Route for Live Classes page
+@app.route('/live-classes')
+def live_classes():
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Income Machine LIVE Trade Classes</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
+        <style>
+            {{ global_css }}
+        </style>
+    </head>
+    <body data-bs-theme="dark">
+
+        <div class="container py-4">
+            {{ logo_header|safe }}
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3">
+                    <h2 class="display-6 fw-bold">LIVE Trade Classes</h2>
+                    <p class="fs-5">Join our weekly live sessions to learn advanced options income strategies directly from expert traders.</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Upcoming LIVE Classes</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Beginners Options Income</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Date:</strong> Every Monday, 7:00 PM ET</p>
+                                    <p><strong>Duration:</strong> 60 minutes</p>
+                                    <p>Learn the basics of creating income opportunities and generating consistent income with lower-risk strategies.</p>
+                                    <div class="d-grid">
+                                        <a href="/special-offer" class="btn btn-primary">Register Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Advanced Theta Strategies</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Date:</strong> Every Wednesday, 8:00 PM ET</p>
+                                    <p><strong>Duration:</strong> 90 minutes</p>
+                                    <p>Master higher-return strategies including custom spreads, rolls, and calendar trades.</p>
+                                    <div class="d-grid">
+                                        <a href="/special-offer" class="btn btn-primary">Register Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(template, global_css=global_css, logo_header=logo_header, etf=etf, etf_data=etf_scores.get(etf, {}), trades=trades, strategies=strategy_descriptions)
+
+# Route for Special Offer page
+@app.route('/special-offer')
+def special_offer():
+    template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Get Full Access for 50% OFF</title>
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/realtime-updates.css') }}">
+        <script src="{{ url_for('static', filename='js/realtime-updates.js') }}" defer></script>
+        <style>
+            {{ global_css }}
+        </style>
+    </head>
+    <body data-bs-theme="dark">
+
+        <div class="container py-4">
+            {{ logo_header|safe }}
+            
+            <div class="p-4 mb-4 bg-body-tertiary rounded-3">
+                <div class="container-fluid py-3 text-center">
+                    <h2 class="display-5 fw-bold">SPECIAL LIMITED-TIME OFFER</h2>
+                    <p class="fs-4">Get full access to Income Machine at 50% off the regular price</p>
+                    <p>Offer expires in: <span class="badge" style="background-color: rgba(255, 69, 58, 0.8); padding: 0.6rem 1rem; border-radius: 8px; font-weight: 500;">48 hours 23 minutes</span></p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4 class="mb-0">Income Machine Full Access Includes:</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush mb-4">
+                                <li class="list-group-item"><strong>✓</strong> Real-time ETF and options data feeds</li>
+                                <li class="list-group-item"><strong>✓</strong> Advanced strategy algorithms</li>
+                                <li class="list-group-item"><strong>✓</strong> Position tracking and management tools</li>
+                                <li class="list-group-item"><strong>✓</strong> Email alerts for trade opportunities</li>
+                                <li class="list-group-item"><strong>✓</strong> Weekly LIVE trading sessions</li>
+                                <li class="list-group-item"><strong>✓</strong> Access to all recorded training sessions</li>
+                                <li class="list-group-item"><strong>✓</strong> Priority email support</li>
+                            </ul>
+                            
+                            <div class="text-center mb-3">
+                                <span class="text-decoration-line-through fs-4" style="color: rgba(255, 255, 255, 0.5);">Regular Price: $197/month</span>
+                                <p class="fs-1 fw-bold" style="color: rgba(48, 209, 88, 0.9);">Special Offer: $97/month</p>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <a href="#" class="btn btn-lg py-3" style="background: rgba(48, 209, 88, 0.8); color: white; border-radius: 12px; transition: all 0.3s ease;">GET 50% OFF NOW</a>
+                            </div>
+                            <p class="text-center mt-2 small" style="color: rgba(255, 255, 255, 0.7);">No contracts. Cancel anytime.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4 class="mb-0">Testimonials</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3" style="border-left: 3px solid rgba(100, 210, 255, 0.5); padding-left: 1rem;">
+                                <p class="fst-italic">"The Income Machine has helped me generate an extra $1,500 per month in reliable options income. The recommended trades are clear and easy to execute."</p>
+                                <p style="color: rgba(255, 255, 255, 0.7);">— Michael R.</p>
+                            </div>
+                            <div class="mb-3" style="border-left: 3px solid rgba(100, 210, 255, 0.5); padding-left: 1rem;">
+                                <p class="fst-italic">"I've tried other options advisory services, but the Income Machine provides the most consistent returns with less risk."</p>
+                                <p style="color: rgba(255, 255, 255, 0.7);">— Sarah T.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4 class="mb-0">100% Money-Back Guarantee</h4>
+                        </div>
+                        <div class="card-body">
+                            <p>Try Income Machine risk-free for 30 days. If you're not completely satisfied, we'll refund your subscription fee. No questions asked.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="pt-3 mt-4 text-body-secondary border-top">
+                &copy; 2023 Income Machine DEMO
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(template, global_css=global_css, logo_header=logo_header)
+
+# API test endpoints
+@app.route('/api/etf-data')
+def api_etf_data():
+    """API endpoint to get the latest ETF data for real-time updates in the UI
+    
+    Returns:
+        JSON: Current ETF data including prices and scores
+    """
+    # CRITICAL FIX: Always synchronize ETF scores with their indicators before serving API data
+    # This ensures scores are never out of sync with the indicator checkboxes
+    synchronize_etf_scores()
+    
+    # Return the current ETF data with timestamp for client-side tracking
+    data = {}
+    for etf, etf_data in etf_scores.items():
+        data[etf] = {
+            'price': etf_data['price'],
+            'score': etf_data['score'],
+            'name': etf_data['name'],
+            'timestamp': datetime.now().isoformat()
+        }
+    return jsonify(data)
+
+@app.route('/api/test/websocket')
+def test_websocket():
+    """Test endpoint for TheTradeList WebSocket connection and data
+    
+    Query Parameters:
+    - ticker: The ETF symbol to check (default: all)
+    - raw: Set to 'true' to show the raw WebSocket data (default: false)
+    """
+    ticker = request.args.get('ticker')
+    show_raw = request.args.get('raw', 'false').lower() == 'true'
+    
+    # Get the WebSocket client
+    ws_client = get_websocket_client()
+    if not ws_client:
+        return jsonify({
+            'status': 'error',
+            'message': 'WebSocket client not initialized - check API key',
+            'api_key_set': os.environ.get('TRADELIST_API_KEY') is not None
+        })
+    
+    # Check connection status
+    connection_status = {
+        'is_connected': ws_client.is_connected,
+        'session_id': ws_client.session_id if ws_client.session_id else None,
+        'symbols_tracking': ws_client.symbols_to_track,
+        'reconnect_attempts': ws_client._reconnect_attempts
+    }
+    
+    # Get data for a specific ticker or all data
+    if ticker:
+        data = ws_client.get_latest_price(ticker)
+        raw_data = ws_client.get_raw_data(ticker)
+        
+        # If no data for the requested ticker, try to subscribe
+        if not data and ws_client.is_connected and ws_client.session_id:
+            ws_client.subscribe_to_symbol(ticker)
+            data = None  # Will be updated on next cycle
+    else:
+        data = ws_client.get_all_latest_data()
+        raw_data = ws_client.get_raw_data()
+    
+    response = {
+        'status': 'success',
+        'connection': connection_status,
+        'data': data,
+        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    if show_raw and raw_data:
+        response['raw_websocket_data'] = raw_data
+    
+    return jsonify(response)
+
+@app.route('/api/test/polygon')
+def test_polygon_api():
+    """Test endpoint to verify Polygon API integration with detailed logging
+    
+    Query Parameters:
+    - ticker: The ETF symbol to test (default: XLK)
+    """
+    ticker = request.args.get('ticker', 'XLK')
+    
+    logger.info(f"Testing Polygon API integration for {ticker}")
+    
+    # Directly call the score_etf function to test Polygon API
+    score, current_price, indicators = enhanced_etf_scoring.score_etf(ticker)
+    
+    return jsonify({
+        'symbol': ticker,
+        'score': score,
+        'current_price': current_price,
+        'indicators': indicators,
+        'message': f"Polygon API test completed for {ticker} with score {score}/5",
+        'data_source': 'Polygon.io API'
+    })
+
+@app.route('/api/test/tradelist')
+def test_tradelist_api():
+    """Test endpoint for TheTradeList API integration with detailed diagnostics
+    
+    Query Parameters:
+    - ticker: The ETF symbol to test with (default: XLK)
+    - force_raw_api: Set to 'true' to test the raw API directly (default: false)
+    - return_type: 'json' or 'csv' format (default: json)
+    - min_stock_vol: Minimum stock volume (default: 0)
+    - min_total_points: Minimum total points (default: 0)
+    """
+    from datetime import datetime
+    import requests  # For direct API testing
+    
+    # Parse query parameters
+    test_ticker = request.args.get('ticker', 'XLK')
+    force_raw_api = request.args.get('force_raw_api', 'false').lower() == 'true'
+    return_type = request.args.get('return_type', 'json')
+    min_stock_vol = int(request.args.get('min_stock_vol', '0'))
+    min_total_points = int(request.args.get('min_total_points', '0'))
+    
+    # Prepare response object
+    response = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "request_params": {
+            "ticker": test_ticker,
+            "force_raw_api": force_raw_api,
+            "return_type": return_type,
+            "min_stock_vol": min_stock_vol,
+            "min_total_points": min_total_points
+        },
+        "environment": {
+            "api_key_set": bool(os.environ.get("TRADELIST_API_KEY")),
+            "api_enabled": TradeListApiService.USE_TRADELIST_API,
+            "api_endpoints": {
+                "scanner": f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_SCANNER_ENDPOINT}",
+                "highs_lows": f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_HIGHS_LOWS_ENDPOINT}"
+            }
+        }
+    }
+    
+    # Test #1: API Health Check
+    api_health = TradeListApiService.api_health_check()
+    response["api_status"] = api_health
+    
+    # Test #2: Get price data through our client (always uses fallback if API fails)
+    ticker_data = TradeListApiService.get_current_price(test_ticker)
+    response["ticker_data"] = ticker_data
+    
+    # Test #3: Direct API call if requested (for diagnostics)
+    if force_raw_api:
+        try:
+            # Get API key
+            api_key = os.environ.get("TRADELIST_API_KEY", "")
+            
+            # Make direct API request
+            api_url = f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_SCANNER_ENDPOINT}"
+            params = {
+                "returntype": return_type,
+                "apiKey": api_key,
+                "stockvol": min_stock_vol,
+                "totalpoints": min_total_points
+            }
+            
+            # First request with no redirects
+            direct_response = requests.get(api_url, params=params, timeout=15, allow_redirects=False)
+            
+            # Record initial response
+            initial_response = {
+                "status_code": direct_response.status_code,
+                "headers": dict(direct_response.headers),
+                "url": direct_response.url
+            }
+            
+            # If we got a redirect, follow it manually
+            if direct_response.status_code == 302:
+                redirect_url = direct_response.headers.get('Location')
+                headers = {
+                    'Authorization': f'Bearer {api_key}',
+                    'User-Agent': 'IncomeMachineMVP/1.0'
+                }
+                
+                redirected_response = requests.get(
+                    f"{TradeListApiService.TRADELIST_API_BASE_URL}/{redirect_url}", 
+                    headers=headers,
+                    timeout=15
+                )
+                
+                # Add redirect results
+                redirect_info = {
+                    "redirect_url": redirect_url,
+                    "status_code": redirected_response.status_code,
+                    "content_preview": redirected_response.text[:300] + ('...' if len(redirected_response.text) > 300 else '')
+                }
+                response["raw_api_test"] = {
+                    "initial_request": initial_response,
+                    "redirect_followup": redirect_info
+                }
+            else:
+                # Just record the initial response
+                initial_response["content_preview"] = direct_response.text[:300] + ('...' if len(direct_response.text) > 300 else '')
+                response["raw_api_test"] = {
+                    "initial_request": initial_response
+                }
+                
+        except Exception as e:
+            response["raw_api_test"] = {
+                "error": str(e)
+            }
+    
+    # Test #4: Get raw data via our client method
+    if force_raw_api:
+        try:
+            # Get data with our client method
+            raw_data = TradeListApiService.get_tradelist_data(
+                test_ticker, 
+                return_type=return_type,
+                min_stock_vol=min_stock_vol,
+                min_total_points=min_total_points
+            )
+            
+            response["tradelist_api_data"] = raw_data
+            
+        except Exception as e:
+            response["tradelist_api_data"] = {
+                "error": str(e)
+            }
+    
+    return jsonify(response)
+
+
+@app.route('/api/test/options-spreads')
+@app.route('/test_weekly_momentum')
+def test_weekly_momentum():
+    """Test endpoint to check the weekly momentum calculation for a specific ETF
+    
+    Query Parameters:
+    - ticker: The ETF symbol to check weekly momentum for (default: XLC)
+    
+    Returns:
+        HTML: Detailed information about the weekly momentum calculation
+    """
+    ticker = request.args.get('ticker', 'XLC')
+    
+    try:
+        # Get daily data for the symbol
+        from enhanced_etf_scoring import fetch_daily_data, get_latest_weekly_close, get_current_price
+        
+        daily_data = fetch_daily_data(ticker)
+        if daily_data.empty:
+            return f"<h3>No daily data available for {ticker}</h3>"
+        
+        # Get the weekly close price
+        weekly_close = get_latest_weekly_close(daily_data)
+        
+        # Get current price 
+        current_price = get_current_price(ticker)
+        if current_price is None:
+            logger.warning(f"Couldn't get current price for {ticker} from Polygon API, using most recent price from daily data")
+            current_price = float(daily_data['Close'].iloc[-1])
+        
+        # Determine if the momentum criteria passes
+        criteria_passes = current_price > weekly_close
+        
+        # Build a detailed response
+        response = f"<h2>Weekly Momentum Details for {ticker}</h2>"
+        response += f"<p><strong>Current Price:</strong> ${current_price:.2f}</p>"
+        response += f"<p><strong>Latest Weekly Close:</strong> ${weekly_close:.2f}</p>"
+        response += f"<p><strong>Weekly Momentum Criteria:</strong> {'PASS ✓' if criteria_passes else 'FAIL ✗'}</p>"
+        
+        # Add some additional context about the weekly closing price calculation
+        response += "<h3>Weekly Close Calculation Details:</h3>"
+        response += "<p>Weekly close is determined by:</p>"
+        response += "<ol>"
+        response += "<li>Resampling the daily data to weekly candles that end on Friday</li>"
+        response += "<li>Using the most recently completed Friday's closing price</li>"
+        response += "<li>If today is Friday, using the previous Friday's close</li>"
+        response += "</ol>"
+        
+        # Show some raw data for verification
+        response += "<h3>Recent Daily Data:</h3>"
+        response += "<table border='1'><tr><th>Date</th><th>Open</th><th>High</th><th>Low</th><th>Close</th></tr>"
+        
+        # Display the last 10 days of data
+        for date, row in daily_data.tail(10).iterrows():
+            date_str = date.strftime('%Y-%m-%d (%A)')
+            response += f"<tr><td>{date_str}</td><td>${row['Open']:.2f}</td><td>${row['High']:.2f}</td>"
+            response += f"<td>${row['Low']:.2f}</td><td>${row['Close']:.2f}</td></tr>"
+        
+        response += "</table>"
+        
+        return response
+    except Exception as e:
+        return f"<h3>Error calculating weekly momentum:</h3><p>{str(e)}</p>"
+
+@app.route('/test_csv_data')
+def test_csv_data():
+    """Test endpoint to verify CSV data loading is working correctly"""
+    try:
+        # Force refresh from CSV
+        csv_data = csv_loader.get_etf_data(force_refresh=True)
+        csv_status = csv_loader.get_csv_status()
+        
+        response_html = f"""
+        <html>
+        <head><title>CSV Data Test</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 20px;">
+        <h2>CSV Data Loading Test</h2>
+        
+        <h3>CSV File Status:</h3>
+        <ul>
+        <li>File exists: {csv_status.get('exists', False)}</li>
+        <li>File path: {csv_status.get('path', 'Unknown')}</li>
+        <li>File size: {csv_status.get('size', 0)} bytes</li>
+        <li>Last modified: {csv_status.get('modified', 'Unknown')}</li>
+        </ul>
+        
+        <h3>Loaded ETF Data ({len(csv_data)} symbols):</h3>
+        <table border="1" style="border-collapse: collapse;">
+        <tr>
+        <th>Symbol</th><th>Name</th><th>Score</th><th>Price</th>
+        <th>Trend1</th><th>Trend2</th><th>Snapback</th><th>Momentum</th><th>Stabilizing</th>
+        </tr>
+        """
+        
+        for symbol, data in csv_data.items():
+            indicators = data.get('indicators', {})
+            response_html += f"""
+            <tr>
+            <td>{symbol}</td>
+            <td>{data.get('name', 'Unknown')}</td>
+            <td><strong>{data.get('score', 0)}/5</strong></td>
+            <td>${data.get('price', 0):.2f}</td>
+            <td>{'✓' if indicators.get('trend1', {}).get('pass', False) else '✗'}</td>
+            <td>{'✓' if indicators.get('trend2', {}).get('pass', False) else '✗'}</td>
+            <td>{'✓' if indicators.get('snapback', {}).get('pass', False) else '✗'}</td>
+            <td>{'✓' if indicators.get('momentum', {}).get('pass', False) else '✗'}</td>
+            <td>{'✓' if indicators.get('stabilizing', {}).get('pass', False) else '✗'}</td>
+            </tr>
+            """
+        
+        response_html += """
+        </table>
+        
+        <h3>Current etf_scores Global Variable:</h3>
+        <p>The application has successfully updated the global etf_scores with CSV data.</p>
+        <p><a href="/">← Back to Main Application</a></p>
+        </body>
+        </html>
+        """
+        
+        return response_html
+        
+    except Exception as e:
+        return f"""
+        <html>
+        <head><title>CSV Data Test - Error</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 20px;">
+        <h2>CSV Data Loading Test - Error</h2>
+        <p style="color: red;">Error loading CSV data: {str(e)}</p>
+        <p><a href="/">← Back to Main Application</a></p>
+        </body>
+        </html>
+        """
 
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
@@ -3258,113 +2482,423 @@ def upload_csv():
     Returns:
     - Success/error response
     """
+    global etf_scores
+    
     try:
         csv_content = None
         
-        # Check if file was uploaded
+        # Check for file upload
         if 'csvfile' in request.files:
             file = request.files['csvfile']
-            if file and file.filename:
+            if file and file.filename and file.filename.endswith('.csv'):
                 csv_content = file.read().decode('utf-8')
+                logger.info(f"Received CSV file upload: {file.filename}")
         
-        # Check if raw CSV text was provided
-        if not csv_content and 'csv_text' in request.form:
+        # Check for raw CSV text
+        elif 'csv_text' in request.form:
             csv_content = request.form['csv_text']
+            logger.info("Received raw CSV text upload")
+        
+        # Check for JSON format (for API calls)
+        elif request.is_json:
+            json_data = request.get_json()
+            if 'csv_content' in json_data:
+                csv_content = json_data['csv_content']
+                logger.info("Received CSV content via JSON")
         
         if not csv_content:
-            return jsonify({'error': 'No CSV content provided'}), 400
+            return jsonify({
+                'error': 'No CSV data provided. Send file via csvfile field, text via csv_text field, or JSON with csv_content.'
+            }), 400
         
-        # Upload to database
-        db = ETFDatabase()
-        db.upload_csv_data(csv_content)
+        # Upload CSV data to database
+        result = etf_db.upload_csv_data(csv_content)
         
-        # Reload ETF data from database
+        if not result['success']:
+            return jsonify({
+                'error': f'Failed to upload CSV to database: {result["error"]}'
+            }), 500
+        
+        # Refresh the global etf_scores from database
         load_etf_data_from_database()
         
+        logger.info(f"Successfully uploaded {result['count']} symbols to database")
+        
+        # Return success response
         return jsonify({
-            'success': True, 
-            'message': f'Database refreshed successfully. Loaded {len(etf_scores)} new symbols, previous data cleared.'
+            'success': True,
+            'message': f'Successfully uploaded {result["count"]} symbols to database',
+            'count': result['count']
         })
         
     except Exception as e:
-        return jsonify({'error': f'Upload failed: {str(e)}'}), 500
+        logger.error(f"Error processing CSV upload: {str(e)}")
+        return jsonify({
+            'error': f'Failed to process CSV: {str(e)}'
+        }), 500
 
-@app.route('/api/etf_data')
-def api_etf_data():
-    """API endpoint to get the latest ETF data for real-time updates in the UI
+@app.route('/upload_csv_form')
+def upload_csv_form():
+    """Simple form for CSV upload testing"""
+    return '''
+    <html>
+    <head><title>CSV Upload Form</title></head>
+    <body style="font-family: Arial, sans-serif; margin: 20px;">
+    <h2>Upload CSV to Update ETF Scoreboard</h2>
     
-    Returns:
-        JSON: Current ETF data including prices and scores
-    """
-    return jsonify(etf_scores)
+    <h3>Upload CSV File:</h3>
+    <form action="/upload_csv" method="post" enctype="multipart/form-data">
+        <input type="file" name="csvfile" accept=".csv" required>
+        <button type="submit">Upload CSV File</button>
+    </form>
+    
+    <h3>Or Paste CSV Text:</h3>
+    <form action="/upload_csv" method="post">
+        <textarea name="csv_text" rows="10" cols="80" placeholder="Paste your CSV content here..."></textarea><br>
+        <button type="submit">Upload CSV Text</button>
+    </form>
+    
+    <h3>API Usage:</h3>
+    <p>POST to <code>/upload_csv</code> with:</p>
+    <ul>
+    <li>File upload: <code>csvfile</code> form field</li>
+    <li>Text upload: <code>csv_text</code> form field</li>
+    <li>JSON upload: <code>{"csv_content": "your,csv,data..."}</code></li>
+    </ul>
+    
+    <p><a href="/">← Back to Main Application</a></p>
+    <p><a href="/test_csv_data">← View Current CSV Data</a></p>
+    </body>
+    </html>
+    '''
 
-@app.route('/api/chart_data/<symbol>')
-def api_chart_data(symbol):
-    """API endpoint to get chart data for a specific symbol using Polygon API
-    
-    Returns:
-        JSON: Chart data with timestamps and prices
-    """
+@app.route('/debug_rsi/<symbol>')
+def debug_rsi(symbol):
+    """Debug RSI calculation for a specific symbol to compare with TradingView"""
     try:
-        import os
+        symbol = symbol.upper()
+        
+        # Try to get data using the enhanced ETF scoring system
+        import enhanced_etf_scoring_polygon as polygon_scoring
+        
+        # Get 4-hour data for RSI calculation - use most recent data
         from datetime import datetime, timedelta
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')  # Last 60 days for proper RSI calculation
+        
+        # Fetch 4-hour data directly from Polygon
         import requests
+        import pandas as pd
+        import numpy as np
         
-        api_key = os.environ.get('POLYGON_API_KEY')
-        if not api_key:
-            return jsonify({'error': 'POLYGON_API_KEY not configured'}), 500
+        polygon_api_key = os.environ.get('POLYGON_API_KEY')
+        if not polygon_api_key:
+            return f"""
+            <html><body>
+            <h2>RSI Debug for {symbol}</h2>
+            <p style="color: red;">No Polygon API key found. Please provide your Polygon API key.</p>
+            <p>Set the POLYGON_API_KEY environment variable to enable real data fetching.</p>
+            </body></html>
+            """
         
-        # Get 30 days of data
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)
+        # Try to fetch current 4-hour data first, then fall back to 1-hour if needed
+        four_hour_url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{start_date}/{end_date}"
+        one_hour_url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/hour/{start_date}/{end_date}"
         
-        url = f'https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/day/{start_date.strftime("%Y-%m-%d")}/{end_date.strftime("%Y-%m-%d")}'
+        params = {
+            'adjusted': 'true',
+            'sort': 'asc',
+            'limit': 5000,
+            'apiKey': polygon_api_key
+        }
         
-        response = requests.get(url, params={'apikey': api_key})
+        # Try 4-hour data first
+        response = requests.get(four_hour_url, params=params, timeout=30)
+        data_type = "4-hour"
         
-        if response.status_code == 200:
-            data = response.json()
+        if response.status_code != 200 or not response.json().get('results'):
+            # Fall back to 1-hour data and resample to 4-hour
+            response = requests.get(one_hour_url, params=params, timeout=30)
+            data_type = "1-hour (resampled to 4-hour)"
             
-            if data.get('status') == 'OK' and data.get('results'):
-                chart_data = []
-                for result in data['results']:
-                    chart_data.append({
-                        'timestamp': result['t'],
-                        'price': result['c'],  # closing price
-                        'volume': result['v']
-                    })
-                
-                return jsonify({
-                    'symbol': symbol,
-                    'data': chart_data,
-                    'current_price': chart_data[-1]['price'] if chart_data else None,
-                    'status': 'success'
-                })
-            elif data.get('status') == 'DELAYED':
-                # Handle delayed data - still return what we have
-                chart_data = []
-                if data.get('results'):
-                    for result in data['results']:
-                        chart_data.append({
-                            'timestamp': result['t'],
-                            'price': result['c'],
-                            'volume': result['v']
-                        })
-                
-                return jsonify({
-                    'symbol': symbol,
-                    'data': chart_data,
-                    'current_price': chart_data[-1]['price'] if chart_data else None,
-                    'status': 'delayed',
-                    'message': 'Market data is delayed'
-                })
-            else:
-                return jsonify({'error': f'No data available for {symbol}'}), 404
-        else:
-            return jsonify({'error': f'API request failed: {response.status_code}'}), 500
-            
-    except Exception as e:
-        return jsonify({'error': f'Failed to fetch chart data: {str(e)}'}), 500
+            if response.status_code != 200:
+                return f"""
+                <html><body>
+                <h2>RSI Debug for {symbol}</h2>
+                <p style="color: red;">API Error: {response.status_code}</p>
+                <p>Response: {response.text}</p>
+                <p>Tried both 4-hour and 1-hour data endpoints</p>
+                </body></html>
+                """
+        
+        data = response.json()
+        
+        if not data or 'results' not in data or not data['results']:
+            return f"""
+            <html><body>
+            <h2>RSI Debug for {symbol}</h2>
+            <p style="color: red;">No price data found for {symbol}</p>
+            <p>Date range: {start_date} to {end_date}</p>
+            <p>Response: {data}</p>
+            </body></html>
+            """
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(data['results'])
+        df = df.rename(columns={
+            'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'v': 'Volume', 't': 'timestamp'
+        })
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
+        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+        df.dropna(inplace=True)
+        
+        # If we got 1-hour data, resample to 4-hour periods
+        if data_type == "1-hour (resampled to 4-hour)":
+            df = df.resample('4H').agg({
+                'Open': 'first',
+                'High': 'max', 
+                'Low': 'min',
+                'Close': 'last',
+                'Volume': 'sum'
+            }).dropna()
+        
+        # Calculate RSI using both methods
+        def calculate_rsi_simple(prices, window=14):
+            """Simple moving average method (current implementation)"""
+            delta = prices.diff()
+            gain = delta.where(delta > 0, 0)
+            loss = -delta.where(delta < 0, 0)
+            avg_gain = gain.rolling(window=window).mean()
+            avg_loss = loss.rolling(window=window).mean()
+            avg_loss = avg_loss.replace(0, 0.00001)
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
+            return rsi.dropna()
+        
+        def rma(series, length):
+            """Wilder's smoothing / RMA - exact TradingView implementation"""
+            return series.ewm(alpha=1 / length, adjust=False).mean()
 
+        def calculate_rsi_tradingview(close, length=14):
+            """Calculate RSI using exact TradingView Pine Script logic"""
+            delta = close.diff()
+            gain = delta.clip(lower=0)
+            loss = -delta.clip(upper=0)
+            avg_gain = rma(gain, length)
+            avg_loss = rma(loss, length)
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
+            rsi = rsi.fillna(50)
+            return rsi
+        
+        rsi_simple = calculate_rsi_simple(df['Close'])
+        rsi_tradingview = calculate_rsi_tradingview(df['Close'])
+        
+        # Get the latest values
+        current_rsi_simple = rsi_simple.iloc[-1] if len(rsi_simple) > 0 else "No data"
+        current_rsi_tradingview = rsi_tradingview.iloc[-1] if len(rsi_tradingview) > 0 else "No data"
+        
+        # Generate HTML response with detailed breakdown
+        html_response = f"""
+        <html>
+        <head><title>RSI Debug for {symbol}</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 20px;">
+        <h2>RSI Calculation Debug for {symbol}</h2>
+        
+        <p><strong>Data Source:</strong> {data_type} from Polygon.io</p>
+        <p><strong>Date Range:</strong> {start_date} to {end_date}</p>
+        
+        <h3>Summary:</h3>
+        <table border="1" style="border-collapse: collapse;">
+        <tr><th>Method</th><th>Current RSI</th><th>Description</th></tr>
+        <tr><td>Simple Moving Average</td><td><strong>{current_rsi_simple:.1f}</strong></td><td>Current implementation</td></tr>
+        <tr><td>TradingView Pine Script</td><td><strong>{current_rsi_tradingview:.1f}</strong></td><td>Exact TradingView implementation</td></tr>
+        </table>
+        
+        <h3>4-Hour Price Data (Last 20 periods):</h3>
+        <table border="1" style="border-collapse: collapse;">
+        <tr><th>Timestamp</th><th>Close Price</th><th>Price Change</th></tr>
+        """
+        
+        # Show last 20 periods
+        recent_data = df.tail(20)
+        for i, (timestamp, row) in enumerate(recent_data.iterrows()):
+            prev_close = recent_data.iloc[i-1]['Close'] if i > 0 else None
+            change = row['Close'] - prev_close if prev_close else 0
+            change_str = f"{change:+.2f}" if prev_close else "N/A"
+            
+            html_response += f"""
+            <tr>
+            <td>{timestamp.strftime('%Y-%m-%d %H:%M')}</td>
+            <td>${row['Close']:.2f}</td>
+            <td>{change_str}</td>
+            </tr>
+            """
+        
+        html_response += f"""
+        </table>
+        
+        <h3>Data Summary:</h3>
+        <ul>
+        <li>Total 4-hour periods: {len(df)}</li>
+        <li>Date range: {df.index[0].strftime('%Y-%m-%d %H:%M')} to {df.index[-1].strftime('%Y-%m-%d %H:%M')}</li>
+        <li>Current price: ${df['Close'].iloc[-1]:.2f}</li>
+        </ul>
+        
+        <h3>RSI Calculation Differences:</h3>
+        <p>The difference between our calculation ({current_rsi_simple:.1f}) and TradingView's Pine Script value ({current_rsi_tradingview:.1f}) 
+        is <strong>{abs(float(current_rsi_simple) - float(current_rsi_tradingview)):.1f} points</strong>.</p>
+        
+        <p>TradingView uses exact Pine Script logic with RMA (Wilder's smoothing) method, 
+        while our current implementation uses simple moving averages.</p>
+        
+        <p><a href="/">← Back to Main Application</a></p>
+        </body>
+        </html>
+        """
+        
+        return html_response
+        
+    except Exception as e:
+        return f"""
+        <html><body>
+        <h2>RSI Debug Error for {symbol}</h2>
+        <p style="color: red;">Error: {str(e)}</p>
+        <p><a href="/">← Back to Main Application</a></p>
+        </body></html>
+        """
+
+@app.route('/test_options_spreads_api')
+def test_options_spreads_api():
+    """Test endpoint for TheTradeList options spreads API integration
+    
+    Query Parameters:
+    - ticker: The ETF symbol to test with (default: XLK)
+    - strategy: Trading strategy to test (default: Steady, options: Aggressive, Steady, Passive)
+    - force_raw_api: Set to 'true' to test the raw API directly (default: false)
+    - compare_fallback: Set to 'true' to compare with fallback data (default: false)
+    """
+    from datetime import datetime
+    import requests  # For direct API testing
+    
+    # Parse query parameters
+    test_ticker = request.args.get('ticker', 'XLK')
+    strategy = request.args.get('strategy', 'Steady')
+    force_raw_api = request.args.get('force_raw_api', 'false').lower() == 'true'
+    compare_fallback = request.args.get('compare_fallback', 'false').lower() == 'true'
+    
+    # Prepare response object
+    response = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "request_params": {
+            "ticker": test_ticker,
+            "strategy": strategy,
+            "force_raw_api": force_raw_api,
+            "compare_fallback": compare_fallback
+        },
+        "api_info": TradeListApiService.API_DOCUMENTATION,
+        "environment": {
+            "use_tradelist_api": TradeListApiService.USE_TRADELIST_API,
+            "api_key_available": bool(os.environ.get("TRADELIST_API_KEY") or os.environ.get("POLYGON_API_KEY")),
+            "polygon_api_key_available": bool(os.environ.get("POLYGON_API_KEY")),
+            "tradelist_api_key_available": bool(os.environ.get("TRADELIST_API_KEY")),
+            "supported_etfs": TradeListApiService.TRADELIST_SUPPORTED_ETFS
+        }
+    }
+    
+    # Check API health
+    api_status = TradeListApiService.api_health_check()
+    response["api_status"] = api_status
+    
+    # Test the client implementation
+    try:
+        logger.info(f"Testing options spreads API with ticker={test_ticker}, strategy={strategy}")
+        
+        if force_raw_api:
+            # Directly test the API endpoint with our own request
+            api_url = f"{TradeListApiService.TRADELIST_API_BASE_URL}{TradeListApiService.TRADELIST_OPTIONS_SPREADS_ENDPOINT}"
+            
+            # Get API key with fallback logic
+            api_key = os.environ.get("TRADELIST_API_KEY") or os.environ.get("POLYGON_API_KEY", "")
+            
+            params = {
+                "symbol": test_ticker,
+                "strategy": strategy,
+                "apiKey": api_key
+            }
+            
+            logger.info(f"Making direct API request to {api_url} with params: {params}")
+            
+            # Make the request
+            api_response = requests.get(api_url, params=params, timeout=10)
+            
+            # Log and store results
+            logger.info(f"Raw API response status: {api_response.status_code}")
+            
+            response["raw_api_test"] = {
+                "url": api_url,
+                "params": {
+                    "symbol": test_ticker,
+                    "strategy": strategy,
+                    "apiKey": "<redacted>" if api_key else None
+                },
+                "status_code": api_response.status_code,
+                "content_type": api_response.headers.get('Content-Type', 'unknown'),
+                "response_preview": api_response.text[:500] + ('...' if len(api_response.text) > 500 else '')
+            }
+            
+            # Try to parse as JSON
+            try:
+                json_data = api_response.json()
+                response["raw_api_test"]["parsed_json"] = json_data
+            except Exception as e:
+                response["raw_api_test"]["json_parse_error"] = str(e)
+        
+        # Test through our client implementation
+        client_result = TradeListApiService.get_options_spreads(test_ticker, strategy)
+        
+        if client_result:
+            response["client_implementation"] = {
+                "success": True,
+                "data": client_result
+            }
+        else:
+            response["client_implementation"] = {
+                "success": False,
+                "error": "Client returned None or empty result"
+            }
+            
+        # If requested, also generate fallback data for comparison
+        if compare_fallback:
+            # Get current price from WebSocket if available
+            ws_client = get_websocket_client()
+            current_price = 0
+            
+            if ws_client and test_ticker in ws_client.cached_data:
+                current_price = ws_client.cached_data.get(test_ticker, {}).get('price', 0)
+            
+            # If WebSocket price not available, try API price
+            if not current_price:
+                price_data = TradeListApiService.get_current_price(test_ticker)
+                current_price = price_data.get('price', 0)
+            
+            # Generate fallback data
+            fallback_data = SimplifiedMarketDataService._generate_fallback_trade(test_ticker, strategy, current_price)
+            
+            response["fallback_comparison"] = {
+                "current_price": current_price,
+                "fallback_data": fallback_data
+            }
+    
+    except Exception as e:
+        logger.error(f"Error testing options spreads API: {str(e)}")
+        response["error"] = str(e)
+    
+    return jsonify(response)
+
+
+# Run the Flask application
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    print("Visit http://127.0.0.1:5000/ to view the Income Machine DEMO.")
+    app.run(host="0.0.0.0", port=5000, debug=True)
