@@ -553,82 +553,118 @@ def create_step4_demo_data(symbol, strategy, current_price):
             }
             
             .summary-section {
-                background: #34495e;
-                padding: 20px;
-                border-radius: 8px;
+                background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+                padding: 28px;
+                border-radius: 16px;
                 margin-bottom: 30px;
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             }
             
             .summary-title {
-                font-size: 20px;
-                margin-bottom: 20px;
-                color: #ecf0f1;
+                font-size: 22px;
+                margin-bottom: 24px;
+                color: #f1f5f9;
+                font-weight: 600;
             }
             
             .summary-table {
                 width: 100%;
                 border-collapse: collapse;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
             }
             
             .summary-table th {
-                background: #2c3e50;
-                padding: 12px;
+                background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+                padding: 16px 12px;
                 text-align: center;
-                font-weight: bold;
-                border: 1px solid #34495e;
+                font-weight: 600;
+                border: none;
+                color: #f1f5f9;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
             
             .summary-table td {
-                padding: 12px;
+                padding: 16px 12px;
                 text-align: center;
-                border: 1px solid #34495e;
-                background: #2c3e50;
+                border: none;
+                background: rgba(30,41,59,0.6);
+                color: #cbd5e1;
+                font-weight: 500;
+            }
+            
+            .summary-table tr:hover td {
+                background: rgba(59,130,246,0.1);
+                color: #f1f5f9;
             }
             
             .scenarios-section {
-                background: #34495e;
-                padding: 20px;
-                border-radius: 8px;
+                background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+                padding: 28px;
+                border-radius: 16px;
                 margin-bottom: 30px;
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             }
             
             .scenarios-title {
-                font-size: 20px;
-                margin-bottom: 20px;
-                color: #ecf0f1;
+                font-size: 22px;
+                margin-bottom: 24px;
+                color: #f1f5f9;
+                font-weight: 600;
             }
             
             .scenarios-table {
                 width: 100%;
                 border-collapse: collapse;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
             }
             
             .scenarios-table th {
-                background: #2c3e50;
-                padding: 10px;
+                background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+                padding: 14px 10px;
                 text-align: center;
-                font-weight: bold;
-                font-size: 14px;
-                border: 1px solid #34495e;
+                font-weight: 600;
+                font-size: 13px;
+                border: none;
+                color: #f1f5f9;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
             
             .scenarios-table td {
-                padding: 10px;
+                padding: 14px 10px;
                 text-align: center;
-                border: 1px solid #34495e;
-                background: #2c3e50;
+                border: none;
+                background: rgba(30,41,59,0.6);
+                color: #cbd5e1;
+                font-weight: 500;
+                font-size: 14px;
             }
             
             .loss-cell {
-                background: #e74c3c !important;
-                color: white;
-                font-weight: bold;
+                background: linear-gradient(145deg, #dc2626 0%, #b91c1c 100%) !important;
+                color: white !important;
+                font-weight: 600 !important;
+                text-shadow: 0 0 10px rgba(220,38,38,0.5);
             }
             
             .win-cell {
-                background: #27ae60 !important;
-                color: white;
-                font-weight: bold;
+                background: linear-gradient(145deg, #059669 0%, #047857 100%) !important;
+                color: white !important;
+                font-weight: 600 !important;
+                text-shadow: 0 0 10px rgba(5,150,105,0.5);
+            }
+            
+            .scenarios-table tr:hover td:not(.loss-cell):not(.win-cell) {
+                background: rgba(59,130,246,0.1);
+                color: #f1f5f9;
             }
             
             .demo-notice {
