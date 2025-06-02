@@ -40,6 +40,9 @@ def load_etf_data_from_database():
         # Get all ETF data from database
         db_data = etf_db.get_all_etfs()
         
+        # Initialize etf_scores if not defined
+        etf_scores = {}
+        
         # Default sector mappings to keep frontend naming consistent
         sector_mappings = {
             "XLC": "Communication Services",
@@ -491,8 +494,8 @@ logo_header = """
 <!-- Countdown Banner -->
 <div class="countdown-banner">
     <div class="container">
-        <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
-        <span id="countdown-banner-timer">67D 04H 42M 18S</span>
+        <span class="countdown-banner-text">🎯 Limited Time Offer Ends In</span>
+        <span id="countdown-banner-timer">Loading...</span>
     </div>
 </div>
 
@@ -1136,7 +1139,7 @@ def index():
         <!-- Countdown Banner -->
         <div class="countdown-banner">
             <div class="container">
-                <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+                <span class="countdown-banner-text">🎯 Limited Time Offer Ends In</span>
                 <span id="countdown-banner-timer"></span>
             </div>
         </div>
@@ -1320,7 +1323,7 @@ def step2():
         <!-- Countdown Banner -->
         <div class="countdown-banner">
             <div class="container">
-                <span class="countdown-banner-text">Free Income Machine Experience Ends in</span>
+                <span class="countdown-banner-text">🎯 Limited Time Offer Ends In</span>
                 <span id="countdown-banner-timer"></span>
             </div>
         </div>
