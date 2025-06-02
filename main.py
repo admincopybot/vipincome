@@ -2303,6 +2303,10 @@ def step2(symbol=None):
                     <span class="detail-label">Score:</span>
                     <span class="detail-value">{{ ticker_data.total_score }}/5</span>
                 </div>
+                <div class="detail-item">
+                    <span class="detail-label">Avg Daily Volume:</span>
+                    <span class="detail-value">{{ "{:,.0f}".format(ticker_data.avg_volume_10d) }}</span>
+                </div>
                 <div class="score-bar">
                     <div class="score-fill" style="width: {{ (ticker_data.total_score / 5 * 100) }}%"></div>
                 </div>
@@ -2312,36 +2316,36 @@ def step2(symbol=None):
                 
                     <div class="indicator-item">
                         <div class="indicator-name">Short Term Trend</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.trend1_pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.trend1_pass else '✗' }}
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.trend1.pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.trend1.pass else '✗' }}
                         </div>
                     </div>
                     
                     <div class="indicator-item">
                         <div class="indicator-name">Long Term Trend</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.trend2_pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.trend2_pass else '✗' }}
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.trend2.pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.trend2.pass else '✗' }}
                         </div>
                     </div>
                     
                     <div class="indicator-item">
                         <div class="indicator-name">Snapback Position</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.snapback_pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.snapback_pass else '✗' }}
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.snapback.pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.snapback.pass else '✗' }}
                         </div>
                     </div>
                     
                     <div class="indicator-item">
                         <div class="indicator-name">Weekly Momentum</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.momentum_pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.momentum_pass else '✗' }}
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.momentum.pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.momentum.pass else '✗' }}
                         </div>
                     </div>
                     
                     <div class="indicator-item">
                         <div class="indicator-name">Stabilizing</div>
-                        <div class="indicator-status {{ 'status-pass' if ticker_data.stabilizing_pass else 'status-fail' }}">
-                            {{ '✓' if ticker_data.stabilizing_pass else '✗' }}
+                        <div class="indicator-status {{ 'status-pass' if ticker_data.stabilizing.pass else 'status-fail' }}">
+                            {{ '✓' if ticker_data.stabilizing.pass else '✗' }}
                         </div>
                     </div>
                 </div>
