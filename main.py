@@ -940,10 +940,16 @@ def calculate_single_option_analysis(option_data, current_stock_price):
 def step4(symbol, strategy, option_id):
     """Step 4: Detailed Options Trade Analysis using consistent demo data"""
     
-    # Get current price from database to match other pages
+    # Get current price from database with proper error handling
     current_price = 50.0  # Default fallback
     if symbol in etf_scores:
-        current_price = float(etf_scores[symbol]['current_price'])
+        ticker_data = etf_scores[symbol]
+        if 'current_price' in ticker_data:
+            current_price = float(ticker_data['current_price'])
+        elif 'price' in ticker_data:
+            current_price = float(ticker_data['price'])
+        else:
+            current_price = 50.0  # Default fallback
     
     # Get the demo options data that matches Step 3
     options_data = fetch_options_data(symbol, current_price)
@@ -1016,7 +1022,7 @@ def step4(symbol, strategy, option_id):
         'scenarios': scenarios
     }
     
-    return render_template_string(open('step4_response.html').read(), **analysis_data)
+    return render_template_string(open('step4_demo.html').read(), **analysis_data)
 
 @app.route('/')
 def index():
