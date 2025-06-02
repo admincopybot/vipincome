@@ -1178,7 +1178,7 @@ def step4(symbol, strategy, option_id):
 </head>
 <body>
     <div class="top-banner">
-        Free Income Machine Experience Ends in... 670 DIM 428 1485
+        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to premium income opportunities!
     </div>
     
     <div class="header">
@@ -1347,7 +1347,7 @@ def index():
         }
         
         .top-banner {
-            background: rgba(0, 12, 12, 0.8);
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
             text-align: center;
             padding: 8px;
             font-size: 14px;
@@ -1731,7 +1731,7 @@ def index():
 </head>
 <body>
     <div class="top-banner">
-        Free Income Machine Experience Ends in... 670 DIM 428 1485
+        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to premium income opportunities!
     </div>
     
     <div class="header">
@@ -1846,7 +1846,7 @@ def step2(symbol=None):
         }
         
         .top-banner {
-            background: rgba(0, 12, 12, 0.8);
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
             text-align: center;
             padding: 8px;
             font-size: 14px;
@@ -2255,7 +2255,7 @@ def step2(symbol=None):
 </head>
 <body>
     <div class="top-banner">
-        Free Income Machine Experience Ends in... 670 DIM 428 1485
+        🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to premium income opportunities!
     </div>
     
     <div class="header">
@@ -2586,7 +2586,7 @@ def step3(symbol=None):
         }
         
         .top-banner {
-            background: rgba(0, 12, 12, 0.8);
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
             text-align: center;
             padding: 8px;
             font-size: 14px;
@@ -2944,7 +2944,7 @@ def step3(symbol=None):
     </head>
     <body>
         <div class="top-banner">
-            Free Income Machine Experience Ends in... 670 DIM 428 1485
+            🎯 Limited Time Offer Ends In: <span id="countdown">18</span> days - Free access to premium income opportunities!
         </div>
         
         <div class="header">
