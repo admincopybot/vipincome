@@ -1017,6 +1017,7 @@ def step4(symbol, strategy, option_id):
         'break_even': break_even,
         'dte': dte,
         'expiration_date': expiration_date,
+        'option_id': option_id,  # Add the missing option_id
         'scenarios': scenarios
     }
     
