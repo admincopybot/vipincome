@@ -280,62 +280,68 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 min-height: 100vh;
             }
             
-            .top-nav {
+            .top-banner {
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+                color: white;
+                text-align: center;
+                padding: 12px 20px;
+                font-weight: 600;
+                font-size: 16px;
+                border-bottom: 2px solid rgba(255,255,255,0.1);
+            }
+            
+            .header {
                 background: rgba(0,0,0,0.8);
-                padding: 10px 20px;
+                padding: 15px 20px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 backdrop-filter: blur(10px);
+                border-bottom: 1px solid rgba(255,255,255,0.1);
             }
             
             .logo {
                 display: flex;
                 align-items: center;
-                color: #ffffff;
-                font-weight: bold;
-                font-size: 16px;
             }
             
-            .logo::before {
-                content: "📈";
-                margin-right: 8px;
-                font-size: 20px;
+            .header-logo {
+                height: 35px;
+                width: auto;
             }
             
-            .nav-links {
+            .nav-menu {
                 display: flex;
-                gap: 20px;
+                gap: 25px;
                 align-items: center;
             }
             
-            .nav-link {
-                color: #bdc3c7;
+            .nav-item {
+                color: #cbd5e1;
                 text-decoration: none;
                 padding: 8px 16px;
-                border-radius: 5px;
+                border-radius: 6px;
+                font-weight: 500;
                 transition: all 0.3s ease;
             }
             
-            .nav-link:hover {
+            .nav-item:hover {
                 background: rgba(255,255,255,0.1);
                 color: #ffffff;
             }
             
-            .cta-button {
-                background: #f39c12;
+            .upgrade-btn {
+                background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
                 color: #000000;
-                padding: 8px 16px;
+                padding: 10px 20px;
                 border-radius: 20px;
-                text-decoration: none;
                 font-weight: bold;
-                font-size: 12px;
-                transition: all 0.3s ease;
+                font-size: 14px;
             }
             
-            .cta-button:hover {
-                background: #e67e22;
+            .upgrade-btn:hover {
                 transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(243,156,18,0.3);
             }
             
             .step-nav {
@@ -354,6 +360,15 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 gap: 10px;
                 color: #bdc3c7;
                 font-size: 14px;
+                text-decoration: none;
+                padding: 8px 12px;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+            }
+            
+            .step-item:hover {
+                background: rgba(255,255,255,0.1);
+                color: #ffffff;
             }
             
             .step-number {
@@ -367,6 +382,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 justify-content: center;
                 font-size: 12px;
                 font-weight: bold;
+                transition: all 0.3s ease;
             }
             
             .step-item.active .step-number {
@@ -375,6 +391,11 @@ def create_step4_demo_data(symbol, strategy, current_price):
             
             .step-item.active {
                 color: #ffffff;
+                background: rgba(155, 89, 182, 0.2);
+            }
+            
+            .step-item:hover .step-number {
+                background: #9b59b6;
             }
             
             .banner {
@@ -591,36 +612,38 @@ def create_step4_demo_data(symbol, strategy, current_price):
         </style>
     </head>
     <body>
-        <nav class="top-nav">
-            <div class="logo">INCOME</div>
-            <div class="nav-links">
-                <a href="#" class="nav-link">How to Use</a>
-                <a href="#" class="nav-link">Trade Classes</a>
-                <a href="#" class="cta-button">GET 90% OFF</a>
+        <div class="top-banner">
+            🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
+        </div>
+        
+        <div class="header">
+            <div class="logo">
+                <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
             </div>
-        </nav>
+            <div class="nav-menu">
+                <a href="#" class="nav-item">How to Use</a>
+                <a href="#" class="nav-item">Trade Classes</a>
+                <a href="#" class="nav-item upgrade-btn">GET 90% OFF</a>
+            </div>
+        </div>
         
         <div class="step-nav">
-            <div class="step-item">
+            <a href="/" class="step-item">
                 <div class="step-number">1</div>
                 <span>Scoreboard</span>
-            </div>
-            <div class="step-item">
+            </a>
+            <a href="/step2/{{ symbol }}" class="step-item">
                 <div class="step-number">2</div>
                 <span>Analysis</span>
-            </div>
-            <div class="step-item">
+            </a>
+            <a href="/step3/{{ symbol }}" class="step-item">
                 <div class="step-number">3</div>
                 <span>Strategy</span>
-            </div>
+            </a>
             <div class="step-item active">
                 <div class="step-number">4</div>
                 <span>Trade Details</span>
             </div>
-        </div>
-        
-        <div class="banner">
-            ⏰ Free access to The Income Machine ends in 18 days
         </div>
         
         <div class="container">
