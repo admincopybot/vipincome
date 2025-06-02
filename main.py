@@ -3076,6 +3076,122 @@ def step3(symbol=None):
     
     return render_template_string(template, symbol=symbol, options_data=options_data, current_price=current_price)
 
+@app.route('/hidden-insert-csv')
+def hidden_csv_ui():
+    """Hidden CSV upload interface for manual data loading"""
+    return '''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>CSV Data Upload</title>
+        <style>
+            body { 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                max-width: 800px; margin: 50px auto; padding: 20px;
+                background: #1a1f2e; color: #e2e8f0;
+            }
+            .container { 
+                background: rgba(255,255,255,0.05); 
+                padding: 30px; border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            h1 { color: #8b5cf6; margin-bottom: 30px; }
+            .upload-area {
+                border: 2px dashed rgba(139, 92, 246, 0.3);
+                border-radius: 8px; padding: 40px; text-align: center;
+                margin: 20px 0; background: rgba(139, 92, 246, 0.05);
+            }
+            input[type="file"] {
+                margin: 20px 0; padding: 10px;
+                background: rgba(255,255,255,0.1);
+                border: 1px solid rgba(255,255,255,0.2);
+                border-radius: 6px; color: #e2e8f0;
+            }
+            button {
+                background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                color: white; border: none; padding: 12px 30px;
+                border-radius: 6px; font-weight: 600; cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            button:hover { transform: translateY(-2px); }
+            .status { 
+                margin-top: 20px; padding: 15px; border-radius: 6px;
+                display: none;
+            }
+            .success { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; }
+            .error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
+            .info { color: #94a3b8; font-size: 14px; margin-top: 15px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>ETF Data Upload</h1>
+            <p>Upload your 292-ticker CSV file to refresh the database with new rankings.</p>
+            
+            <div class="upload-area">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div>📊 Select CSV File</div>
+                    <input type="file" id="csvFile" name="csvfile" accept=".csv" required>
+                    <br>
+                    <button type="submit">Upload & Refresh Database</button>
+                </form>
+            </div>
+            
+            <div id="status" class="status"></div>
+            
+            <div class="info">
+                Expected CSV format: symbol, current_price, total_score, avg_volume_10d, criteria columns...<br>
+                This will completely wipe previous data and insert fresh rankings with volume tie-breaker.
+            </div>
+        </div>
+        
+        <script>
+            document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const statusDiv = document.getElementById('status');
+                const fileInput = document.getElementById('csvFile');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    showStatus('Please select a CSV file', 'error');
+                    return;
+                }
+                
+                showStatus('Uploading and processing CSV...', 'info');
+                
+                const formData = new FormData();
+                formData.append('csvfile', file);
+                
+                try {
+                    const response = await fetch('/upload_csv', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showStatus(result.message, 'success');
+                    } else {
+                        showStatus('Upload failed: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showStatus('Upload failed: ' + error.message, 'error');
+                }
+            });
+            
+            function showStatus(message, type) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.textContent = message;
+                statusDiv.className = 'status ' + type;
+                statusDiv.style.display = 'block';
+            }
+        </script>
+    </body>
+    </html>
+    '''
+
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
     """CSV upload endpoint that updates the database with ETF scoring data from uploaded CSV
