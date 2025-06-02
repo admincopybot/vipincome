@@ -44,7 +44,7 @@ def load_etf_data_from_database():
             "XLRE": "Real Estate"
         }
         
-        # Convert database format to frontend format while keeping exact same structure
+        # Convert database format to frontend format using new CSV structure
         for symbol, data in db_data.items():
             criteria = data['criteria']
             
