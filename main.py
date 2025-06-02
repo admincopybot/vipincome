@@ -1560,8 +1560,8 @@ def index():
             background: rgba(15, 23, 42, 0.8);
             border-radius: 16px;
             padding: 30px;
-            border: 1px solid #374151;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.1);
             transition: all 0.3s ease;
             position: relative;
             text-decoration: none;
@@ -1628,6 +1628,39 @@ def index():
             letter-spacing: 1px;
         }
         
+        .criteria-visual {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .criteria-score {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .criteria-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .criteria-check {
+            color: #10b981;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+        }
+        
+        .criteria-x {
+            color: #ef4444;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+        
         .etf-card::before {
             content: '';
             position: absolute;
@@ -1642,8 +1675,8 @@ def index():
         
         .etf-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 25px 50px rgba(0, 212, 255, 0.15);
-            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.3), 0 0 30px rgba(139, 92, 246, 0.4);
+            border-color: rgba(139, 92, 246, 0.6);
         }
         
         .etf-card:hover::before {
@@ -1769,20 +1802,17 @@ def index():
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
                         <div class="choose-btn-text">Choose Opportunity</div>
-                        <div class="criteria-text">
-                            {% if etf.score == 5 %}
-                                This ticker matches ALL 5 criteria!
-                            {% elif etf.score == 4 %}
-                                This ticker matches 4 out of 5 criteria
-                            {% elif etf.score == 3 %}
-                                This ticker matches 3 out of 5 criteria
-                            {% elif etf.score == 2 %}
-                                This ticker matches 2 out of 5 criteria
-                            {% elif etf.score == 1 %}
-                                This ticker matches 1 out of 5 criteria
-                            {% else %}
-                                This ticker matches 0 out of 5 criteria
-                            {% endif %}
+                        <div class="criteria-visual">
+                            <div class="criteria-score">{{ etf.score }}/5 Criteria Met</div>
+                            <div class="criteria-indicators">
+                                {% for i in range(5) %}
+                                    {% if i < etf.score %}
+                                        <span class="criteria-check">✓</span>
+                                    {% else %}
+                                        <span class="criteria-x">✗</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </a>
