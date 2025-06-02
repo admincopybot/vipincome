@@ -3097,7 +3097,21 @@ def step3(symbol=None):
                 <a href="{% if symbol %}/step2/{{ symbol }}{% else %}/{% endif %}" class="back-scoreboard-btn">← Back to Analysis</a>
             </div>
         </div>
-    </body>
+    <script>
+function updateCountdown() {
+    const endDate = new Date('June 20, 2025 23:59:59');
+    const now = new Date();
+    const timeDiff = endDate - now;
+    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    
+    const countdownEl = document.getElementById("countdown");
+    if (countdownEl) {
+        countdownEl.textContent = daysLeft > 0 ? daysLeft : 0;
+    }
+}
+document.addEventListener("DOMContentLoaded", updateCountdown);
+</script>
+</body>
     </html>
     """
     
@@ -3215,7 +3229,21 @@ def hidden_csv_ui():
                 statusDiv.style.display = 'block';
             }
         </script>
-    </body>
+    <script>
+function updateCountdown() {
+    const endDate = new Date('June 20, 2025 23:59:59');
+    const now = new Date();
+    const timeDiff = endDate - now;
+    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    
+    const countdownEl = document.getElementById("countdown");
+    if (countdownEl) {
+        countdownEl.textContent = daysLeft > 0 ? daysLeft : 0;
+    }
+}
+document.addEventListener("DOMContentLoaded", updateCountdown);
+</script>
+</body>
     </html>
     '''
 
