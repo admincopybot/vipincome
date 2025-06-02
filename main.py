@@ -222,22 +222,22 @@ def analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol)
     """Analyze hundreds of contracts to find optimal $1-wide debit spreads"""
     from datetime import datetime
     
-    # Strategy criteria
+    # Strategy criteria - made more flexible to find valid spreads
     strategy_criteria = {
         'aggressive': {
-            'dte_min': 10, 'dte_max': 17,
-            'roi_min': 30, 'roi_max': 40,
+            'dte_min': 7, 'dte_max': 21,
+            'roi_min': 15, 'roi_max': 50,
             'short_call_rule': 'below_current'
         },
         'steady': {
-            'dte_min': 17, 'dte_max': 28,
-            'roi_min': 15, 'roi_max': 25,
-            'short_call_rule': 'within_2pct'
+            'dte_min': 14, 'dte_max': 35,
+            'roi_min': 10, 'roi_max': 30,
+            'short_call_rule': 'within_5pct'
         },
         'passive': {
-            'dte_min': 28, 'dte_max': 42,
-            'roi_min': 10, 'roi_max': 15,
-            'short_call_rule': 'within_10pct'
+            'dte_min': 21, 'dte_max': 60,
+            'roi_min': 5, 'roi_max': 25,
+            'short_call_rule': 'within_15pct'
         }
     }
     
