@@ -452,52 +452,104 @@ def create_step4_demo_data(symbol, strategy, current_price):
             }
             
             .info-card {
-                background: #34495e;
-                padding: 20px;
-                border-radius: 8px;
+                background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+                padding: 24px;
+                border-radius: 16px;
                 text-align: center;
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .info-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(145deg, rgba(59,130,246,0.1) 0%, rgba(147,51,234,0.1) 100%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            }
+            
+            .info-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 16px 48px rgba(59,130,246,0.2);
+                border-color: rgba(59,130,246,0.3);
+            }
+            
+            .info-card:hover::before {
+                opacity: 1;
             }
             
             .info-card h3 {
-                font-size: 18px;
-                margin-bottom: 15px;
-                color: #ecf0f1;
+                font-size: 20px;
+                margin-bottom: 18px;
+                color: #f1f5f9;
+                font-weight: 600;
+                position: relative;
+                z-index: 1;
             }
             
             .option-id {
-                font-size: 12px;
-                color: #bdc3c7;
-                margin-bottom: 10px;
+                font-size: 11px;
+                color: #94a3b8;
+                margin-bottom: 12px;
+                font-family: 'Monaco', monospace;
+                background: rgba(0,0,0,0.2);
+                padding: 4px 8px;
+                border-radius: 6px;
+                position: relative;
+                z-index: 1;
             }
             
             .price {
-                font-size: 24px;
-                font-weight: bold;
-                color: #3498db;
+                font-size: 28px;
+                font-weight: 700;
+                color: #60a5fa;
+                text-shadow: 0 0 20px rgba(96,165,250,0.4);
+                position: relative;
+                z-index: 1;
             }
             
             .spread-cost {
-                color: #e74c3c;
-                font-size: 20px;
-                font-weight: bold;
+                color: #f87171;
+                font-size: 22px;
+                font-weight: 700;
+                text-shadow: 0 0 15px rgba(248,113,113,0.4);
+                position: relative;
+                z-index: 1;
             }
             
             .max-value {
-                color: #27ae60;
-                font-size: 20px;
-                font-weight: bold;
+                color: #34d399;
+                font-size: 22px;
+                font-weight: 700;
+                text-shadow: 0 0 15px rgba(52,211,153,0.4);
+                position: relative;
+                z-index: 1;
             }
             
             .roi-value {
-                color: #f39c12;
-                font-size: 20px;
-                font-weight: bold;
+                color: #fbbf24;
+                font-size: 22px;
+                font-weight: 700;
+                text-shadow: 0 0 15px rgba(251,191,36,0.4);
+                position: relative;
+                z-index: 1;
             }
             
             .breakeven-value {
-                color: #9b59b6;
-                font-size: 20px;
-                font-weight: bold;
+                color: #a78bfa;
+                font-size: 22px;
+                font-weight: 700;
+                text-shadow: 0 0 15px rgba(167,139,250,0.4);
+                position: relative;
+                z-index: 1;
             }
             
             .summary-section {
