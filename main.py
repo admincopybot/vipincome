@@ -1106,7 +1106,7 @@ def step4(symbol, strategy, option_id):
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; line-height: 1.6; }}
         
-        .top-banner {{ background: rgba(0, 12, 12, 0.8); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; }}
+        .top-banner {{ background: linear-gradient(135deg, #1e40af, #3b82f6); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; font-weight: 500; }}
         
         .header {{ display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.02); }}
         .logo {{ display: flex; align-items: center; gap: 12px; }}
