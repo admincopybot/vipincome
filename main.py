@@ -85,10 +85,19 @@ def load_etf_data_from_database():
             # Only include sector name if it's a known ETF sector
             sector_name = sector_mappings.get(symbol, "")
             
+            # Calculate actual score from criteria (count True values)
+            actual_score = sum([
+                criteria['trend1'],
+                criteria['trend2'], 
+                criteria['snapback'],
+                criteria['momentum'],
+                criteria['stabilizing']
+            ])
+            
             # Update etf_scores with exact same structure as before
             etf_scores[symbol] = {
                 "name": sector_name,
-                "score": data['total_score'],
+                "score": actual_score,  # Use calculated score from criteria
                 "price": data['current_price'],
                 "indicators": indicators
             }
