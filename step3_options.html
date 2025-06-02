@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 3: Income Strategy Selection - {{ symbol }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; }
+        .top-banner { background: linear-gradient(135deg, #1e40af, #3b82f6); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; font-weight: 500; }
+        .header { background: #242b42; padding: 20px; border-bottom: 1px solid #374151; }
+        .breadcrumb { color: #9ca3af; font-size: 14px; margin-bottom: 10px; }
+        .title { font-size: 28px; font-weight: 700; color: #ffffff; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-top: 30px; }
+        .strategy-card { background: linear-gradient(135deg, #1f2937, #374151); border-radius: 16px; padding: 30px; border: 2px solid #4f46e5; box-shadow: 0 0 30px rgba(79, 70, 229, 0.3); }
+        .strategy-title { font-size: 22px; font-weight: 700; color: #ffffff; margin-bottom: 15px; }
+        .strategy-description { color: #d1d5db; margin-bottom: 25px; line-height: 1.6; }
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .metric { background: rgba(79, 70, 229, 0.1); border-radius: 8px; padding: 15px; }
+        .metric-label { color: #9ca3af; font-size: 12px; font-weight: 500; text-transform: uppercase; }
+        .metric-value { color: #ffffff; font-size: 18px; font-weight: 700; margin-top: 5px; }
+        .analyze-btn { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border: none; padding: 15px 30px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s ease; }
+        .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4); }
+        .stock-info { background: #374151; border-radius: 12px; padding: 20px; margin-bottom: 30px; }
+        .stock-price { font-size: 32px; font-weight: 700; color: #10b981; }
+    </style>
+</head>
+<body>
+    <div class="top-banner">
+        🎯 Free access to The Income Machine ends in 18 days | Upgrade to VIP for unlimited access
+    </div>
+    
+    <div class="header">
+        <div class="container">
+            <div class="breadcrumb">Step 1: Scoreboard → Step 2: Analysis → <strong>Step 3: Strategy Selection</strong></div>
+            <div class="title">Income Strategy Selection - {{ symbol }}</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="stock-info">
+            <h3>Current Stock Price</h3>
+            <div class="stock-price">${{ "%.2f"|format(ticker_data.get('price', 50.0)|float) }}</div>
+        </div>
+        
+        <div class="strategy-grid">
+            <div class="strategy-card">
+                <div class="strategy-title">{{ options_data.aggressive.strategy_name }}</div>
+                <div class="strategy-description">{{ options_data.aggressive.description }}</div>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">ROI Target</div>
+                        <div class="metric-value">{{ options_data.aggressive.roi }}%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Days to Exp</div>
+                        <div class="metric-value">{{ options_data.aggressive.dte }}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Long Strike</div>
+                        <div class="metric-value">${{ "%.2f"|format(options_data.aggressive.long_strike) }}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Spread Cost</div>
+                        <div class="metric-value">${{ "%.2f"|format(options_data.aggressive.spread_cost) }}</div>
+                    </div>
+                </div>
+                <button class="analyze-btn" onclick="window.location.href='/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.option_id }}'">
+                    ANALYZE THIS TRADE
+                </button>
+            </div>
+            
+            <div class="strategy-card">
+                <div class="strategy-title">{{ options_data.steady.strategy_name }}</div>
+                <div class="strategy-description">{{ options_data.steady.description }}</div>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">ROI Target</div>
+                        <div class="metric-value">{{ options_data.steady.roi }}%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Days to Exp</div>
+                        <div class="metric-value">{{ options_data.steady.dte }}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Long Strike</div>
+                        <div class="metric-value">${{ "%.2f"|format(options_data.steady.long_strike) }}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Spread Cost</div>
+                        <div class="metric-value">${{ "%.2f"|format(options_data.steady.spread_cost) }}</div>
+                    </div>
+                </div>
+                <button class="analyze-btn" onclick="window.location.href='/step4/{{ symbol }}/steady/{{ options_data.steady.option_id }}'">
+                    ANALYZE THIS TRADE
+                </button>
+            </div>
+            
+            <div class="strategy-card">
+                <div class="strategy-title">{{ options_data.passive.strategy_name }}</div>
+                <div class="strategy-description">{{ options_data.passive.description }}</div>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">ROI Target</div>
+                        <div class="metric-value">{{ options_data.passive.roi }}%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Days to Exp</div>
+                        <div class="metric-value">{{ options_data.passive.dte }}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Long Strike</div>
+                        <div class="metric-value">${{ "%.2f"|format(options_data.passive.long_strike) }}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Spread Cost</div>
+                        <div class="metric-value">${{ "%.2f"|format(options_data.passive.spread_cost) }}</div>
+                    </div>
+                </div>
+                <button class="analyze-btn" onclick="window.location.href='/step4/{{ symbol }}/passive/{{ options_data.passive.option_id }}'">
+                    ANALYZE THIS TRADE
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

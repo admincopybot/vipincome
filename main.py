@@ -1077,7 +1077,7 @@ def step3(symbol=None):
     # Get demo options data
     options_data = fetch_options_data(symbol, current_price)
     
-    return render_template_string(open('step3_response.html').read(),
+    return render_template_string(open('step3_options.html').read(),
                                 symbol=symbol,
                                 ticker_data=ticker_data,
                                 options_data=options_data)
