@@ -1033,10 +1033,18 @@ def index():
         # Convert to list and sort by score (descending), then by trading volume (descending)
         etf_list = []
         for symbol, data in etf_scores.items():
+            # Handle current_price from different data structure formats
+            if 'current_price' in data:
+                current_price = data['current_price']
+            elif 'price' in data:
+                current_price = data['price']
+            else:
+                current_price = 50.0  # Default fallback
+                
             etf_list.append({
                 'symbol': symbol,
                 'score': data['score'],
-                'current_price': data['current_price'],
+                'current_price': current_price,
                 'avg_volume_10d': data.get('avg_volume_10d', 0),
                 'ticker_data': data.get('ticker_data', {})
             })
