@@ -3358,34 +3358,53 @@ def api_chart_data(symbol):
             if data.get('status') == 'OK' and data.get('results'):
                 chart_data = []
                 for result in data['results']:
+                    # Convert timestamp to date string
+                    date_str = datetime.fromtimestamp(result['t'] / 1000).strftime('%Y-%m-%d')
                     chart_data.append({
-                        'timestamp': result['t'],
-                        'price': result['c'],  # closing price
+                        'date': date_str,
+                        'close': result['c'],  # closing price
                         'volume': result['v']
                     })
                 
+                # Calculate price change
+                current_price = chart_data[-1]['close'] if chart_data else 0
+                previous_price = chart_data[-2]['close'] if len(chart_data) > 1 else current_price
+                price_change = current_price - previous_price
+                price_change_pct = (price_change / previous_price * 100) if previous_price > 0 else 0
+                
                 return jsonify({
+                    'success': True,
                     'symbol': symbol,
-                    'data': chart_data,
-                    'current_price': chart_data[-1]['price'] if chart_data else None,
-                    'status': 'success'
+                    'chart_data': chart_data,
+                    'current_price': current_price,
+                    'price_change': price_change,
+                    'price_change_pct': price_change_pct
                 })
             elif data.get('status') == 'DELAYED':
                 # Handle delayed data - still return what we have
                 chart_data = []
                 if data.get('results'):
                     for result in data['results']:
+                        date_str = datetime.fromtimestamp(result['t'] / 1000).strftime('%Y-%m-%d')
                         chart_data.append({
-                            'timestamp': result['t'],
-                            'price': result['c'],
+                            'date': date_str,
+                            'close': result['c'],
                             'volume': result['v']
                         })
                 
+                # Calculate price change
+                current_price = chart_data[-1]['close'] if chart_data else 0
+                previous_price = chart_data[-2]['close'] if len(chart_data) > 1 else current_price
+                price_change = current_price - previous_price
+                price_change_pct = (price_change / previous_price * 100) if previous_price > 0 else 0
+                
                 return jsonify({
+                    'success': True,
                     'symbol': symbol,
-                    'data': chart_data,
-                    'current_price': chart_data[-1]['price'] if chart_data else None,
-                    'status': 'delayed',
+                    'chart_data': chart_data,
+                    'current_price': current_price,
+                    'price_change': price_change,
+                    'price_change_pct': price_change_pct,
                     'message': 'Market data is delayed'
                 })
             else:
