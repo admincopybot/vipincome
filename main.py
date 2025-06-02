@@ -452,16 +452,13 @@ def create_step4_demo_data(symbol, strategy, current_price):
             }
             
             .info-card {
-                background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-                padding: 28px;
-                border-radius: 20px;
+                background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+                padding: 24px;
+                border-radius: 16px;
                 text-align: center;
-                border: 2px solid transparent;
-                background-clip: padding-box;
-                box-shadow: 
-                    0 0 20px rgba(0,0,0,0.8),
-                    inset 0 1px 0 rgba(255,255,255,0.05);
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
                 position: relative;
                 overflow: hidden;
             }
@@ -469,41 +466,20 @@ def create_step4_demo_data(symbol, strategy, current_price):
             .info-card::before {
                 content: '';
                 position: absolute;
-                top: -2px;
-                left: -2px;
-                right: -2px;
-                bottom: -2px;
-                background: linear-gradient(45deg, 
-                    #00d4ff 0%, 
-                    #ff00ff 25%, 
-                    #00ff88 50%, 
-                    #ff6600 75%, 
-                    #00d4ff 100%);
-                border-radius: 22px;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(145deg, rgba(59,130,246,0.1) 0%, rgba(147,51,234,0.1) 100%);
                 opacity: 0;
-                transition: opacity 0.4s ease;
-                z-index: -1;
-                animation: colorShift 3s ease-in-out infinite;
-            }
-            
-            @keyframes colorShift {
-                0%, 100% { 
-                    background: linear-gradient(45deg, #00d4ff 0%, #ff00ff 25%, #00ff88 50%, #ff6600 75%, #00d4ff 100%);
-                }
-                33% { 
-                    background: linear-gradient(45deg, #ff00ff 0%, #00ff88 25%, #ff6600 50%, #00d4ff 75%, #ff00ff 100%);
-                }
-                66% { 
-                    background: linear-gradient(45deg, #00ff88 0%, #ff6600 25%, #00d4ff 50%, #ff00ff 75%, #00ff88 100%);
-                }
+                transition: opacity 0.3s ease;
+                pointer-events: none;
             }
             
             .info-card:hover {
-                transform: translateY(-6px) scale(1.02);
-                box-shadow: 
-                    0 0 40px rgba(0,212,255,0.3),
-                    0 0 80px rgba(255,0,255,0.2),
-                    inset 0 1px 0 rgba(255,255,255,0.1);
+                transform: translateY(-4px);
+                box-shadow: 0 16px 48px rgba(59,130,246,0.2);
+                border-color: rgba(59,130,246,0.3);
             }
             
             .info-card:hover::before {
@@ -735,7 +711,9 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 </div>
             </div>
             
-
+            <div class="demo-notice">
+                📊 DEMO ANALYSIS: This shows example spread data when live options aren't available
+            </div>
             
             <div class="main-grid">
                 <div class="info-card">
