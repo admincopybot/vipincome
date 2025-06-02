@@ -281,13 +281,13 @@ def create_step4_demo_data(symbol, strategy, current_price):
             }
             
             .top-banner {
-                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+                background: #4472c4;
                 color: white;
                 text-align: center;
-                padding: 12px 20px;
-                font-weight: 600;
-                font-size: 16px;
-                border-bottom: 2px solid rgba(255,255,255,0.1);
+                padding: 8px 20px;
+                font-weight: 500;
+                font-size: 14px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
             }
             
             .header {
@@ -623,7 +623,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
             <div class="nav-menu">
                 <a href="#" class="nav-item">How to Use</a>
                 <a href="#" class="nav-item">Trade Classes</a>
-                <a href="#" class="nav-item upgrade-btn">GET 90% OFF</a>
+                <a href="#" class="nav-item upgrade-btn">GET 50% OFF</a>
             </div>
         </div>
         
