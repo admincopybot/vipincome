@@ -747,9 +747,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 </div>
             </div>
             
-            <div class="demo-notice">
-                📊 DEMO ANALYSIS: This shows example spread data when live options aren't available
-            </div>
+
             
             <div class="main-grid">
                 <div class="info-card">
