@@ -257,7 +257,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
         'demo_note': 'Demo spread analysis - actual options may vary'
     }
     
-    # Simplified Step 4 template for demo data
+    # Professional Step 4 template matching the provided design
     template = """
     <!DOCTYPE html>
     <html>
@@ -266,14 +266,18 @@ def create_step4_demo_data(symbol, strategy, current_price):
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
             body {
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                background: #2c3e50;
                 color: #ffffff;
                 line-height: 1.6;
                 min-height: 100vh;
-                margin: 0;
-                padding: 20px;
             }
             
             .container {
@@ -282,98 +286,179 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 padding: 20px;
             }
             
-            .header {
-                text-align: center;
-                margin-bottom: 30px;
-                background: linear-gradient(45deg, #2E86AB, #A23B72, #F18F01);
-                padding: 20px;
-                border-radius: 15px;
+            .header-section {
+                background: #34495e;
+                padding: 15px 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             }
             
-            .banner {
-                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-                padding: 15px;
-                border-radius: 10px;
-                text-align: center;
-                margin-bottom: 20px;
+            .expiration-info {
+                font-size: 16px;
+                font-weight: 500;
             }
             
-            .demo-notice {
-                background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-                padding: 15px;
-                border-radius: 10px;
-                text-align: center;
-                margin-bottom: 20px;
+            .strikes-info {
+                background: #3498db;
+                color: white;
+                padding: 8px 15px;
+                border-radius: 20px;
                 font-weight: bold;
             }
             
-            .trade-summary {
-                background: rgba(255,255,255,0.1);
-                padding: 25px;
-                border-radius: 15px;
-                margin-bottom: 30px;
-                backdrop-filter: blur(10px);
+            .width-info {
+                background: #9b59b6;
+                color: white;
+                padding: 8px 15px;
+                border-radius: 5px;
+                font-size: 14px;
+                font-weight: bold;
             }
             
-            .summary-grid {
+            .main-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                grid-template-columns: 1fr 1fr 1fr 1fr;
                 gap: 20px;
-                margin-top: 20px;
+                margin-bottom: 30px;
             }
             
-            .summary-item {
-                background: rgba(0,0,0,0.3);
-                padding: 15px;
-                border-radius: 10px;
+            .info-card {
+                background: #34495e;
+                padding: 20px;
+                border-radius: 8px;
                 text-align: center;
             }
             
-            .summary-label {
-                font-size: 0.9em;
-                color: #b0b0b0;
-                margin-bottom: 5px;
+            .info-card h3 {
+                font-size: 18px;
+                margin-bottom: 15px;
+                color: #ecf0f1;
             }
             
-            .summary-value {
-                font-size: 1.3em;
+            .option-id {
+                font-size: 12px;
+                color: #bdc3c7;
+                margin-bottom: 10px;
+            }
+            
+            .price {
+                font-size: 24px;
                 font-weight: bold;
-                color: #4CAF50;
+                color: #3498db;
+            }
+            
+            .spread-cost {
+                color: #e74c3c;
+                font-size: 20px;
+                font-weight: bold;
+            }
+            
+            .max-value {
+                color: #27ae60;
+                font-size: 20px;
+                font-weight: bold;
+            }
+            
+            .roi-value {
+                color: #f39c12;
+                font-size: 20px;
+                font-weight: bold;
+            }
+            
+            .breakeven-value {
+                color: #9b59b6;
+                font-size: 20px;
+                font-weight: bold;
+            }
+            
+            .summary-section {
+                background: #34495e;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 30px;
+            }
+            
+            .summary-title {
+                font-size: 20px;
+                margin-bottom: 20px;
+                color: #ecf0f1;
+            }
+            
+            .summary-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            .summary-table th {
+                background: #2c3e50;
+                padding: 12px;
+                text-align: center;
+                font-weight: bold;
+                border: 1px solid #34495e;
+            }
+            
+            .summary-table td {
+                padding: 12px;
+                text-align: center;
+                border: 1px solid #34495e;
+                background: #2c3e50;
             }
             
             .scenarios-section {
-                background: rgba(255,255,255,0.1);
-                padding: 25px;
-                border-radius: 15px;
+                background: #34495e;
+                padding: 20px;
+                border-radius: 8px;
                 margin-bottom: 30px;
-                backdrop-filter: blur(10px);
+            }
+            
+            .scenarios-title {
+                font-size: 20px;
+                margin-bottom: 20px;
+                color: #ecf0f1;
             }
             
             .scenarios-table {
                 width: 100%;
                 border-collapse: collapse;
-                margin-top: 20px;
-            }
-            
-            .scenarios-table th,
-            .scenarios-table td {
-                padding: 12px;
-                text-align: center;
-                border-bottom: 1px solid rgba(255,255,255,0.2);
             }
             
             .scenarios-table th {
-                background: rgba(0,0,0,0.3);
+                background: #2c3e50;
+                padding: 10px;
+                text-align: center;
+                font-weight: bold;
+                font-size: 14px;
+                border: 1px solid #34495e;
+            }
+            
+            .scenarios-table td {
+                padding: 10px;
+                text-align: center;
+                border: 1px solid #34495e;
+                background: #2c3e50;
+            }
+            
+            .loss-cell {
+                background: #e74c3c !important;
+                color: white;
                 font-weight: bold;
             }
             
-            .profit {
-                color: #4CAF50;
+            .win-cell {
+                background: #27ae60 !important;
+                color: white;
                 font-weight: bold;
             }
             
-            .loss {
-                color: #f44336;
+            .demo-notice {
+                background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+                padding: 15px;
+                border-radius: 8px;
+                text-align: center;
+                margin-bottom: 20px;
                 font-weight: bold;
             }
             
@@ -402,83 +487,128 @@ def create_step4_demo_data(symbol, strategy, current_price):
     </head>
     <body>
         <div class="container">
-            <div class="header">
-                <h1>Step 4: {{ strategy.title() }} Strategy Analysis</h1>
-                <p>{{ symbol }} - Call Debit Spread</p>
-            </div>
-            
-            <div class="banner">
-                ⏰ Free access to The Income Machine ends in 18 days
+            <div class="header-section">
+                <div class="expiration-info">
+                    Expiration: {{ option_data.expiration_date }} ({{ option_data.days_to_expiration }} days)
+                </div>
+                <div class="strikes-info">
+                    ${{ "%.2f"|format(option_data.strike_price) }} / ${{ "%.2f"|format(option_data.short_strike_price) }}
+                </div>
+                <div class="width-info">
+                    Width: $1
+                </div>
             </div>
             
             <div class="demo-notice">
                 📊 DEMO ANALYSIS: This shows example spread data when live options aren't available
             </div>
             
-            <div class="trade-summary">
-                <h2>Trade Summary</h2>
-                <div class="summary-grid">
-                    <div class="summary-item">
-                        <div class="summary-label">Strategy</div>
-                        <div class="summary-value">{{ option_data.spread_type }}</div>
+            <div class="main-grid">
+                <div class="info-card">
+                    <h3>Buy (${{ "%.2f"|format(option_data.strike_price) }})</h3>
+                    <div class="option-id">Option ID: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
+                    <div class="price">${{ "%.2f"|format(option_data.option_price + 0.15) }}</div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Sell (${{ "%.2f"|format(option_data.short_strike_price) }})</h3>
+                    <div class="option-id">Option ID: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
+                    <div class="price">${{ "%.2f"|format(0.15) }}</div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Spread Details</h3>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Spread Cost:</strong> <span class="spread-cost">${{ "%.2f"|format(option_data.option_price) }}</span>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Long Strike</div>
-                        <div class="summary-value">${{ "%.2f"|format(option_data.strike_price) }}</div>
+                    <div>
+                        <strong>Max Value:</strong> <span class="max-value">${{ "%.2f"|format(option_data.max_profit + option_data.option_price) }}</span>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Short Strike</div>
-                        <div class="summary-value">${{ "%.2f"|format(option_data.short_strike_price) }}</div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Trade Info</h3>
+                    <div style="margin-bottom: 10px;">
+                        <strong>ROI:</strong> <span class="roi-value">{{ "%.2f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</span>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Net Cost</div>
-                        <div class="summary-value">${{ "%.2f"|format(option_data.option_price) }}</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Max Profit</div>
-                        <div class="summary-value">${{ "%.2f"|format(option_data.max_profit) }}</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Max Loss</div>
-                        <div class="summary-value">${{ "%.2f"|format(option_data.max_loss) }}</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Breakeven</div>
-                        <div class="summary-value">${{ "%.2f"|format(option_data.breakeven) }}</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Days to Expiration</div>
-                        <div class="summary-value">{{ option_data.days_to_expiration }}</div>
+                    <div>
+                        <strong>Breakeven:</strong> <span class="breakeven-value">${{ "%.2f"|format(option_data.breakeven) }}</span>
                     </div>
                 </div>
             </div>
             
-            <div class="scenarios-section">
-                <h2>Profit/Loss Scenarios at Expiration</h2>
-                <table class="scenarios-table">
+            <div class="summary-section">
+                <h2 class="summary-title">Trade Summary</h2>
+                <table class="summary-table">
                     <thead>
                         <tr>
-                            <th>Stock Price</th>
-                            <th>Change %</th>
-                            <th>Spread Value</th>
-                            <th>Profit/Loss</th>
-                            <th>ROI %</th>
+                            <th>Current Stock Price</th>
+                            <th>Spread Cost</th>
+                            <th>Call Strikes</th>
+                            <th>Breakeven Price</th>
+                            <th>Max Profit</th>
+                            <th>Return on Investment</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for scenario in option_data.scenarios %}
                         <tr>
+                            <td>${{ "%.2f"|format(option_data.current_stock_price) }}</td>
+                            <td>${{ "%.2f"|format(option_data.option_price) }}</td>
+                            <td>${{ "%.2f"|format(option_data.strike_price) }} & ${{ "%.2f"|format(option_data.short_strike_price) }}</td>
+                            <td>${{ "%.2f"|format(option_data.breakeven) }}</td>
+                            <td>${{ "%.2f"|format(option_data.max_profit) }}</td>
+                            <td>{{ "%.2f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="scenarios-section">
+                <h2 class="scenarios-title">Stock Price Scenarios</h2>
+                <table class="scenarios-table">
+                    <thead>
+                        <tr>
+                            <th>Change</th>
+                            <th>-7.5%</th>
+                            <th>-5%</th>
+                            <th>-2.5%</th>
+                            <th>0%</th>
+                            <th>+2.5%</th>
+                            <th>+5%</th>
+                            <th>+7.5%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Stock Price</strong></td>
+                            {% for scenario in option_data.scenarios[1:8] %}
                             <td>${{ "%.2f"|format(scenario.stock_price) }}</td>
-                            <td>{{ "%.1f"|format(scenario.change_percent) }}%</td>
-                            <td>${{ "%.2f"|format(scenario.spread_value) }}</td>
-                            <td class="{{ scenario.outcome }}">
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>ROI %</strong></td>
+                            {% for scenario in option_data.scenarios[1:8] %}
+                            <td class="{{ 'loss-cell' if scenario.outcome == 'loss' else 'win-cell' }}">
+                                {{ "%.2f"|format(scenario.roi_percent) }}%
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Profit</strong></td>
+                            {% for scenario in option_data.scenarios[1:8] %}
+                            <td class="{{ 'loss-cell' if scenario.outcome == 'loss' else 'win-cell' }}">
                                 ${{ "%.2f"|format(scenario.profit_loss) }}
                             </td>
-                            <td class="{{ scenario.outcome }}">
-                                {{ "%.1f"|format(scenario.roi_percent) }}%
-                            </td>
+                            {% endfor %}
                         </tr>
-                        {% endfor %}
+                        <tr>
+                            <td><strong>Outcome</strong></td>
+                            {% for scenario in option_data.scenarios[1:8] %}
+                            <td class="{{ 'loss-cell' if scenario.outcome == 'loss' else 'win-cell' }}">
+                                {{ scenario.outcome }}
+                            </td>
+                            {% endfor %}
+                        </tr>
                     </tbody>
                 </table>
             </div>
