@@ -161,6 +161,339 @@ def synchronize_etf_scores():
             # Update the score to match the indicators
             etf_scores[symbol]['score'] = score
 
+def create_step4_demo_data(symbol, strategy, current_price):
+    """Create comprehensive Step 4 demo data for debit spread analysis"""
+    from datetime import datetime, timedelta
+    from flask import render_template_string
+    
+    # Demo specifications based on strategy
+    demo_specs = {
+        'aggressive': {
+            'dte': 14,
+            'roi': 35.2,
+            'long_strike_offset': -2.0,
+            'short_strike_offset': -1.0,
+            'cost': 0.68,
+            'max_profit': 0.32
+        },
+        'steady': {
+            'dte': 21,
+            'roi': 18.7,
+            'long_strike_offset': -1.0,
+            'short_strike_offset': 0.0,
+            'cost': 0.85,
+            'max_profit': 0.15
+        },
+        'passive': {
+            'dte': 35,
+            'roi': 12.4,
+            'long_strike_offset': 0.0,
+            'short_strike_offset': 1.0,
+            'cost': 0.89,
+            'max_profit': 0.11
+        }
+    }
+    
+    spec = demo_specs[strategy]
+    
+    # Calculate demo strikes
+    long_strike = round(current_price + spec['long_strike_offset'])
+    short_strike = round(current_price + spec['short_strike_offset'])
+    
+    # Calculate demo expiration
+    expiration_date = datetime.now() + timedelta(days=spec['dte'])
+    
+    # Generate profit/loss scenarios
+    scenarios = []
+    scenario_percentages = [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10]
+    
+    for change_pct in scenario_percentages:
+        future_price = current_price * (1 + change_pct/100)
+        
+        # Calculate spread value at expiration
+        long_value = max(0, future_price - long_strike)
+        short_value = max(0, future_price - short_strike)
+        spread_value = long_value - short_value
+        
+        # Calculate profit/loss
+        profit = spread_value - spec['cost']
+        roi = (profit / spec['cost']) * 100 if spec['cost'] > 0 else 0
+        outcome = "profit" if profit > 0 else "loss"
+        
+        scenarios.append({
+            'stock_price': future_price,
+            'change_percent': change_pct,
+            'spread_value': spread_value,
+            'profit_loss': profit,
+            'roi_percent': roi,
+            'outcome': outcome
+        })
+    
+    # Create comprehensive demo data
+    demo_data = {
+        'option_price': spec['cost'],
+        'strike_price': long_strike,
+        'short_strike_price': short_strike,
+        'current_stock_price': current_price,
+        'intrinsic_value': max(0, current_price - long_strike),
+        'time_value': spec['cost'] - max(0, current_price - long_strike),
+        'days_to_expiration': spec['dte'],
+        'delta': 0.65,
+        'gamma': 0.03,
+        'theta': -0.05,
+        'vega': 0.12,
+        'implied_volatility': 25.4,
+        'open_interest': 1250,
+        'volume': 87,
+        'scenarios': scenarios,
+        'max_loss': spec['cost'],
+        'max_profit': spec['max_profit'],
+        'breakeven': long_strike + spec['cost'],
+        'spread_type': 'Call Debit Spread',
+        'strategy': strategy.title(),
+        'symbol': symbol,
+        'expiration_date': expiration_date.strftime('%Y-%m-%d'),
+        'is_demo': True,
+        'demo_note': 'Demo spread analysis - actual options may vary'
+    }
+    
+    # Simplified Step 4 template for demo data
+    template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Step 4: Trade Analysis - {{ symbol }} {{ strategy.title() }} Strategy</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                color: #ffffff;
+                line-height: 1.6;
+                min-height: 100vh;
+                margin: 0;
+                padding: 20px;
+            }
+            
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                background: linear-gradient(45deg, #2E86AB, #A23B72, #F18F01);
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            .banner {
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+                padding: 15px;
+                border-radius: 10px;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .demo-notice {
+                background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+                padding: 15px;
+                border-radius: 10px;
+                text-align: center;
+                margin-bottom: 20px;
+                font-weight: bold;
+            }
+            
+            .trade-summary {
+                background: rgba(255,255,255,0.1);
+                padding: 25px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                backdrop-filter: blur(10px);
+            }
+            
+            .summary-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+            }
+            
+            .summary-item {
+                background: rgba(0,0,0,0.3);
+                padding: 15px;
+                border-radius: 10px;
+                text-align: center;
+            }
+            
+            .summary-label {
+                font-size: 0.9em;
+                color: #b0b0b0;
+                margin-bottom: 5px;
+            }
+            
+            .summary-value {
+                font-size: 1.3em;
+                font-weight: bold;
+                color: #4CAF50;
+            }
+            
+            .scenarios-section {
+                background: rgba(255,255,255,0.1);
+                padding: 25px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                backdrop-filter: blur(10px);
+            }
+            
+            .scenarios-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            
+            .scenarios-table th,
+            .scenarios-table td {
+                padding: 12px;
+                text-align: center;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+            }
+            
+            .scenarios-table th {
+                background: rgba(0,0,0,0.3);
+                font-weight: bold;
+            }
+            
+            .profit {
+                color: #4CAF50;
+                font-weight: bold;
+            }
+            
+            .loss {
+                color: #f44336;
+                font-weight: bold;
+            }
+            
+            .navigation {
+                text-align: center;
+                margin-top: 30px;
+            }
+            
+            .nav-button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 25px;
+                margin: 0 10px;
+                display: inline-block;
+                transition: all 0.3s ease;
+                font-weight: bold;
+            }
+            
+            .nav-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Step 4: {{ strategy.title() }} Strategy Analysis</h1>
+                <p>{{ symbol }} - Call Debit Spread</p>
+            </div>
+            
+            <div class="banner">
+                ⏰ Free access to The Income Machine ends in 18 days
+            </div>
+            
+            <div class="demo-notice">
+                📊 DEMO ANALYSIS: This shows example spread data when live options aren't available
+            </div>
+            
+            <div class="trade-summary">
+                <h2>Trade Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">Strategy</div>
+                        <div class="summary-value">{{ option_data.spread_type }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Long Strike</div>
+                        <div class="summary-value">${{ "%.2f"|format(option_data.strike_price) }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Short Strike</div>
+                        <div class="summary-value">${{ "%.2f"|format(option_data.short_strike_price) }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Net Cost</div>
+                        <div class="summary-value">${{ "%.2f"|format(option_data.option_price) }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Max Profit</div>
+                        <div class="summary-value">${{ "%.2f"|format(option_data.max_profit) }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Max Loss</div>
+                        <div class="summary-value">${{ "%.2f"|format(option_data.max_loss) }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Breakeven</div>
+                        <div class="summary-value">${{ "%.2f"|format(option_data.breakeven) }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Days to Expiration</div>
+                        <div class="summary-value">{{ option_data.days_to_expiration }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="scenarios-section">
+                <h2>Profit/Loss Scenarios at Expiration</h2>
+                <table class="scenarios-table">
+                    <thead>
+                        <tr>
+                            <th>Stock Price</th>
+                            <th>Change %</th>
+                            <th>Spread Value</th>
+                            <th>Profit/Loss</th>
+                            <th>ROI %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scenario in option_data.scenarios %}
+                        <tr>
+                            <td>${{ "%.2f"|format(scenario.stock_price) }}</td>
+                            <td>{{ "%.1f"|format(scenario.change_percent) }}%</td>
+                            <td>${{ "%.2f"|format(scenario.spread_value) }}</td>
+                            <td class="{{ scenario.outcome }}">
+                                ${{ "%.2f"|format(scenario.profit_loss) }}
+                            </td>
+                            <td class="{{ scenario.outcome }}">
+                                {{ "%.1f"|format(scenario.roi_percent) }}%
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="navigation">
+                <a href="/step3/{{ symbol }}" class="nav-button">← Back to Step 3</a>
+                <a href="/" class="nav-button">Start Over</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return render_template_string(template, symbol=symbol, strategy=strategy, option_data=demo_data)
+
 def fetch_options_data(symbol, current_price):
     """Fetch options data from Polygon API and process for each strategy"""
     import requests
@@ -1020,12 +1353,17 @@ def step4(symbol, strategy, option_id):
         print(f"Error fetching real stock price: {e}")
         current_price = 200.0  # AAPL realistic fallback
     
+    # Check if this is a demo trade (when Step 3 used fallback data)
+    if option_id == 'none' or 'demo' in option_id.lower():
+        # Use demo data for Step 4 when Step 3 used fallback
+        return create_step4_demo_data(symbol, strategy, current_price)
+    
     # Fetch real option data from Polygon API
     long_option_data = fetch_option_snapshot(option_id, symbol)
     
     if 'error' in long_option_data:
-        error_msg = long_option_data['error']
-        return f"Error fetching option data: {error_msg}"
+        # Fallback to demo data when real options data fails
+        return create_step4_demo_data(symbol, strategy, current_price)
     
     # Parse strike price from option ID (e.g., AMZN250703C00105000 -> $105)
     # Option ID format: SYMBOL + YYMMDD + C/P + 8-digit strike price in thousandths
