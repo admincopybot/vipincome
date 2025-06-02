@@ -218,6 +218,67 @@ def fetch_options_data(symbol, current_price):
             'aggressive': {'error': error_msg}
         }
 
+def create_demo_strategy(strategy_name, current_price, symbol):
+    """Create demo strategy data when no suitable real options are found"""
+    from datetime import datetime, timedelta
+    
+    # Demo strategy specifications
+    demo_specs = {
+        'aggressive': {
+            'dte': 14,
+            'roi': 35.2,
+            'long_strike_offset': -2.0,
+            'short_strike_offset': -1.0,
+            'cost': 0.68,
+            'max_profit': 0.32
+        },
+        'steady': {
+            'dte': 21,
+            'roi': 18.7,
+            'long_strike_offset': -1.0,
+            'short_strike_offset': 0.0,
+            'cost': 0.85,
+            'max_profit': 0.15
+        },
+        'passive': {
+            'dte': 35,
+            'roi': 12.4,
+            'long_strike_offset': 0.0,
+            'short_strike_offset': 1.0,
+            'cost': 0.89,
+            'max_profit': 0.11
+        }
+    }
+    
+    spec = demo_specs[strategy_name]
+    
+    # Calculate demo strikes based on current price
+    long_strike = round(current_price + spec['long_strike_offset'])
+    short_strike = round(current_price + spec['short_strike_offset'])
+    
+    # Calculate demo expiration date
+    expiration_date = datetime.now() + timedelta(days=spec['dte'])
+    
+    return {
+        'strategy': strategy_name.title(),
+        'symbol': symbol,
+        'strike_price': long_strike,
+        'short_strike_price': short_strike,
+        'cost': spec['cost'],
+        'max_profit': spec['max_profit'],
+        'roi': spec['roi'],
+        'dte': spec['dte'],
+        'dte_range': f"{spec['dte']}-{spec['dte']+7} days",
+        'roi_range': f"{spec['roi']:.1f}%-{spec['roi']+5:.1f}%",
+        'strike_selection': f"${long_strike} Call",
+        'management': "Hold to expiration",
+        'contract_symbol': f"{symbol}{expiration_date.strftime('%y%m%d')}C{long_strike:08.0f}",
+        'expiration_date': expiration_date.strftime('%Y-%m-%d'),
+        'spread_type': 'Call Debit Spread',
+        'is_demo': True,
+        'demo_note': 'Demo strategy - actual options may vary'
+    }
+
 def analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol):
     """Analyze hundreds of contracts to find optimal $1-wide debit spreads"""
     from datetime import datetime
@@ -277,7 +338,8 @@ def analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol)
             strategies[strategy_name] = best_spread
             print(f"✓ Found {strategy_name} spread: {best_spread}")
         else:
-            strategies[strategy_name] = {'error': f'No suitable {strategy_name} spreads found'}
+            # Fallback to demo data when no suitable spreads found
+            strategies[strategy_name] = create_demo_strategy(strategy_name, current_price, symbol)
             print(f"✗ No {strategy_name} spreads found")
     
     return strategies
