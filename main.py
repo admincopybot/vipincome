@@ -3837,7 +3837,7 @@ def step3(symbol=None):
                     <div class="strategy-details">
                         <div class="detail-row">
                             <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.passive.dte_range }}</span>
+                            <span class="detail-value">{{ options_data.passive.dte }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
@@ -3913,7 +3913,7 @@ def step3(symbol=None):
                     <div class="strategy-details">
                         <div class="detail-row">
                             <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.aggressive.dte_range }}</span>
+                            <span class="detail-value">{{ options_data.aggressive.dte }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
