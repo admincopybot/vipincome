@@ -262,42 +262,52 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         long_intrinsic = max(0, current_price - long_strike)
                         short_intrinsic = max(0, current_price - short_strike)
                         
-                        # Use identical spread cost calculation as Step 4 for consistency
-                        # Step 4 uses: spread_cost = long_price - short_price with realistic pricing
+                        # REALISTIC MARKET-BASED ROI CALCULATION
+                        # Use market-realistic pricing model based on intrinsic value and time premium
                         
-                        # Calculate option prices using Step 4's exact methodology
                         long_intrinsic = max(0, current_price - long_strike)
                         short_intrinsic = max(0, current_price - short_strike)
                         
-                        # Time premium: 0.25 for long, proportional for short
-                        time_premium = 0.25
-                        long_option_price = long_intrinsic + time_premium
-                        short_option_price = short_intrinsic + (time_premium * 0.6)
+                        # Market-realistic time premium based on DTE
+                        time_factor = dte_range / 30.0
+                        long_time_premium = 0.25 * time_factor if long_intrinsic < 5 else 0.15 * time_factor
+                        short_time_premium = 0.15 * time_factor if short_intrinsic < 5 else 0.10 * time_factor
                         
-                        # Spread cost matches Step 4's calculation exactly
-                        spread_cost = long_option_price - short_option_price
+                        # Calculate realistic option prices
+                        long_price = long_intrinsic + long_time_premium
+                        short_price = short_intrinsic + short_time_premium
                         
-                        # Use Step 4's exact ROI values directly for perfect consistency
-                        if strategy_name == 'aggressive':
-                            calculated_roi = 35.70  # Match Step 4's exact ROI
-                        elif strategy_name == 'steady':
-                            calculated_roi = 19.20  # Match Step 4's exact ROI  
-                        else:  # passive
-                            calculated_roi = 13.80  # Match Step 4's exact ROI
+                        # Real spread cost
+                        spread_cost = long_price - short_price
+                        max_profit = width - spread_cost
                         
-                        roi_diff = abs(calculated_roi - target_roi)
+                        if spread_cost <= 0 or max_profit <= 0:
+                            continue  # Skip unprofitable spreads
                         
-                        if roi_diff < closest_roi_diff:
-                            closest_roi_diff = roi_diff
-                            max_profit = width - spread_cost
-                            best_spread = {
-                                'long_strike': long_strike,
-                                'short_strike': short_strike,
-                                'spread_cost': spread_cost,
-                                'max_profit': max_profit,
-                                'roi': calculated_roi,
-                                'width': width
-                            }
+                        # Calculate ACTUAL ROI based on realistic market pricing
+                        calculated_roi = (max_profit / spread_cost) * 100
+                        
+                        # Check if calculated ROI falls within strategy's target range
+                        roi_in_range = False
+                        if strategy_name == 'aggressive' and 30 <= calculated_roi <= 40:
+                            roi_in_range = True
+                        elif strategy_name == 'steady' and 15 <= calculated_roi <= 25:
+                            roi_in_range = True
+                        elif strategy_name == 'passive' and 10 <= calculated_roi <= 15:
+                            roi_in_range = True
+                        
+                        if roi_in_range:
+                            roi_diff = abs(calculated_roi - target_roi)
+                            if roi_diff < closest_roi_diff:
+                                closest_roi_diff = roi_diff
+                                best_spread = {
+                                    'long_strike': long_strike,
+                                    'short_strike': short_strike,
+                                    'spread_cost': real_spread_cost,
+                                    'max_profit': max_profit,
+                                    'roi': calculated_roi,
+                                    'width': width
+                                }
             
             return best_spread
         
@@ -1846,6 +1856,31 @@ def fetch_option_snapshot(option_id, underlying_ticker):
     
     try:
         url = f"https://api.polygon.io/v3/snapshot/options/{underlying_ticker}/{option_id}"
+        params = {'apikey': api_key}
+        
+        response = requests.get(url, params=params)
+        if response.status_code != 200:
+            return {'error': f'API error: {response.status_code}'}
+        
+        data = response.json()
+        if 'results' not in data:
+            return {'error': 'No option data available'}
+        
+        return data['results']
+        
+    except Exception as e:
+        return {'error': f'Error fetching option data: {str(e)}'}
+
+def fetch_real_option_data(underlying_ticker, option_contract):
+    """Fetch real option pricing data for Step 3 bid/ask based calculations"""
+    import requests
+    
+    api_key = os.environ.get('POLYGON_API_KEY')
+    if not api_key:
+        return {'error': 'API key not configured'}
+    
+    try:
+        url = f"https://api.polygon.io/v3/snapshot/options/{underlying_ticker}/{option_contract}"
         params = {'apikey': api_key}
         
         response = requests.get(url, params=params)
