@@ -1952,17 +1952,12 @@ def step4(symbol, strategy, option_id):
     print(f"Using current stock price: ${current_price:.2f}")
     print(f"Long strike: ${long_strike:.2f}, Long option price: ${long_price:.2f}")
     
-    # For scenario analysis, use strikes closer to current price to show meaningful variations
-    # If the parsed strike is too far from current price, adjust for better scenario demonstration
-    if abs(current_price - long_strike) > 50:
-        # Use strikes closer to current price for meaningful scenario analysis
-        scenario_long_strike = current_price - 5.0  # $5 below current price
-        scenario_short_strike = scenario_long_strike + 1.0  # $1 wide spread
-        print(f"Original strike ${long_strike:.2f} too far from current price ${current_price:.2f}")
-        print(f"Using adjusted strikes for scenario analysis: ${scenario_long_strike:.2f}/${scenario_short_strike:.2f}")
-    else:
-        scenario_long_strike = long_strike
-        scenario_short_strike = long_strike + 1.0
+    # Use the ACTUAL parsed strikes from the real option contract
+    # This ensures authentic profit/loss scenarios based on real market data
+    scenario_long_strike = long_strike
+    scenario_short_strike = long_strike + 1.0  # Standard $1 wide spread
+    
+    print(f"Using REAL contract strikes for scenario analysis: Long ${scenario_long_strike:.2f} / Short ${scenario_short_strike:.2f}")
     
     # Calculate option prices to hit exact ROI targets from Step 3
     # Target ROI = ((1.00 - Spread Cost) / Spread Cost) × 100
