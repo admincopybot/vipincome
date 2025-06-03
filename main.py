@@ -1896,12 +1896,12 @@ def step4(symbol, strategy, option_id):
     # The option_id contains all the information we need
     print(f"Processing Step 4 with real contract data from Step 3: {option_id}")
     
-    # Parse strike price from option ID (e.g., AMZN250703C00105000 -> $105)
-    # Option ID format: SYMBOL + YYMMDD + C/P + 8-digit strike price in thousandths
+    # Parse strike price from option ID (e.g., NEM250711C00006058 -> $60.58)
+    # Option ID format: SYMBOL + YYMMDD + C/P + 8-digit strike price in hundredths
     try:
         # Extract the last 8 digits from option ID and convert to strike price
         strike_part = option_id[-8:]  # Last 8 digits
-        long_strike = float(strike_part) / 1000.0  # Convert from thousandths to dollars
+        long_strike = float(strike_part) / 100.0  # Convert from hundredths to dollars (Step 3 uses *100)
         print(f"Parsed strike from option ID {option_id}: ${long_strike:.2f}")
     except:
         long_strike = 105.0  # Default fallback
