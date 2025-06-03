@@ -318,37 +318,43 @@ def fetch_real_options_expiration_data(symbol, current_price):
             print(f"Could not find suitable strikes for all strategies for {symbol}")
             return create_no_options_error(symbol)
         
-        # Return the strategies with real market strikes
+        # Return the strategies with real market strikes in template-compatible format
         return {
             'aggressive': {
                 'roi': f"{strategies['aggressive']['roi']:.1f}%",
                 'expiration': strategies['aggressive']['expiration'],
                 'dte': strategies['aggressive']['dte'],
-                'long_strike': strategies['aggressive']['long_strike'],
-                'short_strike': strategies['aggressive']['short_strike'],
+                'strike_price': strategies['aggressive']['long_strike'],  # Template expects this field
+                'short_strike_price': strategies['aggressive']['short_strike'],  # Template expects this field
                 'spread_cost': strategies['aggressive']['spread_cost'],
                 'max_profit': strategies['aggressive']['max_profit'],
-                'contract_symbol': strategies['aggressive']['contract_symbol']
+                'contract_symbol': strategies['aggressive']['contract_symbol'],
+                'management': 'Hold to expiration',
+                'strategy_title': f"Aggressive Income Strategy"
             },
             'steady': {
                 'roi': f"{strategies['steady']['roi']:.1f}%",
                 'expiration': strategies['steady']['expiration'],
                 'dte': strategies['steady']['dte'],
-                'long_strike': strategies['steady']['long_strike'],
-                'short_strike': strategies['steady']['short_strike'],
+                'strike_price': strategies['steady']['long_strike'],  # Template expects this field
+                'short_strike_price': strategies['steady']['short_strike'],  # Template expects this field
                 'spread_cost': strategies['steady']['spread_cost'],
                 'max_profit': strategies['steady']['max_profit'],
-                'contract_symbol': strategies['steady']['contract_symbol']
+                'contract_symbol': strategies['steady']['contract_symbol'],
+                'management': 'Hold to expiration',
+                'strategy_title': f"Steady Income Strategy"
             },
             'passive': {
                 'roi': f"{strategies['passive']['roi']:.1f}%",
                 'expiration': strategies['passive']['expiration'],
                 'dte': strategies['passive']['dte'],
-                'long_strike': strategies['passive']['long_strike'],
-                'short_strike': strategies['passive']['short_strike'],
+                'strike_price': strategies['passive']['long_strike'],  # Template expects this field
+                'short_strike_price': strategies['passive']['short_strike'],  # Template expects this field
                 'spread_cost': strategies['passive']['spread_cost'],
                 'max_profit': strategies['passive']['max_profit'],
-                'contract_symbol': strategies['passive']['contract_symbol']
+                'contract_symbol': strategies['passive']['contract_symbol'],
+                'management': 'Hold to expiration',
+                'strategy_title': f"Passive Income Strategy"
             }
         }
         
