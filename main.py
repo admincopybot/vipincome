@@ -249,14 +249,19 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             continue  # Steady: short must be <2% below current price  
                         elif strategy_name == 'passive' and short_distance_pct < 10.0:
                             continue  # Passive: short must be <10% below current price
-                        # Calculate theoretical spread cost and ROI
-                        # For ITM spreads: approximate spread cost
-                        if current_price > long_strike:
-                            intrinsic = current_price - long_strike
-                            time_premium = 0.25 * (dte_range / 20)  # Rough time value
-                            spread_cost = intrinsic + time_premium - (max(0, current_price - short_strike) * 0.6)
-                        else:
-                            spread_cost = 0.50 * (dte_range / 20)  # OTM spread cost
+                        # Calculate theoretical spread cost and ROI using simplified model
+                        # For call debit spreads: cost is roughly the intrinsic value difference plus time premium
+                        long_intrinsic = max(0, current_price - long_strike)
+                        short_intrinsic = max(0, current_price - short_strike)
+                        
+                        # Simplified spread cost based on width and distance from current price
+                        # The further ITM the long strike, the higher the cost
+                        distance_factor = (current_price - long_strike) / current_price
+                        time_factor = dte_range / 30.0
+                        
+                        # Base spread cost starts lower for wider spreads and longer time
+                        base_cost = width * 0.3 + (distance_factor * width * 0.4) + (time_factor * 0.2)
+                        spread_cost = max(0.1, min(base_cost, width * 0.9))  # Keep between 10% and 90% of width
                         
                         if spread_cost > 0:
                             max_profit = width - spread_cost
