@@ -344,8 +344,9 @@ def fetch_real_options_expiration_data(symbol, current_price):
                 print(f"DEBUG Step 3: Created {strategy_name} contract symbol: {best_strategy['contract_symbol']} for expiration {best_strategy['expiration']}")
                 print(f"Created {strategy_name} strategy for {symbol}: {best_strategy['dte']} DTE, ROI: {best_strategy['roi']:.1f}%")
         
-        if len(strategies) < 3:
-            print(f"Could not find suitable strikes for all strategies for {symbol}")
+        # Show available strategies even if not all 3 are found
+        if len(strategies) == 0:
+            print(f"Could not find suitable strikes for any strategy for {symbol}")
             return create_no_options_error(symbol)
         
         # Return the strategies with real market strikes in template-compatible format
