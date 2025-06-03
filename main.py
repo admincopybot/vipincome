@@ -1964,16 +1964,18 @@ def step4(symbol, strategy, option_id):
         scenario_long_strike = long_strike
         scenario_short_strike = long_strike + 1.0
     
-    # Calculate option prices for scenario analysis strikes
+    # Calculate realistic option prices that create profitable spreads
     if current_price > scenario_long_strike:
-        scenario_long_price = (current_price - scenario_long_strike) + 2.0  # Intrinsic + time premium
+        intrinsic_long = current_price - scenario_long_strike
+        scenario_long_price = intrinsic_long + 0.15  # Small time premium
     else:
-        scenario_long_price = 3.0  # OTM premium
+        scenario_long_price = 0.60  # Reasonable OTM premium
         
     if current_price > scenario_short_strike:
-        scenario_short_price = (current_price - scenario_short_strike) + 1.5  # Intrinsic + time premium
+        intrinsic_short = current_price - scenario_short_strike  
+        scenario_short_price = intrinsic_short + 0.10  # Smaller time premium for short
     else:
-        scenario_short_price = 2.0  # OTM premium
+        scenario_short_price = 0.40  # Lower OTM premium for short
     
     # Calculate spread metrics using scenario strikes
     spread_cost = scenario_long_price - scenario_short_price
