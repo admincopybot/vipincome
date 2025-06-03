@@ -4133,7 +4133,7 @@ def step3(symbol=None):
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Expiration:</span>
-                            <span class="detail-value">{{ options_data.passive.expiration_date }}</span>
+                            <span class="detail-value">{{ options_data.passive.expiration }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Contract ID:</span>
@@ -4175,7 +4175,7 @@ def step3(symbol=None):
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Expiration:</span>
-                            <span class="detail-value">{{ options_data.steady.expiration_date }}</span>
+                            <span class="detail-value">{{ options_data.steady.expiration }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Contract ID:</span>
@@ -4217,7 +4217,7 @@ def step3(symbol=None):
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Expiration:</span>
-                            <span class="detail-value">{{ options_data.aggressive.expiration_date }}</span>
+                            <span class="detail-value">{{ options_data.aggressive.expiration }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Contract ID:</span>
