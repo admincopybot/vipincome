@@ -4125,7 +4125,7 @@ def step3(symbol=None):
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.passive.roi }}%</span>
+                            <span class="detail-value">{{ options_data.passive.roi }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Strike Price:</span>
@@ -4167,7 +4167,7 @@ def step3(symbol=None):
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.steady.roi }}%</span>
+                            <span class="detail-value">{{ options_data.steady.roi }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Strike Price:</span>
@@ -4209,7 +4209,7 @@ def step3(symbol=None):
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.aggressive.roi }}%</span>
+                            <span class="detail-value">{{ options_data.aggressive.roi }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Strike Price:</span>
