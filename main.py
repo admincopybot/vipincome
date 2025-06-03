@@ -1934,14 +1934,16 @@ def step4(symbol, strategy, option_id):
         expiration_date = '2025-07-03'  # Default fallback
         print(f"Could not parse expiration from {option_id}, using default {expiration_date}")
     
-    # Calculate option price based on real current stock price and strike
+    # Calculate realistic option price for profitable debit spreads
     if current_price > long_strike:
-        # In-the-money option: intrinsic value + small time premium
-        long_price = max(current_price - long_strike, 0)
-        print(f"ITM option: intrinsic value ${long_price:.2f}")
+        # In-the-money option: intrinsic value + realistic time premium
+        intrinsic_value = current_price - long_strike
+        time_premium = 0.25  # Small time premium for ITM options
+        long_price = intrinsic_value + time_premium
+        print(f"ITM option: intrinsic ${intrinsic_value:.2f} + time premium ${time_premium:.2f} = ${long_price:.2f}")
     else:
         # Out-of-the-money option: only time premium
-        long_price = 1.50  # Realistic OTM option premium
+        long_price = 0.75  # Reasonable OTM option premium
         print(f"OTM option: time premium ${long_price:.2f}")
         
     print(f"Final option price: ${long_price:.2f} for ${long_strike:.2f} strike with stock at ${current_price:.2f}")
