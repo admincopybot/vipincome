@@ -1892,12 +1892,9 @@ def step4(symbol, strategy, option_id):
         # Use demo data for Step 4 when Step 3 used fallback
         return create_step4_demo_data(symbol, strategy, current_price)
     
-    # Fetch real option data from Polygon API
-    long_option_data = fetch_option_snapshot(option_id, symbol)
-    
-    if 'error' in long_option_data:
-        # Fallback to demo data when real options data fails
-        return create_step4_demo_data(symbol, strategy, current_price)
+    # Parse the contract data directly from Step 3 instead of fetching from API
+    # The option_id contains all the information we need
+    print(f"Processing Step 4 with real contract data from Step 3: {option_id}")
     
     # Parse strike price from option ID (e.g., AMZN250703C00105000 -> $105)
     # Option ID format: SYMBOL + YYMMDD + C/P + 8-digit strike price in thousandths
