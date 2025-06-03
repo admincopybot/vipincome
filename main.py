@@ -253,13 +253,13 @@ def create_strategy_with_real_expiration(symbol, current_price, exp_data, strate
     
     # Create realistic strike prices and ROI based on strategy type
     if strategy_type == 'aggressive':
-        strike_price = current_price - 2
+        strike_price = current_price - 1  # Slightly in-the-money for higher probability
         roi = '35.7'
     elif strategy_type == 'steady':
-        strike_price = current_price + 1
+        strike_price = current_price + 0.5  # Slightly out-of-the-money
         roi = '19.2'
     else:  # passive
-        strike_price = current_price + 5
+        strike_price = current_price + 2  # Moderately out-of-the-money, not too far
         roi = '13.8'
     
     # Format contract symbol (realistic format)
