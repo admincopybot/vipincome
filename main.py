@@ -2294,6 +2294,8 @@ def step4(symbol, strategy, option_id):
 
 @app.route('/')
 def index():
+    # Reload fresh data from database after CSV uploads
+    load_etf_data_from_database()
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
