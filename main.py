@@ -225,8 +225,8 @@ def fetch_real_options_expiration_data(symbol, current_price):
         
         print(f"Found {len(suitable_exps)} suitable expiration dates for {symbol}")
         
-        def find_best_spread_for_roi(strikes, current_price, target_roi, dte_range):
-            """Find real strike combination closest to target ROI"""
+        def find_best_spread_for_roi(strikes, current_price, target_roi, dte_range, strategy_name):
+            """Find real strike combination closest to target ROI with strategy-specific validations"""
             best_spread = None
             closest_roi_diff = float('inf')
             
@@ -239,6 +239,16 @@ def fetch_real_options_expiration_data(symbol, current_price):
                 for width in [1, 2, 3, 4, 5]:
                     short_strike = long_strike + width
                     if short_strike in strikes:
+                        # Validate short strike position based on strategy
+                        short_distance_pct = ((current_price - short_strike) / current_price) * 100
+                        
+                        # Strategy-specific validations for short strike position
+                        if strategy_name == 'aggressive' and short_strike >= current_price:
+                            continue  # Aggressive: short must be below current price
+                        elif strategy_name == 'steady' and short_distance_pct < 2.0:
+                            continue  # Steady: short must be <2% below current price  
+                        elif strategy_name == 'passive' and short_distance_pct < 10.0:
+                            continue  # Passive: short must be <10% below current price
                         # Calculate theoretical spread cost and ROI
                         # For ITM spreads: approximate spread cost
                         if current_price > long_strike:
@@ -286,7 +296,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                     continue
                 
                 # Find best spread for this expiration
-                spread = find_best_spread_for_roi(exp_data['strikes'], current_price, target_roi, dte)
+                spread = find_best_spread_for_roi(exp_data['strikes'], current_price, target_roi, dte, strategy_name)
                 
                 if spread:
                     roi_diff = abs(spread['roi'] - target_roi)
