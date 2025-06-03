@@ -266,6 +266,7 @@ def create_strategy_with_real_expiration(symbol, current_price, exp_data, strate
     exp_formatted = exp_date.replace('-', '')[2:]  # Convert 2025-06-20 to 250620
     strike_formatted = f"{int(strike_price * 100):08d}"  # Convert 55.50 to 00005550
     contract_symbol = f"{symbol}{exp_formatted}C{strike_formatted}"
+    print(f"DEBUG Step 3: Created {strategy_type} contract symbol: {contract_symbol} for expiration {exp_date}")
     
     return {
         'dte': str(dte),
