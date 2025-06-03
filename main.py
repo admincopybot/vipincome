@@ -3377,7 +3377,7 @@ def step3(symbol=None):
         options_data = {
             'passive': {
                 'dte': '38',
-                'roi_range': '14.2%',
+                'roi': '14.2',
                 'strike_price': current_price + 8,
                 'management': 'Hold to expiration',
                 'contract_symbol': f'{symbol}250711C{int(current_price + 8):08d}',
@@ -3386,7 +3386,7 @@ def step3(symbol=None):
             },
             'steady': {
                 'dte': '21',
-                'roi_range': '18.7%',
+                'roi': '18.7',
                 'strike_price': 55.00,
                 'management': 'Hold to expiration',
                 'contract_symbol': f'{symbol}250624C00000055',
@@ -3395,7 +3395,7 @@ def step3(symbol=None):
             },
             'aggressive': {
                 'dte': '16',
-                'roi_range': '37.4%',
+                'roi': '37.4',
                 'strike_price': current_price - 1,
                 'management': 'Hold to expiration',
                 'contract_symbol': f'{symbol}250619C{int(current_price - 1):08d}',
@@ -3841,7 +3841,7 @@ def step3(symbol=None):
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.passive.roi_range }}</span>
+                            <span class="detail-value">{{ options_data.passive.roi }}%</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Strike Price:</span>
@@ -3925,7 +3925,7 @@ def step3(symbol=None):
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
-                            <span class="detail-value">{{ options_data.aggressive.roi_range }}</span>
+                            <span class="detail-value">{{ options_data.aggressive.roi }}%</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Strike Price:</span>
