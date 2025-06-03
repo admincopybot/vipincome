@@ -349,45 +349,100 @@ def fetch_real_options_expiration_data(symbol, current_price):
             print(f"Could not find suitable strikes for any strategy for {symbol}")
             return create_no_options_error(symbol)
         
-        # Return the strategies with real market strikes in template-compatible format
-        return {
-            'aggressive': {
+        # Return found strategies individually - don't require all three
+        result = {}
+        
+        if 'aggressive' in strategies:
+            result['aggressive'] = {
+                'found': True,
                 'roi': f"{strategies['aggressive']['roi']:.1f}%",
                 'expiration': strategies['aggressive']['expiration'],
                 'dte': strategies['aggressive']['dte'],
-                'strike_price': strategies['aggressive']['long_strike'],  # Template expects this field
-                'short_strike_price': strategies['aggressive']['short_strike'],  # Template expects this field
+                'strike_price': strategies['aggressive']['long_strike'],
+                'short_strike_price': strategies['aggressive']['short_strike'],
                 'spread_cost': strategies['aggressive']['spread_cost'],
                 'max_profit': strategies['aggressive']['max_profit'],
                 'contract_symbol': strategies['aggressive']['contract_symbol'],
                 'management': 'Hold to expiration',
                 'strategy_title': f"Aggressive Income Strategy"
-            },
-            'steady': {
+            }
+        else:
+            result['aggressive'] = {
+                'found': False, 
+                'reason': 'No suitable strikes found within criteria',
+                'roi': '0.0%',
+                'expiration': 'N/A',
+                'dte': 0,
+                'strike_price': 0,
+                'short_strike_price': 0,
+                'spread_cost': 0,
+                'max_profit': 0,
+                'contract_symbol': 'N/A',
+                'management': 'N/A',
+                'strategy_title': 'Aggressive Income Strategy'
+            }
+            
+        if 'steady' in strategies:
+            result['steady'] = {
+                'found': True,
                 'roi': f"{strategies['steady']['roi']:.1f}%",
                 'expiration': strategies['steady']['expiration'],
                 'dte': strategies['steady']['dte'],
-                'strike_price': strategies['steady']['long_strike'],  # Template expects this field
-                'short_strike_price': strategies['steady']['short_strike'],  # Template expects this field
+                'strike_price': strategies['steady']['long_strike'],
+                'short_strike_price': strategies['steady']['short_strike'],
                 'spread_cost': strategies['steady']['spread_cost'],
                 'max_profit': strategies['steady']['max_profit'],
                 'contract_symbol': strategies['steady']['contract_symbol'],
                 'management': 'Hold to expiration',
                 'strategy_title': f"Steady Income Strategy"
-            },
-            'passive': {
+            }
+        else:
+            result['steady'] = {
+                'found': False, 
+                'reason': 'No suitable strikes found within criteria',
+                'roi': '0.0%',
+                'expiration': 'N/A',
+                'dte': 0,
+                'strike_price': 0,
+                'short_strike_price': 0,
+                'spread_cost': 0,
+                'max_profit': 0,
+                'contract_symbol': 'N/A',
+                'management': 'N/A',
+                'strategy_title': 'Steady Income Strategy'
+            }
+            
+        if 'passive' in strategies:
+            result['passive'] = {
+                'found': True,
                 'roi': f"{strategies['passive']['roi']:.1f}%",
                 'expiration': strategies['passive']['expiration'],
                 'dte': strategies['passive']['dte'],
-                'strike_price': strategies['passive']['long_strike'],  # Template expects this field
-                'short_strike_price': strategies['passive']['short_strike'],  # Template expects this field
+                'strike_price': strategies['passive']['long_strike'],
+                'short_strike_price': strategies['passive']['short_strike'],
                 'spread_cost': strategies['passive']['spread_cost'],
                 'max_profit': strategies['passive']['max_profit'],
                 'contract_symbol': strategies['passive']['contract_symbol'],
                 'management': 'Hold to expiration',
                 'strategy_title': f"Passive Income Strategy"
             }
-        }
+        else:
+            result['passive'] = {
+                'found': False, 
+                'reason': 'No suitable strikes found within criteria',
+                'roi': '0.0%',
+                'expiration': 'N/A',
+                'dte': 0,
+                'strike_price': 0,
+                'short_strike_price': 0,
+                'spread_cost': 0,
+                'max_profit': 0,
+                'contract_symbol': 'N/A',
+                'management': 'N/A',
+                'strategy_title': 'Passive Income Strategy'
+            }
+            
+        return result
         
     except Exception as e:
         print(f"Error fetching real options data for {symbol}: {e}")
