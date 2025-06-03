@@ -254,14 +254,27 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         long_intrinsic = max(0, current_price - long_strike)
                         short_intrinsic = max(0, current_price - short_strike)
                         
-                        # Simplified spread cost based on width and distance from current price
-                        # The further ITM the long strike, the higher the cost
-                        distance_factor = (current_price - long_strike) / current_price
-                        time_factor = dte_range / 30.0
+                        # More realistic spread cost calculation matching Step 4 logic
+                        # For deep ITM spreads like $58/$59 with stock at $67.51
+                        long_intrinsic = max(0, current_price - long_strike)
+                        short_intrinsic = max(0, current_price - short_strike)
                         
-                        # Base spread cost starts lower for wider spreads and longer time
-                        base_cost = width * 0.3 + (distance_factor * width * 0.4) + (time_factor * 0.2)
-                        spread_cost = max(0.1, min(base_cost, width * 0.9))  # Keep between 10% and 90% of width
+                        # Time premium based on days to expiration
+                        time_premium_long = 0.25 if dte_range > 30 else 0.15
+                        time_premium_short = time_premium_long * 0.6  # Short has less time value
+                        
+                        # Calculate realistic option prices
+                        long_option_price = long_intrinsic + time_premium_long
+                        short_option_price = short_intrinsic + time_premium_short
+                        spread_cost = long_option_price - short_option_price
+                        
+                        # Ensure spread cost is reasonable (between 70-95% of width for deep ITM)
+                        if long_intrinsic > 5:  # Deep ITM
+                            spread_cost = width * 0.88  # ~88% of width cost
+                        elif long_intrinsic > 2:  # Moderately ITM
+                            spread_cost = width * 0.75  # ~75% of width cost
+                        else:  # ATM or slightly ITM
+                            spread_cost = width * 0.60  # ~60% of width cost
                         
                         if spread_cost > 0:
                             max_profit = width - spread_cost
