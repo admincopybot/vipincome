@@ -3376,30 +3376,30 @@ def step3(symbol=None):
         # Create detailed demo data for all three strategies with specific values
         options_data = {
             'passive': {
-                'dte': '38 days',
+                'dte': '38',
                 'roi_range': '14.2%',
-                'strike_selection': f'${int(current_price + 8)} Call',
+                'strike_price': current_price + 8,
                 'management': 'Hold to expiration',
-                'contract_symbol': f'{symbol}250718C{int(current_price + 8):08d}',
-                'expiration_date': (datetime.now() + timedelta(days=38)).strftime('%Y-%m-%d'),
+                'contract_symbol': f'{symbol}250711C{int(current_price + 8):08d}',
+                'expiration_date': '2025-07-11',
                 'strategy_title': f'{symbol} Passive Income Strategy'
             },
             'steady': {
-                'dte': '21 days',
+                'dte': '21',
                 'roi_range': '18.7%',
-                'strike_selection': '$60.00',
+                'strike_price': 55.00,
                 'management': 'Hold to expiration',
-                'contract_symbol': f'{symbol}50624C00000060',
+                'contract_symbol': f'{symbol}250624C00000055',
                 'expiration_date': '2025-06-24',
                 'strategy_title': f'{symbol} Steady Income Strategy'
             },
             'aggressive': {
-                'dte': '16 days',
+                'dte': '16',
                 'roi_range': '37.4%',
-                'strike_selection': f'${int(current_price - 1)} Call',
+                'strike_price': current_price - 1,
                 'management': 'Hold to expiration',
-                'contract_symbol': f'{symbol}250624C{int(current_price - 1):08d}',
-                'expiration_date': (datetime.now() + timedelta(days=16)).strftime('%Y-%m-%d'),
+                'contract_symbol': f'{symbol}250619C{int(current_price - 1):08d}',
+                'expiration_date': '2025-06-19',
                 'strategy_title': f'{symbol} Aggressive Income Strategy'
             }
         }
@@ -3837,15 +3837,23 @@ def step3(symbol=None):
                     <div class="strategy-details">
                         <div class="detail-row">
                             <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.passive.dte }}</span>
+                            <span class="detail-value">{{ options_data.passive.dte }} days</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
                             <span class="detail-value">{{ options_data.passive.roi_range }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Strike Selection:</span>
-                            <span class="detail-value">{{ options_data.passive.strike_selection }}</span>
+                            <span class="detail-label">Strike Price:</span>
+                            <span class="detail-value">${{ "%.2f"|format(options_data.passive.strike_price) }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Expiration:</span>
+                            <span class="detail-value">{{ options_data.passive.expiration_date }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Contract ID:</span>
+                            <span class="detail-value">{{ options_data.passive.contract_symbol }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Management:</span>
@@ -3913,15 +3921,23 @@ def step3(symbol=None):
                     <div class="strategy-details">
                         <div class="detail-row">
                             <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.aggressive.dte }}</span>
+                            <span class="detail-value">{{ options_data.aggressive.dte }} days</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
                             <span class="detail-value">{{ options_data.aggressive.roi_range }}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Strike Selection:</span>
-                            <span class="detail-value">{{ options_data.aggressive.strike_selection }}</span>
+                            <span class="detail-label">Strike Price:</span>
+                            <span class="detail-value">${{ "%.2f"|format(options_data.aggressive.strike_price) }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Expiration:</span>
+                            <span class="detail-value">{{ options_data.aggressive.expiration_date }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Contract ID:</span>
+                            <span class="detail-value">{{ options_data.aggressive.contract_symbol }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Management:</span>
