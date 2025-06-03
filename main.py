@@ -140,7 +140,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
     try:
         api_key = os.environ.get('POLYGON_API_KEY')
         if not api_key:
-            return create_fallback_options_data(symbol, current_price)
+            return create_no_options_error(symbol)
         
         # Fetch options contracts from Polygon API
         url = f"https://api.polygon.io/v3/reference/options/contracts"
@@ -152,17 +152,21 @@ def fetch_real_options_expiration_data(symbol, current_price):
             'apikey': api_key
         }
         
+        print(f"Fetching options contracts for {symbol} from Polygon API...")
         response = requests.get(url, params=params)
+        
         if response.status_code != 200:
             print(f"Options API error for {symbol}: {response.status_code}")
-            return create_fallback_options_data(symbol, current_price)
+            return create_no_options_error(symbol)
         
         data = response.json()
         contracts = data.get('results', [])
         
         if not contracts:
             print(f"No options contracts found for {symbol}")
-            return create_fallback_options_data(symbol, current_price)
+            return create_no_options_error(symbol)
+        
+        print(f"Found {len(contracts)} options contracts for {symbol}")
         
         # Extract unique expiration dates and calculate DTE
         from datetime import datetime
@@ -173,6 +177,8 @@ def fetch_real_options_expiration_data(symbol, current_price):
             exp_date = contract.get('expiration_date')
             if exp_date:
                 expirations.add(exp_date)
+        
+        print(f"Found {len(expirations)} unique expiration dates for {symbol}")
         
         # Convert to list and calculate DTE for each
         exp_data = []
@@ -189,8 +195,10 @@ def fetch_real_options_expiration_data(symbol, current_price):
         exp_data.sort(key=lambda x: x['dte'])
         
         if not exp_data:
-            print(f"No suitable expiration dates found for {symbol}")
-            return create_fallback_options_data(symbol, current_price)
+            print(f"No suitable expiration dates found for {symbol} (10-60 days)")
+            return create_no_options_error(symbol)
+        
+        print(f"Found {len(exp_data)} suitable expiration dates for {symbol}")
         
         # Find best expiration for each strategy
         aggressive_exp = None
@@ -212,28 +220,31 @@ def fetch_real_options_expiration_data(symbol, current_price):
             strategies['aggressive'] = create_strategy_with_real_expiration(
                 symbol, current_price, aggressive_exp, 'aggressive'
             )
+            print(f"Created aggressive strategy for {symbol}: {aggressive_exp['dte']} DTE")
         else:
-            strategies['aggressive'] = {'error': 'No suitable expiration found for aggressive strategy'}
+            strategies['aggressive'] = {'error': f'No options available for {symbol} aggressive strategy (10-20 days)'}
         
         if steady_exp:
             strategies['steady'] = create_strategy_with_real_expiration(
                 symbol, current_price, steady_exp, 'steady'
             )
+            print(f"Created steady strategy for {symbol}: {steady_exp['dte']} DTE")
         else:
-            strategies['steady'] = {'error': 'No suitable expiration found for steady strategy'}
+            strategies['steady'] = {'error': f'No options available for {symbol} steady strategy (20-35 days)'}
         
         if passive_exp:
             strategies['passive'] = create_strategy_with_real_expiration(
                 symbol, current_price, passive_exp, 'passive'
             )
+            print(f"Created passive strategy for {symbol}: {passive_exp['dte']} DTE")
         else:
-            strategies['passive'] = {'error': 'No suitable expiration found for passive strategy'}
+            strategies['passive'] = {'error': f'No options available for {symbol} passive strategy (35-60 days)'}
         
         return strategies
         
     except Exception as e:
         print(f"Error fetching real options data for {symbol}: {e}")
-        return create_fallback_options_data(symbol, current_price)
+        return create_no_options_error(symbol)
 
 def create_strategy_with_real_expiration(symbol, current_price, exp_data, strategy_type):
     """Create strategy data using real expiration dates"""
@@ -266,37 +277,17 @@ def create_strategy_with_real_expiration(symbol, current_price, exp_data, strate
         'strategy_title': f'{symbol} {strategy_type.title()} Income Strategy'
     }
 
-def create_fallback_options_data(symbol, current_price):
-    """Create fallback data when API is unavailable"""
-    from datetime import datetime, timedelta
-    
+def create_no_options_error(symbol):
+    """Create error messages when no options are available for the ticker"""
     return {
         'passive': {
-            'dte': '38',
-            'roi': '14.2',
-            'strike_price': current_price + 8,
-            'management': 'Hold to expiration',
-            'contract_symbol': f'{symbol}250711C{int(current_price + 8):08d}',
-            'expiration_date': '2025-07-11',
-            'strategy_title': f'{symbol} Passive Income Strategy'
+            'error': f'NO OPTIONS AVAILABLE FOR {symbol} TICKER'
         },
         'steady': {
-            'dte': '21',
-            'roi': '18.7',
-            'strike_price': 55.00,
-            'management': 'Hold to expiration',
-            'contract_symbol': f'{symbol}250624C00000055',
-            'expiration_date': '2025-06-24',
-            'strategy_title': f'{symbol} Steady Income Strategy'
+            'error': f'NO OPTIONS AVAILABLE FOR {symbol} TICKER'
         },
         'aggressive': {
-            'dte': '16',
-            'roi': '37.4',
-            'strike_price': current_price - 1,
-            'management': 'Hold to expiration',
-            'contract_symbol': f'{symbol}250619C{int(current_price - 1):08d}',
-            'expiration_date': '2025-06-19',
-            'strategy_title': f'{symbol} Aggressive Income Strategy'
+            'error': f'NO OPTIONS AVAILABLE FOR {symbol} TICKER'
         }
     }
 
