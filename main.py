@@ -1964,18 +1964,47 @@ def step4(symbol, strategy, option_id):
         scenario_long_strike = long_strike
         scenario_short_strike = long_strike + 1.0
     
-    # Calculate realistic option prices that create profitable spreads
+    # Calculate option prices to hit exact ROI targets from Step 3
+    # Target ROI = ((1.00 - Spread Cost) / Spread Cost) × 100
+    # Solving for Spread Cost: Spread Cost = 1.00 / (1 + Target ROI/100)
+    
+    target_roi_map = {
+        'aggressive': 35.7,
+        'steady': 19.2, 
+        'passive': 13.8
+    }
+    
+    # Determine strategy type from DTE (days to expiration)
+    days_to_exp = (datetime.strptime(expiration_date, '%Y-%m-%d') - datetime.now()).days
+    if days_to_exp <= 20:
+        target_roi = target_roi_map['aggressive']
+    elif days_to_exp <= 30:
+        target_roi = target_roi_map['steady']
+    else:
+        target_roi = target_roi_map['passive']
+    
+    # Calculate required spread cost to hit target ROI
+    required_spread_cost = 1.00 / (1 + target_roi/100)
+    
+    # Set option prices to achieve this spread cost
+    # For ITM spreads, base on intrinsic values but adjust to hit target
     if current_price > scenario_long_strike:
         intrinsic_long = current_price - scenario_long_strike
-        scenario_long_price = intrinsic_long + 0.15  # Small time premium
+        scenario_long_price = intrinsic_long + (required_spread_cost * 0.7)  # Most of spread cost in long
     else:
-        scenario_long_price = 0.60  # Reasonable OTM premium
+        scenario_long_price = required_spread_cost * 0.8
         
     if current_price > scenario_short_strike:
-        intrinsic_short = current_price - scenario_short_strike  
-        scenario_short_price = intrinsic_short + 0.10  # Smaller time premium for short
+        intrinsic_short = current_price - scenario_short_strike
+        scenario_short_price = intrinsic_short + (required_spread_cost * 0.3)  # Less in short
     else:
-        scenario_short_price = 0.40  # Lower OTM premium for short
+        scenario_short_price = required_spread_cost * 0.2
+    
+    # Ensure spread cost matches target exactly
+    actual_spread_cost = scenario_long_price - scenario_short_price
+    if abs(actual_spread_cost - required_spread_cost) > 0.01:
+        # Adjust short price to match target exactly
+        scenario_short_price = scenario_long_price - required_spread_cost
     
     # Calculate spread metrics using scenario strikes
     spread_cost = scenario_long_price - scenario_short_price
