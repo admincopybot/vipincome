@@ -1975,7 +1975,8 @@ def step4(symbol, strategy, option_id):
     }
     
     # Determine strategy type from DTE (days to expiration)
-    days_to_exp = (datetime.strptime(expiration_date, '%Y-%m-%d') - datetime.now()).days
+    import datetime as dt
+    days_to_exp = (dt.datetime.strptime(expiration_date, '%Y-%m-%d') - dt.datetime.now()).days
     if days_to_exp <= 20:
         target_roi = target_roi_map['aggressive']
     elif days_to_exp <= 30:
