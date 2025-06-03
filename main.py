@@ -242,13 +242,21 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         # Validate short strike position based on strategy
                         short_distance_pct = ((current_price - short_strike) / current_price) * 100
                         
-                        # Strategy-specific validations for short strike position
+                        # Strategy-specific validations adapted for different price ranges
+                        short_dollar_distance = current_price - short_strike
+                        
                         if strategy_name == 'aggressive' and short_strike >= current_price:
                             continue  # Aggressive: short must be below current price
-                        elif strategy_name == 'steady' and short_distance_pct < 2.0:
-                            continue  # Steady: short must be <2% below current price  
-                        elif strategy_name == 'passive' and short_distance_pct < 10.0:
-                            continue  # Passive: short must be <10% below current price
+                        elif strategy_name == 'steady':
+                            # Steady: For high-priced stocks, use dollar distance; for low-priced, use percentage
+                            min_distance = max(2.0, current_price * 0.01) if current_price > 200 else current_price * 0.02
+                            if short_dollar_distance < min_distance:
+                                continue
+                        elif strategy_name == 'passive':
+                            # Passive: More flexible for high-priced stocks
+                            min_distance = max(5.0, current_price * 0.02) if current_price > 200 else current_price * 0.10
+                            if short_dollar_distance < min_distance:
+                                continue
                         # Calculate theoretical spread cost and ROI using simplified model
                         # For call debit spreads: cost is roughly the intrinsic value difference plus time premium
                         long_intrinsic = max(0, current_price - long_strike)
