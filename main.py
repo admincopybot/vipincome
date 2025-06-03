@@ -4228,6 +4228,11 @@ def step3(symbol=None):
                     <div class="strategy-error">
                         <div class="error-message">{{ options_data.passive.error }}</div>
                     </div>
+                    {% elif not options_data.passive.found %}
+                    <div class="strategy-error">
+                        <div class="error-message">NO OPTIONS AVAILABLE FOR {{ symbol }} TICKER</div>
+                        <div class="error-details">No suitable options found matching passive income criteria (28-42 DTE, strikes within 10% below current price)</div>
+                    </div>
                     {% else %}
                     <div class="strategy-details">
                         <div class="detail-row">
@@ -4270,6 +4275,11 @@ def step3(symbol=None):
                     <div class="strategy-error">
                         <div class="error-message">{{ options_data.steady.error }}</div>
                     </div>
+                    {% elif not options_data.steady.found %}
+                    <div class="strategy-error">
+                        <div class="error-message">NO OPTIONS AVAILABLE FOR {{ symbol }} TICKER</div>
+                        <div class="error-details">No suitable options found matching steady income criteria (17-28 DTE, strikes within 2% below current price)</div>
+                    </div>
                     {% else %}
                     <div class="strategy-details">
                         <div class="detail-row">
@@ -4311,6 +4321,11 @@ def step3(symbol=None):
                     {% if options_data.aggressive.error %}
                     <div class="strategy-error">
                         <div class="error-message">{{ options_data.aggressive.error }}</div>
+                    </div>
+                    {% elif not options_data.aggressive.found %}
+                    <div class="strategy-error">
+                        <div class="error-message">NO OPTIONS AVAILABLE FOR {{ symbol }} TICKER</div>
+                        <div class="error-details">No suitable options found matching aggressive income criteria (10-17 DTE, strikes below current price)</div>
                     </div>
                     {% else %}
                     <div class="strategy-details">
