@@ -3373,11 +3373,11 @@ def step3(symbol=None):
     if all(data.get('error') for data in [options_data.get('aggressive', {}), options_data.get('steady', {}), options_data.get('passive', {})]):
         from datetime import datetime, timedelta
         
-        # Create detailed demo data for all three strategies
+        # Create detailed demo data for all three strategies with specific values
         options_data = {
             'passive': {
-                'dte': '35-42 days',
-                'roi_range': '12.4%-17.4%',
+                'dte': '38 days',
+                'roi_range': '14.2%',
                 'strike_selection': f'${int(current_price + 8)} Call',
                 'management': 'Hold to expiration',
                 'contract_symbol': f'{symbol}250718C{int(current_price + 8):08d}',
@@ -3394,12 +3394,12 @@ def step3(symbol=None):
                 'strategy_title': f'{symbol} Steady Income Strategy'
             },
             'aggressive': {
-                'dte': '14-21 days',
-                'roi_range': '35.2%-40.2%',
+                'dte': '16 days',
+                'roi_range': '37.4%',
                 'strike_selection': f'${int(current_price - 1)} Call',
                 'management': 'Hold to expiration',
                 'contract_symbol': f'{symbol}250624C{int(current_price - 1):08d}',
-                'expiration_date': (datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d'),
+                'expiration_date': (datetime.now() + timedelta(days=16)).strftime('%Y-%m-%d'),
                 'strategy_title': f'{symbol} Aggressive Income Strategy'
             }
         }
