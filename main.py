@@ -2020,7 +2020,7 @@ def step4(symbol, strategy, option_id):
     try:
         # Extract the last 8 digits from option ID and convert to strike price
         strike_part = option_id[-8:]  # Last 8 digits
-        long_strike = float(strike_part) / 100.0  # Convert from hundredths to dollars (Step 3 uses *100)
+        long_strike = float(strike_part) / 1000.0  # Convert from thousands to dollars (Step 3 uses *1000)
         print(f"Parsed strike from option ID {option_id}: ${long_strike:.2f}")
     except:
         long_strike = 105.0  # Default fallback
