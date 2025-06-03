@@ -1910,13 +1910,23 @@ def step4(symbol, strategy, option_id):
         print(f"Could not parse strike from {option_id}, using default ${long_strike:.2f}")
     
     # Extract expiration date from option ID (YYMMDD format)
+    # Format: SYMBOL + YYMMDD + C + 8-digit strike (e.g., NEM250620C00005500)
     try:
-        date_part = option_id[-15:-9]  # Extract YYMMDD
-        year = 2000 + int(date_part[:2])
-        month = int(date_part[2:4])
-        day = int(date_part[4:6])
-        expiration_date = f"{year:04d}-{month:02d}-{day:02d}"
-        print(f"Parsed expiration from option ID: {expiration_date}")
+        # Find the 'C' to locate where the date ends and strike begins
+        c_index = option_id.find('C')
+        if c_index > len(symbol):
+            # Extract YYMMDD (6 digits before 'C')
+            date_part = option_id[len(symbol):c_index]
+            if len(date_part) == 6:
+                year = 2000 + int(date_part[:2])
+                month = int(date_part[2:4])
+                day = int(date_part[4:6])
+                expiration_date = f"{year:04d}-{month:02d}-{day:02d}"
+                print(f"Parsed expiration from option ID {option_id}: {expiration_date}")
+            else:
+                raise ValueError("Invalid date format")
+        else:
+            raise ValueError("Cannot find 'C' delimiter")
     except:
         expiration_date = '2025-07-03'  # Default fallback
         print(f"Could not parse expiration from {option_id}, using default {expiration_date}")
