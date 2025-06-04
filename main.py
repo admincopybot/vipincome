@@ -314,36 +314,57 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                 # Time value decreases with distance from stock price and time
                                 time_decay_factor = dte / 30.0  # 30-day base
                                 
-                                # Realistic market-based option pricing using percentage of stock price
-                                stock_percentage_factor = current_price * 0.01  # 1% of stock price as base
+                                # Realistic option pricing based on actual market behavior
+                                import math
                                 
-                                # ITM options: intrinsic + realistic time premium
-                                if long_intrinsic > 0:
-                                    long_time_premium = max(0.50, stock_percentage_factor * (dte/30.0))
-                                    long_price = long_intrinsic + long_time_premium
-                                else:
-                                    # OTM options: price based on distance and time, minimum realistic values
-                                    distance_factor = max(0.1, 1.0 / (1 + long_distance/5.0))
-                                    long_price = max(0.50, stock_percentage_factor * distance_factor * (dte/30.0))
+                                # Calculate moneyness percentages
+                                long_moneyness = (long_strike / current_price - 1) * 100  # % OTM/ITM
+                                short_moneyness = (short_strike / current_price - 1) * 100
                                 
-                                if short_intrinsic > 0:
-                                    short_time_premium = max(0.50, stock_percentage_factor * (dte/30.0))
-                                    short_price = short_intrinsic + short_time_premium
-                                else:
-                                    distance_factor = max(0.1, 1.0 / (1 + short_distance/5.0))
-                                    short_price = max(0.50, stock_percentage_factor * distance_factor * (dte/30.0))
+                                # Time to expiration factor
+                                time_factor = math.sqrt(dte / 365.0)
                                 
-                                # Apply realistic bid/ask spreads (10-20% of option price)
-                                long_spread_pct = 0.15  # 15% spread
-                                short_spread_pct = 0.15
+                                # Base volatility assumption
+                                vol = 0.30
                                 
-                                # Debit spread: Pay ASK for long, receive BID for short
-                                long_ask_price = long_price * (1 + long_spread_pct/2)
-                                short_bid_price = short_price * (1 - short_spread_pct/2)
+                                # Calculate theoretical option values using simplified Black-Scholes approach
+                                def calc_option_price(strike, stock_price, time_to_exp, volatility):
+                                    intrinsic = max(0, stock_price - strike)
+                                    
+                                    if intrinsic > 0:
+                                        # ITM: intrinsic + time value
+                                        time_value = stock_price * volatility * time_to_exp * 0.4
+                                        return intrinsic + time_value
+                                    else:
+                                        # OTM: pure time value, decreases exponentially with distance
+                                        moneyness_pct = abs((strike / stock_price - 1) * 100)
+                                        distance_decay = math.exp(-moneyness_pct / 20.0)  # Exponential decay
+                                        time_value = stock_price * volatility * time_to_exp * distance_decay
+                                        return max(0.10, time_value)
+                                
+                                # Calculate mid prices
+                                long_mid = calc_option_price(long_strike, current_price, time_factor, vol)
+                                short_mid = calc_option_price(short_strike, current_price, time_factor, vol)
+                                
+                                # Apply realistic bid/ask spreads based on option price and liquidity
+                                def get_bid_ask_spread(mid_price, moneyness_pct):
+                                    # Wider spreads for cheaper options and far OTM
+                                    base_spread = 0.10 if mid_price > 2.0 else 0.15
+                                    distance_penalty = min(0.20, abs(moneyness_pct) * 0.01)
+                                    return base_spread + distance_penalty
+                                
+                                long_spread = get_bid_ask_spread(long_mid, long_moneyness)
+                                short_spread = get_bid_ask_spread(short_mid, short_moneyness)
+                                
+                                # Calculate bid/ask prices
+                                long_ask_price = long_mid * (1 + long_spread)
+                                long_bid_price = long_mid * (1 - long_spread)
+                                short_ask_price = short_mid * (1 + short_spread)
+                                short_bid_price = short_mid * (1 - short_spread)
                                 
                                 # Ensure minimum realistic prices
-                                long_ask_price = max(0.75, long_ask_price)
-                                short_bid_price = max(0.25, short_bid_price)
+                                long_ask_price = max(0.15, long_ask_price)
+                                short_bid_price = max(0.05, short_bid_price)
                                 
                                 spread_cost = long_ask_price - short_bid_price
                                 
