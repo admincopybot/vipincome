@@ -303,14 +303,55 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                 spread_width = short_strike - long_strike
                                 checked_count += 1
                                 
-                                # Calculate realistic option prices
+                                # Calculate realistic option prices based on moneyness and time
                                 long_intrinsic = max(0, current_price - long_strike)
                                 short_intrinsic = max(0, current_price - short_strike)
                                 
-                                # Market pricing: Long ASK - Short BID
-                                time_factor = max(0.1, dte/365)
-                                long_ask_price = long_intrinsic + (0.10 + time_factor * 0.05)
-                                short_bid_price = short_intrinsic - 0.05
+                                # Calculate realistic time value based on distance from stock price
+                                long_distance = abs(long_strike - current_price)
+                                short_distance = abs(short_strike - current_price)
+                                
+                                # Time value decreases with distance from stock price and time
+                                time_decay_factor = dte / 30.0  # 30-day base
+                                
+                                # ITM options: mostly intrinsic + small time value
+                                if long_intrinsic > 0:
+                                    long_time_value = min(0.50, long_distance * 0.02 * time_decay_factor)
+                                else:
+                                    # OTM options: time value based on proximity to stock price
+                                    long_time_value = max(0.05, (5.0 / (1 + long_distance/10)) * time_decay_factor)
+                                
+                                if short_intrinsic > 0:
+                                    short_time_value = min(0.50, short_distance * 0.02 * time_decay_factor)
+                                else:
+                                    short_time_value = max(0.05, (5.0 / (1 + short_distance/10)) * time_decay_factor)
+                                
+                                # Calculate mid prices
+                                long_mid = long_intrinsic + long_time_value
+                                short_mid = short_intrinsic + short_time_value
+                                
+                                # Apply realistic bid/ask spreads based on option price
+                                if long_mid < 0.50:
+                                    long_spread = 0.05
+                                elif long_mid < 2.00:
+                                    long_spread = 0.10
+                                elif long_mid < 5.00:
+                                    long_spread = 0.15
+                                else:
+                                    long_spread = 0.20
+                                    
+                                if short_mid < 0.50:
+                                    short_spread = 0.05
+                                elif short_mid < 2.00:
+                                    short_spread = 0.10
+                                elif short_mid < 5.00:
+                                    short_spread = 0.15
+                                else:
+                                    short_spread = 0.20
+                                
+                                # Debit spread: Pay ASK for long, receive BID for short
+                                long_ask_price = long_mid + (long_spread / 2)
+                                short_bid_price = short_mid - (short_spread / 2)
                                 
                                 spread_cost = long_ask_price - short_bid_price
                                 

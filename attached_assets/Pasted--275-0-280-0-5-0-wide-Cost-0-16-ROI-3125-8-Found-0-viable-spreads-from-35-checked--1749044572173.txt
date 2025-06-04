@@ -1,0 +1,196 @@
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    Found 0 viable spreads from 35 checked
+  No viable spreads found for aggressive at 22 DTE
+  EVALUATING STEADY for expiration 2025-06-27 (22 DTE)
+  Available strikes: [105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0]...
+    Looking for debit spreads with ROI 15-30% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    $205.0/$210.0 ($5.0 wide): Cost $0.87, ROI 478.0%
+    $210.0/$215.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $215.0/$220.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $220.0/$225.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $225.0/$230.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $230.0/$235.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $235.0/$240.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $240.0/$245.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $245.0/$250.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $250.0/$255.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $255.0/$260.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $260.0/$265.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $265.0/$270.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $270.0/$275.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    Found 0 viable spreads from 35 checked
+  No viable spreads found for steady at 22 DTE
+  EVALUATING STEADY for expiration 2025-06-27 (22 DTE)
+  Available strikes: [105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0]...
+    Looking for debit spreads with ROI 15-30% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    $205.0/$210.0 ($5.0 wide): Cost $0.87, ROI 478.0%
+    $210.0/$215.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $215.0/$220.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $220.0/$225.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $225.0/$230.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $230.0/$235.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $235.0/$240.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $240.0/$245.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $245.0/$250.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $250.0/$255.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $255.0/$260.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $260.0/$265.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $265.0/$270.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $270.0/$275.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    Found 0 viable spreads from 35 checked
+  No viable spreads found for steady at 22 DTE
+  EVALUATING STEADY for expiration 2025-07-03 (28 DTE)
+  Available strikes: [105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0]...
+    Looking for debit spreads with ROI 15-30% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    $205.0/$210.0 ($5.0 wide): Cost $0.87, ROI 478.0%
+    $210.0/$215.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $215.0/$220.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $220.0/$225.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $225.0/$230.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $230.0/$235.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $235.0/$240.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $240.0/$245.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $245.0/$250.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $250.0/$255.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $255.0/$260.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $260.0/$265.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $265.0/$270.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $270.0/$275.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    Found 0 viable spreads from 35 checked
+  No viable spreads found for steady at 28 DTE
+  EVALUATING STEADY for expiration 2025-07-03 (28 DTE)
+  Available strikes: [105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0]...
+    Looking for debit spreads with ROI 15-30% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    $205.0/$210.0 ($5.0 wide): Cost $0.87, ROI 478.0%
+    $210.0/$215.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $215.0/$220.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $220.0/$225.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $225.0/$230.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $230.0/$235.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $235.0/$240.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $240.0/$245.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $245.0/$250.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $250.0/$255.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $255.0/$260.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $260.0/$265.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $265.0/$270.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $270.0/$275.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    Found 0 viable spreads from 35 checked
+  No viable spreads found for steady at 28 DTE
+  EVALUATING PASSIVE for expiration 2025-07-11 (36 DTE)
+  Available strikes: [105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0]...
+    Looking for debit spreads with ROI 8-20% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    $205.0/$210.0 ($5.0 wide): Cost $0.87, ROI 478.0%
+    $210.0/$215.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $215.0/$220.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $220.0/$225.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $225.0/$230.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $230.0/$235.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $235.0/$240.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $240.0/$245.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $245.0/$250.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $250.0/$255.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $255.0/$260.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $260.0/$265.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $265.0/$270.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $270.0/$275.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    Found 0 viable spreads from 35 checked
+  No viable spreads found for passive at 36 DTE
+  EVALUATING PASSIVE for expiration 2025-07-11 (36 DTE)
+  Available strikes: [105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0]...
+    Looking for debit spreads with ROI 8-20% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    $205.0/$210.0 ($5.0 wide): Cost $0.87, ROI 478.0%
+    $210.0/$215.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $215.0/$220.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $220.0/$225.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $225.0/$230.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $230.0/$235.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $235.0/$240.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $240.0/$245.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $245.0/$250.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $250.0/$255.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $255.0/$260.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $260.0/$265.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $265.0/$270.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $270.0/$275.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3125.8%
+    Found 0 viable spreads from 35 checked
+  No viable spreads found for passive at 36 DTE
+  EVALUATING PASSIVE for expiration 2025-07-18 (43 DTE)
+  Available strikes: [85.0, 90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 120.0, 125.0, 130.0]...
+    Looking for debit spreads with ROI 8-20% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    $205.0/$210.0 ($5.0 wide): Cost $0.87, ROI 477.4%
+    $210.0/$215.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $215.0/$220.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $220.0/$225.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $225.0/$230.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $230.0/$235.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $235.0/$240.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $240.0/$245.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $245.0/$250.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $250.0/$255.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $255.0/$260.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $260.0/$265.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $265.0/$270.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $270.0/$275.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $280.0/$285.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $285.0/$290.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $290.0/$295.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $295.0/$300.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $300.0/$305.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $305.0/$310.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $310.0/$315.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $315.0/$320.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $320.0/$325.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $325.0/$330.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $330.0/$335.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $335.0/$340.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $340.0/$345.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $345.0/$350.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $350.0/$355.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $355.0/$360.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    Found 0 viable spreads from 55 checked
+  No viable spreads found for passive at 43 DTE
+  EVALUATING PASSIVE for expiration 2025-07-18 (43 DTE)
+  Available strikes: [85.0, 90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 120.0, 125.0, 130.0]...
+    Looking for debit spreads with ROI 8-20% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    $205.0/$210.0 ($5.0 wide): Cost $0.87, ROI 477.4%
+    $210.0/$215.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $215.0/$220.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $220.0/$225.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $225.0/$230.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $230.0/$235.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $235.0/$240.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $240.0/$245.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $245.0/$250.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $250.0/$255.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $255.0/$260.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $260.0/$265.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $265.0/$270.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $270.0/$275.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $275.0/$280.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $280.0/$285.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $285.0/$290.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $290.0/$295.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $295.0/$300.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $300.0/$305.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $305.0/$310.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $310.0/$315.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $315.0/$320.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $320.0/$325.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $325.0/$330.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $330.0/$335.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $335.0/$340.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $340.0/$345.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $345.0/$350.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $350.0/$355.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    $355.0/$360.0 ($5.0 wide): Cost $0.16, ROI 3107.4%
+    Found 0 viable spreads from 55 checked
+  No viable spreads found for passive at 43 DTE
+Could not find suitable strikes for any strategy for AMZN
