@@ -347,7 +347,13 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             return max(bid, 0.05), max(ask, 0.10)
                         
                         # Extract available strikes from this expiration's contracts
-                        available_strikes = sorted([float(c['strike_price']) for c in exp_data['contracts']])
+                        # Handle both possible field names from Polygon API
+                        available_strikes = []
+                        for c in exp_data['contracts']:
+                            strike = c.get('strike_price') or c.get('strike')
+                            if strike:
+                                available_strikes.append(float(strike))
+                        available_strikes = sorted(available_strikes)
                         
                         # Find best $1-wide spread using prioritization strategy
                         best_spread_data = find_one_dollar_spreads(available_strikes, current_price, strategy_name)
@@ -363,8 +369,8 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             print(f"FOUND OPTIMAL $1 SPREAD {strategy_name}: {long_strike}/{short_strike} ROI {realistic_roi:.1f}%")
                             
                             # Find corresponding contracts for this spread
-                            long_contract = next((c for c in exp_data['contracts'] if float(c['strike_price']) == long_strike), None)
-                            short_contract = next((c for c in exp_data['contracts'] if float(c['strike_price']) == short_strike), None)
+                            long_contract = next((c for c in exp_data['contracts'] if float(c.get('strike_price') or c.get('strike', 0)) == long_strike), None)
+                            short_contract = next((c for c in exp_data['contracts'] if float(c.get('strike_price') or c.get('strike', 0)) == short_strike), None)
                             
                             if long_contract and short_contract:
                                 target_roi = {'aggressive': 35, 'steady': 20, 'passive': 12.5}[strategy_name]
@@ -380,7 +386,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                         'width': width,
                                         'long_contract': long_contract,
                                         'short_contract': short_contract,
-                                        'expiration': expiration,
+                                        'expiration': exp_data['expiration'],
                                         'dte': dte
                                     }
                             continue
