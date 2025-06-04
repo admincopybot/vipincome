@@ -7,6 +7,11 @@ import logging
 import os
 import io
 import csv
+import time
+import math
+import requests
+import json
+from datetime import datetime, timedelta
 from flask import Flask, request, render_template_string, jsonify, redirect
 from database_models import ETFDatabase
 from csv_data_loader import CsvDataLoader
@@ -306,68 +311,95 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                 spread_width = short_strike - long_strike
                                 checked_count += 1
                                 
-                                # Calculate realistic option prices based on moneyness and time
-                                long_intrinsic = max(0, current_price - long_strike)
-                                short_intrinsic = max(0, current_price - short_strike)
-                                
-                                # Calculate realistic time value based on distance from stock price
-                                long_distance = abs(long_strike - current_price)
-                                short_distance = abs(short_strike - current_price)
-                                
-                                # Time value decreases with distance from stock price and time
-                                time_decay_factor = dte / 30.0  # 30-day base
-                                
-                                # Realistic option pricing based on actual market behavior
-                                import math
-                                
-                                # Calculate moneyness percentages
-                                long_moneyness = (long_strike / current_price - 1) * 100  # % OTM/ITM
-                                short_moneyness = (short_strike / current_price - 1) * 100
-                                
-                                # Time to expiration factor
-                                time_factor = math.sqrt(dte / 365.0)
-                                
-                                # Base volatility assumption
-                                vol = 0.30
-                                
-                                # Calculate theoretical option values using simplified Black-Scholes approach
-                                def calc_option_price(strike, stock_price, time_to_exp, volatility):
-                                    intrinsic = max(0, stock_price - strike)
+                                # Generate artificial but realistic bid/ask values
+                                def generate_realistic_option_price(strike, stock_price, time_to_exp, is_call=True):
+                                    """Generate realistic option prices based on market behavior"""
+                                    
+                                    # Calculate intrinsic value
+                                    if is_call:
+                                        intrinsic = max(0, stock_price - strike)
+                                    else:
+                                        intrinsic = max(0, strike - stock_price)
+                                    
+                                    # Calculate moneyness (how far ITM/OTM)
+                                    if is_call:
+                                        moneyness = (stock_price - strike) / stock_price
+                                    else:
+                                        moneyness = (strike - stock_price) / stock_price
+                                    
+                                    # Base volatility assumption (30% annualized)
+                                    vol = 0.30
+                                    
+                                    # Time value component with realistic decay
+                                    time_factor = math.sqrt(time_to_exp / 365.0)
                                     
                                     if intrinsic > 0:
                                         # ITM: intrinsic + time value
-                                        time_value = stock_price * volatility * time_to_exp * 0.4
-                                        return intrinsic + time_value
+                                        time_value = stock_price * vol * time_factor * 0.3
+                                        theoretical_price = intrinsic + time_value
                                     else:
-                                        # OTM: pure time value, decreases exponentially with distance
-                                        moneyness_pct = abs((strike / stock_price - 1) * 100)
-                                        distance_decay = math.exp(-moneyness_pct / 20.0)  # Exponential decay
-                                        time_value = stock_price * volatility * time_to_exp * distance_decay
-                                        return max(0.10, time_value)
+                                        # OTM: pure time value with exponential decay
+                                        distance_pct = abs(moneyness) * 100
+                                        decay_factor = math.exp(-distance_pct / 15.0)  # Realistic decay
+                                        time_value = stock_price * vol * time_factor * decay_factor * 0.4
+                                        theoretical_price = max(0.05, time_value)
+                                    
+                                    return theoretical_price
                                 
-                                # Calculate mid prices
-                                long_mid = calc_option_price(long_strike, current_price, time_factor, vol)
-                                short_mid = calc_option_price(short_strike, current_price, time_factor, vol)
+                                def generate_bid_ask_spread(mid_price, moneyness_pct, dte):
+                                    """Generate realistic bid/ask spread based on option characteristics"""
+                                    
+                                    # Base spread percentage
+                                    if mid_price > 5.0:
+                                        base_spread = 0.08  # 8% for expensive options
+                                    elif mid_price > 2.0:
+                                        base_spread = 0.12  # 12% for mid-priced options
+                                    elif mid_price > 0.50:
+                                        base_spread = 0.18  # 18% for cheap options
+                                    else:
+                                        base_spread = 0.25  # 25% for very cheap options
+                                    
+                                    # Distance penalty (wider spreads for far OTM)
+                                    distance_penalty = min(0.15, abs(moneyness_pct) * 0.008)
+                                    
+                                    # Time penalty (wider spreads for short-term options)
+                                    time_penalty = max(0, (30 - dte) * 0.003)
+                                    
+                                    total_spread = base_spread + distance_penalty + time_penalty
+                                    return min(0.40, total_spread)  # Cap at 40%
                                 
-                                # Apply realistic bid/ask spreads based on option price and liquidity
-                                def get_bid_ask_spread(mid_price, moneyness_pct):
-                                    # Wider spreads for cheaper options and far OTM
-                                    base_spread = 0.10 if mid_price > 2.0 else 0.15
-                                    distance_penalty = min(0.20, abs(moneyness_pct) * 0.01)
-                                    return base_spread + distance_penalty
+                                # Calculate theoretical mid prices
+                                time_factor = dte / 365.0
                                 
-                                long_spread = get_bid_ask_spread(long_mid, long_moneyness)
-                                short_spread = get_bid_ask_spread(short_mid, short_moneyness)
+                                long_mid = generate_realistic_option_price(long_strike, current_price, time_factor)
+                                short_mid = generate_realistic_option_price(short_strike, current_price, time_factor)
+                                
+                                # Calculate moneyness percentages
+                                long_moneyness_pct = ((current_price - long_strike) / current_price) * 100
+                                short_moneyness_pct = ((current_price - short_strike) / current_price) * 100
+                                
+                                # Generate bid/ask spreads
+                                long_spread_pct = generate_bid_ask_spread(long_mid, long_moneyness_pct, dte)
+                                short_spread_pct = generate_bid_ask_spread(short_mid, short_moneyness_pct, dte)
                                 
                                 # Calculate bid/ask prices
-                                long_ask_price = long_mid * (1 + long_spread)
-                                long_bid_price = long_mid * (1 - long_spread)
-                                short_ask_price = short_mid * (1 + short_spread)
-                                short_bid_price = short_mid * (1 - short_spread)
+                                long_spread_amount = long_mid * long_spread_pct
+                                short_spread_amount = short_mid * short_spread_pct
                                 
-                                # Ensure minimum realistic prices
-                                long_ask_price = max(0.15, long_ask_price)
-                                short_bid_price = max(0.05, short_bid_price)
+                                long_bid = long_mid - (long_spread_amount / 2)
+                                long_ask = long_mid + (long_spread_amount / 2)
+                                short_bid = short_mid - (short_spread_amount / 2)  
+                                short_ask = short_mid + (short_spread_amount / 2)
+                                
+                                # Ensure minimum prices
+                                long_ask = max(0.10, long_ask)
+                                short_bid = max(0.05, short_bid)
+                                
+                                # For debit spread: buy long at ask, sell short at bid
+                                long_ask_price = long_ask
+                                short_bid_price = short_bid
+                                
+                                print(f"    Artificial prices: Long ${long_strike} mid=${long_mid:.2f} ask=${long_ask:.2f}, Short ${short_strike} mid=${short_mid:.2f} bid=${short_bid:.2f}")
                                 
                                 spread_cost = long_ask_price - short_bid_price
                                 
@@ -382,18 +414,17 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                 
                                 print(f"    ${long_strike}/${short_strike} (${spread_width:.1f} wide): Cost ${spread_cost:.2f}, ROI {roi:.1f}%")
                                 
-                                # Check ROI and position rules with proper ITM handling
-                                # For debit call spreads: both strikes can be ITM, but short strike should provide reasonable upside
-                                position_valid = True
-                                if current_price < 50:
-                                    # Low-priced stocks: short strike should be below current price  
+                                # Apply exact position rules for each strategy
+                                position_valid = False
+                                if strategy_name == 'aggressive':
+                                    # Aggressive: Sold call must be below current price
                                     position_valid = short_strike < current_price
-                                elif current_price < 150:
-                                    # Mid-priced stocks: allow short strike up to 5% above current
-                                    position_valid = short_strike <= current_price * 1.05
-                                else:
-                                    # High-priced stocks: allow short strike up to 10% above current
-                                    position_valid = short_strike <= current_price * 1.10
+                                elif strategy_name == 'steady':
+                                    # Steady: Sold call must be <2% below current price
+                                    position_valid = short_strike >= (current_price * 0.98)
+                                elif strategy_name == 'passive':
+                                    # Passive: Sold call must be <10% below current price
+                                    position_valid = short_strike >= (current_price * 0.90)
                                 
                                 if min_roi <= roi <= max_roi and position_valid:
                                     spread_data = {
