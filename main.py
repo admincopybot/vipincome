@@ -1508,23 +1508,30 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
             print(f"  Strikes near ${current_price:.0f}: {near_money_strikes}")
             print(f"  All strikes: {strikes[:10]}..." if len(strikes) > 10 else f"  All strikes: {strikes}")
             
-            # Look for $1-wide spreads
-            for long_strike in strikes:
-                short_strike = long_strike + 1.0
-                
-                if short_strike not in strikes_dict:
-                    continue
-                
-                spreads_checked += 1
-                
-                # Check short call position rule
-                if not check_short_call_position(short_strike, current_price, criteria['short_call_rule']):
-                    position_rule_failures += 1
-                    print(f"    ${long_strike}/{short_strike}: FAILED position rule ({criteria['short_call_rule']})")
-                    continue
-                
-                long_contract = strikes_dict[long_strike]
-                short_contract = strikes_dict[short_strike]
+            # Look for REAL $1-wide spreads using only actual strikes from Polygon API
+            real_strikes = sorted(strikes_dict.keys())
+            for i, long_strike in enumerate(real_strikes[:-1]):
+                # Check each subsequent strike to find exactly $1 wide spreads
+                for short_strike in real_strikes[i+1:]:
+                    width = short_strike - long_strike
+                    
+                    # Only accept exactly $1 wide spreads from real market data
+                    if abs(width - 1.0) > 0.01:  # Allow tiny rounding tolerance
+                        if width > 1.01:  # Stop checking if we've gone too far
+                            break
+                        continue
+                    
+                    # Found a real $1-wide spread, now process it
+                    spreads_checked += 1
+                    
+                    # Check short call position rule
+                    if not check_short_call_position(short_strike, current_price, criteria['short_call_rule']):
+                        position_rule_failures += 1
+                        print(f"    ${long_strike}/{short_strike}: FAILED position rule ({criteria['short_call_rule']})")
+                        continue
+                    
+                    long_contract = strikes_dict[long_strike]
+                    short_contract = strikes_dict[short_strike]
                 
                 # Get current prices for both options
                 long_price = get_contract_price(long_contract, symbol)
@@ -1735,13 +1742,18 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
                     strike = float(contract.get('strike_price', 0))
                     calls_by_strike[strike] = contract
             
-            # Find all possible $1-wide spreads
+            # Find all REAL $1-wide spreads using actual strikes from Polygon API
             strikes = sorted(calls_by_strike.keys())
-            for i, long_strike in enumerate(strikes):
-                short_strike = long_strike + 1.0
-                
-                if short_strike not in calls_by_strike:
-                    continue
+            for i, long_strike in enumerate(strikes[:-1]):
+                # Check each subsequent strike to find exactly $1 wide spreads
+                for short_strike in strikes[i+1:]:
+                    width = short_strike - long_strike
+                    
+                    # Only accept exactly $1 wide spreads from real market data
+                    if abs(width - 1.0) > 0.01:  # Allow tiny rounding tolerance
+                        if width > 1.01:  # Stop checking if we've gone too far
+                            break
+                        continue
                 
                 # Check short call position rule
                 if not meets_short_call_rule(short_strike, current_price, criteria['short_call_rule']):
@@ -4324,7 +4336,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}/{{ options_data.passive.short_strike_price if not options_data.passive.error else 0 }}' }}" class="strategy-btn">Select Passive Strategy</a>
+                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}/{{ options_data.passive.short_strike_price if not options_data.passive.error else 0 }}" class="strategy-btn">Select Passive Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
