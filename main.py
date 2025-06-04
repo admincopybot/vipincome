@@ -18,6 +18,9 @@ logger = logging.getLogger(__name__)
 # Initialize Flask app
 app = Flask(__name__)
 
+# Global storage for Step 3 spread calculations to ensure Step 4 consistency
+spread_calculations_cache = {}
+
 # Initialize database and CSV loader
 etf_db = ETFDatabase()
 csv_loader = CsvDataLoader()
@@ -559,12 +562,27 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             'short_strike': spread['short_strike'],
                             'roi': spread['roi'],
                             'max_profit': spread['max_profit'],
-                            'spread_cost': spread['spread_cost']
+                            'spread_cost': spread['spread_cost'],
+                            'spread_width': spread.get('spread_width', 2.5)  # Store actual width from Step 3
                         }
             
             if best_strategy:
                 strategies[strategy_name] = best_strategy
+                
+                # Store exact Step 3 calculations in global cache for Step 4 consistency
+                cache_key = f"{symbol}_{strategy_name}"
+                spread_calculations_cache[cache_key] = {
+                    'long_strike': best_strategy['long_strike'],
+                    'short_strike': best_strategy['short_strike'], 
+                    'spread_cost': best_strategy['spread_cost'],
+                    'max_profit': best_strategy['max_profit'],
+                    'roi': best_strategy['roi'],
+                    'spread_width': best_strategy['spread_width'],
+                    'dte': best_strategy['dte']
+                }
+                
                 print(f"DEBUG Step 3: Created {strategy_name} contract symbol: {best_strategy['contract_symbol']} for expiration {best_strategy['expiration']}")
+                print(f"DEBUG Step 3: Cached spread data - Cost: ${best_strategy['spread_cost']:.2f}, ROI: {best_strategy['roi']:.1f}%")
                 print(f"Created {strategy_name} strategy for {symbol}: {best_strategy['dte']} DTE, ROI: {best_strategy['roi']:.1f}%")
         
         # Show available strategies even if not all 3 are found
@@ -2466,55 +2484,74 @@ def step4(symbol, strategy, option_id, short_strike=None):
     
     print(f"Using REAL contract strikes for scenario analysis: Long ${scenario_long_strike:.2f} / Short ${scenario_short_strike:.2f}")
     
-    # Calculate option prices to hit exact ROI targets from Step 3
-    # Target ROI = ((1.00 - Spread Cost) / Spread Cost) × 100
-    # Solving for Spread Cost: Spread Cost = 1.00 / (1 + Target ROI/100)
-    
-    target_roi_map = {
-        'aggressive': 35.7,
-        'steady': 19.2, 
-        'passive': 13.8
-    }
-    
-    # Determine strategy type from DTE (days to expiration)
-    import datetime as dt
-    days_to_exp = (dt.datetime.strptime(expiration_date, '%Y-%m-%d') - dt.datetime.now()).days
-    if days_to_exp <= 20:
-        target_roi = target_roi_map['aggressive']
-    elif days_to_exp <= 30:
-        target_roi = target_roi_map['steady']
-    else:
-        target_roi = target_roi_map['passive']
-    
-    # Calculate required spread cost to hit target ROI
-    required_spread_cost = 1.00 / (1 + target_roi/100)
-    
-    # Set option prices to achieve this spread cost
-    # For ITM spreads, base on intrinsic values but adjust to hit target
-    if current_price > scenario_long_strike:
-        intrinsic_long = current_price - scenario_long_strike
-        scenario_long_price = intrinsic_long + (required_spread_cost * 0.7)  # Most of spread cost in long
-    else:
-        scenario_long_price = required_spread_cost * 0.8
+    # Check if we have cached Step 3 calculations for this symbol/strategy
+    cache_key = f"{symbol}_{strategy}"
+    if cache_key in spread_calculations_cache:
+        cached_data = spread_calculations_cache[cache_key]
         
-    if current_price > scenario_short_strike:
-        intrinsic_short = current_price - scenario_short_strike
-        scenario_short_price = intrinsic_short + (required_spread_cost * 0.3)  # Less in short
+        # Use EXACT Step 3 calculations for consistency
+        spread_cost = cached_data['spread_cost']
+        max_profit = cached_data['max_profit'] 
+        roi = cached_data['roi']
+        spread_width = cached_data['spread_width']
+        scenario_long_strike = cached_data['long_strike']
+        scenario_short_strike = cached_data['short_strike']
+        
+        print(f"DEBUG Step 4: Using cached Step 3 data - Cost: ${spread_cost:.2f}, ROI: {roi:.1f}%")
+        print(f"Using EXACT Step 3 strikes: Long ${scenario_long_strike:.2f} / Short ${scenario_short_strike:.2f}")
+        
+        # Calculate option prices to match the exact Step 3 spread cost
+        scenario_long_price = spread_cost * 0.75  # Approximate distribution
+        scenario_short_price = -spread_cost * 0.25  # Negative because we receive premium
+        
+        breakeven = scenario_long_strike + spread_cost
     else:
-        scenario_short_price = required_spread_cost * 0.2
-    
-    # Ensure spread cost matches target exactly
-    actual_spread_cost = scenario_long_price - scenario_short_price
-    if abs(actual_spread_cost - required_spread_cost) > 0.01:
-        # Adjust short price to match target exactly
-        scenario_short_price = scenario_long_price - required_spread_cost
-    
-    # Calculate spread metrics using scenario strikes
-    spread_cost = scenario_long_price - scenario_short_price
-    spread_width = scenario_short_strike - scenario_long_strike  # Should be $1.00
-    max_profit = spread_width - spread_cost
-    roi = (max_profit / spread_cost) * 100 if spread_cost > 0 else 0
-    breakeven = scenario_long_strike + spread_cost
+        print(f"WARNING: No cached Step 3 data for {cache_key}, using fallback calculations")
+        
+        # Fallback calculations (original logic)
+        target_roi_map = {
+            'aggressive': 35.7,
+            'steady': 19.2, 
+            'passive': 13.8
+        }
+        
+        # Determine strategy type from DTE (days to expiration)
+        import datetime as dt
+        days_to_exp = (dt.datetime.strptime(expiration_date, '%Y-%m-%d') - dt.datetime.now()).days
+        if days_to_exp <= 20:
+            target_roi = target_roi_map['aggressive']
+        elif days_to_exp <= 30:
+            target_roi = target_roi_map['steady']
+        else:
+            target_roi = target_roi_map['passive']
+        
+        # Calculate required spread cost to hit target ROI
+        required_spread_cost = 1.00 / (1 + target_roi/100)
+        
+        # Set option prices to achieve this spread cost
+        if current_price > scenario_long_strike:
+            intrinsic_long = current_price - scenario_long_strike
+            scenario_long_price = intrinsic_long + (required_spread_cost * 0.7)
+        else:
+            scenario_long_price = required_spread_cost * 0.8
+            
+        if current_price > scenario_short_strike:
+            intrinsic_short = current_price - scenario_short_strike
+            scenario_short_price = intrinsic_short + (required_spread_cost * 0.3)
+        else:
+            scenario_short_price = required_spread_cost * 0.2
+        
+        # Ensure spread cost matches target exactly
+        actual_spread_cost = scenario_long_price - scenario_short_price
+        if abs(actual_spread_cost - required_spread_cost) > 0.01:
+            scenario_short_price = scenario_long_price - required_spread_cost
+        
+        # Calculate spread metrics using scenario strikes
+        spread_cost = scenario_long_price - scenario_short_price
+        spread_width = scenario_short_strike - scenario_long_strike
+        max_profit = spread_width - spread_cost
+        roi = (max_profit / spread_cost) * 100 if spread_cost > 0 else 0
+        breakeven = scenario_long_strike + spread_cost
     
     print(f"Scenario Analysis Spread: Buy ${scenario_long_strike:.2f} (${scenario_long_price:.2f}) / Sell ${scenario_short_strike:.2f} (${scenario_short_price:.2f})")
     print(f"Spread cost: ${spread_cost:.2f}, Max profit: ${max_profit:.2f}, ROI: {roi:.2f}%")
