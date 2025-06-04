@@ -292,9 +292,10 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         long_option_price = long_intrinsic + long_time_premium
                         short_option_price = short_intrinsic + short_time_premium
                         
-                        # Realistic bid/ask spread (wider for more expensive options)
-                        long_ask = long_option_price + 0.05  # $0.05 ask spread
-                        short_bid = short_option_price - 0.05  # $0.05 bid spread
+                        # For debit spreads: we BUY long (pay ask) and SELL short (receive bid)
+                        bid_ask_spread = 0.05  # $0.05 typical spread
+                        long_ask = long_option_price + (bid_ask_spread / 2)  # Pay slightly above mid
+                        short_bid = short_option_price - (bid_ask_spread / 2)  # Receive slightly below mid
                         
                         # Calculate realistic spread cost
                         realistic_spread_cost = long_ask - short_bid
