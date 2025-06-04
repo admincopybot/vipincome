@@ -1,0 +1,35 @@
+    Looking for narrow spreads with ROI 8-20%...
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 42.5/45.0: Invalid cost=$0.00, profit=$2.50
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 42.5/47.5: Invalid cost=$0.00, profit=$5.00
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 45.0/47.5: Invalid cost=$0.00, profit=$2.50
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 45.0/50.0: Invalid cost=$0.00, profit=$5.00
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 47.5/50.0: Invalid cost=$0.00, profit=$2.50
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 50.0/55.0: Invalid cost=$0.00, profit=$5.00
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 55.0/57.5: Invalid cost=$0.00, profit=$2.50
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 55.0/60.0: Invalid cost=$0.00, profit=$5.00
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 57.5/60.0: Invalid cost=$0.00, profit=$2.50
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 57.5/62.5: Invalid cost=$0.00, profit=$5.00
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
+    REJECT 60.0/62.5: Invalid cost=$0.00, profit=$2.50
+    Price calc: $0.0 strike, intrinsic $205.01, premium $0.15, total $205.16
