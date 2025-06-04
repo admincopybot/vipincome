@@ -1755,9 +1755,9 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
                         valid_spreads.append(spread_data)
                         
                         print(f"    ✓ VALID SPREAD: {long_strike}/{short_strike}, {dte} DTE, {roi:.1f}% ROI, ${spread_cost:.2f} cost")
-                else:
-                    roi_failures += 1
-                    print(f"    ${long_strike}/{short_strike}: FAILED ROI {roi:.1f}% (need {criteria['roi_min']}-{criteria['roi_max']}%)")
+                    else:
+                        roi_failures += 1
+                        print(f"    ${long_strike}/{short_strike}: FAILED ROI {roi:.1f}% (need {criteria['roi_min']}-{criteria['roi_max']}%)")
         
         except Exception as e:
             print(f"Error processing {exp_date_str}: {e}")
