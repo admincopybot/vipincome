@@ -304,8 +304,8 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         
                         # Log detailed pricing calculation
                         print(f"PRICING DEBUG {strategy_name}: {long_strike}/{short_strike} strikes")
-                        print(f"  Long: intrinsic=${long_intrinsic:.2f} + premium=${long_time_premium:.2f} = ${long_option_price:.2f}")
-                        print(f"  Short: intrinsic=${short_intrinsic:.2f} + premium=${short_time_premium:.2f} = ${short_option_price:.2f}")
+                        print(f"  Long: intrinsic=${long_intrinsic:.2f}, bid=${long_bid:.2f}, ask=${long_ask:.2f}")
+                        print(f"  Short: intrinsic=${short_intrinsic:.2f}, bid=${short_bid:.2f}, ask=${short_ask:.2f}")
                         print(f"  Spread cost: ${realistic_spread_cost:.2f}, Max profit: ${realistic_max_profit:.2f}")
                         
                         # Only consider spreads with reasonable profit potential

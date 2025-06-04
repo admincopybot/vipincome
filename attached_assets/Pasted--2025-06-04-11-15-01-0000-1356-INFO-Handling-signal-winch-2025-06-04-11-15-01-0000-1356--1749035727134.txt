@@ -1,0 +1,37 @@
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+Found 399 options contracts for MDLZ
+Found 14 unique expiration dates for MDLZ
+Found 5 suitable expiration dates for MDLZ
+PRICING DEBUG aggressive: 57.5/62.5 strikes
+Error fetching real options data for MDLZ: name 'long_time_premium' is not defined
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+Real MDLZ current price from Polygon API: $67.04
+Fetching options contracts for MDLZ from Polygon API...
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+Found 399 options contracts for MDLZ
+Found 14 unique expiration dates for MDLZ
+Found 5 suitable expiration dates for MDLZ
+PRICING DEBUG aggressive: 57.5/62.5 strikes
+Error fetching real options data for MDLZ: name 'long_time_premium' is not defined
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
+[2025-06-04 11:15:01 +0000] [1356] [INFO] Handling signal: winch
