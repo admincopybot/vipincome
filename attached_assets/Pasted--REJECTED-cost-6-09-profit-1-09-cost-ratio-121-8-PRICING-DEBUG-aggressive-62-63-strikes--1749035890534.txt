@@ -1,0 +1,977 @@
+  REJECTED: cost=$6.09, profit=$-1.09, cost_ratio=121.8%
+PRICING DEBUG aggressive: 62/63 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $0.95, Max profit: $0.05
+  REJECTED: cost=$0.95, profit=$0.05, cost_ratio=95.0%
+PRICING DEBUG aggressive: 62/64 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG aggressive: 62/65 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG aggressive: 62/66 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $5.09, Max profit: $-1.09
+  REJECTED: cost=$5.09, profit=$-1.09, cost_ratio=127.3%
+PRICING DEBUG aggressive: 62/67 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $5.09, Max profit: $-0.09
+  REJECTED: cost=$5.09, profit=$-0.09, cost_ratio=101.8%
+PRICING DEBUG aggressive: 63/64 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 63/65 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 63/66 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $4.29, Max profit: $-1.29
+  REJECTED: cost=$4.29, profit=$-1.29, cost_ratio=143.0%
+PRICING DEBUG aggressive: 63/67 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $4.29, Max profit: $-0.29
+  REJECTED: cost=$4.29, profit=$-0.29, cost_ratio=107.3%
+PRICING DEBUG aggressive: 64/65 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 64/66 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $3.29, Max profit: $-1.29
+  REJECTED: cost=$3.29, profit=$-1.29, cost_ratio=164.5%
+PRICING DEBUG aggressive: 64/67 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $3.29, Max profit: $-0.29
+  REJECTED: cost=$3.29, profit=$-0.29, cost_ratio=109.7%
+PRICING DEBUG aggressive: 65/66 strikes
+  Long: intrinsic=$2.04, bid=$2.39, ask=$2.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $2.29, Max profit: $-1.29
+  REJECTED: cost=$2.29, profit=$-1.29, cost_ratio=229.0%
+PRICING DEBUG aggressive: 65/67 strikes
+  Long: intrinsic=$2.04, bid=$2.39, ask=$2.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $2.29, Max profit: $-0.29
+  REJECTED: cost=$2.29, profit=$-0.29, cost_ratio=114.5%
+PRICING DEBUG aggressive: 66/67 strikes
+  Long: intrinsic=$1.04, bid=$0.25, ask=$0.40
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $0.20, Max profit: $0.80
+  ROI: 400.0%
+  ROI in range for aggressive: False
+PRICING DEBUG steady: 58/59 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$8.04, bid=$8.14, ask=$8.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 58/60 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 58/61 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG steady: 58/62 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $4.15, Max profit: $-0.15
+  REJECTED: cost=$4.15, profit=$-0.15, cost_ratio=103.8%
+PRICING DEBUG steady: 58/63 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 59/60 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 59/61 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 59/62 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG steady: 59/63 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 59/64 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 60/61 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 60/62 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 60/63 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 60/64 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 60/65 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 61/62 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 61/63 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG steady: 61/64 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 61/65 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 62/63 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $0.95, Max profit: $0.05
+  REJECTED: cost=$0.95, profit=$0.05, cost_ratio=95.0%
+PRICING DEBUG steady: 62/64 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG steady: 62/65 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 63/64 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 63/65 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 64/65 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 58/59 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$8.04, bid=$8.14, ask=$8.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 58/60 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 58/61 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG steady: 58/62 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $4.15, Max profit: $-0.15
+  REJECTED: cost=$4.15, profit=$-0.15, cost_ratio=103.8%
+PRICING DEBUG steady: 58/63 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 59/60 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 59/61 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 59/62 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG steady: 59/63 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 59/64 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 60/61 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 60/62 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 60/63 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 60/64 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 60/65 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 61/62 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 61/63 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG steady: 61/64 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 61/65 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 62/63 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $0.95, Max profit: $0.05
+  REJECTED: cost=$0.95, profit=$0.05, cost_ratio=95.0%
+PRICING DEBUG steady: 62/64 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG steady: 62/65 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 63/64 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 63/65 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 64/65 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG passive: 58/59 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$8.04, bid=$8.14, ask=$8.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG passive: 58/60 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG passive: 59/60 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+Could not find suitable strikes for any strategy for MDLZ
+[2025-06-04 11:15:48 +0000] [1600] [INFO] Handling signal: winch
+[2025-06-04 11:15:48 +0000] [1600] [INFO] Handling signal: winch
+Real MDLZ current price from Polygon API: $67.04
+Fetching options contracts for MDLZ from Polygon API...
+[2025-06-04 11:15:48 +0000] [1600] [INFO] Handling signal: winch
+[2025-06-04 11:15:48 +0000] [1600] [INFO] Handling signal: winch
+[2025-06-04 11:15:48 +0000] [1600] [INFO] Handling signal: winch
+Found 399 options contracts for MDLZ
+Found 14 unique expiration dates for MDLZ
+Found 5 suitable expiration dates for MDLZ
+PRICING DEBUG aggressive: 57.5/62.5 strikes
+  Long: intrinsic=$9.54, bid=$9.69, ask=$9.79
+  Short: intrinsic=$4.54, bid=$4.84, ask=$4.94
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG aggressive: 58/59 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$8.04, bid=$8.14, ask=$8.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 58/60 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 58/61 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG aggressive: 58/62 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $4.15, Max profit: $-0.15
+  REJECTED: cost=$4.15, profit=$-0.15, cost_ratio=103.8%
+PRICING DEBUG aggressive: 58/63 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG aggressive: 59/60 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 59/61 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 59/62 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG aggressive: 59/63 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG aggressive: 59/64 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG aggressive: 60/61 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 60/62 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 60/63 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG aggressive: 60/64 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG aggressive: 60/65 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG aggressive: 61/62 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 61/63 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG aggressive: 61/64 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG aggressive: 61/65 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG aggressive: 61/66 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $6.09, Max profit: $-1.09
+  REJECTED: cost=$6.09, profit=$-1.09, cost_ratio=121.8%
+PRICING DEBUG aggressive: 62/63 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $0.95, Max profit: $0.05
+  REJECTED: cost=$0.95, profit=$0.05, cost_ratio=95.0%
+PRICING DEBUG aggressive: 62/64 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG aggressive: 62/65 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG aggressive: 62/66 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $5.09, Max profit: $-1.09
+  REJECTED: cost=$5.09, profit=$-1.09, cost_ratio=127.3%
+PRICING DEBUG aggressive: 62/67 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $5.09, Max profit: $-0.09
+  REJECTED: cost=$5.09, profit=$-0.09, cost_ratio=101.8%
+PRICING DEBUG aggressive: 63/64 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 63/65 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 63/66 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $4.29, Max profit: $-1.29
+  REJECTED: cost=$4.29, profit=$-1.29, cost_ratio=143.0%
+PRICING DEBUG aggressive: 63/67 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $4.29, Max profit: $-0.29
+  REJECTED: cost=$4.29, profit=$-0.29, cost_ratio=107.3%
+PRICING DEBUG aggressive: 64/65 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 64/66 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $3.29, Max profit: $-1.29
+  REJECTED: cost=$3.29, profit=$-1.29, cost_ratio=164.5%
+PRICING DEBUG aggressive: 64/67 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $3.29, Max profit: $-0.29
+  REJECTED: cost=$3.29, profit=$-0.29, cost_ratio=109.7%
+PRICING DEBUG aggressive: 65/66 strikes
+  Long: intrinsic=$2.04, bid=$2.39, ask=$2.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $2.29, Max profit: $-1.29
+  REJECTED: cost=$2.29, profit=$-1.29, cost_ratio=229.0%
+PRICING DEBUG aggressive: 65/67 strikes
+  Long: intrinsic=$2.04, bid=$2.39, ask=$2.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $2.29, Max profit: $-0.29
+  REJECTED: cost=$2.29, profit=$-0.29, cost_ratio=114.5%
+PRICING DEBUG aggressive: 66/67 strikes
+  Long: intrinsic=$1.04, bid=$0.25, ask=$0.40
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $0.20, Max profit: $0.80
+  ROI: 400.0%
+  ROI in range for aggressive: False
+PRICING DEBUG aggressive: 58/59 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$8.04, bid=$8.14, ask=$8.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 58/60 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 58/61 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG aggressive: 58/62 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $4.15, Max profit: $-0.15
+  REJECTED: cost=$4.15, profit=$-0.15, cost_ratio=103.8%
+PRICING DEBUG aggressive: 58/63 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG aggressive: 59/60 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 59/61 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 59/62 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG aggressive: 59/63 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG aggressive: 59/64 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG aggressive: 60/61 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 60/62 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 60/63 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG aggressive: 60/64 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG aggressive: 60/65 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG aggressive: 61/62 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 61/63 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG aggressive: 61/64 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG aggressive: 61/65 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG aggressive: 61/66 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $6.09, Max profit: $-1.09
+  REJECTED: cost=$6.09, profit=$-1.09, cost_ratio=121.8%
+PRICING DEBUG aggressive: 62/63 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $0.95, Max profit: $0.05
+  REJECTED: cost=$0.95, profit=$0.05, cost_ratio=95.0%
+PRICING DEBUG aggressive: 62/64 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG aggressive: 62/65 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG aggressive: 62/66 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $5.09, Max profit: $-1.09
+  REJECTED: cost=$5.09, profit=$-1.09, cost_ratio=127.3%
+PRICING DEBUG aggressive: 62/67 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $5.09, Max profit: $-0.09
+  REJECTED: cost=$5.09, profit=$-0.09, cost_ratio=101.8%
+PRICING DEBUG aggressive: 63/64 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 63/65 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG aggressive: 63/66 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $4.29, Max profit: $-1.29
+  REJECTED: cost=$4.29, profit=$-1.29, cost_ratio=143.0%
+PRICING DEBUG aggressive: 63/67 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $4.29, Max profit: $-0.29
+  REJECTED: cost=$4.29, profit=$-0.29, cost_ratio=107.3%
+PRICING DEBUG aggressive: 64/65 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG aggressive: 64/66 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $3.29, Max profit: $-1.29
+  REJECTED: cost=$3.29, profit=$-1.29, cost_ratio=164.5%
+PRICING DEBUG aggressive: 64/67 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $3.29, Max profit: $-0.29
+  REJECTED: cost=$3.29, profit=$-0.29, cost_ratio=109.7%
+PRICING DEBUG aggressive: 65/66 strikes
+  Long: intrinsic=$2.04, bid=$2.39, ask=$2.49
+  Short: intrinsic=$1.04, bid=$0.20, ask=$0.35
+  Spread cost: $2.29, Max profit: $-1.29
+  REJECTED: cost=$2.29, profit=$-1.29, cost_ratio=229.0%
+PRICING DEBUG aggressive: 65/67 strikes
+  Long: intrinsic=$2.04, bid=$2.39, ask=$2.49
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $2.29, Max profit: $-0.29
+  REJECTED: cost=$2.29, profit=$-0.29, cost_ratio=114.5%
+PRICING DEBUG aggressive: 66/67 strikes
+  Long: intrinsic=$1.04, bid=$0.25, ask=$0.40
+  Short: intrinsic=$0.04, bid=$0.20, ask=$0.35
+  Spread cost: $0.20, Max profit: $0.80
+  ROI: 400.0%
+  ROI in range for aggressive: False
+PRICING DEBUG steady: 58/59 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$8.04, bid=$8.14, ask=$8.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 58/60 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 58/61 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG steady: 58/62 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $4.15, Max profit: $-0.15
+  REJECTED: cost=$4.15, profit=$-0.15, cost_ratio=103.8%
+PRICING DEBUG steady: 58/63 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 59/60 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 59/61 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 59/62 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG steady: 59/63 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 59/64 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 60/61 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 60/62 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 60/63 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 60/64 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 60/65 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 61/62 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 61/63 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG steady: 61/64 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 61/65 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 62/63 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $0.95, Max profit: $0.05
+  REJECTED: cost=$0.95, profit=$0.05, cost_ratio=95.0%
+PRICING DEBUG steady: 62/64 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG steady: 62/65 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 63/64 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 63/65 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 64/65 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 58/59 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$8.04, bid=$8.14, ask=$8.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 58/60 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 58/61 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG steady: 58/62 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $4.15, Max profit: $-0.15
+  REJECTED: cost=$4.15, profit=$-0.15, cost_ratio=103.8%
+PRICING DEBUG steady: 58/63 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 59/60 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 59/61 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 59/62 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $3.15, Max profit: $-0.15
+  REJECTED: cost=$3.15, profit=$-0.15, cost_ratio=105.0%
+PRICING DEBUG steady: 59/63 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 59/64 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 60/61 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$6.04, bid=$6.14, ask=$6.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 60/62 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 60/63 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 60/64 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 60/65 strikes
+  Long: intrinsic=$7.04, bid=$7.19, ask=$7.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $4.95, Max profit: $0.05
+  REJECTED: cost=$4.95, profit=$0.05, cost_ratio=99.0%
+PRICING DEBUG steady: 61/62 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$5.04, bid=$5.14, ask=$5.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 61/63 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG steady: 61/64 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 61/65 strikes
+  Long: intrinsic=$6.04, bid=$6.19, ask=$6.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $3.95, Max profit: $0.05
+  REJECTED: cost=$3.95, profit=$0.05, cost_ratio=98.8%
+PRICING DEBUG steady: 62/63 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$4.04, bid=$4.34, ask=$4.44
+  Spread cost: $0.95, Max profit: $0.05
+  REJECTED: cost=$0.95, profit=$0.05, cost_ratio=95.0%
+PRICING DEBUG steady: 62/64 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.95, Max profit: $0.05
+  REJECTED: cost=$1.95, profit=$0.05, cost_ratio=97.5%
+PRICING DEBUG steady: 62/65 strikes
+  Long: intrinsic=$5.04, bid=$5.19, ask=$5.29
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.95, Max profit: $0.05
+  REJECTED: cost=$2.95, profit=$0.05, cost_ratio=98.3%
+PRICING DEBUG steady: 63/64 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$3.04, bid=$3.34, ask=$3.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG steady: 63/65 strikes
+  Long: intrinsic=$4.04, bid=$4.39, ask=$4.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG steady: 64/65 strikes
+  Long: intrinsic=$3.04, bid=$3.39, ask=$3.49
+  Short: intrinsic=$2.04, bid=$2.34, ask=$2.44
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG passive: 58/59 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$8.04, bid=$8.14, ask=$8.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+PRICING DEBUG passive: 58/60 strikes
+  Long: intrinsic=$9.04, bid=$9.19, ask=$9.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $2.15, Max profit: $-0.15
+  REJECTED: cost=$2.15, profit=$-0.15, cost_ratio=107.5%
+PRICING DEBUG passive: 59/60 strikes
+  Long: intrinsic=$8.04, bid=$8.19, ask=$8.29
+  Short: intrinsic=$7.04, bid=$7.14, ask=$7.24
+  Spread cost: $1.15, Max profit: $-0.15
+  REJECTED: cost=$1.15, profit=$-0.15, cost_ratio=115.0%
+Could not find suitable strikes for any strategy for MDLZ
+[2025-06-04 11:17:44 +0000] [1600] [INFO] Handling signal: winch

@@ -313,13 +313,13 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             realistic_roi = (realistic_max_profit / realistic_spread_cost) * 100
                             print(f"  ROI: {realistic_roi:.1f}%")
                             
-                            # Check if ROI falls within strategy range
+                            # Check if ROI falls within strategy range - be more flexible for realistic trading
                             roi_in_range = False
-                            if strategy_name == 'aggressive' and 30 <= realistic_roi <= 40:
+                            if strategy_name == 'aggressive' and 25 <= realistic_roi <= 100:  # Allow higher ROI for viable trades
                                 roi_in_range = True
-                            elif strategy_name == 'steady' and 15 <= realistic_roi <= 25:
+                            elif strategy_name == 'steady' and 15 <= realistic_roi <= 50:
                                 roi_in_range = True
-                            elif strategy_name == 'passive' and 10 <= realistic_roi <= 15:
+                            elif strategy_name == 'passive' and 8 <= realistic_roi <= 25:
                                 roi_in_range = True
                             
                             print(f"  ROI in range for {strategy_name}: {roi_in_range}")
