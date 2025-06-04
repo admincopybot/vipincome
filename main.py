@@ -284,16 +284,14 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         # Use typical market bid/ask values for liquid options
                         # Based on common market patterns for call debit spreads
                         
-                        # Step 1: Find $1-wide debit call spreads with authentic Polygon bid/ask data
-                        def find_one_dollar_debit_spreads(strikes, current_price, strategy_name, exp_date, symbol):
+                        # Find debit spreads using actual market strike intervals (no $1-wide requirement)
+                        def find_best_debit_spread(strikes, current_price, strategy_name, dte):
                             valid_spreads = []
-                            total_checked = 0
-                            rejected_reasons = {'no_short_strike': 0, 'negative_cost': 0, 'roi_out_of_range': 0}
                             
                             target_ranges = {'aggressive': (25, 45), 'steady': (15, 30), 'passive': (8, 20)}
                             min_roi, max_roi = target_ranges.get(strategy_name, (10, 50))
                             
-                            print(f"    Looking for $1-wide debit call spreads with ROI {min_roi}-{max_roi}%...")
+                            print(f"    Looking for debit spreads with ROI {min_roi}-{max_roi}% using available strike intervals...")
                             
                             # Get authentic bid/ask quotes from Polygon API
                             def get_option_quotes(symbol, strike, exp_date):
@@ -321,13 +319,13 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                     pass
                                 return None, None
                             
-                            for i, long_strike in enumerate(strikes[:-1]):
-                                # Find exact $1-wide spread: Buy X, Sell X+1
-                                short_strike = long_strike + 1.0
-                                
-                                if short_strike not in strikes:
-                                    rejected_reasons['no_short_strike'] += 1
-                                    continue
+                            # Use actual market strike intervals - whatever is available
+                            sorted_strikes = sorted(strikes)
+                            
+                            for i, long_strike in enumerate(sorted_strikes[:-1]):
+                                # Use next available strike (actual market interval)
+                                short_strike = sorted_strikes[i + 1]
+                                spread_width = short_strike - long_strike
                                 
                                 total_checked += 1
                                 
@@ -447,17 +445,12 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         print(f"  EVALUATING {strategy_name.upper()} for expiration {exp_data['date']} ({dte} DTE)")
                         print(f"  Available strikes: {available_strikes[:10]}..." if len(available_strikes) > 10 else f"  Available strikes: {available_strikes}")
                         
-                        # Find best $1-wide debit spread using authentic Polygon contract data
-                        # Note: $1-wide spreads often unprofitable due to bid/ask spreads
-                        best_spread_data = find_one_dollar_debit_spreads(available_strikes, current_price, strategy_name, exp_data['date'], symbol)
+                        # Find best debit spread using actual market strike intervals
+                        best_spread_data = find_best_debit_spread(available_strikes, current_price, strategy_name, dte)
                         
-                        # Market reality: $1-wide spreads typically unprofitable
                         if not best_spread_data:
-                            print(f"  MARKET LIMITATION: No viable $1-wide spreads exist for {strategy_name}")
-                            print(f"  Creating informational display using available strikes")
-                            
-                            # Return authentic market analysis: no viable spreads exist
-                            return create_no_options_error(symbol)
+                            print(f"  No viable spreads found for {strategy_name} at {dte} DTE")
+                            continue
                         
                         if best_spread_data:
                             long_strike = best_spread_data['long_strike']
