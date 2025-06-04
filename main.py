@@ -314,17 +314,28 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                 # Time value decreases with distance from stock price and time
                                 time_decay_factor = dte / 30.0  # 30-day base
                                 
-                                # ITM options: mostly intrinsic + small time value
+                                # More realistic option pricing
                                 if long_intrinsic > 0:
-                                    long_time_value = min(0.50, long_distance * 0.02 * time_decay_factor)
+                                    # ITM options: intrinsic + realistic time value
+                                    long_time_value = max(0.15, min(2.0, long_distance * 0.05 + time_decay_factor * 0.5))
                                 else:
-                                    # OTM options: time value based on proximity to stock price
-                                    long_time_value = max(0.05, (5.0 / (1 + long_distance/10)) * time_decay_factor)
+                                    # OTM options: higher base time value, decreases with distance
+                                    if long_distance <= 5:
+                                        long_time_value = max(0.25, 2.0 * time_decay_factor)  # Near money
+                                    elif long_distance <= 15:
+                                        long_time_value = max(0.15, 1.0 * time_decay_factor)  # Moderate OTM
+                                    else:
+                                        long_time_value = max(0.05, 0.3 * time_decay_factor)  # Far OTM
                                 
                                 if short_intrinsic > 0:
-                                    short_time_value = min(0.50, short_distance * 0.02 * time_decay_factor)
+                                    short_time_value = max(0.15, min(2.0, short_distance * 0.05 + time_decay_factor * 0.5))
                                 else:
-                                    short_time_value = max(0.05, (5.0 / (1 + short_distance/10)) * time_decay_factor)
+                                    if short_distance <= 5:
+                                        short_time_value = max(0.25, 2.0 * time_decay_factor)
+                                    elif short_distance <= 15:
+                                        short_time_value = max(0.15, 1.0 * time_decay_factor)
+                                    else:
+                                        short_time_value = max(0.05, 0.3 * time_decay_factor)
                                 
                                 # Calculate mid prices
                                 long_mid = long_intrinsic + long_time_value
