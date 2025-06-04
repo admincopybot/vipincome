@@ -300,9 +300,16 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         realistic_spread_cost = long_ask - short_bid
                         realistic_max_profit = width - realistic_spread_cost
                         
+                        # Log detailed pricing calculation
+                        print(f"PRICING DEBUG {strategy_name}: {long_strike}/{short_strike} strikes")
+                        print(f"  Long: intrinsic=${long_intrinsic:.2f} + premium=${long_time_premium:.2f} = ${long_option_price:.2f}")
+                        print(f"  Short: intrinsic=${short_intrinsic:.2f} + premium=${short_time_premium:.2f} = ${short_option_price:.2f}")
+                        print(f"  Spread cost: ${realistic_spread_cost:.2f}, Max profit: ${realistic_max_profit:.2f}")
+                        
                         # Only consider spreads with reasonable profit potential
                         if realistic_spread_cost > 0 and realistic_max_profit > 0.10 and realistic_spread_cost < (width * 0.85):
                             realistic_roi = (realistic_max_profit / realistic_spread_cost) * 100
+                            print(f"  ROI: {realistic_roi:.1f}%")
                             
                             # Check if ROI falls within strategy range
                             roi_in_range = False
@@ -313,9 +320,12 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             elif strategy_name == 'passive' and 10 <= realistic_roi <= 15:
                                 roi_in_range = True
                             
+                            print(f"  ROI in range for {strategy_name}: {roi_in_range}")
+                            
                             if roi_in_range:
                                 target_roi = {'aggressive': 35, 'steady': 20, 'passive': 12.5}[strategy_name]
                                 roi_diff = abs(realistic_roi - target_roi)
+                                print(f"  Found viable {strategy_name} spread: {long_strike}/{short_strike} ROI {realistic_roi:.1f}%")
                                 if roi_diff < closest_roi_diff:
                                     closest_roi_diff = roi_diff
                                     best_spread = {
@@ -326,6 +336,8 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                         'roi': realistic_roi,
                                         'width': width
                                     }
+                        else:
+                            print(f"  REJECTED: cost=${realistic_spread_cost:.2f}, profit=${realistic_max_profit:.2f}, cost_ratio={realistic_spread_cost/width:.1%}")
             
             return best_spread
         
