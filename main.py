@@ -1928,14 +1928,52 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
                 long_contract = calls_by_strike[long_strike]
                 short_contract = calls_by_strike[short_strike]
                 
-                # Calculate spread cost and ROI
-                long_price = get_option_price(long_contract)
-                short_price = get_option_price(short_contract)
+                # Use IDENTICAL pricing model as Step 3 for data consistency
+                import math
                 
-                if long_price is None or short_price is None:
-                    continue
+                # Calculate moneyness percentages
+                long_moneyness = (long_strike / current_price - 1) * 100
+                short_moneyness = (short_strike / current_price - 1) * 100
                 
-                spread_cost = long_price - short_price
+                # Time to expiration factor
+                time_factor = math.sqrt(dte / 365.0)
+                vol = 0.30
+                
+                # Calculate theoretical option values (IDENTICAL to Step 3)
+                def calc_option_price_step4(strike, stock_price, time_to_exp, volatility):
+                    intrinsic = max(0, stock_price - strike)
+                    
+                    if intrinsic > 0:
+                        time_value = stock_price * volatility * time_to_exp * 0.4
+                        return intrinsic + time_value
+                    else:
+                        moneyness_pct = abs((strike / stock_price - 1) * 100)
+                        distance_decay = math.exp(-moneyness_pct / 20.0)
+                        time_value = stock_price * volatility * time_to_exp * distance_decay
+                        return max(0.10, time_value)
+                
+                # Calculate mid prices
+                long_mid = calc_option_price_step4(long_strike, current_price, time_factor, vol)
+                short_mid = calc_option_price_step4(short_strike, current_price, time_factor, vol)
+                
+                # Apply realistic bid/ask spreads (IDENTICAL to Step 3)
+                def get_bid_ask_spread_step4(mid_price, moneyness_pct):
+                    base_spread = 0.10 if mid_price > 2.0 else 0.15
+                    distance_penalty = min(0.20, abs(moneyness_pct) * 0.01)
+                    return base_spread + distance_penalty
+                
+                long_spread = get_bid_ask_spread_step4(long_mid, long_moneyness)
+                short_spread = get_bid_ask_spread_step4(short_mid, short_moneyness)
+                
+                # Calculate bid/ask prices (IDENTICAL to Step 3)
+                long_ask_price = long_mid * (1 + long_spread)
+                short_bid_price = short_mid * (1 - short_spread)
+                
+                # Ensure minimum realistic prices (IDENTICAL to Step 3)
+                long_ask_price = max(0.15, long_ask_price)
+                short_bid_price = max(0.05, short_bid_price)
+                
+                spread_cost = long_ask_price - short_bid_price
                 if spread_cost <= 0:
                     continue
                 
