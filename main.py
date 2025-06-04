@@ -284,8 +284,8 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         # Use typical market bid/ask values for liquid options
                         # Based on common market patterns for call debit spreads
                         
-                        # Step 1: Find narrow spreads using real market strike intervals
-                        def find_narrow_spreads(strikes, current_price, strategy_name):
+                        # Step 1: Find $1-wide debit call spreads with authentic Polygon bid/ask data
+                        def find_one_dollar_debit_spreads(strikes, current_price, strategy_name, exp_date, symbol):
                             valid_spreads = []
                             total_checked = 0
                             rejected_reasons = {'no_short_strike': 0, 'negative_cost': 0, 'roi_out_of_range': 0}
@@ -293,101 +293,96 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             target_ranges = {'aggressive': (25, 45), 'steady': (15, 30), 'passive': (8, 20)}
                             min_roi, max_roi = target_ranges.get(strategy_name, (10, 50))
                             
-                            print(f"    Looking for narrow spreads with ROI {min_roi}-{max_roi}%...")
+                            print(f"    Looking for $1-wide debit call spreads with ROI {min_roi}-{max_roi}%...")
+                            
+                            # Get authentic bid/ask quotes from Polygon API
+                            def get_option_quotes(symbol, strike, exp_date):
+                                """Fetch real bid/ask from Polygon options quotes API"""
+                                api_key = os.environ.get('POLYGON_API_KEY')
+                                if not api_key:
+                                    return None, None
+                                
+                                # Format option ticker: O:AAPL241220C00150000 
+                                exp_formatted = exp_date.replace('-', '')[2:]  # 250718
+                                strike_formatted = f"{int(strike * 1000):08d}"  # 00150000
+                                option_ticker = f"O:{symbol}{exp_formatted}C{strike_formatted}"
+                                
+                                try:
+                                    url = f"https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/{option_ticker}"
+                                    response = requests.get(url, params={'apikey': api_key})
+                                    
+                                    if response.status_code == 200:
+                                        data = response.json()
+                                        quote = data.get('results', {}).get('last_quote', {})
+                                        bid = quote.get('bid', 0)
+                                        ask = quote.get('ask', 0)
+                                        return bid, ask
+                                except:
+                                    pass
+                                return None, None
                             
                             for i, long_strike in enumerate(strikes[:-1]):
-                                # Look for next available strike (real market intervals)
-                                for j in range(i+1, len(strikes)):
-                                    short_strike = strikes[j]
-                                    spread_width = short_strike - long_strike
-                                    
-                                    # Accept only $2.50-wide spreads for realistic trading
-                                    if abs(spread_width - 2.5) > 0.01:
-                                        continue
-                                    
-                                    # Step 2: Get real option contracts for authentic pricing
-                                    long_contract = next((c for c in exp_data['contracts'] if float(c.get('strike_price', c.get('strike', 0))) == long_strike), None)
-                                    short_contract = next((c for c in exp_data['contracts'] if float(c.get('strike_price', c.get('strike', 0))) == short_strike), None)
-                                    
-                                    if not (long_contract and short_contract):
-                                        rejected_reasons['negative_cost'] += 1
-                                        print(f"    REJECT {long_strike}/{short_strike}: Missing contract data")
-                                        continue
-                                    
-                                    # Use realistic bid/ask pricing with random variation based on current stock price
-                                    import random
-                                    
-                                    def calculate_realistic_option_price(strike, current_price, dte):
-                                        # Calculate intrinsic value
-                                        intrinsic = max(0, current_price - strike)
-                                        
-                                        # Calculate time value based on moneyness and DTE
-                                        moneyness = abs(current_price - strike) / current_price
-                                        time_decay_factor = max(0.1, dte / 45.0)  # Normalize to ~45 DTE
-                                        
-                                        if intrinsic > 0:  # ITM
-                                            time_value = max(0.05, (intrinsic * 0.1 + moneyness * 0.5) * time_decay_factor)
-                                        else:  # OTM
-                                            time_value = max(0.05, (2.0 - moneyness * 3.0) * time_decay_factor)
-                                        
-                                        # Base option price
-                                        base_price = intrinsic + time_value
-                                        
-                                        # Add random variation (±5-15% for realistic market conditions)
-                                        variation = random.uniform(-0.10, 0.15)
-                                        final_price = base_price * (1 + variation)
-                                        
-                                        return max(0.05, round(final_price, 2))
-                                    
-                                    long_price = calculate_realistic_option_price(long_strike, current_price, dte)
-                                    short_price = calculate_realistic_option_price(short_strike, current_price, dte)
-                                    
-                                    print(f"    Price calc: Long ${long_strike} = ${long_price:.2f}, Short ${short_strike} = ${short_price:.2f}")
-                                    
-                                    if long_price <= 0 or short_price <= 0:
-                                        rejected_reasons['negative_cost'] += 1
-                                        print(f"    REJECT {long_strike}/{short_strike}: Invalid pricing (long: ${long_price:.2f}, short: ${short_price:.2f})")
-                                        continue
-                                    
-                                    # For debit spreads: pay long price, receive short price
-                                    spread_cost = long_price - short_price
-                                    max_profit = spread_width - spread_cost
-                                    
-                                    if spread_cost <= 0 or max_profit <= 0:
-                                        rejected_reasons['negative_cost'] += 1
-                                        print(f"    REJECT {long_strike}/{short_strike}: Invalid cost=${spread_cost:.2f}, profit=${max_profit:.2f}")
-                                        continue
-                                    
-                                    roi = (max_profit / spread_cost) * 100
-                                    
-                                    # Step 3: Check if ROI is in target range
-                                    if not (min_roi <= roi <= max_roi):
-                                        rejected_reasons['roi_out_of_range'] += 1
-                                        print(f"    REJECT {long_strike}/{short_strike}: ROI {roi:.1f}% outside range {min_roi}-{max_roi}%")
-                                        continue
-                                    
-                                    # Found a valid spread!
-                                    print(f"    ACCEPT {long_strike}/{short_strike}: ${spread_width:.2f} wide, ROI {roi:.1f}%, cost=${spread_cost:.2f}, profit=${max_profit:.2f}")
-                                    valid_spreads.append({
-                                        'long_strike': long_strike,
-                                        'short_strike': short_strike,
-                                        'spread_cost': spread_cost,
-                                        'max_profit': max_profit,
-                                        'roi': roi,
-                                        'width': spread_width,
-                                        'moneyness': current_price - long_strike  # Higher = more ITM
-                                    })
-                                    break  # Found valid spread for this long strike
+                                # Find exact $1-wide spread: Buy X, Sell X+1
+                                short_strike = long_strike + 1.0
+                                
+                                if short_strike not in strikes:
+                                    rejected_reasons['no_short_strike'] += 1
+                                    continue
+                                
+                                total_checked += 1
+                                
+                                # Get authentic bid/ask quotes from Polygon API
+                                long_bid, long_ask = get_option_quotes(symbol, long_strike, exp_date)
+                                short_bid, short_ask = get_option_quotes(symbol, short_strike, exp_date)
+                                
+                                if long_ask is None or short_bid is None:
+                                    print(f"    No quotes available for {long_strike}/{short_strike} spread")
+                                    continue
+                                
+                                # Calculate debit spread cost: Pay long ASK, receive short BID
+                                spread_cost = long_ask - short_bid
+                                max_profit = 1.0 - spread_cost  # $1 spread width minus cost
+                                
+                                if spread_cost <= 0 or max_profit <= 0:
+                                    rejected_reasons['negative_cost'] += 1
+                                    print(f"    REJECT {long_strike}/{short_strike}: Invalid cost=${spread_cost:.2f}, profit=${max_profit:.2f}")
+                                    continue
+                                
+                                roi = (max_profit / spread_cost) * 100
+                                
+                                if roi < min_roi or roi > max_roi:
+                                    rejected_reasons['roi_out_of_range'] += 1
+                                    print(f"    REJECT {long_strike}/{short_strike}: ROI {roi:.1f}% outside range {min_roi}-{max_roi}%")
+                                    continue
+                                
+                                # Found a valid $1-wide debit spread!
+                                print(f"    ACCEPT {long_strike}/{short_strike}: $1.00 wide, ROI {roi:.1f}%, cost=${spread_cost:.2f}, profit=${max_profit:.2f}")
+                                
+                                # Calculate moneyness for ranking (lower strike = more ITM = better)
+                                moneyness_pct = ((long_strike - current_price) / current_price) * 100
+                                
+                                valid_spreads.append({
+                                    'long_strike': long_strike,
+                                    'short_strike': short_strike,
+                                    'spread_cost': spread_cost,
+                                    'max_profit': max_profit,
+                                    'roi': roi,
+                                    'moneyness_pct': moneyness_pct,
+                                    'long_bid': long_bid,
+                                    'long_ask': long_ask,
+                                    'short_bid': short_bid,
+                                    'short_ask': short_ask
+                                })
                             
                             print(f"    SUMMARY: {total_checked} spreads checked, {len(valid_spreads)} valid")
                             print(f"    REJECTIONS: no_short_strike={rejected_reasons['no_short_strike']}, negative_cost={rejected_reasons['negative_cost']}, roi_out_of_range={rejected_reasons['roi_out_of_range']}")
                             
-                            # Step 4: Prioritize most ITM strike within ROI range
+                            # Step 4: Find lowest strike within ROI range (most ITM)
                             if valid_spreads:
-                                # Sort by moneyness (most ITM first)
-                                valid_spreads.sort(key=lambda x: x['moneyness'], reverse=True)
+                                # Sort by lowest strike (most ITM first)
+                                valid_spreads.sort(key=lambda x: x['long_strike'])
                                 best = valid_spreads[0]
-                                print(f"    SELECTED BEST: {best['long_strike']}/{best['short_strike']} (most ITM with moneyness={best['moneyness']:.2f})")
+                                print(f"    SELECTED BEST: {best['long_strike']}/{best['short_strike']} (lowest strike, most ITM)")
                                 return best
                             return None
                         
