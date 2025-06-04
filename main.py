@@ -382,8 +382,8 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                 
                                 print(f"    ${long_strike}/${short_strike} (${spread_width:.1f} wide): Cost ${spread_cost:.2f}, ROI {roi:.1f}%")
                                 
-                                # Check ROI and position rules
-                                if min_roi <= roi <= max_roi and short_strike >= current_price:
+                                # Check ROI and position rules - SOLD CALL MUST BE BELOW CURRENT PRICE
+                                if min_roi <= roi <= max_roi and short_strike < current_price:
                                     spread_data = {
                                         'long_strike': long_strike,
                                         'short_strike': short_strike,
