@@ -335,38 +335,38 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                     
                                     if intrinsic > 0:
                                         # ITM: intrinsic + time value
-                                        time_value = stock_price * vol * time_factor * 0.3
+                                        time_value = stock_price * vol * time_factor * 0.15
                                         theoretical_price = intrinsic + time_value
                                     else:
-                                        # OTM: pure time value with exponential decay
+                                        # OTM: pure time value with less aggressive decay
                                         distance_pct = abs(moneyness) * 100
-                                        decay_factor = math.exp(-distance_pct / 15.0)  # Realistic decay
-                                        time_value = stock_price * vol * time_factor * decay_factor * 0.4
-                                        theoretical_price = max(0.05, time_value)
+                                        decay_factor = math.exp(-distance_pct / 25.0)  # Less aggressive decay
+                                        time_value = stock_price * vol * time_factor * decay_factor * 0.08
+                                        theoretical_price = max(0.50, time_value)  # Higher minimum price
                                     
                                     return theoretical_price
                                 
                                 def generate_bid_ask_spread(mid_price, moneyness_pct, dte):
                                     """Generate realistic bid/ask spread based on option characteristics"""
                                     
-                                    # Base spread percentage
+                                    # Base spread percentage - tighter spreads for realistic pricing
                                     if mid_price > 5.0:
-                                        base_spread = 0.08  # 8% for expensive options
+                                        base_spread = 0.04  # 4% for expensive options
                                     elif mid_price > 2.0:
-                                        base_spread = 0.12  # 12% for mid-priced options
-                                    elif mid_price > 0.50:
-                                        base_spread = 0.18  # 18% for cheap options
+                                        base_spread = 0.06  # 6% for mid-priced options
+                                    elif mid_price > 1.0:
+                                        base_spread = 0.08  # 8% for cheaper options
                                     else:
-                                        base_spread = 0.25  # 25% for very cheap options
+                                        base_spread = 0.12  # 12% for very cheap options
                                     
                                     # Distance penalty (wider spreads for far OTM)
-                                    distance_penalty = min(0.15, abs(moneyness_pct) * 0.008)
+                                    distance_penalty = min(0.08, abs(moneyness_pct) * 0.004)
                                     
                                     # Time penalty (wider spreads for short-term options)
-                                    time_penalty = max(0, (30 - dte) * 0.003)
+                                    time_penalty = max(0, (30 - dte) * 0.002)
                                     
                                     total_spread = base_spread + distance_penalty + time_penalty
-                                    return min(0.40, total_spread)  # Cap at 40%
+                                    return min(0.20, total_spread)  # Cap at 20%
                                 
                                 # Calculate theoretical mid prices
                                 time_factor = dte / 365.0
