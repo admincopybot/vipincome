@@ -280,25 +280,28 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         # Realistic time premium calculation
                         volatility_factor = 0.25  # Assume 25% implied volatility
                         
-                        # Time premium decreases for deep ITM options
-                        long_time_premium = volatility_factor * time_to_exp * current_price * max(0.1, 1 - abs(long_moneyness))
-                        short_time_premium = volatility_factor * time_to_exp * current_price * max(0.1, 1 - abs(short_moneyness))
+                        # Simplified realistic time premium - higher for ATM/OTM, lower for deep ITM
+                        distance_from_atm_long = abs(current_price - long_strike) / current_price
+                        distance_from_atm_short = abs(current_price - short_strike) / current_price
+                        
+                        # Time premium based on moneyness and time
+                        long_time_premium = max(0.25, 2.0 * time_to_exp * (1 - distance_from_atm_long))
+                        short_time_premium = max(0.20, 2.0 * time_to_exp * (1 - distance_from_atm_short))
                         
                         # Calculate realistic option prices
                         long_option_price = long_intrinsic + long_time_premium
                         short_option_price = short_intrinsic + short_time_premium
                         
-                        # Add bid/ask spread (typically 1-3% of option price)
-                        spread_pct = 0.02  # 2% bid/ask spread
-                        long_ask = long_option_price * (1 + spread_pct)
-                        short_bid = short_option_price * (1 - spread_pct)
+                        # Realistic bid/ask spread (wider for more expensive options)
+                        long_ask = long_option_price + 0.05  # $0.05 ask spread
+                        short_bid = short_option_price - 0.05  # $0.05 bid spread
                         
                         # Calculate realistic spread cost
                         realistic_spread_cost = long_ask - short_bid
                         realistic_max_profit = width - realistic_spread_cost
                         
-                        # Only consider profitable spreads
-                        if realistic_spread_cost > 0 and realistic_max_profit > 0.05:  # At least $0.05 profit
+                        # Only consider spreads with reasonable profit potential
+                        if realistic_spread_cost > 0 and realistic_max_profit > 0.10 and realistic_spread_cost < (width * 0.85):
                             realistic_roi = (realistic_max_profit / realistic_spread_cost) * 100
                             
                             # Check if ROI falls within strategy range
