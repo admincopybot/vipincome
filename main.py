@@ -305,11 +305,26 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                     if spread_width not in [2.5, 5.0]:
                                         continue
                                     
-                                    # Step 2: Use demo bid/ask to calculate ROI
-                                    long_bid, long_ask = simulate_option_price(long_strike, current_price)
-                                    short_bid, short_ask = simulate_option_price(short_strike, current_price)
+                                    # Step 2: Get real option contracts for authentic pricing
+                                    long_contract = next((c for c in exp_data['contracts'] if float(c.get('strike_price', c.get('strike', 0))) == long_strike), None)
+                                    short_contract = next((c for c in exp_data['contracts'] if float(c.get('strike_price', c.get('strike', 0))) == short_strike), None)
                                     
-                                    spread_cost = long_ask - short_bid
+                                    if not (long_contract and short_contract):
+                                        rejected_reasons['negative_cost'] += 1
+                                        print(f"    REJECT {long_strike}/{short_strike}: Missing contract data")
+                                        continue
+                                    
+                                    # Use realistic pricing based on intrinsic value + time premium
+                                    long_price = get_contract_price(long_contract, symbol) or 0
+                                    short_price = get_contract_price(short_contract, symbol) or 0
+                                    
+                                    if long_price <= 0 or short_price <= 0:
+                                        rejected_reasons['negative_cost'] += 1
+                                        print(f"    REJECT {long_strike}/{short_strike}: Invalid pricing (long: ${long_price:.2f}, short: ${short_price:.2f})")
+                                        continue
+                                    
+                                    # For debit spreads: pay long price, receive short price
+                                    spread_cost = long_price - short_price
                                     max_profit = spread_width - spread_cost
                                     
                                     if spread_cost <= 0 or max_profit <= 0:
