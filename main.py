@@ -382,8 +382,20 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                 
                                 print(f"    ${long_strike}/${short_strike} (${spread_width:.1f} wide): Cost ${spread_cost:.2f}, ROI {roi:.1f}%")
                                 
-                                # Check ROI and position rules - SOLD CALL MUST BE BELOW CURRENT PRICE
-                                if min_roi <= roi <= max_roi and short_strike < current_price:
+                                # Check ROI and position rules with proper ITM handling
+                                # For debit call spreads: both strikes can be ITM, but short strike should provide reasonable upside
+                                position_valid = True
+                                if current_price < 50:
+                                    # Low-priced stocks: short strike should be below current price  
+                                    position_valid = short_strike < current_price
+                                elif current_price < 150:
+                                    # Mid-priced stocks: allow short strike up to 5% above current
+                                    position_valid = short_strike <= current_price * 1.05
+                                else:
+                                    # High-priced stocks: allow short strike up to 10% above current
+                                    position_valid = short_strike <= current_price * 1.10
+                                
+                                if min_roi <= roi <= max_roi and position_valid:
                                     spread_data = {
                                         'long_strike': long_strike,
                                         'short_strike': short_strike,
