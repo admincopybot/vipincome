@@ -291,7 +291,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             target_ranges = {'aggressive': (25, 45), 'steady': (15, 30), 'passive': (8, 20)}
                             min_roi, max_roi = target_ranges.get(strategy_name, (10, 50))
                             
-                            print(f"    Looking for debit spreads with ROI {min_roi}-{max_roi}% using available strike intervals...")
+                            print(f"    Looking for debit spreads with ROI {min_roi}-{max_roi}% using actual market intervals ($0.50, $1, $2.50, $5, $10)...")
                             
                             # Use actual market strike intervals - whatever is available
                             sorted_strikes = sorted(strikes)
