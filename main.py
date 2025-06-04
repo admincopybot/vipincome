@@ -346,6 +346,9 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             
                             return max(bid, 0.05), max(ask, 0.10)
                         
+                        # Extract available strikes from this expiration's contracts
+                        available_strikes = sorted([float(c['strike_price']) for c in exp_data['contracts']])
+                        
                         # Find best $1-wide spread using prioritization strategy
                         best_spread_data = find_one_dollar_spreads(available_strikes, current_price, strategy_name)
                         
@@ -359,18 +362,27 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             
                             print(f"FOUND OPTIMAL $1 SPREAD {strategy_name}: {long_strike}/{short_strike} ROI {realistic_roi:.1f}%")
                             
-                            target_roi = {'aggressive': 35, 'steady': 20, 'passive': 12.5}[strategy_name]
-                            roi_diff = abs(realistic_roi - target_roi)
-                            if roi_diff < closest_roi_diff:
-                                closest_roi_diff = roi_diff
-                                best_spread = {
-                                    'long_strike': long_strike,
-                                    'short_strike': short_strike,
-                                    'spread_cost': realistic_spread_cost,
-                                    'max_profit': realistic_max_profit,
-                                    'roi': realistic_roi,
-                                    'width': width
-                                }
+                            # Find corresponding contracts for this spread
+                            long_contract = next((c for c in exp_data['contracts'] if float(c['strike_price']) == long_strike), None)
+                            short_contract = next((c for c in exp_data['contracts'] if float(c['strike_price']) == short_strike), None)
+                            
+                            if long_contract and short_contract:
+                                target_roi = {'aggressive': 35, 'steady': 20, 'passive': 12.5}[strategy_name]
+                                roi_diff = abs(realistic_roi - target_roi)
+                                if roi_diff < closest_roi_diff:
+                                    closest_roi_diff = roi_diff
+                                    best_spread = {
+                                        'long_strike': long_strike,
+                                        'short_strike': short_strike,
+                                        'spread_cost': realistic_spread_cost,
+                                        'max_profit': realistic_max_profit,
+                                        'roi': realistic_roi,
+                                        'width': width,
+                                        'long_contract': long_contract,
+                                        'short_contract': short_contract,
+                                        'expiration': expiration,
+                                        'dte': dte
+                                    }
                             continue
                         
                         # If no $1-wide spreads found, skip this expiration
@@ -1594,48 +1606,48 @@ def find_optimal_spread(calls_by_expiration, current_price, today, criteria, sym
                     
                     long_contract = strikes_dict[long_strike]
                     short_contract = strikes_dict[short_strike]
-                
-                # Get current prices for both options
-                long_price = get_contract_price(long_contract, symbol)
-                short_price = get_contract_price(short_contract, symbol)
-                
-                if long_price is None or short_price is None:
-                    pricing_failures += 1
-                    print(f"    ${long_strike}/{short_strike}: FAILED pricing (long: {long_price}, short: {short_price})")
-                    continue
-                
-                # Calculate spread metrics
-                spread_cost = long_price - short_price
-                if spread_cost <= 0:
-                    print(f"    ${long_strike}/{short_strike}: FAILED negative spread cost (${spread_cost:.2f})")
-                    continue
-                
-                spread_width = 1.0  # $1 wide
-                max_profit = spread_width - spread_cost
-                roi = (max_profit / spread_cost) * 100
-                
-                print(f"    ${long_strike}/{short_strike}: Cost ${spread_cost:.2f}, ROI {roi:.1f}%")
-                
-                # Check ROI criteria
-                if criteria['roi_min'] <= roi <= criteria['roi_max']:
-                    spread_data = {
-                        'strategy': strategy_name,
-                        'symbol': symbol,
-                        'long_strike': long_strike,
-                        'short_strike': short_strike,
-                        'long_price': long_price,
-                        'short_price': short_price,
-                        'spread_cost': spread_cost,
-                        'max_profit': max_profit,
-                        'roi': roi,
-                        'dte': dte,
-                        'expiration': exp_date_str,
-                        'long_option_id': long_contract.get('ticker', f"O:{symbol}{exp_date_str.replace('-', '')[-6:]}C{int(long_strike*1000):08d}"),
-                        'short_option_id': short_contract.get('ticker', f"O:{symbol}{exp_date_str.replace('-', '')[-6:]}C{int(short_strike*1000):08d}")
-                    }
-                    valid_spreads.append(spread_data)
                     
-                    print(f"    ✓ VALID SPREAD: {long_strike}/{short_strike}, {dte} DTE, {roi:.1f}% ROI, ${spread_cost:.2f} cost")
+                    # Get current prices for both options
+                    long_price = get_contract_price(long_contract, symbol)
+                    short_price = get_contract_price(short_contract, symbol)
+                    
+                    if long_price is None or short_price is None:
+                        pricing_failures += 1
+                        print(f"    ${long_strike}/{short_strike}: FAILED pricing (long: {long_price}, short: {short_price})")
+                        continue
+                    
+                    # Calculate spread metrics
+                    spread_cost = long_price - short_price
+                    if spread_cost <= 0:
+                        print(f"    ${long_strike}/{short_strike}: FAILED negative spread cost (${spread_cost:.2f})")
+                        continue
+                    
+                    spread_width = 1.0  # $1 wide
+                    max_profit = spread_width - spread_cost
+                    roi = (max_profit / spread_cost) * 100
+                    
+                    print(f"    ${long_strike}/{short_strike}: Cost ${spread_cost:.2f}, ROI {roi:.1f}%")
+                    
+                    # Check ROI criteria
+                    if criteria['roi_min'] <= roi <= criteria['roi_max']:
+                        spread_data = {
+                            'strategy': strategy_name,
+                            'symbol': symbol,
+                            'long_strike': long_strike,
+                            'short_strike': short_strike,
+                            'long_price': long_price,
+                            'short_price': short_price,
+                            'spread_cost': spread_cost,
+                            'max_profit': max_profit,
+                            'roi': roi,
+                            'dte': dte,
+                            'expiration': exp_date_str,
+                            'long_option_id': long_contract.get('ticker', f"O:{symbol}{exp_date_str.replace('-', '')[-6:]}C{int(long_strike*1000):08d}"),
+                            'short_option_id': short_contract.get('ticker', f"O:{symbol}{exp_date_str.replace('-', '')[-6:]}C{int(short_strike*1000):08d}")
+                        }
+                        valid_spreads.append(spread_data)
+                        
+                        print(f"    ✓ VALID SPREAD: {long_strike}/{short_strike}, {dte} DTE, {roi:.1f}% ROI, ${spread_cost:.2f} cost")
                 else:
                     roi_failures += 1
                     print(f"    ${long_strike}/{short_strike}: FAILED ROI {roi:.1f}% (need {criteria['roi_min']}-{criteria['roi_max']}%)")
