@@ -287,39 +287,65 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         # Step 1: Find ONLY exactly $1-wide spreads from real strikes
                         def find_one_dollar_spreads(strikes, current_price, strategy_name):
                             valid_spreads = []
+                            total_checked = 0
+                            rejected_reasons = {'no_short_strike': 0, 'negative_cost': 0, 'roi_out_of_range': 0}
+                            
+                            target_ranges = {'aggressive': (25, 45), 'steady': (15, 30), 'passive': (8, 20)}
+                            min_roi, max_roi = target_ranges.get(strategy_name, (10, 50))
+                            
+                            print(f"    Looking for $1-wide spreads with ROI {min_roi}-{max_roi}%...")
+                            
                             for i, long_strike in enumerate(strikes[:-1]):
                                 # Look for exact $1 wide spread
                                 target_short_strike = long_strike + 1.0
-                                if target_short_strike in strikes:
-                                    # Step 2: Use demo bid/ask to calculate ROI
-                                    long_bid, long_ask = simulate_option_price(long_strike, current_price)
-                                    short_bid, short_ask = simulate_option_price(target_short_strike, current_price)
-                                    
-                                    spread_cost = long_ask - short_bid
-                                    max_profit = 1.0 - spread_cost
-                                    
-                                    if spread_cost > 0 and max_profit > 0:
-                                        roi = (max_profit / spread_cost) * 100
-                                        
-                                        # Step 3: Check if ROI is in target range
-                                        target_ranges = {'aggressive': (25, 45), 'steady': (15, 30), 'passive': (8, 20)}
-                                        min_roi, max_roi = target_ranges.get(strategy_name, (10, 50))
-                                        
-                                        if min_roi <= roi <= max_roi:
-                                            valid_spreads.append({
-                                                'long_strike': long_strike,
-                                                'short_strike': target_short_strike,
-                                                'spread_cost': spread_cost,
-                                                'max_profit': max_profit,
-                                                'roi': roi,
-                                                'moneyness': current_price - long_strike  # Higher = more ITM
-                                            })
+                                total_checked += 1
+                                
+                                if target_short_strike not in strikes:
+                                    rejected_reasons['no_short_strike'] += 1
+                                    print(f"    REJECT {long_strike}/{target_short_strike}: Short strike not available in market")
+                                    continue
+                                
+                                # Step 2: Use demo bid/ask to calculate ROI
+                                long_bid, long_ask = simulate_option_price(long_strike, current_price)
+                                short_bid, short_ask = simulate_option_price(target_short_strike, current_price)
+                                
+                                spread_cost = long_ask - short_bid
+                                max_profit = 1.0 - spread_cost
+                                
+                                if spread_cost <= 0 or max_profit <= 0:
+                                    rejected_reasons['negative_cost'] += 1
+                                    print(f"    REJECT {long_strike}/{target_short_strike}: Invalid cost=${spread_cost:.2f}, profit=${max_profit:.2f}")
+                                    continue
+                                
+                                roi = (max_profit / spread_cost) * 100
+                                
+                                # Step 3: Check if ROI is in target range
+                                if not (min_roi <= roi <= max_roi):
+                                    rejected_reasons['roi_out_of_range'] += 1
+                                    print(f"    REJECT {long_strike}/{target_short_strike}: ROI {roi:.1f}% outside range {min_roi}-{max_roi}%")
+                                    continue
+                                
+                                # Found a valid spread!
+                                print(f"    ACCEPT {long_strike}/{target_short_strike}: ROI {roi:.1f}%, cost=${spread_cost:.2f}, profit=${max_profit:.2f}")
+                                valid_spreads.append({
+                                    'long_strike': long_strike,
+                                    'short_strike': target_short_strike,
+                                    'spread_cost': spread_cost,
+                                    'max_profit': max_profit,
+                                    'roi': roi,
+                                    'moneyness': current_price - long_strike  # Higher = more ITM
+                                })
+                            
+                            print(f"    SUMMARY: {total_checked} spreads checked, {len(valid_spreads)} valid")
+                            print(f"    REJECTIONS: no_short_strike={rejected_reasons['no_short_strike']}, negative_cost={rejected_reasons['negative_cost']}, roi_out_of_range={rejected_reasons['roi_out_of_range']}")
                             
                             # Step 4: Prioritize most ITM strike within ROI range
                             if valid_spreads:
                                 # Sort by moneyness (most ITM first)
                                 valid_spreads.sort(key=lambda x: x['moneyness'], reverse=True)
-                                return valid_spreads[0]
+                                best = valid_spreads[0]
+                                print(f"    SELECTED BEST: {best['long_strike']}/{best['short_strike']} (most ITM with moneyness={best['moneyness']:.2f})")
+                                return best
                             return None
                         
                         # VWAP-based realistic bid/ask simulation  
@@ -354,6 +380,9 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             if strike:
                                 available_strikes.append(float(strike))
                         available_strikes = sorted(available_strikes)
+                        
+                        print(f"  EVALUATING {strategy_name.upper()} for expiration {exp_data['expiration']} ({dte} DTE)")
+                        print(f"  Available strikes: {available_strikes[:10]}..." if len(available_strikes) > 10 else f"  Available strikes: {available_strikes}")
                         
                         # Find best $1-wide spread using prioritization strategy
                         best_spread_data = find_one_dollar_spreads(available_strikes, current_price, strategy_name)
