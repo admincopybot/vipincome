@@ -284,21 +284,56 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         # Use typical market bid/ask values for liquid options
                         # Based on common market patterns for call debit spreads
                         
-                        # VWAP-based realistic bid/ask simulation
+                        # Step 1: Find ONLY exactly $1-wide spreads from real strikes
+                        def find_one_dollar_spreads(strikes, current_price, strategy_name):
+                            valid_spreads = []
+                            for i, long_strike in enumerate(strikes[:-1]):
+                                # Look for exact $1 wide spread
+                                target_short_strike = long_strike + 1.0
+                                if target_short_strike in strikes:
+                                    # Step 2: Use demo bid/ask to calculate ROI
+                                    long_bid, long_ask = simulate_option_price(long_strike, current_price)
+                                    short_bid, short_ask = simulate_option_price(target_short_strike, current_price)
+                                    
+                                    spread_cost = long_ask - short_bid
+                                    max_profit = 1.0 - spread_cost
+                                    
+                                    if spread_cost > 0 and max_profit > 0:
+                                        roi = (max_profit / spread_cost) * 100
+                                        
+                                        # Step 3: Check if ROI is in target range
+                                        target_ranges = {'aggressive': (25, 45), 'steady': (15, 30), 'passive': (8, 20)}
+                                        min_roi, max_roi = target_ranges.get(strategy_name, (10, 50))
+                                        
+                                        if min_roi <= roi <= max_roi:
+                                            valid_spreads.append({
+                                                'long_strike': long_strike,
+                                                'short_strike': target_short_strike,
+                                                'spread_cost': spread_cost,
+                                                'max_profit': max_profit,
+                                                'roi': roi,
+                                                'moneyness': current_price - long_strike  # Higher = more ITM
+                                            })
+                            
+                            # Step 4: Prioritize most ITM strike within ROI range
+                            if valid_spreads:
+                                # Sort by moneyness (most ITM first)
+                                valid_spreads.sort(key=lambda x: x['moneyness'], reverse=True)
+                                return valid_spreads[0]
+                            return None
+                        
+                        # VWAP-based realistic bid/ask simulation  
                         def simulate_option_price(strike, current_price, volume=100):
                             moneyness = abs(strike - current_price)
                             intrinsic = max(0, current_price - strike)
                             
-                            # Estimate mid price based on intrinsic + time value
                             if intrinsic > 0:
                                 time_premium = max(0.10, moneyness * 0.02)
                                 mid_price = intrinsic + time_premium
                             else:
-                                # OTM: time value decreases with distance
                                 time_value = max(0.05, 2.0 - (moneyness * 0.1))
                                 mid_price = time_value
                             
-                            # Estimate spread width based on moneyness and volume
                             if moneyness < 5 and volume > 100:
                                 spread_width = 0.10
                             elif moneyness < 10:
@@ -311,8 +346,35 @@ def fetch_real_options_expiration_data(symbol, current_price):
                             
                             return max(bid, 0.05), max(ask, 0.10)
                         
-                        long_bid, long_ask = simulate_option_price(long_strike, current_price)
-                        short_bid, short_ask = simulate_option_price(short_strike, current_price)
+                        # Find best $1-wide spread using prioritization strategy
+                        best_spread_data = find_one_dollar_spreads(available_strikes, current_price, strategy_name)
+                        
+                        if best_spread_data:
+                            long_strike = best_spread_data['long_strike']
+                            short_strike = best_spread_data['short_strike']
+                            realistic_spread_cost = best_spread_data['spread_cost']
+                            realistic_max_profit = best_spread_data['max_profit']
+                            realistic_roi = best_spread_data['roi']
+                            width = 1.0
+                            
+                            print(f"FOUND OPTIMAL $1 SPREAD {strategy_name}: {long_strike}/{short_strike} ROI {realistic_roi:.1f}%")
+                            
+                            target_roi = {'aggressive': 35, 'steady': 20, 'passive': 12.5}[strategy_name]
+                            roi_diff = abs(realistic_roi - target_roi)
+                            if roi_diff < closest_roi_diff:
+                                closest_roi_diff = roi_diff
+                                best_spread = {
+                                    'long_strike': long_strike,
+                                    'short_strike': short_strike,
+                                    'spread_cost': realistic_spread_cost,
+                                    'max_profit': realistic_max_profit,
+                                    'roi': realistic_roi,
+                                    'width': width
+                                }
+                            continue
+                        
+                        # If no $1-wide spreads found, skip this expiration
+                        continue
                         
                         # For debit spreads: BUY long at ask, SELL short at bid
                         realistic_spread_cost = long_ask - short_bid
