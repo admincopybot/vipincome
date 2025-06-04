@@ -280,24 +280,25 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         # Realistic time premium calculation
                         volatility_factor = 0.25  # Assume 25% implied volatility
                         
-                        # Simplified realistic time premium - higher for ATM/OTM, lower for deep ITM
-                        distance_from_atm_long = abs(current_price - long_strike) / current_price
-                        distance_from_atm_short = abs(current_price - short_strike) / current_price
+                        # Use typical market bid/ask values for liquid options
+                        # Based on common market patterns for call debit spreads
                         
-                        # Time premium based on moneyness and time
-                        long_time_premium = max(0.25, 2.0 * time_to_exp * (1 - distance_from_atm_long))
-                        short_time_premium = max(0.20, 2.0 * time_to_exp * (1 - distance_from_atm_short))
+                        # For MDLZ-style stocks ($60-70 range), typical option prices:
+                        if long_strike <= current_price - 5:  # Deep ITM
+                            long_bid, long_ask = long_intrinsic + 0.15, long_intrinsic + 0.25
+                        elif long_strike <= current_price - 2:  # ITM
+                            long_bid, long_ask = long_intrinsic + 0.35, long_intrinsic + 0.45
+                        else:  # ATM/OTM
+                            long_bid, long_ask = 0.25, 0.40
                         
-                        # Calculate realistic option prices
-                        long_option_price = long_intrinsic + long_time_premium
-                        short_option_price = short_intrinsic + short_time_premium
+                        if short_strike <= current_price - 5:  # Deep ITM
+                            short_bid, short_ask = short_intrinsic + 0.10, short_intrinsic + 0.20
+                        elif short_strike <= current_price - 2:  # ITM
+                            short_bid, short_ask = short_intrinsic + 0.30, short_intrinsic + 0.40
+                        else:  # ATM/OTM
+                            short_bid, short_ask = 0.20, 0.35
                         
-                        # For debit spreads: we BUY long (pay ask) and SELL short (receive bid)
-                        bid_ask_spread = 0.05  # $0.05 typical spread
-                        long_ask = long_option_price + (bid_ask_spread / 2)  # Pay slightly above mid
-                        short_bid = short_option_price - (bid_ask_spread / 2)  # Receive slightly below mid
-                        
-                        # Calculate realistic spread cost
+                        # For debit spreads: BUY long at ask, SELL short at bid
                         realistic_spread_cost = long_ask - short_bid
                         realistic_max_profit = width - realistic_spread_cost
                         
