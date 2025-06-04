@@ -2145,7 +2145,8 @@ def calculate_single_option_analysis(option_data, current_stock_price):
         return {'error': f'Calculation error: {str(e)}'}
 
 @app.route('/step4/<symbol>/<strategy>/<option_id>')
-def step4(symbol, strategy, option_id):
+@app.route('/step4/<symbol>/<strategy>/<option_id>/<float:short_strike>')
+def step4(symbol, strategy, option_id, short_strike=None):
     """Step 4: Detailed Options Trade Analysis using real Polygon API data"""
     
     # Get REAL current stock price from Polygon API - not database
@@ -2238,10 +2239,14 @@ def step4(symbol, strategy, option_id):
     print(f"Using current stock price: ${current_price:.2f}")
     print(f"Long strike: ${long_strike:.2f}, Long option price: ${long_price:.2f}")
     
-    # Use the ACTUAL parsed strikes from the real option contract
-    # This ensures authentic profit/loss scenarios based on real market data
+    # Use the EXACT spread details passed from Step 3
     scenario_long_strike = long_strike
-    scenario_short_strike = long_strike + 1.0  # Standard $1 wide spread
+    if short_strike is not None:
+        scenario_short_strike = short_strike
+        print(f"Using short strike from Step 3: ${scenario_short_strike:.2f}")
+    else:
+        scenario_short_strike = long_strike + 1.0  # Fallback for legacy links
+        print(f"Using fallback short strike: ${scenario_short_strike:.2f}")
     
     print(f"Using REAL contract strikes for scenario analysis: Long ${scenario_long_strike:.2f} / Short ${scenario_short_strike:.2f}")
     
@@ -4319,7 +4324,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}" class="strategy-btn">Select Passive Strategy</a>
+                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}/{{ options_data.passive.short_strike_price if not options_data.passive.error else 0 }}' }}" class="strategy-btn">Select Passive Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
@@ -4366,7 +4371,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.contract_symbol if not options_data.steady.error else 'none' }}" class="strategy-btn">Select Steady Strategy</a>
+                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.contract_symbol if not options_data.steady.error else 'none' }}/{{ options_data.steady.short_strike_price if not options_data.steady.error else 0 }}" class="strategy-btn">Select Steady Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
@@ -4413,7 +4418,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.contract_symbol if not options_data.aggressive.error else 'none' }}" class="strategy-btn">Select Aggressive Strategy</a>
+                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.contract_symbol if not options_data.aggressive.error else 'none' }}/{{ options_data.aggressive.short_strike_price if not options_data.aggressive.error else 0 }}" class="strategy-btn">Select Aggressive Strategy</a>
                 </div>
             </div>
             
