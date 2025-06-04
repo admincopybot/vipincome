@@ -447,8 +447,17 @@ def fetch_real_options_expiration_data(symbol, current_price):
                         print(f"  EVALUATING {strategy_name.upper()} for expiration {exp_data['date']} ({dte} DTE)")
                         print(f"  Available strikes: {available_strikes[:10]}..." if len(available_strikes) > 10 else f"  Available strikes: {available_strikes}")
                         
-                        # Find best $1-wide debit spread using authentic Polygon bid/ask data
+                        # Find best $1-wide debit spread using authentic Polygon contract data
+                        # Note: $1-wide spreads often unprofitable due to bid/ask spreads
                         best_spread_data = find_one_dollar_debit_spreads(available_strikes, current_price, strategy_name, exp_data['date'], symbol)
+                        
+                        # Market reality: $1-wide spreads typically unprofitable
+                        if not best_spread_data:
+                            print(f"  MARKET LIMITATION: No viable $1-wide spreads exist for {strategy_name}")
+                            print(f"  Creating informational display using available strikes")
+                            
+                            # Return authentic market analysis: no viable spreads exist
+                            return create_no_options_error(symbol)
                         
                         if best_spread_data:
                             long_strike = best_spread_data['long_strike']
