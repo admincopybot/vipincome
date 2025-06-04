@@ -301,9 +301,9 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                     short_strike = strikes[j]
                                     spread_width = short_strike - long_strike
                                     
-                                    # Only consider narrow spreads (up to $5 wide for realism)
-                                    if spread_width > 5.0:
-                                        break
+                                    # Accept standard market spreads: $2.50 and $5.00 wide
+                                    if spread_width not in [2.5, 5.0]:
+                                        continue
                                     
                                     # Step 2: Use demo bid/ask to calculate ROI
                                     long_bid, long_ask = simulate_option_price(long_strike, current_price)
