@@ -381,7 +381,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                 available_strikes.append(float(strike))
                         available_strikes = sorted(available_strikes)
                         
-                        print(f"  EVALUATING {strategy_name.upper()} for expiration {exp_data['expiration']} ({dte} DTE)")
+                        print(f"  EVALUATING {strategy_name.upper()} for expiration {exp_data['date']} ({dte} DTE)")
                         print(f"  Available strikes: {available_strikes[:10]}..." if len(available_strikes) > 10 else f"  Available strikes: {available_strikes}")
                         
                         # Find best $1-wide spread using prioritization strategy
@@ -415,7 +415,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                         'width': width,
                                         'long_contract': long_contract,
                                         'short_contract': short_contract,
-                                        'expiration': exp_data['expiration'],
+                                        'expiration': exp_data['date'],
                                         'dte': dte
                                     }
                             continue
