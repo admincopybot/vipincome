@@ -301,8 +301,8 @@ def fetch_real_options_expiration_data(symbol, current_price):
                                     short_strike = strikes[j]
                                     spread_width = short_strike - long_strike
                                     
-                                    # Accept standard market spreads: $2.50 and $5.00 wide
-                                    if spread_width not in [2.5, 5.0]:
+                                    # Accept only $2.50-wide spreads for realistic trading
+                                    if abs(spread_width - 2.5) > 0.01:
                                         continue
                                     
                                     # Step 2: Get real option contracts for authentic pricing
