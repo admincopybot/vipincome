@@ -1351,7 +1351,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
     </head>
     <body>
         <div class="top-banner">
-            🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
+            🎯 Free access to The Income Machine ends July 21
         </div>
         
         <div class="header">
@@ -2743,7 +2743,7 @@ def step4(symbol, strategy, option_id, short_strike=None):
 </head>
 <body>
     <div class="top-banner">
-        🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
+        🎯 Free access to The Income Machine ends July 21
     </div>
     
     <div class="header">
@@ -3344,7 +3344,7 @@ def index():
 </head>
 <body>
     <div class="top-banner">
-        🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
+        🎯 Free access to The Income Machine ends July 21
     </div>
     
     <div class="header">
@@ -3865,7 +3865,7 @@ def step2(symbol=None):
 </head>
 <body>
     <div class="top-banner">
-        🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
+        🎯 Free access to The Income Machine ends July 21
     </div>
     
     <div class="header">
@@ -4554,7 +4554,7 @@ def step3(symbol=None):
     </head>
     <body>
         <div class="top-banner">
-            🎯 Free access to The Income Machine ends in <span id="countdown">18</span> days
+            🎯 Free access to The Income Machine ends July 21
         </div>
         
         <div class="header">
