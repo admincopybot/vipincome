@@ -2763,17 +2763,20 @@ def step4(symbol, strategy, option_id, short_strike=None):
                 <div class="step-number">1</div>
                 <span>Scoreboard</span>
             </a>
+            <div class="step-connector completed"></div>
             <a href="/step2/{symbol}" class="step completed">
                 <div class="step-number">2</div>
-                <span>Analysis</span>
+                <span>Stock Analysis</span>
             </a>
+            <div class="step-connector completed"></div>
             <a href="/step3/{symbol}" class="step completed">
                 <div class="step-number">3</div>
                 <span>Strategy</span>
             </a>
+            <div class="step-connector completed"></div>
             <div class="step active">
                 <div class="step-number">4</div>
-                <span>Trade</span>
+                <span>Trade Details</span>
             </div>
         </div>
     </div>
@@ -3364,6 +3367,21 @@ def index():
                 <div class="step-number">1</div>
                 <span>Scoreboard</span>
             </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <span>Stock Analysis</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>Strategy</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <span>Trade Details</span>
+            </div>
         </div>
     </div>
     
@@ -3885,9 +3903,20 @@ def step2(symbol=None):
                 <div class="step-number">1</div>
                 <span>Scoreboard</span>
             </a>
+            <div class="step-connector completed"></div>
             <div class="step active">
                 <div class="step-number">2</div>
-                <span>Analysis</span>
+                <span>Stock Analysis</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>Strategy</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <span>Trade Details</span>
             </div>
         </div>
     </div>
@@ -4574,13 +4603,20 @@ def step3(symbol=None):
                     <div class="step-number">1</div>
                     <span>Scoreboard</span>
                 </a>
+                <div class="step-connector completed"></div>
                 <a href="{% if symbol %}/step2/{{ symbol }}{% else %}#{% endif %}" class="step completed">
                     <div class="step-number">2</div>
-                    <span>Analysis</span>
+                    <span>Stock Analysis</span>
                 </a>
+                <div class="step-connector completed"></div>
                 <div class="step active">
                     <div class="step-number">3</div>
                     <span>Strategy</span>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>Trade Details</span>
                 </div>
             </div>
         </div>
