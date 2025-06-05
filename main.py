@@ -1962,8 +1962,11 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
             exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d')
             dte = (exp_date - today).days
             
+            print(f"DEBUG: Checking expiration {exp_date_str}, DTE={dte}, Criteria: {criteria['dte_min']}-{criteria['dte_max']}")
+            
             # Check if expiration falls within DTE range
             if not (criteria['dte_min'] <= dte <= criteria['dte_max']):
+                print(f"DEBUG: Rejected expiration {exp_date_str} - DTE {dte} outside range {criteria['dte_min']}-{criteria['dte_max']}")
                 continue
             
             # Group calls by strike price
@@ -1995,7 +1998,9 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
                         continue
                 
                 # Check short call position rule
-                if not meets_short_call_rule(short_strike, current_price, criteria['short_call_rule']):
+                position_valid = meets_short_call_rule(short_strike, current_price, criteria['short_call_rule'])
+                print(f"DEBUG: Position rule check for {long_strike}/{short_strike}: {position_valid}")
+                if not position_valid:
                     continue
                 
                 long_contract = calls_by_strike[long_strike]
@@ -2056,7 +2061,9 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
                 roi = (max_profit / spread_cost) * 100
                 
                 # Check if ROI meets criteria
-                if criteria['roi_min'] <= roi <= criteria['roi_max']:
+                roi_valid = criteria['roi_min'] <= roi <= criteria['roi_max']
+                print(f"DEBUG: ROI check for {long_strike}/{short_strike}: ROI={roi:.1f}%, Range={criteria['roi_min']}-{criteria['roi_max']}%, Valid={roi_valid}")
+                if roi_valid:
                     spread_data = {
                         'long_strike': long_strike,
                         'short_strike': short_strike,
@@ -2071,6 +2078,7 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
                         'short_contract': short_contract
                     }
                     best_spreads.append(spread_data)
+                    print(f"DEBUG: ACCEPTED spread {long_strike}/{short_strike} with ROI {roi:.1f}%")
         
         except Exception as e:
             continue
