@@ -85,6 +85,27 @@ class ETFDatabase:
             
             updated_count = 0
             
+            # Fill NaN values with defaults
+            df = df.fillna({
+                'avg_volume_10d': 0,
+                'trend1_current': 0.0,
+                'trend1_threshold': 0.0,
+                'trend1_description': '',
+                'trend2_current': 0.0,
+                'trend2_threshold': 0.0,
+                'trend2_description': '',
+                'snapback_current': 0.0,
+                'snapback_threshold': 0.0,
+                'snapback_description': '',
+                'momentum_current': 0.0,
+                'momentum_threshold': 0.0,
+                'momentum_description': '',
+                'stabilizing_current': 0.0,
+                'stabilizing_threshold': 0.0,
+                'stabilizing_description': '',
+                'data_age_hours': 0
+            })
+            
             for _, row in df.iterrows():
                 cursor.execute('''
                     INSERT INTO etf_scores (
@@ -97,7 +118,7 @@ class ETFDatabase:
                         data_age_hours
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
-                    row['symbol'],
+                    str(row['symbol']),
                     float(row['current_price']),
                     int(row['total_score']),
                     int(row['avg_volume_10d']),
