@@ -2974,7 +2974,17 @@ def step4(symbol, strategy, option_id, short_strike=None):
 
 @app.route('/')
 def index():
-    # Reload fresh data from database after CSV uploads
+    # CRITICAL: Force fresh data reload every time to catch CSV updates
+    global etf_scores, last_csv_update
+    
+    # Check if we need to force refresh based on database timestamp
+    db_update_time = etf_db.get_last_update_time()
+    if db_update_time and db_update_time > last_csv_update:
+        logger.info(f"SCOREBOARD: Detected fresh database update, forcing complete refresh")
+        etf_scores = {}  # Clear cached data
+        last_csv_update = db_update_time
+    
+    # Always reload from database to ensure latest data
     load_etf_data_from_database()
     # Synchronize scores before displaying
     synchronize_etf_scores()
@@ -5179,12 +5189,26 @@ def upload_csv():
         db = ETFDatabase()
         db.upload_csv_data(csv_content)
         
-        # Reload ETF data from database
+        # CRITICAL: Force complete scoreboard refresh
+        global last_csv_update, etf_scores
+        last_csv_update = datetime.now()
+        
+        # Clear any cached data
+        etf_scores = {}
+        
+        # Reload ETF data from database with forced refresh
         load_etf_data_from_database()
+        
+        # Force CSV loader to refresh as well
+        csv_loader.get_etf_data(force_refresh=True)
+        
+        logger.info(f"SCOREBOARD REFRESH: Successfully loaded {len(etf_scores)} symbols after CSV upload")
         
         return jsonify({
             'success': True, 
-            'message': f'Database refreshed successfully. Loaded {len(etf_scores)} new symbols, previous data cleared.'
+            'message': f'SCOREBOARD UPDATED: Database refreshed successfully. Loaded {len(etf_scores)} new symbols with latest data.',
+            'symbols_loaded': len(etf_scores),
+            'last_update': last_csv_update.isoformat()
         })
         
     except Exception as e:
