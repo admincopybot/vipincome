@@ -956,7 +956,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
             }
             
             .header-logo {
-                height: 35px;
+                height: 80px;
                 width: auto;
             }
             
@@ -2675,7 +2675,7 @@ def step4(symbol, strategy, option_id, short_strike=None):
         
         .header {{{{ display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.02); }}}}
         .logo {{{{ display: flex; align-items: center; gap: 12px; }}}}
-        .header-logo {{{{ height: 32px; width: auto; }}}}
+        .header-logo {{{{ height: 80px; width: auto; }}}}
         .nav-menu {{{{ display: flex; align-items: center; gap: 30px; }}}}
         .nav-item {{{{ color: rgba(255, 255, 255, 0.8); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }}}}
         .nav-item:hover {{{{ color: #ffffff; }}}}
@@ -2968,7 +2968,7 @@ def index():
             gap: 12px;
         }
         .header-logo {
-            height: 32px;
+            height: 80px;
             width: auto;
         }
         .nav-menu {
@@ -3528,7 +3528,7 @@ def step2(symbol=None):
             gap: 12px;
         }
         .header-logo {
-            height: 32px;
+            height: 80px;
             width: auto;
         }
         .nav-menu {
@@ -4297,7 +4297,7 @@ def step3(symbol=None):
         }
         
         .header-logo {
-            height: 32px;
+            height: 80px;
             width: auto;
         }
         
