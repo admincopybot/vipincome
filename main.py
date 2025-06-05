@@ -2668,117 +2668,95 @@ def step4(symbol, strategy, option_id, short_strike=None):
     <title>Step 4: Trade Analysis - {symbol} {strategy.title()} Strategy</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; line-height: 1.6; }}
+        * {{{{ margin: 0; padding: 0; box-sizing: border-box; }}}}
+        body {{{{ font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; line-height: 1.6; }}}}
         
-        .top-banner {{ background: linear-gradient(135deg, #1e40af, #3b82f6); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; font-weight: 500; }}
+        .top-banner {{{{ background: linear-gradient(135deg, #1e40af, #3b82f6); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; font-weight: 500; }}}}
         
-        .header {{ display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.02); }}
-        .logo {{ display: flex; align-items: center; gap: 12px; }}
-        .header-logo {{ height: 32px; width: auto; }}
-        .nav-menu {{ display: flex; align-items: center; gap: 30px; }}
-        .nav-item {{ color: rgba(255, 255, 255, 0.8); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }}
-        .nav-item:hover {{ color: #ffffff; }}
-        .get-offer-btn {{ background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1f2e; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 13px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); transition: all 0.3s ease; text-transform: uppercase; }}
-        .get-offer-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6); }}
+        .header {{{{ display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.02); }}}}
+        .logo {{{{ display: flex; align-items: center; gap: 12px; }}}}
+        .header-logo {{{{ height: 32px; width: auto; }}}}
+        .nav-menu {{{{ display: flex; align-items: center; gap: 30px; }}}}
+        .nav-item {{{{ color: rgba(255, 255, 255, 0.8); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }}}}
+        .nav-item:hover {{{{ color: #ffffff; }}}}
+        .get-offer-btn {{{{ background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1f2e; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 13px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); transition: all 0.3s ease; text-transform: uppercase; }}}}
+        .get-offer-btn:hover {{{{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6); }}}}
         
-        .steps-nav {{ background: rgba(255, 255, 255, 0.05); padding: 20px 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }}
-        .steps-container {{ display: flex; justify-content: center; align-items: center; gap: 40px; }}
-        .step {{ display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-weight: 500; font-size: 14px; }}
-        .step.active {{ color: #8b5cf6; }}
-        .step.completed {{ color: rgba(255, 255, 255, 0.7); }}
+        .steps-nav {{{{ background: rgba(255, 255, 255, 0.05); padding: 20px 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }}}}
+        .steps-container {{{{ display: flex; justify-content: center; align-items: center; gap: 40px; }}}}
+        .step {{{{ display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-weight: 500; font-size: 14px; }}}}
+        .step.active {{{{ color: #8b5cf6; }}}}
+        .step.completed {{{{ color: rgba(255, 255, 255, 0.7); }}}}
             animation: pulse-glow 2s ease-in-out infinite;
-        .step-number {{ width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }}
-        .step.active .step-number {{ background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #ffffff;
+        .step-number {{{{ width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }}}}
+        .step.active .step-number {{{{ background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #ffffff;
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
-            animation: pulse-glow-purple 2s ease-in-out infinite; }}
-        .step.completed .step-number {{ background: linear-gradient(135deg, #10b981, #059669); color: #ffffff;
+            animation: pulse-glow-purple 2s ease-in-out infinite; }}}}
+        .step.completed .step-number {{{{ background: linear-gradient(135deg, #10b981, #059669); color: #ffffff;
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
             animation: pulse-glow-purple 2s ease-in-out infinite;
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
-            animation: pulse-glow-green 2s ease-in-out infinite; }}
-        .step:not(.active):not(.completed) .step-number {{ background: rgba(255, 255, 255, 0.1); }}
-        .step-connector {
+            animation: pulse-glow-green 2s ease-in-out infinite; }}}}
+        .step:not(.active):not(.completed) .step-number {{{{ background: rgba(255, 255, 255, 0.1); }}}}
+        .step-connector {{
             width: 60px;
             height: 2px;
             background: rgba(255, 255, 255, 0.1);
             margin: 0 15px;
             transition: all 0.3s ease;
-        }
-        .step-connector.completed {
-        }
-        
-        @keyframes pulse-glow-purple {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.6);
-            }
-        }
-        
-        @keyframes pulse-glow-green {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(16, 185, 129, 0.8), 0 0 50px rgba(16, 185, 129, 0.6);
-            }
-            background: linear-gradient(90deg, #10b981, #8b5cf6);
-            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
-        }
-        
-        .container {{ max-width: 1200px; margin: 0 auto; padding: 40px 20px; }}
-        .page-title {{ text-align: center; margin-bottom: 40px; }}
-        .page-title h1 {{ font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}
-        .page-subtitle {{ font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); }}
-        
-        .spread-header {{ background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; animation: pulse-glow 3s ease-in-out infinite; }}
-        .expiration-info {{ color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; }}
-        .spread-title {{ color: #ffffff; font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}
-        .width-badge {{ background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }}
-        
-        .trade-construction {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }}
-        .trade-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; transition: all 0.3s ease; }}
-        .trade-section:hover {{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }}
-        .section-header {{ color: #ffffff; font-weight: 700; margin-bottom: 12px; font-size: 16px; }}
-        .option-detail {{ color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 6px; }}
-        
-        .summary-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}
-        .summary-header {{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}
-        .summary-row {{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }}
-        .summary-cell {{ text-align: center; }}
-        .cell-label {{ color: rgba(255, 255, 255, 0.6); font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }}
-        .cell-value {{ color: #ffffff; font-weight: 700; font-size: 16px; }}
-        
-        .scenarios-section {{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}
-        .scenarios-header {{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}
-        .scenarios-grid {{ display: grid; gap: 2px; }}
-        .scenario-header-row {{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }}
-        .scenario-row {{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}
-        .scenario-cell {{ background: rgba(30, 41, 59, 0.9); padding: 10px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; }}
-        .scenario-header-cell {{ background: rgba(139, 92, 246, 0.2); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 4px; font-weight: 700; text-transform: uppercase; }}
-        .scenario-cell-label {{ background: rgba(139, 92, 246, 0.3); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; font-weight: 700; border-radius: 4px; text-transform: uppercase; }}
-        .win {{ background: linear-gradient(135deg, #10b981, #059669) !important; color: #ffffff; animation: win-pulse 2s ease-in-out infinite; }}
-        .loss {{ background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff; }}
-        
-        @keyframes pulse-glow {{
-            0%, 100% {{ box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }}
-            50% {{ box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); }}
+        }}
+        .step-connector.completed {{
         }}
         
-        @keyframes win-pulse {{
-            0%, 100% {{ box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }}
-            50% {{ box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }}
-        }}
         
-        .back-navigation {{ margin-top: 40px; text-align: center; }}
-        .back-btn {{ background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; }}
-        .back-btn:hover {{ background: rgba(139, 92, 246, 0.2); transform: translateY(-1px); }}
+        
+        .container {{{{ max-width: 1200px; margin: 0 auto; padding: 40px 20px; }}}}
+        .page-title {{{{ text-align: center; margin-bottom: 40px; }}}}
+        .page-title h1 {{{{ font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}}}
+        .page-subtitle {{{{ font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); }}}}
+        
+        .spread-header {{{{ background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; animation: pulse-glow 3s ease-in-out infinite; }}}}
+        .expiration-info {{{{ color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; }}}}
+        .spread-title {{{{ color: #ffffff; font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}}}
+        .width-badge {{{{ background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }}}}
+        
+        .trade-construction {{{{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }}}}
+        .trade-section {{{{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; transition: all 0.3s ease; }}}}
+        .trade-section:hover {{{{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }}}}
+        .section-header {{{{ color: #ffffff; font-weight: 700; margin-bottom: 12px; font-size: 16px; }}}}
+        .option-detail {{{{ color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 6px; }}}}
+        
+        .summary-section {{{{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}}}
+        .summary-header {{{{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}}}
+        .summary-row {{{{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }}}}
+        .summary-cell {{{{ text-align: center; }}}}
+        .cell-label {{{{ color: rgba(255, 255, 255, 0.6); font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }}}}
+        .cell-value {{{{ color: #ffffff; font-weight: 700; font-size: 16px; }}}}
+        
+        .scenarios-section {{{{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}}}
+        .scenarios-header {{{{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}}}
+        .scenarios-grid {{{{ display: grid; gap: 2px; }}}}
+        .scenario-header-row {{{{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }}}}
+        .scenario-row {{{{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}}}
+        .scenario-cell {{{{ background: rgba(30, 41, 59, 0.9); padding: 10px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; }}}}
+        .scenario-header-cell {{{{ background: rgba(139, 92, 246, 0.2); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 4px; font-weight: 700; text-transform: uppercase; }}}}
+        .scenario-cell-label {{{{ background: rgba(139, 92, 246, 0.3); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; font-weight: 700; border-radius: 4px; text-transform: uppercase; }}}}
+        .win {{{{ background: linear-gradient(135deg, #10b981, #059669) !important; color: #ffffff; animation: win-pulse 2s ease-in-out infinite; }}}}
+        .loss {{{{ background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff; }}}}
+        
+        @keyframes pulse-glow {{{{
+            0%, 100% {{{{ box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }}}}
+            50% {{{{ box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); }}}}
+        }}}}
+        
+        @keyframes win-pulse {{{{
+            0%, 100% {{{{ box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }}}}
+            50% {{{{ box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }}}}
+        }}}}
+        
+        .back-navigation {{{{ margin-top: 40px; text-align: center; }}}}
+        .back-btn {{{{ background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; }}}}
+        .back-btn:hover {{{{ background: rgba(139, 92, 246, 0.2); transform: translateY(-1px); }}}}
     </style>
 </head>
 <body>
@@ -2828,31 +2806,31 @@ def step4(symbol, strategy, option_id, short_strike=None):
         </div>
         
         <div class="spread-header">
-            <div class="expiration-info">Expiration: {expiration_date} ({days_to_exp} days)</div>
-            <div class="spread-title">${scenario_long_strike:.2f} / ${scenario_short_strike:.2f}</div>
+            <div class="expiration-info">Expiration: {{expiration_date}} ({{days_to_exp}} days)</div>
+            <div class="spread-title">${{scenario_long_strike:.2f}} / ${{scenario_short_strike:.2f}}</div>
             <div class="width-badge">Width: $1</div>
         </div>
         
         <div class="trade-construction">
             <div class="trade-section">
-                <div class="section-header">Buy (${scenario_long_strike:.2f})</div>
-                <div class="option-detail">Option ID: {option_id}</div>
-                <div class="option-detail">Price: ${scenario_long_price:.2f}</div>
+                <div class="section-header">Buy (${{scenario_long_strike:.2f}})</div>
+                <div class="option-detail">Option ID: {{option_id}}</div>
+                <div class="option-detail">Price: ${{scenario_long_price:.2f}}</div>
             </div>
             <div class="trade-section">
-                <div class="section-header">Sell (${scenario_short_strike:.2f})</div>
-                <div class="option-detail">Option ID: {short_option_id}</div>
-                <div class="option-detail">Price: ${scenario_short_price:.2f}</div>
+                <div class="section-header">Sell (${{scenario_short_strike:.2f}})</div>
+                <div class="option-detail">Option ID: {{short_option_id}}</div>
+                <div class="option-detail">Price: ${{scenario_short_price:.2f}}</div>
             </div>
             <div class="trade-section">
                 <div class="section-header">Spread Details</div>
-                <div class="option-detail">Spread Cost: ${spread_cost:.2f}</div>
+                <div class="option-detail">Spread Cost: ${{spread_cost:.2f}}</div>
                 <div class="option-detail">Max Value: $1.00</div>
             </div>
             <div class="trade-section">
                 <div class="section-header">Trade Info</div>
-                <div class="option-detail">ROI: {roi:.2f}%</div>
-                <div class="option-detail">Breakeven: ${breakeven:.2f}</div>
+                <div class="option-detail">ROI: {{roi:.2f}}%</div>
+                <div class="option-detail">Breakeven: ${{breakeven:.2f}}</div>
             </div>
         </div>
         
@@ -2861,27 +2839,27 @@ def step4(symbol, strategy, option_id, short_strike=None):
             <div class="summary-row">
                 <div class="summary-cell">
                     <div class="cell-label">Current Stock Price</div>
-                    <div class="cell-value">${current_price:.2f}</div>
+                    <div class="cell-value">${{current_price:.2f}}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Spread Cost</div>
-                    <div class="cell-value">${spread_cost:.2f}</div>
+                    <div class="cell-value">${{spread_cost:.2f}}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Call Strikes</div>
-                    <div class="cell-value">${scenario_long_strike:.2f} & ${scenario_short_strike:.2f}</div>
+                    <div class="cell-value">${{scenario_long_strike:.2f}} & ${{scenario_short_strike:.2f}}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Breakeven Price</div>
-                    <div class="cell-value">${breakeven:.2f}</div>
+                    <div class="cell-value">${{breakeven:.2f}}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Max Profit</div>
-                    <div class="cell-value">${max_profit:.2f}</div>
+                    <div class="cell-value">${{max_profit:.2f}}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Return on Investment</div>
-                    <div class="cell-value">{roi:.2f}%</div>
+                    <div class="cell-value">{{roi:.2f}}%</div>
                 </div>
             </div>
         </div>
@@ -2901,25 +2879,25 @@ def step4(symbol, strategy, option_id, short_strike=None):
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Stock Price</div>
-                    {scenario_rows['price']}
+                    {{scenario_rows['price']}}
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">ROI %</div>
-                    {scenario_rows['roi']}
+                    {{scenario_rows['roi']}}
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Profit</div>
-                    {scenario_rows['profit']}
+                    {{scenario_rows['profit']}}
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Outcome</div>
-                    {scenario_rows['outcome']}
+                    {{scenario_rows['outcome']}}
                 </div>
             </div>
         </div>
         
         <div class="back-navigation">
-            <a href="/step3/{{symbol}}" class="back-btn">← Back to Strategy Selection</a>
+            <a href="/step3/{{{symbol}}}" class="back-btn">← Back to Strategy Selection</a>
         </div>
     </div>
 </body>
@@ -3085,30 +3063,7 @@ def index():
         .step-connector.completed {
         }
         
-        @keyframes pulse-glow-purple {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.6);
-            }
-        }
         
-        @keyframes pulse-glow-green {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(16, 185, 129, 0.8), 0 0 50px rgba(16, 185, 129, 0.6);
-            }
-            background: linear-gradient(90deg, #10b981, #8b5cf6);
-            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-        }
         
         .logo {
             display: flex;
@@ -3668,30 +3623,7 @@ def step2(symbol=None):
         .step-connector.completed {
         }
         
-        @keyframes pulse-glow-purple {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.6);
-            }
-        }
         
-        @keyframes pulse-glow-green {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(16, 185, 129, 0.8), 0 0 50px rgba(16, 185, 129, 0.6);
-            }
-            background: linear-gradient(90deg, #10b981, #8b5cf6);
-            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-        }
             font-weight: 600;
             text-decoration: none;
             border: none;
@@ -4465,30 +4397,7 @@ def step3(symbol=None):
         .step-connector.completed {
         }
         
-        @keyframes pulse-glow-purple {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.6);
-            }
-        }
         
-        @keyframes pulse-glow-green {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(16, 185, 129, 0.8), 0 0 50px rgba(16, 185, 129, 0.6);
-            }
-            background: linear-gradient(90deg, #10b981, #8b5cf6);
-            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-        }
         
         a.step {
             text-decoration: none;
