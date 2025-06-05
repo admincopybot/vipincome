@@ -95,7 +95,7 @@ class ETFDatabase:
             
             # Fill NaN values with defaults
             df = df.fillna({
-                'avg_volume_10d': 0,
+                'avg_volume_10d': 0,  # Keep as 0 when missing from CSV
                 'trend1_current': 0.0,
                 'trend1_threshold': 0.0,
                 'trend1_description': '',
@@ -113,6 +113,9 @@ class ETFDatabase:
                 'stabilizing_description': '',
                 'data_age_hours': 0
             })
+            
+            # Handle empty string values in avg_volume_10d column
+            df['avg_volume_10d'] = df['avg_volume_10d'].replace('', 0)
             
             for _, row in df.iterrows():
                 cursor.execute('''
