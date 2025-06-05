@@ -2687,9 +2687,16 @@ def step4(symbol, strategy, option_id, short_strike=None):
         .step {{ display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-weight: 500; font-size: 14px; }}
         .step.active {{ color: #8b5cf6; }}
         .step.completed {{ color: rgba(255, 255, 255, 0.7); }}
+            animation: pulse-glow 2s ease-in-out infinite;
         .step-number {{ width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }}
-        .step.active .step-number {{ background: #8b5cf6; color: #ffffff; }}
-        .step.completed .step-number {{ background: rgba(255, 255, 255, 0.2); color: #ffffff; }}
+        .step.active .step-number {{ background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #ffffff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            animation: pulse-glow-purple 2s ease-in-out infinite; }}
+        .step.completed .step-number {{ background: linear-gradient(135deg, #10b981, #059669); color: #ffffff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            animation: pulse-glow-purple 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            animation: pulse-glow-green 2s ease-in-out infinite; }}
         .step:not(.active):not(.completed) .step-number {{ background: rgba(255, 255, 255, 0.1); }}
         .step-connector {
             width: 60px;
@@ -2699,6 +2706,28 @@ def step4(symbol, strategy, option_id, short_strike=None):
             transition: all 0.3s ease;
         }
         .step-connector.completed {
+        }
+        
+        @keyframes pulse-glow-purple {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.6);
+            }
+        }
+        
+        @keyframes pulse-glow-green {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(16, 185, 129, 0.8), 0 0 50px rgba(16, 185, 129, 0.6);
+            }
             background: linear-gradient(90deg, #10b981, #8b5cf6);
             box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
         }
@@ -3015,9 +3044,11 @@ def index():
             font-size: 14px;
         }
         .step.active {
+            animation: pulse-glow 2s ease-in-out infinite;
             color: #8b5cf6;
         }
         .step.completed {
+            animation: pulse-glow 2s ease-in-out infinite;
             color: rgba(255, 255, 255, 0.7);
         }
         .step-number {
@@ -3031,12 +3062,16 @@ def index():
             font-weight: 600;
         }
         .step.active .step-number {
-            background: #8b5cf6;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
             color: #ffffff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            animation: pulse-glow-purple 2s ease-in-out infinite;
         }
         .step.completed .step-number {
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #10b981, #059669);
             color: #ffffff;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            animation: pulse-glow-green 2s ease-in-out infinite;
         }
         .step:not(.active):not(.completed) .step-number {
         }
@@ -3048,6 +3083,28 @@ def index():
             transition: all 0.3s ease;
         }
         .step-connector.completed {
+        }
+        
+        @keyframes pulse-glow-purple {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.6);
+            }
+        }
+        
+        @keyframes pulse-glow-green {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(16, 185, 129, 0.8), 0 0 50px rgba(16, 185, 129, 0.6);
+            }
             background: linear-gradient(90deg, #10b981, #8b5cf6);
             box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
             background: rgba(255, 255, 255, 0.1);
@@ -3570,9 +3627,11 @@ def step2(symbol=None):
             font-size: 14px;
         }
         .step.active {
+            animation: pulse-glow 2s ease-in-out infinite;
             color: #8b5cf6;
         }
         .step.completed {
+            animation: pulse-glow 2s ease-in-out infinite;
             color: rgba(255, 255, 255, 0.7);
         }
         .step-number {
@@ -3586,12 +3645,16 @@ def step2(symbol=None):
             font-weight: 600;
         }
         .step.active .step-number {
-            background: #8b5cf6;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
             color: #ffffff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            animation: pulse-glow-purple 2s ease-in-out infinite;
         }
         .step.completed .step-number {
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #10b981, #059669);
             color: #ffffff;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            animation: pulse-glow-green 2s ease-in-out infinite;
         }
         .step:not(.active):not(.completed) .step-number {
         }
@@ -3603,6 +3666,28 @@ def step2(symbol=None):
             transition: all 0.3s ease;
         }
         .step-connector.completed {
+        }
+        
+        @keyframes pulse-glow-purple {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.6);
+            }
+        }
+        
+        @keyframes pulse-glow-green {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(16, 185, 129, 0.8), 0 0 50px rgba(16, 185, 129, 0.6);
+            }
             background: linear-gradient(90deg, #10b981, #8b5cf6);
             box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
             background: rgba(255, 255, 255, 0.1);
@@ -4339,9 +4424,11 @@ def step3(symbol=None):
             font-size: 14px;
         }
         .step.active {
+            animation: pulse-glow 2s ease-in-out infinite;
             color: #8b5cf6;
         }
         .step.completed {
+            animation: pulse-glow 2s ease-in-out infinite;
             color: rgba(255, 255, 255, 0.7);
         }
         .step-number {
@@ -4355,12 +4442,16 @@ def step3(symbol=None):
             font-weight: 600;
         }
         .step.active .step-number {
-            background: #8b5cf6;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
             color: #ffffff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            animation: pulse-glow-purple 2s ease-in-out infinite;
         }
         .step.completed .step-number {
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #10b981, #059669);
             color: #ffffff;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            animation: pulse-glow-green 2s ease-in-out infinite;
         }
         .step:not(.active):not(.completed) .step-number {
         }
@@ -4372,6 +4463,28 @@ def step3(symbol=None):
             transition: all 0.3s ease;
         }
         .step-connector.completed {
+        }
+        
+        @keyframes pulse-glow-purple {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.6);
+            }
+        }
+        
+        @keyframes pulse-glow-green {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(16, 185, 129, 0.8), 0 0 50px rgba(16, 185, 129, 0.6);
+            }
             background: linear-gradient(90deg, #10b981, #8b5cf6);
             box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
             background: rgba(255, 255, 255, 0.1);
