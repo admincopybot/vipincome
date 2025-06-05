@@ -5220,17 +5220,20 @@ def upload_csv():
         db = ETFDatabase()
         db.upload_csv_data(csv_content)
         
-        # CRITICAL: Force complete scoreboard refresh
-        global last_csv_update, etf_scores
+        # CRITICAL: Force complete application refresh after database wipe
+        global last_csv_update, etf_scores, etf_db
         last_csv_update = datetime.now()
         
-        # Clear any cached data
+        # Completely clear all cached data
         etf_scores = {}
         
-        # Reload ETF data from database with forced refresh
+        # Reinitialize database connection to ensure clean state
+        etf_db = ETFDatabase()
+        
+        # Force complete reload from freshly updated database
         load_etf_data_from_database()
         
-        # Force CSV loader to refresh as well
+        # Clear CSV loader cache as well
         csv_loader.get_etf_data(force_refresh=True)
         
         logger.info(f"SCOREBOARD REFRESH: Successfully loaded {len(etf_scores)} symbols after CSV upload")

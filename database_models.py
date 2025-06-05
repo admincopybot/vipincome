@@ -85,11 +85,18 @@ class ETFDatabase:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
-            # CRITICAL: Wipe all previous records
-            logger.info("Clearing all previous ETF records...")
+            # CRITICAL: Complete database wipe and reset
+            logger.info("Performing complete database wipe...")
             cursor.execute('DELETE FROM etf_scores')
+            cursor.execute('DELETE FROM last_update')
             conn.commit()
-            logger.info("Previous records cleared successfully")
+            conn.close()
+            
+            # VACUUM outside transaction
+            conn = sqlite3.connect(self.db_path)
+            conn.execute('VACUUM')
+            cursor = conn.cursor()
+            logger.info("Database completely wiped and reset")
             
             updated_count = 0
             
