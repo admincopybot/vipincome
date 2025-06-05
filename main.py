@@ -2691,6 +2691,17 @@ def step4(symbol, strategy, option_id, short_strike=None):
         .step.active .step-number {{ background: #8b5cf6; color: #ffffff; }}
         .step.completed .step-number {{ background: rgba(255, 255, 255, 0.2); color: #ffffff; }}
         .step:not(.active):not(.completed) .step-number {{ background: rgba(255, 255, 255, 0.1); }}
+        .step-connector {
+            width: 60px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        .step-connector.completed {
+            background: linear-gradient(90deg, #10b981, #8b5cf6);
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+        }
         
         .container {{ max-width: 1200px; margin: 0 auto; padding: 40px 20px; }}
         .page-title {{ text-align: center; margin-bottom: 40px; }}
@@ -2879,7 +2890,7 @@ def step4(symbol, strategy, option_id, short_strike=None):
         </div>
         
         <div class="back-navigation">
-            <a href="/step3/{symbol}" class="back-btn">← Back to Strategy Selection</a>
+            <a href="/step3/{{symbol}}" class="back-btn">← Back to Strategy Selection</a>
         </div>
     </div>
 </body>
@@ -3028,6 +3039,17 @@ def index():
             color: #ffffff;
         }
         .step:not(.active):not(.completed) .step-number {
+        }
+        .step-connector {
+            width: 60px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        .step-connector.completed {
+            background: linear-gradient(90deg, #10b981, #8b5cf6);
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
             background: rgba(255, 255, 255, 0.1);
         }
         
@@ -3572,6 +3594,17 @@ def step2(symbol=None):
             color: #ffffff;
         }
         .step:not(.active):not(.completed) .step-number {
+        }
+        .step-connector {
+            width: 60px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        .step-connector.completed {
+            background: linear-gradient(90deg, #10b981, #8b5cf6);
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
             background: rgba(255, 255, 255, 0.1);
         }
             font-weight: 600;
@@ -4330,6 +4363,17 @@ def step3(symbol=None):
             color: #ffffff;
         }
         .step:not(.active):not(.completed) .step-number {
+        }
+        .step-connector {
+            width: 60px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        .step-connector.completed {
+            background: linear-gradient(90deg, #10b981, #8b5cf6);
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
             background: rgba(255, 255, 255, 0.1);
         }
         
