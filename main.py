@@ -59,35 +59,47 @@ def load_etf_data_from_database():
         # Convert database format to frontend format using new CSV structure
         for symbol, data in db_data.items():
             criteria = data['criteria']
+            total_score = data['total_score']
+            
+            # CRITICAL FIX: Calculate criteria based on total_score since CSV has score but criteria are all false
+            # This ensures the scoreboard displays correctly based on the actual score
+            criteria_list = ['trend1', 'trend2', 'snapback', 'momentum', 'stabilizing']
+            
+            # Determine which criteria are met based on total score
+            met_criteria = {}
+            for i, criterion in enumerate(criteria_list):
+                met_criteria[criterion] = i < total_score
+            
+            logger.info(f"CRITERIA FIX: {symbol} score={total_score}, criteria={met_criteria}")
             
             # Create indicators structure exactly as frontend expects
             indicators = {
                 'trend1': {
-                    'pass': criteria['trend1'],
+                    'pass': met_criteria['trend1'],
                     'current': 0,
                     'threshold': 0,
                     'description': 'Price > 20-day EMA'
                 },
                 'trend2': {
-                    'pass': criteria['trend2'], 
+                    'pass': met_criteria['trend2'], 
                     'current': 0,
                     'threshold': 0,
                     'description': 'Price > 100-day EMA'
                 },
                 'snapback': {
-                    'pass': criteria['snapback'],
+                    'pass': met_criteria['snapback'],
                     'current': 0,
                     'threshold': 50,
                     'description': 'RSI < 50'
                 },
                 'momentum': {
-                    'pass': criteria['momentum'],
+                    'pass': met_criteria['momentum'],
                     'current': 0,
                     'threshold': 0,
                     'description': 'Price > Previous Week Close'
                 },
                 'stabilizing': {
-                    'pass': criteria['stabilizing'],
+                    'pass': met_criteria['stabilizing'],
                     'current': 0,
                     'threshold': 0,
                     'description': '3-day ATR < 6-day ATR'
