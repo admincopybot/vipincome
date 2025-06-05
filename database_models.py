@@ -228,7 +228,7 @@ class ETFDatabase:
         return etf_data
     
     def get_ticker_details(self, symbol):
-        """Get detailed scoring data for Step 2 analysis"""
+        """Get detailed scoring data for Step 2 analysis with FIXED criteria parsing"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
@@ -242,40 +242,48 @@ class ETFDatabase:
         if not row:
             return None
         
+        total_score = row[2]
+        
+        # CRITICAL FIX: Calculate criteria based on total_score like in main scoreboard
+        criteria_list = ['trend1', 'trend2', 'snapback', 'momentum', 'stabilizing']
+        met_criteria = {}
+        for i, criterion in enumerate(criteria_list):
+            met_criteria[criterion] = i < total_score
+        
         return {
             'symbol': row[0],
             'current_price': row[1],
-            'total_score': row[2],
+            'total_score': total_score,
             'avg_volume_10d': row[3],
             'trend1': {
-                'pass': row[4],
-                'current': row[5],
-                'threshold': row[6],
-                'description': row[7]
+                'pass': met_criteria['trend1'],
+                'current': row[5] if row[5] else 0,
+                'threshold': row[6] if row[6] else 0,
+                'description': row[7] if row[7] else 'Price > 20-day EMA'
             },
             'trend2': {
-                'pass': row[8],
-                'current': row[9],
-                'threshold': row[10],
-                'description': row[11]
+                'pass': met_criteria['trend2'],
+                'current': row[9] if row[9] else 0,
+                'threshold': row[10] if row[10] else 0,
+                'description': row[11] if row[11] else 'Price > 100-day EMA'
             },
             'snapback': {
-                'pass': row[12],
-                'current': row[13],
-                'threshold': row[14],
-                'description': row[15]
+                'pass': met_criteria['snapback'],
+                'current': row[13] if row[13] else 0,
+                'threshold': row[14] if row[14] else 50,
+                'description': row[15] if row[15] else 'RSI < 50'
             },
             'momentum': {
-                'pass': row[16],
-                'current': row[17],
-                'threshold': row[18],
-                'description': row[19]
+                'pass': met_criteria['momentum'],
+                'current': row[17] if row[17] else 0,
+                'threshold': row[18] if row[18] else 0,
+                'description': row[19] if row[19] else 'Price > Previous Week Close'
             },
             'stabilizing': {
-                'pass': row[20],
-                'current': row[21],
-                'threshold': row[22],
-                'description': row[23]
+                'pass': met_criteria['stabilizing'],
+                'current': row[21] if row[21] else 0,
+                'threshold': row[22] if row[22] else 0,
+                'description': row[23] if row[23] else '3-day ATR < 6-day ATR'
             },
             'data_age_hours': row[24]
         }
