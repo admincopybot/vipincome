@@ -34,12 +34,13 @@ etf_db = ETFDatabase()
 csv_loader = CsvDataLoader()
 
 def load_etf_data_from_database():
-    """Load ETF data from database and update global etf_scores while keeping frontend exactly the same"""
+    """Load ETF data from database with AUTOMATIC RANKING by score + trading volume tiebreaker"""
     global etf_scores
     
     try:
-        # Get all ETF data from database
+        # Get all ETF data from database - ALREADY SORTED by score DESC, volume DESC
         db_data = etf_db.get_all_etfs()
+        logger.info(f"RANKING: Loading {len(db_data)} symbols with automatic score + volume ranking")
         
         # Default sector mappings to keep frontend naming consistent
         sector_mappings = {
@@ -3542,7 +3543,30 @@ def index():
 
     <script>
         console.log('Starting real-time ETF price updates...');
-        // Frontend JavaScript kept exactly the same for compatibility
+        
+        // AUTOMATIC SCOREBOARD UPDATES - Poll for CSV uploads
+        let lastUpdateTime = null;
+        
+        async function checkForUpdates() {
+            try {
+                const response = await fetch('/api/scoreboard-status');
+                const data = await response.json();
+                
+                if (lastUpdateTime === null) {
+                    lastUpdateTime = data.last_update;
+                } else if (data.last_update !== lastUpdateTime) {
+                    // NEW CSV DATA DETECTED - Reload scoreboard automatically
+                    console.log('CSV update detected, refreshing scoreboard...');
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.log('Update check failed:', error);
+            }
+        }
+        
+        // Check for updates every 5 seconds to catch CSV uploads
+        setInterval(checkForUpdates, 5000);
+        checkForUpdates(); // Initial check
     </script>
 </body>
 </html>
@@ -5213,6 +5237,24 @@ def upload_csv():
         
     except Exception as e:
         return jsonify({'error': f'Upload failed: {str(e)}'}), 500
+
+@app.route('/api/scoreboard-status')
+def scoreboard_status():
+    """API endpoint for automatic scoreboard update polling"""
+    try:
+        last_update = etf_db.get_last_update_time()
+        return jsonify({
+            'last_update': last_update.isoformat() if last_update else None,
+            'symbols_count': len(etf_scores),
+            'status': 'ready'
+        })
+    except Exception as e:
+        return jsonify({
+            'last_update': None,
+            'symbols_count': 0,
+            'status': 'error',
+            'error': str(e)
+        }), 500
 
 @app.route('/api/etf_data')
 def api_etf_data():
