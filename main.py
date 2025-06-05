@@ -109,20 +109,15 @@ def load_etf_data_from_database():
             # Only include sector name if it's a known ETF sector
             sector_name = sector_mappings.get(symbol, "")
             
-            # Calculate actual score from criteria (count True values)
-            actual_score = sum([
-                criteria['trend1'],
-                criteria['trend2'], 
-                criteria['snapback'],
-                criteria['momentum'],
-                criteria['stabilizing']
-            ])
+            # Use the total_score directly from CSV data (not calculated from criteria)
+            csv_total_score = data['total_score']
             
             # Update etf_scores with exact same structure as before
             etf_scores[symbol] = {
                 "name": sector_name,
-                "score": actual_score,  # Use calculated score from criteria
+                "score": csv_total_score,  # Use total_score from CSV
                 "price": data['current_price'],
+                "avg_volume_10d": data['avg_volume_10d'],  # Include trading volume for Step 2
                 "indicators": indicators
             }
         
