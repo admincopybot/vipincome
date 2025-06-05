@@ -26,6 +26,9 @@ app = Flask(__name__)
 # Global storage for Step 3 spread calculations to ensure Step 4 consistency
 spread_calculations_cache = {}
 
+# Global timestamp for last CSV update
+last_csv_update = datetime.now()
+
 # Initialize database and CSV loader
 etf_db = ETFDatabase()
 csv_loader = CsvDataLoader()
@@ -2885,6 +2888,19 @@ def index():
     load_etf_data_from_database()
     # Synchronize scores before displaying
     synchronize_etf_scores()
+    
+    # Calculate minutes since last update
+    try:
+        last_update = etf_db.get_last_update_time()
+        minutes_ago = int((datetime.now() - last_update).total_seconds() / 60)
+        if minutes_ago == 0:
+            last_update_text = "Last updated just now"
+        elif minutes_ago == 1:
+            last_update_text = "Last updated 1 minute ago"
+        else:
+            last_update_text = f"Last updated {minutes_ago} minutes ago"
+    except:
+        last_update_text = "Last updated recently"
     
     # Create template with consistent navigation structure
     template = """

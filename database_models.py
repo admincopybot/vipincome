@@ -56,6 +56,14 @@ class ETFDatabase:
             )
         ''')
         
+        # Create table for tracking last update timestamp
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS last_update (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT
+            )
+        ''')
+        
         conn.commit()
         conn.close()
         logger.info("Database initialized with CSV format and trading volume support")
@@ -117,6 +125,12 @@ class ETFDatabase:
                 ))
                 updated_count += 1
             
+            # Update last update timestamp
+            from datetime import datetime
+            current_time = datetime.now().isoformat()
+            cursor.execute('DELETE FROM last_update')
+            cursor.execute('INSERT INTO last_update (timestamp) VALUES (?)', (current_time,))
+            
             conn.commit()
             conn.close()
             
@@ -126,6 +140,28 @@ class ETFDatabase:
         except Exception as e:
             logger.error(f"Error uploading CSV data: {str(e)}")
             return {"success": False, "error": str(e)}
+    
+    def get_last_update_time(self):
+        """Get the timestamp of the last CSV update"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('SELECT timestamp FROM last_update ORDER BY timestamp DESC LIMIT 1')
+            result = cursor.fetchone()
+            conn.close()
+            
+            if result:
+                from datetime import datetime
+                return datetime.fromisoformat(result[0])
+            else:
+                # If no timestamp exists, return current time
+                from datetime import datetime
+                return datetime.now()
+                
+        except Exception as e:
+            logger.error(f"Error getting last update time: {e}")
+            from datetime import datetime
+            return datetime.now()
     
     def get_all_etfs(self):
         """Get all ETF data with TRADING VOLUME TIE-BREAKER for top rankings"""
