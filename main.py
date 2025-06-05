@@ -1356,7 +1356,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
         
         <div class="header">
             <div class="logo">
-                <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+                <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
             </div>
             <div class="nav-menu">
                 <a href="#" class="nav-item">How to Use</a>
@@ -2766,7 +2766,7 @@ def step4(symbol, strategy, option_id, short_strike=None):
     
     <div class="header">
         <div class="logo">
-            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+            <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
         </div>
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
@@ -3386,7 +3386,7 @@ def index():
     
     <div class="header">
         <div class="logo">
-            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+            <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
         </div>
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
@@ -3938,7 +3938,7 @@ def step2(symbol=None):
     
     <div class="header">
         <div class="logo">
-            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+            <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
         </div>
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
@@ -4654,7 +4654,7 @@ def step3(symbol=None):
         
         <div class="header">
             <div class="logo">
-                <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
+                <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
             </div>
             <div class="nav-menu">
                 <a href="#" class="nav-item">How to Use</a>
