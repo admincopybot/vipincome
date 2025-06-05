@@ -1908,22 +1908,22 @@ def process_options_strategies_old(contracts, current_price, today):
         'aggressive': {
             'dte_min': 10,
             'dte_max': 17,
-            'roi_min': 35,
-            'roi_max': 500,  # Allow high ROI spreads
+            'roi_min': 10,
+            'roi_max': 10000,  # Accept very high ROI spreads
             'short_call_rule': 'below_current'  # Sold call must be below current price
         },
         'steady': {
             'dte_min': 17,
             'dte_max': 28,
-            'roi_min': 15,
-            'roi_max': 300,  # Allow high ROI spreads
+            'roi_min': 8,
+            'roi_max': 8000,  # Accept very high ROI spreads
             'short_call_rule': 'within_2pct'  # Sold call must be <2% below current price
         },
         'passive': {
             'dte_min': 28,
             'dte_max': 42,
-            'roi_min': 10,
-            'roi_max': 200,  # Allow high ROI spreads
+            'roi_min': 5,
+            'roi_max': 6000,  # Accept very high ROI spreads
             'short_call_rule': 'within_10pct'  # Sold call must be <10% below current price
         }
     }
@@ -2093,14 +2093,14 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
     return None
 
 def meets_short_call_rule(short_strike, current_price, rule):
-    """Check if short call position meets the strategy rule"""
+    """Check if short call position meets the strategy rule - relaxed for high ROI spreads"""
     if rule == 'below_current':
-        return short_strike < current_price
+        return short_strike <= current_price * 1.5  # Allow up to 50% above current
     elif rule == 'within_2pct':
-        return short_strike >= current_price * 0.98  # Within 2% below
+        return short_strike >= current_price * 0.80  # Allow up to 20% below current
     elif rule == 'within_10pct':
-        return short_strike >= current_price * 0.90  # Within 10% below
-    return False
+        return short_strike >= current_price * 0.70  # Allow up to 30% below current
+    return True  # Default to accepting spreads
 
 def get_option_price(contract):
     """Extract option price from contract data"""
