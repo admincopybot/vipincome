@@ -3370,7 +3370,7 @@ def index():
     <div class="main-content">
         <h1 class="dashboard-title">Top Trade Opportunities</h1>
         <p class="dashboard-subtitle">High-probability income opportunities that match our criteria.</p>
-        <p class="update-info">Updated daily with fresh market analysis</p>
+        <p class="update-info">{{ last_update_text }}</p>
         
         <div class="etf-grid">
             {% set sorted_etfs = etf_scores.items() | list %}
@@ -3417,7 +3417,7 @@ def index():
 </html>
 """
     
-    return render_template_string(template, etf_scores=etf_scores)
+    return render_template_string(template, etf_scores=etf_scores, last_update_text=last_update_text)
 
 @app.route('/step2')
 @app.route('/step2/<symbol>')
