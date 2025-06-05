@@ -3071,7 +3071,7 @@ def index():
         }
         
         .header-logo {
-            height: 50px;
+            height: 80px;
             width: auto;
             object-fit: contain;
         }
