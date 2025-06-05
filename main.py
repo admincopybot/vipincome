@@ -1908,22 +1908,22 @@ def process_options_strategies_old(contracts, current_price, today):
         'aggressive': {
             'dte_min': 10,
             'dte_max': 17,
-            'roi_min': 30,
-            'roi_max': 40,
+            'roi_min': 35,
+            'roi_max': 500,  # Allow high ROI spreads
             'short_call_rule': 'below_current'  # Sold call must be below current price
         },
         'steady': {
             'dte_min': 17,
             'dte_max': 28,
             'roi_min': 15,
-            'roi_max': 25,
+            'roi_max': 300,  # Allow high ROI spreads
             'short_call_rule': 'within_2pct'  # Sold call must be <2% below current price
         },
         'passive': {
             'dte_min': 28,
             'dte_max': 42,
             'roi_min': 10,
-            'roi_max': 15,
+            'roi_max': 200,  # Allow high ROI spreads
             'short_call_rule': 'within_10pct'  # Sold call must be <10% below current price
         }
     }
@@ -1973,16 +1973,24 @@ def find_best_debit_spread(expirations, current_price, today, criteria):
                     strike = float(contract.get('strike_price', 0))
                     calls_by_strike[strike] = contract
             
-            # Find all REAL $1-wide spreads using actual strikes from Polygon API
+            # Find all debit spreads using actual market intervals ($0.50, $1, $2.50, $5, $10)
             strikes = sorted(calls_by_strike.keys())
+            valid_widths = [0.5, 1.0, 2.5, 5.0, 10.0]
+            
             for i, long_strike in enumerate(strikes[:-1]):
-                # Check each subsequent strike to find exactly $1 wide spreads
+                # Check each subsequent strike to find valid spread widths
                 for short_strike in strikes[i+1:]:
                     width = short_strike - long_strike
                     
-                    # Only accept exactly $1 wide spreads from real market data
-                    if abs(width - 1.0) > 0.01:  # Allow tiny rounding tolerance
-                        if width > 1.01:  # Stop checking if we've gone too far
+                    # Accept spreads with actual market intervals
+                    width_valid = False
+                    for valid_width in valid_widths:
+                        if abs(width - valid_width) <= 0.01:  # Allow tiny rounding tolerance
+                            width_valid = True
+                            break
+                    
+                    if not width_valid:
+                        if width > 10.01:  # Stop checking if we've gone too far
                             break
                         continue
                 

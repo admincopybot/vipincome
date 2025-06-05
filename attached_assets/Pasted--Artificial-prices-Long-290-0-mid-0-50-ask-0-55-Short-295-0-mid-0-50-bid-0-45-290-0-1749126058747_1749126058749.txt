@@ -1,0 +1,347 @@
+    Artificial prices: Long $290.0 mid=$0.50 ask=$0.55, Short $295.0 mid=$0.50 bid=$0.45
+    $290.0/$295.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $295.0 mid=$0.50 ask=$0.55, Short $300.0 mid=$0.50 bid=$0.45
+    $295.0/$300.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $300.0 mid=$0.50 ask=$0.55, Short $305.0 mid=$0.50 bid=$0.45
+    $300.0/$305.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $305.0 mid=$0.50 ask=$0.55, Short $310.0 mid=$0.50 bid=$0.45
+    $305.0/$310.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $310.0 mid=$0.50 ask=$0.55, Short $315.0 mid=$0.50 bid=$0.45
+    $310.0/$315.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $315.0 mid=$0.50 ask=$0.55, Short $320.0 mid=$0.50 bid=$0.45
+    $315.0/$320.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $320.0 mid=$0.50 ask=$0.55, Short $325.0 mid=$0.50 bid=$0.45
+    $320.0/$325.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Found 0 viable spreads from 42 checked
+  No viable spreads found for steady at 35 DTE
+  EVALUATING PASSIVE for expiration 2025-07-11 (35 DTE)
+  Available strikes: [110.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0, 155.0, 160.0]...
+    Looking for debit spreads with ROI 8-20% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    Artificial prices: Long $110.0 mid=$92.97 ask=$98.55, Short $120.0 mid=$82.97 bid=$77.99
+    Artificial prices: Long $120.0 mid=$82.97 ask=$87.95, Short $125.0 mid=$77.97 bid=$73.29
+    Artificial prices: Long $125.0 mid=$77.97 ask=$82.65, Short $130.0 mid=$72.97 bid=$68.59
+    Artificial prices: Long $130.0 mid=$72.97 ask=$77.35, Short $135.0 mid=$67.97 bid=$63.89
+    Artificial prices: Long $135.0 mid=$67.97 ask=$72.05, Short $140.0 mid=$62.97 bid=$59.19
+    Artificial prices: Long $140.0 mid=$62.97 ask=$66.75, Short $145.0 mid=$57.97 bid=$54.49
+    Artificial prices: Long $145.0 mid=$57.97 ask=$61.45, Short $150.0 mid=$52.97 bid=$49.79
+    Artificial prices: Long $150.0 mid=$52.97 ask=$56.15, Short $155.0 mid=$47.97 bid=$45.09
+    Artificial prices: Long $155.0 mid=$47.97 ask=$50.85, Short $160.0 mid=$42.97 bid=$40.39
+    Artificial prices: Long $160.0 mid=$42.97 ask=$45.55, Short $165.0 mid=$37.97 bid=$35.79
+    Artificial prices: Long $165.0 mid=$37.97 ask=$40.14, Short $170.0 mid=$32.97 bid=$31.24
+    Artificial prices: Long $170.0 mid=$32.97 ask=$34.69, Short $175.0 mid=$27.97 bid=$26.64
+    Artificial prices: Long $175.0 mid=$27.97 ask=$29.29, Short $180.0 mid=$22.97 bid=$21.99
+    Artificial prices: Long $180.0 mid=$22.97 ask=$23.94, Short $185.0 mid=$17.97 bid=$17.29
+    Artificial prices: Long $185.0 mid=$17.97 ask=$18.64, Short $190.0 mid=$12.97 bid=$12.54
+    Artificial prices: Long $190.0 mid=$12.97 ask=$13.39, Short $195.0 mid=$7.97 bid=$7.75
+    Artificial prices: Long $195.0 mid=$7.97 ask=$8.19, Short $200.0 mid=$2.97 bid=$2.87
+    Artificial prices: Long $200.0 mid=$2.97 ask=$3.07, Short $205.0 mid=$0.50 bid=$0.47
+    $200.0/$205.0 ($5.0 wide): Cost $2.60, ROI 92.6%
+    Artificial prices: Long $205.0 mid=$0.50 ask=$0.53, Short $210.0 mid=$0.50 bid=$0.47
+    $205.0/$210.0 ($5.0 wide): Cost $0.06, ROI 7638.1%
+    Artificial prices: Long $210.0 mid=$0.50 ask=$0.53, Short $215.0 mid=$0.50 bid=$0.46
+    $210.0/$215.0 ($5.0 wide): Cost $0.07, ROI 7089.5%
+    Artificial prices: Long $215.0 mid=$0.50 ask=$0.54, Short $220.0 mid=$0.50 bid=$0.46
+    $215.0/$220.0 ($5.0 wide): Cost $0.07, ROI 6613.6%
+    Artificial prices: Long $220.0 mid=$0.50 ask=$0.54, Short $225.0 mid=$0.50 bid=$0.46
+    $220.0/$225.0 ($5.0 wide): Cost $0.08, ROI 6196.7%
+    Artificial prices: Long $225.0 mid=$0.50 ask=$0.54, Short $230.0 mid=$0.50 bid=$0.46
+    $225.0/$230.0 ($5.0 wide): Cost $0.08, ROI 5828.6%
+    Artificial prices: Long $230.0 mid=$0.50 ask=$0.54, Short $235.0 mid=$0.50 bid=$0.45
+    $230.0/$235.0 ($5.0 wide): Cost $0.09, ROI 5501.2%
+    Artificial prices: Long $235.0 mid=$0.50 ask=$0.55, Short $240.0 mid=$0.50 bid=$0.45
+    $235.0/$240.0 ($5.0 wide): Cost $0.09, ROI 5208.0%
+    Artificial prices: Long $240.0 mid=$0.50 ask=$0.55, Short $245.0 mid=$0.50 bid=$0.45
+    $240.0/$245.0 ($5.0 wide): Cost $0.10, ROI 4984.8%
+    Artificial prices: Long $245.0 mid=$0.50 ask=$0.55, Short $250.0 mid=$0.50 bid=$0.45
+    $245.0/$250.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $250.0 mid=$0.50 ask=$0.55, Short $255.0 mid=$0.50 bid=$0.45
+    $250.0/$255.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $255.0 mid=$0.50 ask=$0.55, Short $260.0 mid=$0.50 bid=$0.45
+    $255.0/$260.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $260.0 mid=$0.50 ask=$0.55, Short $265.0 mid=$0.50 bid=$0.45
+    $260.0/$265.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $265.0 mid=$0.50 ask=$0.55, Short $270.0 mid=$0.50 bid=$0.45
+    $265.0/$270.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $270.0 mid=$0.50 ask=$0.55, Short $275.0 mid=$0.50 bid=$0.45
+    $270.0/$275.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $275.0 mid=$0.50 ask=$0.55, Short $280.0 mid=$0.50 bid=$0.45
+    $275.0/$280.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $280.0 mid=$0.50 ask=$0.55, Short $285.0 mid=$0.50 bid=$0.45
+    $280.0/$285.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $285.0 mid=$0.50 ask=$0.55, Short $290.0 mid=$0.50 bid=$0.45
+    $285.0/$290.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $290.0 mid=$0.50 ask=$0.55, Short $295.0 mid=$0.50 bid=$0.45
+    $290.0/$295.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $295.0 mid=$0.50 ask=$0.55, Short $300.0 mid=$0.50 bid=$0.45
+    $295.0/$300.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $300.0 mid=$0.50 ask=$0.55, Short $305.0 mid=$0.50 bid=$0.45
+    $300.0/$305.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $305.0 mid=$0.50 ask=$0.55, Short $310.0 mid=$0.50 bid=$0.45
+    $305.0/$310.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $310.0 mid=$0.50 ask=$0.55, Short $315.0 mid=$0.50 bid=$0.45
+    $310.0/$315.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $315.0 mid=$0.50 ask=$0.55, Short $320.0 mid=$0.50 bid=$0.45
+    $315.0/$320.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $320.0 mid=$0.50 ask=$0.55, Short $325.0 mid=$0.50 bid=$0.45
+    $320.0/$325.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Found 0 viable spreads from 42 checked
+  No viable spreads found for passive at 35 DTE
+  EVALUATING PASSIVE for expiration 2025-07-11 (35 DTE)
+  Available strikes: [110.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0, 155.0, 160.0]...
+    Looking for debit spreads with ROI 8-20% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    Artificial prices: Long $110.0 mid=$92.97 ask=$98.55, Short $120.0 mid=$82.97 bid=$77.99
+    Artificial prices: Long $120.0 mid=$82.97 ask=$87.95, Short $125.0 mid=$77.97 bid=$73.29
+    Artificial prices: Long $125.0 mid=$77.97 ask=$82.65, Short $130.0 mid=$72.97 bid=$68.59
+    Artificial prices: Long $130.0 mid=$72.97 ask=$77.35, Short $135.0 mid=$67.97 bid=$63.89
+    Artificial prices: Long $135.0 mid=$67.97 ask=$72.05, Short $140.0 mid=$62.97 bid=$59.19
+    Artificial prices: Long $140.0 mid=$62.97 ask=$66.75, Short $145.0 mid=$57.97 bid=$54.49
+    Artificial prices: Long $145.0 mid=$57.97 ask=$61.45, Short $150.0 mid=$52.97 bid=$49.79
+    Artificial prices: Long $150.0 mid=$52.97 ask=$56.15, Short $155.0 mid=$47.97 bid=$45.09
+    Artificial prices: Long $155.0 mid=$47.97 ask=$50.85, Short $160.0 mid=$42.97 bid=$40.39
+    Artificial prices: Long $160.0 mid=$42.97 ask=$45.55, Short $165.0 mid=$37.97 bid=$35.79
+    Artificial prices: Long $165.0 mid=$37.97 ask=$40.14, Short $170.0 mid=$32.97 bid=$31.24
+    Artificial prices: Long $170.0 mid=$32.97 ask=$34.69, Short $175.0 mid=$27.97 bid=$26.64
+    Artificial prices: Long $175.0 mid=$27.97 ask=$29.29, Short $180.0 mid=$22.97 bid=$21.99
+    Artificial prices: Long $180.0 mid=$22.97 ask=$23.94, Short $185.0 mid=$17.97 bid=$17.29
+    Artificial prices: Long $185.0 mid=$17.97 ask=$18.64, Short $190.0 mid=$12.97 bid=$12.54
+    Artificial prices: Long $190.0 mid=$12.97 ask=$13.39, Short $195.0 mid=$7.97 bid=$7.75
+    Artificial prices: Long $195.0 mid=$7.97 ask=$8.19, Short $200.0 mid=$2.97 bid=$2.87
+    Artificial prices: Long $200.0 mid=$2.97 ask=$3.07, Short $205.0 mid=$0.50 bid=$0.47
+    $200.0/$205.0 ($5.0 wide): Cost $2.60, ROI 92.6%
+    Artificial prices: Long $205.0 mid=$0.50 ask=$0.53, Short $210.0 mid=$0.50 bid=$0.47
+    $205.0/$210.0 ($5.0 wide): Cost $0.06, ROI 7638.1%
+    Artificial prices: Long $210.0 mid=$0.50 ask=$0.53, Short $215.0 mid=$0.50 bid=$0.46
+    $210.0/$215.0 ($5.0 wide): Cost $0.07, ROI 7089.5%
+    Artificial prices: Long $215.0 mid=$0.50 ask=$0.54, Short $220.0 mid=$0.50 bid=$0.46
+    $215.0/$220.0 ($5.0 wide): Cost $0.07, ROI 6613.6%
+    Artificial prices: Long $220.0 mid=$0.50 ask=$0.54, Short $225.0 mid=$0.50 bid=$0.46
+    $220.0/$225.0 ($5.0 wide): Cost $0.08, ROI 6196.7%
+    Artificial prices: Long $225.0 mid=$0.50 ask=$0.54, Short $230.0 mid=$0.50 bid=$0.46
+    $225.0/$230.0 ($5.0 wide): Cost $0.08, ROI 5828.6%
+    Artificial prices: Long $230.0 mid=$0.50 ask=$0.54, Short $235.0 mid=$0.50 bid=$0.45
+    $230.0/$235.0 ($5.0 wide): Cost $0.09, ROI 5501.2%
+    Artificial prices: Long $235.0 mid=$0.50 ask=$0.55, Short $240.0 mid=$0.50 bid=$0.45
+    $235.0/$240.0 ($5.0 wide): Cost $0.09, ROI 5208.0%
+    Artificial prices: Long $240.0 mid=$0.50 ask=$0.55, Short $245.0 mid=$0.50 bid=$0.45
+    $240.0/$245.0 ($5.0 wide): Cost $0.10, ROI 4984.8%
+    Artificial prices: Long $245.0 mid=$0.50 ask=$0.55, Short $250.0 mid=$0.50 bid=$0.45
+    $245.0/$250.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $250.0 mid=$0.50 ask=$0.55, Short $255.0 mid=$0.50 bid=$0.45
+    $250.0/$255.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $255.0 mid=$0.50 ask=$0.55, Short $260.0 mid=$0.50 bid=$0.45
+    $255.0/$260.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $260.0 mid=$0.50 ask=$0.55, Short $265.0 mid=$0.50 bid=$0.45
+    $260.0/$265.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $265.0 mid=$0.50 ask=$0.55, Short $270.0 mid=$0.50 bid=$0.45
+    $265.0/$270.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $270.0 mid=$0.50 ask=$0.55, Short $275.0 mid=$0.50 bid=$0.45
+    $270.0/$275.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $275.0 mid=$0.50 ask=$0.55, Short $280.0 mid=$0.50 bid=$0.45
+    $275.0/$280.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $280.0 mid=$0.50 ask=$0.55, Short $285.0 mid=$0.50 bid=$0.45
+    $280.0/$285.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $285.0 mid=$0.50 ask=$0.55, Short $290.0 mid=$0.50 bid=$0.45
+    $285.0/$290.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $290.0 mid=$0.50 ask=$0.55, Short $295.0 mid=$0.50 bid=$0.45
+    $290.0/$295.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $295.0 mid=$0.50 ask=$0.55, Short $300.0 mid=$0.50 bid=$0.45
+    $295.0/$300.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $300.0 mid=$0.50 ask=$0.55, Short $305.0 mid=$0.50 bid=$0.45
+    $300.0/$305.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $305.0 mid=$0.50 ask=$0.55, Short $310.0 mid=$0.50 bid=$0.45
+    $305.0/$310.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $310.0 mid=$0.50 ask=$0.55, Short $315.0 mid=$0.50 bid=$0.45
+    $310.0/$315.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $315.0 mid=$0.50 ask=$0.55, Short $320.0 mid=$0.50 bid=$0.45
+    $315.0/$320.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $320.0 mid=$0.50 ask=$0.55, Short $325.0 mid=$0.50 bid=$0.45
+    $320.0/$325.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Found 0 viable spreads from 42 checked
+  No viable spreads found for passive at 35 DTE
+  EVALUATING PASSIVE for expiration 2025-07-18 (42 DTE)
+  Available strikes: [90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0]...
+    Looking for debit spreads with ROI 8-20% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    Artificial prices: Long $90.0 mid=$112.98 ask=$119.76, Short $95.0 mid=$107.98 bid=$101.50
+    Artificial prices: Long $95.0 mid=$107.98 ask=$114.46, Short $100.0 mid=$102.98 bid=$96.80
+    Artificial prices: Long $100.0 mid=$102.98 ask=$109.16, Short $105.0 mid=$97.98 bid=$92.10
+    Artificial prices: Long $105.0 mid=$97.98 ask=$103.86, Short $110.0 mid=$92.98 bid=$87.40
+    Artificial prices: Long $110.0 mid=$92.98 ask=$98.56, Short $115.0 mid=$87.98 bid=$82.70
+    Artificial prices: Long $115.0 mid=$87.98 ask=$93.26, Short $120.0 mid=$82.98 bid=$78.00
+    Artificial prices: Long $120.0 mid=$82.98 ask=$87.96, Short $125.0 mid=$77.98 bid=$73.30
+    Artificial prices: Long $125.0 mid=$77.98 ask=$82.66, Short $130.0 mid=$72.98 bid=$68.60
+    Artificial prices: Long $130.0 mid=$72.98 ask=$77.36, Short $135.0 mid=$67.98 bid=$63.90
+    Artificial prices: Long $135.0 mid=$67.98 ask=$72.06, Short $140.0 mid=$62.98 bid=$59.20
+    Artificial prices: Long $140.0 mid=$62.98 ask=$66.76, Short $145.0 mid=$57.98 bid=$54.50
+    Artificial prices: Long $145.0 mid=$57.98 ask=$61.46, Short $150.0 mid=$52.98 bid=$49.80
+    Artificial prices: Long $150.0 mid=$52.98 ask=$56.16, Short $155.0 mid=$47.98 bid=$45.10
+    Artificial prices: Long $155.0 mid=$47.98 ask=$50.86, Short $160.0 mid=$42.98 bid=$40.40
+    Artificial prices: Long $160.0 mid=$42.98 ask=$45.56, Short $165.0 mid=$37.98 bid=$35.81
+    Artificial prices: Long $165.0 mid=$37.98 ask=$40.16, Short $170.0 mid=$32.98 bid=$31.25
+    Artificial prices: Long $170.0 mid=$32.98 ask=$34.71, Short $175.0 mid=$27.98 bid=$26.65
+    Artificial prices: Long $175.0 mid=$27.98 ask=$29.31, Short $180.0 mid=$22.98 bid=$22.01
+    Artificial prices: Long $180.0 mid=$22.98 ask=$23.96, Short $185.0 mid=$17.98 bid=$17.31
+    Artificial prices: Long $185.0 mid=$17.98 ask=$18.66, Short $190.0 mid=$12.98 bid=$12.56
+    Artificial prices: Long $190.0 mid=$12.98 ask=$13.41, Short $195.0 mid=$7.98 bid=$7.76
+    Artificial prices: Long $195.0 mid=$7.98 ask=$8.20, Short $200.0 mid=$2.98 bid=$2.88
+    Artificial prices: Long $200.0 mid=$2.98 ask=$3.08, Short $205.0 mid=$0.50 bid=$0.47
+    $200.0/$205.0 ($5.0 wide): Cost $2.61, ROI 91.5%
+    Artificial prices: Long $205.0 mid=$0.50 ask=$0.53, Short $210.0 mid=$0.50 bid=$0.47
+    $205.0/$210.0 ($5.0 wide): Cost $0.06, ROI 7638.1%
+    Artificial prices: Long $210.0 mid=$0.50 ask=$0.53, Short $215.0 mid=$0.50 bid=$0.46
+    $210.0/$215.0 ($5.0 wide): Cost $0.07, ROI 7089.5%
+    Artificial prices: Long $215.0 mid=$0.50 ask=$0.54, Short $220.0 mid=$0.50 bid=$0.46
+    $215.0/$220.0 ($5.0 wide): Cost $0.07, ROI 6613.6%
+    Artificial prices: Long $220.0 mid=$0.50 ask=$0.54, Short $225.0 mid=$0.50 bid=$0.46
+    $220.0/$225.0 ($5.0 wide): Cost $0.08, ROI 6196.7%
+    Artificial prices: Long $225.0 mid=$0.50 ask=$0.54, Short $230.0 mid=$0.50 bid=$0.46
+    $225.0/$230.0 ($5.0 wide): Cost $0.08, ROI 5828.6%
+    Artificial prices: Long $230.0 mid=$0.50 ask=$0.54, Short $235.0 mid=$0.50 bid=$0.45
+    $230.0/$235.0 ($5.0 wide): Cost $0.09, ROI 5501.2%
+    Artificial prices: Long $235.0 mid=$0.50 ask=$0.55, Short $240.0 mid=$0.50 bid=$0.45
+    $235.0/$240.0 ($5.0 wide): Cost $0.09, ROI 5208.0%
+    Artificial prices: Long $240.0 mid=$0.50 ask=$0.55, Short $245.0 mid=$0.50 bid=$0.45
+    $240.0/$245.0 ($5.0 wide): Cost $0.10, ROI 4984.8%
+    Artificial prices: Long $245.0 mid=$0.50 ask=$0.55, Short $250.0 mid=$0.50 bid=$0.45
+    $245.0/$250.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $250.0 mid=$0.50 ask=$0.55, Short $255.0 mid=$0.50 bid=$0.45
+    $250.0/$255.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $255.0 mid=$0.50 ask=$0.55, Short $260.0 mid=$0.50 bid=$0.45
+    $255.0/$260.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $260.0 mid=$0.50 ask=$0.55, Short $265.0 mid=$0.50 bid=$0.45
+    $260.0/$265.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $265.0 mid=$0.50 ask=$0.55, Short $270.0 mid=$0.50 bid=$0.45
+    $265.0/$270.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $270.0 mid=$0.50 ask=$0.55, Short $275.0 mid=$0.50 bid=$0.45
+    $270.0/$275.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $275.0 mid=$0.50 ask=$0.55, Short $280.0 mid=$0.50 bid=$0.45
+    $275.0/$280.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $280.0 mid=$0.50 ask=$0.55, Short $285.0 mid=$0.50 bid=$0.45
+    $280.0/$285.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $285.0 mid=$0.50 ask=$0.55, Short $290.0 mid=$0.50 bid=$0.45
+    $285.0/$290.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $290.0 mid=$0.50 ask=$0.55, Short $295.0 mid=$0.50 bid=$0.45
+    $290.0/$295.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $295.0 mid=$0.50 ask=$0.55, Short $300.0 mid=$0.50 bid=$0.45
+    $295.0/$300.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $300.0 mid=$0.50 ask=$0.55, Short $305.0 mid=$0.50 bid=$0.45
+    $300.0/$305.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $305.0 mid=$0.50 ask=$0.55, Short $310.0 mid=$0.50 bid=$0.45
+    $305.0/$310.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $310.0 mid=$0.50 ask=$0.55, Short $315.0 mid=$0.50 bid=$0.45
+    $310.0/$315.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $315.0 mid=$0.50 ask=$0.55, Short $320.0 mid=$0.50 bid=$0.45
+    $315.0/$320.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $320.0 mid=$0.50 ask=$0.55, Short $325.0 mid=$0.50 bid=$0.45
+    $320.0/$325.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $325.0 mid=$0.50 ask=$0.55, Short $330.0 mid=$0.50 bid=$0.45
+    $325.0/$330.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $330.0 mid=$0.50 ask=$0.55, Short $340.0 mid=$0.50 bid=$0.45
+    $330.0/$340.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $340.0 mid=$0.50 ask=$0.55, Short $350.0 mid=$0.50 bid=$0.45
+    $340.0/$350.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $350.0 mid=$0.50 ask=$0.55, Short $360.0 mid=$0.50 bid=$0.45
+    $350.0/$360.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $360.0 mid=$0.50 ask=$0.55, Short $370.0 mid=$0.50 bid=$0.45
+    $360.0/$370.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $370.0 mid=$0.50 ask=$0.55, Short $380.0 mid=$0.50 bid=$0.45
+    $370.0/$380.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $380.0 mid=$0.50 ask=$0.55, Short $390.0 mid=$0.50 bid=$0.45
+    $380.0/$390.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $390.0 mid=$0.50 ask=$0.55, Short $400.0 mid=$0.50 bid=$0.45
+    $390.0/$400.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Found 0 viable spreads from 55 checked
+  No viable spreads found for passive at 42 DTE
+  EVALUATING PASSIVE for expiration 2025-07-18 (42 DTE)
+  Available strikes: [90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0]...
+    Looking for debit spreads with ROI 8-20% using actual market intervals ($0.50, $1, $2.50, $5, $10)...
+    Artificial prices: Long $90.0 mid=$112.98 ask=$119.76, Short $95.0 mid=$107.98 bid=$101.50
+    Artificial prices: Long $95.0 mid=$107.98 ask=$114.46, Short $100.0 mid=$102.98 bid=$96.80
+    Artificial prices: Long $100.0 mid=$102.98 ask=$109.16, Short $105.0 mid=$97.98 bid=$92.10
+    Artificial prices: Long $105.0 mid=$97.98 ask=$103.86, Short $110.0 mid=$92.98 bid=$87.40
+    Artificial prices: Long $110.0 mid=$92.98 ask=$98.56, Short $115.0 mid=$87.98 bid=$82.70
+    Artificial prices: Long $115.0 mid=$87.98 ask=$93.26, Short $120.0 mid=$82.98 bid=$78.00
+    Artificial prices: Long $120.0 mid=$82.98 ask=$87.96, Short $125.0 mid=$77.98 bid=$73.30
+    Artificial prices: Long $125.0 mid=$77.98 ask=$82.66, Short $130.0 mid=$72.98 bid=$68.60
+    Artificial prices: Long $130.0 mid=$72.98 ask=$77.36, Short $135.0 mid=$67.98 bid=$63.90
+    Artificial prices: Long $135.0 mid=$67.98 ask=$72.06, Short $140.0 mid=$62.98 bid=$59.20
+    Artificial prices: Long $140.0 mid=$62.98 ask=$66.76, Short $145.0 mid=$57.98 bid=$54.50
+    Artificial prices: Long $145.0 mid=$57.98 ask=$61.46, Short $150.0 mid=$52.98 bid=$49.80
+    Artificial prices: Long $150.0 mid=$52.98 ask=$56.16, Short $155.0 mid=$47.98 bid=$45.10
+    Artificial prices: Long $155.0 mid=$47.98 ask=$50.86, Short $160.0 mid=$42.98 bid=$40.40
+    Artificial prices: Long $160.0 mid=$42.98 ask=$45.56, Short $165.0 mid=$37.98 bid=$35.81
+    Artificial prices: Long $165.0 mid=$37.98 ask=$40.16, Short $170.0 mid=$32.98 bid=$31.25
+    Artificial prices: Long $170.0 mid=$32.98 ask=$34.71, Short $175.0 mid=$27.98 bid=$26.65
+    Artificial prices: Long $175.0 mid=$27.98 ask=$29.31, Short $180.0 mid=$22.98 bid=$22.01
+    Artificial prices: Long $180.0 mid=$22.98 ask=$23.96, Short $185.0 mid=$17.98 bid=$17.31
+    Artificial prices: Long $185.0 mid=$17.98 ask=$18.66, Short $190.0 mid=$12.98 bid=$12.56
+    Artificial prices: Long $190.0 mid=$12.98 ask=$13.41, Short $195.0 mid=$7.98 bid=$7.76
+    Artificial prices: Long $195.0 mid=$7.98 ask=$8.20, Short $200.0 mid=$2.98 bid=$2.88
+    Artificial prices: Long $200.0 mid=$2.98 ask=$3.08, Short $205.0 mid=$0.50 bid=$0.47
+    $200.0/$205.0 ($5.0 wide): Cost $2.61, ROI 91.5%
+    Artificial prices: Long $205.0 mid=$0.50 ask=$0.53, Short $210.0 mid=$0.50 bid=$0.47
+    $205.0/$210.0 ($5.0 wide): Cost $0.06, ROI 7638.1%
+    Artificial prices: Long $210.0 mid=$0.50 ask=$0.53, Short $215.0 mid=$0.50 bid=$0.46
+    $210.0/$215.0 ($5.0 wide): Cost $0.07, ROI 7089.5%
+    Artificial prices: Long $215.0 mid=$0.50 ask=$0.54, Short $220.0 mid=$0.50 bid=$0.46
+    $215.0/$220.0 ($5.0 wide): Cost $0.07, ROI 6613.6%
+    Artificial prices: Long $220.0 mid=$0.50 ask=$0.54, Short $225.0 mid=$0.50 bid=$0.46
+    $220.0/$225.0 ($5.0 wide): Cost $0.08, ROI 6196.7%
+    Artificial prices: Long $225.0 mid=$0.50 ask=$0.54, Short $230.0 mid=$0.50 bid=$0.46
+    $225.0/$230.0 ($5.0 wide): Cost $0.08, ROI 5828.6%
+    Artificial prices: Long $230.0 mid=$0.50 ask=$0.54, Short $235.0 mid=$0.50 bid=$0.45
+    $230.0/$235.0 ($5.0 wide): Cost $0.09, ROI 5501.2%
+    Artificial prices: Long $235.0 mid=$0.50 ask=$0.55, Short $240.0 mid=$0.50 bid=$0.45
+    $235.0/$240.0 ($5.0 wide): Cost $0.09, ROI 5208.0%
+    Artificial prices: Long $240.0 mid=$0.50 ask=$0.55, Short $245.0 mid=$0.50 bid=$0.45
+    $240.0/$245.0 ($5.0 wide): Cost $0.10, ROI 4984.8%
+    Artificial prices: Long $245.0 mid=$0.50 ask=$0.55, Short $250.0 mid=$0.50 bid=$0.45
+    $245.0/$250.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $250.0 mid=$0.50 ask=$0.55, Short $255.0 mid=$0.50 bid=$0.45
+    $250.0/$255.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $255.0 mid=$0.50 ask=$0.55, Short $260.0 mid=$0.50 bid=$0.45
+    $255.0/$260.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $260.0 mid=$0.50 ask=$0.55, Short $265.0 mid=$0.50 bid=$0.45
+    $260.0/$265.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $265.0 mid=$0.50 ask=$0.55, Short $270.0 mid=$0.50 bid=$0.45
+    $265.0/$270.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $270.0 mid=$0.50 ask=$0.55, Short $275.0 mid=$0.50 bid=$0.45
+    $270.0/$275.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $275.0 mid=$0.50 ask=$0.55, Short $280.0 mid=$0.50 bid=$0.45
+    $275.0/$280.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $280.0 mid=$0.50 ask=$0.55, Short $285.0 mid=$0.50 bid=$0.45
+    $280.0/$285.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $285.0 mid=$0.50 ask=$0.55, Short $290.0 mid=$0.50 bid=$0.45
+    $285.0/$290.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $290.0 mid=$0.50 ask=$0.55, Short $295.0 mid=$0.50 bid=$0.45
+    $290.0/$295.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $295.0 mid=$0.50 ask=$0.55, Short $300.0 mid=$0.50 bid=$0.45
+    $295.0/$300.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $300.0 mid=$0.50 ask=$0.55, Short $305.0 mid=$0.50 bid=$0.45
+    $300.0/$305.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $305.0 mid=$0.50 ask=$0.55, Short $310.0 mid=$0.50 bid=$0.45
+    $305.0/$310.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $310.0 mid=$0.50 ask=$0.55, Short $315.0 mid=$0.50 bid=$0.45
+    $310.0/$315.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $315.0 mid=$0.50 ask=$0.55, Short $320.0 mid=$0.50 bid=$0.45
+    $315.0/$320.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $320.0 mid=$0.50 ask=$0.55, Short $325.0 mid=$0.50 bid=$0.45
+    $320.0/$325.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $325.0 mid=$0.50 ask=$0.55, Short $330.0 mid=$0.50 bid=$0.45
+    $325.0/$330.0 ($5.0 wide): Cost $0.10, ROI 4900.0%
+    Artificial prices: Long $330.0 mid=$0.50 ask=$0.55, Short $340.0 mid=$0.50 bid=$0.45
+    $330.0/$340.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $340.0 mid=$0.50 ask=$0.55, Short $350.0 mid=$0.50 bid=$0.45
+    $340.0/$350.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $350.0 mid=$0.50 ask=$0.55, Short $360.0 mid=$0.50 bid=$0.45
+    $350.0/$360.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $360.0 mid=$0.50 ask=$0.55, Short $370.0 mid=$0.50 bid=$0.45
+    $360.0/$370.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $370.0 mid=$0.50 ask=$0.55, Short $380.0 mid=$0.50 bid=$0.45
+    $370.0/$380.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $380.0 mid=$0.50 ask=$0.55, Short $390.0 mid=$0.50 bid=$0.45
+    $380.0/$390.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Artificial prices: Long $390.0 mid=$0.50 ask=$0.55, Short $400.0 mid=$0.50 bid=$0.45
+    $390.0/$400.0 ($10.0 wide): Cost $0.10, ROI 9900.0%
+    Found 0 viable spreads from 55 checked
+  No viable spreads found for passive at 42 DTE
+Could not find suitable strikes for any strategy for AAPL
