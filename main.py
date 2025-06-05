@@ -1465,13 +1465,14 @@ def create_step4_demo_data(symbol, strategy, current_price):
                     <thead>
                         <tr>
                             <th>Change</th>
-                            <th>-7.5%</th>
-                            <th>-5%</th>
-                            <th>-2.5%</th>
+                            <th>-2%</th>
+                            <th>-1%</th>
+                            <th>-0.5%</th>
                             <th>0%</th>
-                            <th>+2.5%</th>
-                            <th>+5%</th>
-                            <th>+7.5%</th>
+                            <th>+0.5%</th>
+                            <th>+1%</th>
+                            <th>+2%</th>
+                            <th>>5%</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2610,7 +2611,7 @@ def step4(symbol, strategy, option_id, short_strike=None):
     # Generate scenario analysis using the REAL current stock price from database
     # Following the exact methodology from your comprehensive guide
     scenarios = []
-    changes = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
+    changes = [-2, -1, -0.5, 0, 0.5, 1, 2, 5]
     
     print(f"Calculating scenarios with REAL current price: ${current_price:.2f}")
     print(f"Spread cost: ${spread_cost:.2f}, Max profit potential: ${max_profit:.2f}")
@@ -2869,13 +2870,14 @@ def step4(symbol, strategy, option_id, short_strike=None):
             <div class="scenarios-grid">
                 <div class="scenario-header-row">
                     <div class="scenario-cell-label">Change</div>
-                    <div class="scenario-header-cell">-7.5%</div>
-                    <div class="scenario-header-cell">-5%</div>
-                    <div class="scenario-header-cell">-2.5%</div>
+                    <div class="scenario-header-cell">-2%</div>
+                    <div class="scenario-header-cell">-1%</div>
+                    <div class="scenario-header-cell">-0.5%</div>
                     <div class="scenario-header-cell">0%</div>
-                    <div class="scenario-header-cell">+2.5%</div>
-                    <div class="scenario-header-cell">+5%</div>
-                    <div class="scenario-header-cell">+7.5%</div>
+                    <div class="scenario-header-cell">+0.5%</div>
+                    <div class="scenario-header-cell">+1%</div>
+                    <div class="scenario-header-cell">+2%</div>
+                    <div class="scenario-header-cell">>5%</div>
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Stock Price</div>
