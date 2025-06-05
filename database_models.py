@@ -114,8 +114,19 @@ class ETFDatabase:
                 'data_age_hours': 0
             })
             
-            # Handle empty string values in avg_volume_10d column
+            # Handle empty string values and comma-separated numbers in avg_volume_10d column
             df['avg_volume_10d'] = df['avg_volume_10d'].replace('', 0)
+            
+            # Clean comma-separated numbers (e.g., "25,486,789" -> 25486789)
+            def clean_volume(value):
+                if pd.isna(value) or value == '':
+                    return 0
+                if isinstance(value, str):
+                    # Remove commas and convert to int
+                    return int(value.replace(',', ''))
+                return int(value)
+            
+            df['avg_volume_10d'] = df['avg_volume_10d'].apply(clean_volume)
             
             for _, row in df.iterrows():
                 cursor.execute('''
