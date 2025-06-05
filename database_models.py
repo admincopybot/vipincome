@@ -14,6 +14,14 @@ class ETFDatabase:
         self.db_path = db_path
         self.init_database()
     
+    def _convert_bool(self, value):
+        """Convert string boolean values from CSV to actual booleans"""
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() in ('true', 't', '1', 'yes')
+        return bool(value)
+    
     def init_database(self):
         """Initialize database matching exact CSV format"""
         conn = sqlite3.connect(self.db_path)
@@ -122,23 +130,23 @@ class ETFDatabase:
                     float(row['current_price']),
                     int(row['total_score']),
                     int(row['avg_volume_10d']),
-                    bool(row['trend1_pass']),
+                    self._convert_bool(row['trend1_pass']),
                     float(row['trend1_current']),
                     float(row['trend1_threshold']),
                     str(row['trend1_description']),
-                    bool(row['trend2_pass']),
+                    self._convert_bool(row['trend2_pass']),
                     float(row['trend2_current']),
                     float(row['trend2_threshold']),
                     str(row['trend2_description']),
-                    bool(row['snapback_pass']),
+                    self._convert_bool(row['snapback_pass']),
                     float(row['snapback_current']),
                     float(row['snapback_threshold']),
                     str(row['snapback_description']),
-                    bool(row['momentum_pass']),
+                    self._convert_bool(row['momentum_pass']),
                     float(row['momentum_current']),
                     float(row['momentum_threshold']),
                     str(row['momentum_description']),
-                    bool(row['stabilizing_pass']),
+                    self._convert_bool(row['stabilizing_pass']),
                     float(row['stabilizing_current']),
                     float(row['stabilizing_threshold']),
                     str(row['stabilizing_description']),
