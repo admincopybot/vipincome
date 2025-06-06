@@ -77,26 +77,18 @@ class ETFDatabase:
         logger.info("Database initialized with CSV format and trading volume support")
     
     def upload_csv_data(self, csv_content):
-        """Upload ETF data from CSV - completely wipe and refresh"""
+        """Upload ETF data from CSV - SIMPLE: DELETE ALL THEN INSERT NEW"""
         try:
             import io
             df = pd.read_csv(io.StringIO(csv_content))
             
+            # Step 1: DELETE ALL RECORDS IMMEDIATELY
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
-            
-            # CRITICAL: Complete database wipe and reset
-            logger.info("Performing complete database wipe...")
             cursor.execute('DELETE FROM etf_scores')
-            cursor.execute('DELETE FROM last_update')
+            cursor.execute('DELETE FROM last_update') 
             conn.commit()
-            conn.close()
-            
-            # VACUUM outside transaction
-            conn = sqlite3.connect(self.db_path)
-            conn.execute('VACUUM')
-            cursor = conn.cursor()
-            logger.info("Database completely wiped and reset")
+            logger.info(f"SIMPLE WIPE: Deleted all records, now inserting {len(df)} new records")
             
             updated_count = 0
             

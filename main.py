@@ -126,20 +126,26 @@ def load_etf_data_from_database():
     except Exception as e:
         logger.error(f"Error loading ETF data from database: {str(e)}")
 
-# Load initial data from database
+# Initialize empty scores - load from database immediately
 etf_scores = {}
-load_etf_data_from_database()
+
+# Try to load from database on startup
+try:
+    load_etf_data_from_database()
+except:
+    pass
+
+# Default ETF structure for fallback
+default_indicators = {
+    'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 20-day EMA'},
+    'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 100-day EMA'},
+    'snapback': {'pass': False, 'current': 0, 'threshold': 50, 'description': 'RSI < 50'},
+    'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > Previous Week Close'},
+    'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': '3-day ATR < 6-day ATR'}
+}
 
 # Initialize with default ETF structure if database is empty
 if not etf_scores:
-    default_indicators = {
-        'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 20-day EMA'},
-        'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > 100-day EMA'},
-        'snapback': {'pass': False, 'current': 0, 'threshold': 50, 'description': 'RSI < 50'},
-        'momentum': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'Price > Previous Week Close'},
-        'stabilizing': {'pass': False, 'current': 0, 'threshold': 0, 'description': '3-day ATR < 6-day ATR'}
-    }
-
     etf_scores = {
         "XLC": {"name": "Communication Services", "score": 0, "price": 0, "indicators": default_indicators.copy()},
         "XLF": {"name": "Financial", "score": 0, "price": 0, "indicators": default_indicators.copy()},
@@ -5220,21 +5226,15 @@ def upload_csv():
         db = ETFDatabase()
         db.upload_csv_data(csv_content)
         
-        # CRITICAL: Force complete application refresh after database wipe
-        global last_csv_update, etf_scores, etf_db
+        # SIMPLE REFRESH: Clear cache and reload from database
+        global last_csv_update, etf_scores
         last_csv_update = datetime.now()
         
-        # Completely clear all cached data
+        # Clear all cached data immediately
         etf_scores = {}
         
-        # Reinitialize database connection to ensure clean state
-        etf_db = ETFDatabase()
-        
-        # Force complete reload from freshly updated database
+        # Reload fresh data from database
         load_etf_data_from_database()
-        
-        # Clear CSV loader cache as well
-        csv_loader.get_etf_data(force_refresh=True)
         
         logger.info(f"SCOREBOARD REFRESH: Successfully loaded {len(etf_scores)} symbols after CSV upload")
         

@@ -1,0 +1,124 @@
+025-06-06 11:43:39.88
+9ce98b08
+System
+starting up user application
+2025-06-06 11:43:40.02
+9ce98b08
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-06-06 11:43:40.02
+9ce98b08
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-06 11:43:40.03
+9ce98b08
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-06 11:43:40.05
+9ce98b08
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-06 11:43:40.13
+9ce98b08
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-06 11:43:40.28
+9ce98b08
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-06 11:43:40.39
+9ce98b08
+User
+[2025-06-06 11:43:40 +0000] [18] [INFO] Starting gunicorn 23.0.0
+2025-06-06 11:43:40.40
+9ce98b08
+User
+[2025-06-06 11:43:40 +0000] [18] [INFO] Listening at: http://0.0.0.0:5000 (18)
+2025-06-06 11:43:40.40
+9ce98b08
+User
+[2025-06-06 11:43:40 +0000] [18] [INFO] Using worker: sync
+2025-06-06 11:43:40.40
+9ce98b08
+User
+[2025-06-06 11:43:40 +0000] [24] [INFO] Booting worker with pid: 24
+2025-06-06 11:43:40.71
+9ce98b08
+System
+error proxying request error=context canceled
+2025-06-06 11:43:41.07
+9ce98b08
+System
+error proxying request error=context canceled
+2025-06-06 11:43:41.66
+9ce98b08
+System
+error proxying request error=context canceled
+2025-06-06 11:43:42.52
+9ce98b08
+User
+INFO:database_models:Database initialized with CSV format and trading volume support
+2025-06-06 11:43:42.52
+9ce98b08
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 11:43:42.52
+9ce98b08
+User
+INFO:main:CRITERIA FIX: NVDA score=5, criteria={'trend1': True, 'trend2': True, 'snapback': True, 'momentum': True, 'stabilizing': True}
+2025-06-06 11:43:42.52
+9ce98b08
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 11:43:42.53
+9ce98b08
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 11:43:42.53
+9ce98b08
+User
+INFO:main:CRITERIA FIX: NVDA score=5, criteria={'trend1': True, 'trend2': True, 'snapback': True, 'momentum': True, 'stabilizing': True}
+2025-06-06 11:43:42.53
+9ce98b08
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 11:43:42.55
+9ce98b08
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 11:43:42.55
+9ce98b08
+User
+INFO:main:CRITERIA FIX: NVDA score=5, criteria={'trend1': True, 'trend2': True, 'snapback': True, 'momentum': True, 'stabilizing': True}
+2025-06-06 11:43:42.55
+9ce98b08
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 11:43:42.56
+9ce98b08
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 11:43:42.56
+9ce98b08
+User
+INFO:main:CRITERIA FIX: NVDA score=5, criteria={'trend1': True, 'trend2': True, 'snapback': True, 'momentum': True, 'stabilizing': True}
+2025-06-06 11:43:42.56
+9ce98b08
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 11:43:42.57
+9ce98b08
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 11:43:42.57
+9ce98b08
+User
+INFO:main:CRITERIA FIX: NVDA score=5, criteria={'trend1': True, 'trend2': True, 'snapback': True, 'momentum': True, 'stabilizing': True}
+2025-06-06 11:43:42.57
+9ce98b08
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 11:43:45.86
+9ce98b08
+User
+INFO:main:CRITERIA FIX: CPRT score=2, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': False, 'stabilizing': False}
