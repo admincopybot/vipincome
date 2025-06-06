@@ -2720,8 +2720,8 @@ def step4(symbol, strategy, spread_id):
         .scenarios-header { color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }
         .scenarios-grid { display: grid; gap: 2px; }
         .scenario-header-row { display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
-        .scenario-row { display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }
-        .scenario-cell { background: rgba(30, 41, 59, 0.9); padding: 10px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; }
+        .scenario-row { display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 3px; margin-bottom: 4px; }
+        .scenario-cell { background: rgba(30, 41, 59, 0.9); padding: 14px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; min-height: 20px; line-height: 1.3; }
         .scenario-header-cell { background: rgba(139, 92, 246, 0.2); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
         .scenario-cell-label { background: rgba(139, 92, 246, 0.3); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; font-weight: 700; border-radius: 4px; text-transform: uppercase; }
         .win { background: linear-gradient(135deg, #10b981, #059669) !important; color: #ffffff; animation: win-pulse 2s ease-in-out infinite; }
