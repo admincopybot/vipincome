@@ -59,15 +59,16 @@ def load_etf_data_from_database():
         
         # Convert database format to frontend format using new CSV structure
         for symbol, data in db_data.items():
+            criteria = data['criteria']
             total_score = data['total_score']
             
             # USE ACTUAL DATABASE CRITERIA VALUES - directly from stored CSV data
             met_criteria = {
-                'trend1': bool(data.get('trend1_pass', False)),
-                'trend2': bool(data.get('trend2_pass', False)), 
-                'snapback': bool(data.get('snapback_pass', False)),
-                'momentum': bool(data.get('momentum_pass', False)),
-                'stabilizing': bool(data.get('stabilizing_pass', False))
+                'trend1': bool(criteria['trend1']),
+                'trend2': bool(criteria['trend2']), 
+                'snapback': bool(criteria['snapback']),
+                'momentum': bool(criteria['momentum']),
+                'stabilizing': bool(criteria['stabilizing'])
             }
             
             # Criteria processed silently
@@ -2911,16 +2912,10 @@ def index():
     
     # Check if we need to force refresh based on database timestamp
     db_update_time = etf_db.get_last_update_time()
-    try:
-        from datetime import datetime
-        if db_update_time and isinstance(db_update_time, str):
-            db_time = datetime.fromisoformat(db_update_time.replace('Z', '+00:00'))
-            if db_time > last_csv_update:
-                logger.info(f"SCOREBOARD: Detected fresh database update, forcing complete refresh")
-                etf_scores = {}  # Clear cached data
-                last_csv_update = db_time
-    except (ValueError, TypeError) as e:
-        logger.debug(f"Database timestamp parsing issue: {e}")
+    if db_update_time and db_update_time > last_csv_update:
+        logger.info(f"SCOREBOARD: Detected fresh database update, forcing complete refresh")
+        etf_scores = {}  # Clear cached data
+        last_csv_update = db_update_time
     
     # Always reload from database to ensure latest data
     load_etf_data_from_database()
