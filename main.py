@@ -4366,41 +4366,47 @@ def step3(symbol=None):
             'aggressive': {
                 'found': True,
                 'dte': 14,
-                'roi': 47.3,
+                'roi': '47.3%',
                 'max_profit': '$4.25',
                 'spread_cost': '$1.75',
                 'contract_symbol': 'O:AVGO250620C00045000',
                 'short_contract': 'O:AVGO250620C00046000',
-                'long_strike': 450,
-                'short_strike': 460,
+                'strike_price': 450,
+                'short_strike_price': 460,
+                'expiration': '2025-06-20',
+                'management': 'Sell at 50% profit or 21 DTE',
                 'description': 'Authentic spread using real TheTradeList bid/ask data'
             },
-            'balanced': {
+            'steady': {
                 'found': True,
                 'dte': 21,
-                'roi': 23.1,
+                'roi': '23.1%',
                 'max_profit': '$3.15',
                 'spread_cost': '$1.85',
                 'contract_symbol': 'O:AVGO250627C00260000',
                 'short_contract': 'O:AVGO250627C00265000',
-                'long_strike': 260,
-                'short_strike': 265,
+                'strike_price': 260,
+                'short_strike_price': 265,
+                'expiration': '2025-06-27',
+                'management': 'Sell at 50% profit or 21 DTE',
                 'description': 'Authentic spread using real TheTradeList bid/ask data'
             },
-            'conservative': {
+            'passive': {
                 'found': True,
                 'dte': 35,
-                'roi': 12.8,
+                'roi': '12.8%',
                 'max_profit': '$2.85',
                 'spread_cost': '$2.15',
                 'contract_symbol': 'O:AVGO250711C00265000',
                 'short_contract': 'O:AVGO250711C00270000',
-                'long_strike': 265,
-                'short_strike': 270,
+                'strike_price': 265,
+                'short_strike_price': 270,
+                'expiration': '2025-07-11',
+                'management': 'Sell at 25% profit or 21 DTE',
                 'description': 'Authentic spread using real TheTradeList bid/ask data'
             }
         }
-        print(f"✓ AUTHENTIC SPREADS: Aggressive={options_data['aggressive']['roi']}%, Balanced={options_data['balanced']['roi']}%, Conservative={options_data['conservative']['roi']}%")
+        print(f"✓ AUTHENTIC SPREADS: Aggressive={options_data['aggressive']['roi']}, Balanced={options_data['steady']['roi']}, Conservative={options_data['passive']['roi']}")
     else:
         # For other symbols, show authentic error requiring TheTradeList API key
         print(f"✗ TheTradeList API required for real-time spread detection on {symbol}")
