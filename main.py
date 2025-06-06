@@ -2789,31 +2789,31 @@ def step4(symbol, strategy, spread_id):
         </div>
         
         <div class="spread-header">
-            <div class="expiration-info">Expiration: {{expiration_date}} ({{days_to_exp}} days)</div>
-            <div class="spread-title">${{scenario_long_strike:.2f}} / ${{scenario_short_strike:.2f}}</div>
+            <div class="expiration-info">Expiration: {{ expiration_date }} ({{ days_to_exp }} days)</div>
+            <div class="spread-title">${{ scenario_long_strike|round(2) }} / ${{ scenario_short_strike|round(2) }}</div>
             <div class="width-badge">Width: $1</div>
         </div>
         
         <div class="trade-construction">
             <div class="trade-section">
-                <div class="section-header">Buy (${{scenario_long_strike:.2f}})</div>
-                <div class="option-detail">Option ID: {{long_option_id}}</div>
-                <div class="option-detail">Price: ${{scenario_long_price:.2f}}</div>
+                <div class="section-header">Buy (${{ scenario_long_strike|round(2) }})</div>
+                <div class="option-detail">Option ID: {{ long_option_id }}</div>
+                <div class="option-detail">Price: ${{ scenario_long_price|round(2) }}</div>
             </div>
             <div class="trade-section">
-                <div class="section-header">Sell (${{scenario_short_strike:.2f}})</div>
-                <div class="option-detail">Option ID: {{short_option_id}}</div>
-                <div class="option-detail">Price: ${{scenario_short_price:.2f}}</div>
+                <div class="section-header">Sell (${{ scenario_short_strike|round(2) }})</div>
+                <div class="option-detail">Option ID: {{ short_option_id }}</div>
+                <div class="option-detail">Price: ${{ scenario_short_price|round(2) }}</div>
             </div>
             <div class="trade-section">
                 <div class="section-header">Spread Details</div>
-                <div class="option-detail">Spread Cost: ${{spread_cost:.2f}}</div>
-                <div class="option-detail">Max Value: $1.00</div>
+                <div class="option-detail">Spread Cost: ${{ spread_cost|round(2) }}</div>
+                <div class="option-detail">Max Value: ${{ max_profit|round(2) }}</div>
             </div>
             <div class="trade-section">
                 <div class="section-header">Trade Info</div>
-                <div class="option-detail">ROI: {{roi:.2f}}%</div>
-                <div class="option-detail">Breakeven: ${{breakeven:.2f}}</div>
+                <div class="option-detail">ROI: {{ roi|round(1) }}%</div>
+                <div class="option-detail">Breakeven: ${{ breakeven|round(2) }}</div>
             </div>
         </div>
         
