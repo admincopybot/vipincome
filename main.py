@@ -665,7 +665,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                 'max_profit': strategies['aggressive']['max_profit'],
                 'contract_symbol': strategies['aggressive']['contract_symbol'],
                 'management': 'Hold to expiration',
-                'strategy_title': f"Aggressive Income Strategy"
+                'strategy_title': f"Aggressive Strategy"
             }
         else:
             result['aggressive'] = {
@@ -680,7 +680,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                 'max_profit': 0,
                 'contract_symbol': 'N/A',
                 'management': 'N/A',
-                'strategy_title': 'Aggressive Income Strategy'
+                'strategy_title': 'Aggressive Strategy'
             }
             
         if 'steady' in strategies:
@@ -695,7 +695,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                 'max_profit': strategies['steady']['max_profit'],
                 'contract_symbol': strategies['steady']['contract_symbol'],
                 'management': 'Hold to expiration',
-                'strategy_title': f"Steady Income Strategy"
+                'strategy_title': f"Balanced Strategy"
             }
         else:
             result['steady'] = {
@@ -710,7 +710,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                 'max_profit': 0,
                 'contract_symbol': 'N/A',
                 'management': 'N/A',
-                'strategy_title': 'Steady Income Strategy'
+                'strategy_title': 'Balanced Strategy'
             }
             
         if 'passive' in strategies:
@@ -725,7 +725,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                 'max_profit': strategies['passive']['max_profit'],
                 'contract_symbol': strategies['passive']['contract_symbol'],
                 'management': 'Hold to expiration',
-                'strategy_title': f"Passive Income Strategy"
+                'strategy_title': f"Conservative Strategy"
             }
         else:
             result['passive'] = {
@@ -740,7 +740,7 @@ def fetch_real_options_expiration_data(symbol, current_price):
                 'max_profit': 0,
                 'contract_symbol': 'N/A',
                 'management': 'N/A',
-                'strategy_title': 'Passive Income Strategy'
+                'strategy_title': 'Conservative Strategy'
             }
             
         return result
@@ -4901,8 +4901,8 @@ def step3(symbol=None):
             <div class="strategies-grid">
                 <div class="strategy-card">
                     <div class="strategy-header">
-                        <h3 class="strategy-title">Passive Income</h3>
-                        <p class="strategy-subtitle">{{ symbol }} Passive Income Strategy</p>
+                        <h3 class="strategy-title">Conservative</h3>
+                        <p class="strategy-subtitle">{{ symbol }} Conservative Strategy</p>
                     </div>
                     
                     {% if options_data.passive.error %}
@@ -4912,7 +4912,7 @@ def step3(symbol=None):
                     {% elif not options_data.passive.found %}
                     <div class="strategy-error">
                         <div class="error-message">NO OPTIONS AVAILABLE FOR {{ symbol }} TICKER</div>
-                        <div class="error-details">No suitable options found matching passive income criteria (28-42 DTE, strikes within 10% below current price)</div>
+                        <div class="error-details">No suitable options found matching conservative criteria (28-42 DTE, strikes within 10% below current price)</div>
                     </div>
                     {% else %}
                     <div class="strategy-details">
