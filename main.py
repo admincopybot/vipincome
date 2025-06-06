@@ -4943,13 +4943,13 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}/{{ options_data.passive.short_strike_price if not options_data.passive.error else 0 }}" class="strategy-btn">Select Passive Strategy</a>
+                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}/{{ options_data.passive.short_strike_price if not options_data.passive.error else 0 }}" class="strategy-btn">Select Conservative Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
                     <div class="strategy-header">
-                        <h3 class="strategy-title">Steady Income</h3>
-                        <p class="strategy-subtitle">{{ symbol }} Steady Income Strategy</p>
+                        <h3 class="strategy-title">Balanced</h3>
+                        <p class="strategy-subtitle">{{ symbol }} Balanced Strategy</p>
                     </div>
                     
                     {% if options_data.steady.error %}
@@ -4959,7 +4959,7 @@ def step3(symbol=None):
                     {% elif not options_data.steady.found %}
                     <div class="strategy-error">
                         <div class="error-message">NO OPTIONS AVAILABLE FOR {{ symbol }} TICKER</div>
-                        <div class="error-details">No suitable options found matching steady income criteria (17-28 DTE, strikes within 2% below current price)</div>
+                        <div class="error-details">No suitable options found matching balanced criteria (17-28 DTE, strikes within 2% below current price)</div>
                     </div>
                     {% else %}
                     <div class="strategy-details">
@@ -4990,13 +4990,13 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.contract_symbol if not options_data.steady.error else 'none' }}/{{ options_data.steady.short_strike_price if not options_data.steady.error else 0 }}" class="strategy-btn">Select Steady Strategy</a>
+                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.contract_symbol if not options_data.steady.error else 'none' }}/{{ options_data.steady.short_strike_price if not options_data.steady.error else 0 }}" class="strategy-btn">Select Balanced Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
                     <div class="strategy-header">
-                        <h3 class="strategy-title">Aggressive Income</h3>
-                        <p class="strategy-subtitle">{{ symbol }} Aggressive Income Strategy</p>
+                        <h3 class="strategy-title">Aggressive</h3>
+                        <p class="strategy-subtitle">{{ symbol }} Aggressive Strategy</p>
                     </div>
                     
                     {% if options_data.aggressive.error %}
@@ -5006,7 +5006,7 @@ def step3(symbol=None):
                     {% elif not options_data.aggressive.found %}
                     <div class="strategy-error">
                         <div class="error-message">NO OPTIONS AVAILABLE FOR {{ symbol }} TICKER</div>
-                        <div class="error-details">No suitable options found matching aggressive income criteria (10-17 DTE, strikes below current price)</div>
+                        <div class="error-details">No suitable options found matching aggressive criteria (10-17 DTE, strikes below current price)</div>
                     </div>
                     {% else %}
                     <div class="strategy-details">
