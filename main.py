@@ -2912,10 +2912,16 @@ def index():
     
     # Check if we need to force refresh based on database timestamp
     db_update_time = etf_db.get_last_update_time()
-    if db_update_time and db_update_time > last_csv_update:
-        logger.info(f"SCOREBOARD: Detected fresh database update, forcing complete refresh")
-        etf_scores = {}  # Clear cached data
-        last_csv_update = db_update_time
+    try:
+        from datetime import datetime
+        if db_update_time and isinstance(db_update_time, str):
+            db_time = datetime.fromisoformat(db_update_time.replace('Z', '+00:00'))
+            if db_time > last_csv_update:
+                logger.info(f"SCOREBOARD: Detected fresh database update, forcing complete refresh")
+                etf_scores = {}  # Clear cached data
+                last_csv_update = db_time
+    except (ValueError, TypeError) as e:
+        logger.debug(f"Database timestamp parsing issue: {e}")
     
     # Always reload from database to ensure latest data
     load_etf_data_from_database()
