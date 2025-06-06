@@ -4252,20 +4252,33 @@ def step3(symbol=None):
     
     print(f"\n=== STEP 3 REAL-TIME SPREAD DETECTION FOR {symbol} ===")
     
-    # Get REAL current stock price from CSV database (no fallbacks)
-    etf_data = etf_db.get_all_etfs()
-    current_price = None
-    
-    # Find current price from authentic CSV data
-    for etf_symbol, etf_info in etf_data.items():
-        if etf_symbol == symbol:
-            current_price = etf_info['current_price']
-            print(f"✓ AUTHENTIC PRICE: {symbol} = ${current_price:.2f} (from CSV data)")
-            break
-    
-    if not current_price:
-        print(f"✗ ERROR: No authentic price data found for {symbol}")
-        return f"Error: No price data available for {symbol}. Please upload CSV with this symbol."
+    # Get REAL current stock price from Polygon API (no CSV data)
+    try:
+        import requests
+        import os
+        
+        polygon_api_key = os.environ.get('POLYGON_API_KEY')
+        if not polygon_api_key:
+            return f"Error: Polygon API key required for real-time price data"
+        
+        # Fetch current stock price from Polygon
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/prev"
+        params = {'apikey': polygon_api_key}
+        
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('results') and len(data['results']) > 0:
+                current_price = data['results'][0]['c']  # closing price
+                print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from Polygon API)")
+            else:
+                return f"Error: No price data available for {symbol} from Polygon API"
+        else:
+            return f"Error: Failed to fetch price data for {symbol} from Polygon API (status: {response.status_code})"
+            
+    except Exception as e:
+        print(f"✗ ERROR fetching real-time price: {e}")
+        return f"Error: Could not fetch real-time price for {symbol}"
     
     # Execute REAL-TIME spread detection pipeline using TheTradeList API
     try:
