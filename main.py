@@ -3988,6 +3988,36 @@ def step2(symbol=None):
             transform: translateY(-2px);
         }
         
+        .loading-flow {
+            background: linear-gradient(-45deg, #8b5cf6, #06b6d4, #10b981, #f59e0b) !important;
+            background-size: 400% 400% !important;
+            animation: flowingGradient 2s ease-in-out infinite !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        
+        .loading-flow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes flowingGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
         .back-to-scoreboard {
             margin-top: 40px;
             text-align: center;
@@ -4307,9 +4337,9 @@ def step2(symbol=None):
             
             const btn = document.getElementById('strategyBtn');
             
-            // Disable button and show loading state immediately
+            // Disable button and apply flowing animation
             btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.7';
+            btn.classList.add('loading-flow');
             btn.innerHTML = 'Navigating to Step 3...';
             
             // Navigate after 1 second delay
