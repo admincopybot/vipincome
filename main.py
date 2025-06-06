@@ -4153,22 +4153,7 @@ def step2(symbol=None):
                     <a href="#" class="choose-strategy-btn" onclick="showStep3LoadingAndNavigate('{{ symbol }}')">Choose Income Strategy →</a>
                 </div>
                 
-                <!-- Loading Overlay for Step 3 Navigation -->
-                <div id="step3NavigationOverlay" class="loading-overlay">
-                    <div class="loading-container">
-                        <div class="loading-spinner"></div>
-                        <h3 class="loading-title">Analyzing {{ symbol }} Options</h3>
-                        <p class="loading-subtitle">Finding optimal income strategies...</p>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <div class="loading-steps">
-                            <div class="loading-step active" id="nav-step1">Fetching live options contracts</div>
-                            <div class="loading-step" id="nav-step2">Calculating spread scenarios</div>
-                            <div class="loading-step" id="nav-step3">Optimizing trade parameters</div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
         
