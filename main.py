@@ -5067,6 +5067,23 @@ def step3(symbol=None):
             </div>
         </div>
         
+        <!-- Loading Overlay for Step 3 -->
+        <div id="step3LoadingOverlay" class="loading-overlay" style="display: flex;">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <h3 class="loading-title">Analyzing {{ symbol or 'Stock' }} Options</h3>
+                <p class="loading-subtitle">Finding optimal income strategies...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="loading-steps">
+                    <div class="loading-step active" id="step3-1">Fetching live options contracts</div>
+                    <div class="loading-step" id="step3-2">Calculating spread scenarios</div>
+                    <div class="loading-step" id="step3-3">Optimizing trade parameters</div>
+                </div>
+            </div>
+        </div>
+
         <div class="container">
             <div class="ticker-header">
                 <div class="ticker-title">{{ symbol or 'STOCK' }} - Income Strategy Selection</div>
@@ -5118,7 +5135,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick="showTradeAnalysis('passive', '{{ symbol }}', {{ options_data.passive|tojson }})">View Trade Analysis</button>
+                    <button class="strategy-btn" onclick="showTradeAnalysis('passive', '{{ symbol }}', {{ options_data.passive|tojson|safe }})">View Trade Analysis</button>
                 </div>
                 
                 <div class="strategy-card">
@@ -5165,7 +5182,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick="showTradeAnalysis('steady', '{{ symbol }}', {{ options_data.steady|tojson }})">View Trade Analysis</button>
+                    <button class="strategy-btn" onclick="showTradeAnalysis('steady', '{{ symbol }}', {{ options_data.steady|tojson|safe }})">View Trade Analysis</button>
                 </div>
                 
                 <div class="strategy-card">
@@ -5212,7 +5229,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick="showTradeAnalysis('aggressive', '{{ symbol }}', {{ options_data.aggressive|tojson }})">View Trade Analysis</button>
+                    <button class="strategy-btn" onclick="showTradeAnalysis('aggressive', '{{ symbol }}', {{ options_data.aggressive|tojson|safe }})">View Trade Analysis</button>
                 </div>
             </div>
             
@@ -5439,6 +5456,22 @@ document.addEventListener('click', function(e) {
 
 document.addEventListener("DOMContentLoaded", function() {
     updateCountdown();
+    
+    // Hide loading overlay after content loads
+    setTimeout(() => {
+        document.getElementById('step3-1').classList.remove('active');
+        document.getElementById('step3-2').classList.add('active');
+    }, 800);
+    
+    setTimeout(() => {
+        document.getElementById('step3-2').classList.remove('active');
+        document.getElementById('step3-3').classList.add('active');
+    }, 1600);
+    
+    setTimeout(() => {
+        const loadingOverlay = document.getElementById('step3LoadingOverlay');
+        loadingOverlay.style.display = 'none';
+    }, 2400);
 });
 </script>
 </body>
