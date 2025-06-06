@@ -291,8 +291,8 @@ class RealTimeSpreadDetector:
             best_spread = None
             roi_min, roi_max = roi_ranges[strategy]
             
-            # Process only first 5 pairs to ensure completion within timeout
-            pairs_to_check = spread_pairs[:5]
+            # Process only first 3 pairs to ensure completion within timeout
+            pairs_to_check = spread_pairs[:3]
             logger.info(f"Processing {len(pairs_to_check)} spread pairs for {strategy} (optimized for speed)")
             
             for i, (long_contract, short_contract) in enumerate(pairs_to_check):
