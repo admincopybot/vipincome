@@ -1,0 +1,60 @@
+=== STEP 4 TRADE ANALYSIS: AVGO STEADY ===
+Spread ID: AVGO_balanced_13_1749239666
+INFO:spread_storage:Retrieved session spread AVGO_balanced_13_1749239666: AVGO balanced
+✓ RETRIEVED AUTHENTIC SPREAD DATA: STEADY
+✓ Long Contract: O:AVGO250627C00230000
+✓ Short Contract: O:AVGO250627C00235000
+✓ Long Strike: $230.00
+✓ Short Strike: $235.00
+✓ Spread Cost: $4.00
+✓ Max Profit: $1.00
+✓ ROI: 25.0%
+✓ Current Price: $259.93
+✓ DTE: 20
+✓ USING AUTHENTIC SPREAD DATA: STEADY
+✓ Long Strike: $230.00
+✓ Short Strike: $235.00
+✓ Spread Cost: $4.00
+✓ Max Profit: $1.00
+✓ ROI: 25.0%
+Scenario Analysis Spread: Buy $230.00 ($4.60) / Sell $235.00 ($0.40)
+Spread cost: $4.00, Max profit: $1.00, ROI: 25.00%
+Calculating scenarios with REAL current price: $259.93
+Spread cost: $4.00, Max profit potential: $1.00
+Scenario -2.0%: Stock $254.73 | Long $24.73 | Short $19.73 | Spread $5.00 | Profit $+1.00 | ROI 25.00%
+Scenario -1.0%: Stock $257.33 | Long $27.33 | Short $22.33 | Spread $5.00 | Profit $+1.00 | ROI 25.00%
+Scenario -0.5%: Stock $258.63 | Long $28.63 | Short $23.63 | Spread $5.00 | Profit $+1.00 | ROI 25.00%
+Scenario +0.0%: Stock $259.93 | Long $29.93 | Short $24.93 | Spread $5.00 | Profit $+1.00 | ROI 25.00%
+Scenario +0.5%: Stock $261.23 | Long $31.23 | Short $26.23 | Spread $5.00 | Profit $+1.00 | ROI 25.00%
+Scenario +1.0%: Stock $262.53 | Long $32.53 | Short $27.53 | Spread $5.00 | Profit $+1.00 | ROI 25.00%
+Scenario +2.0%: Stock $265.13 | Long $35.13 | Short $30.13 | Spread $5.00 | Profit $+1.00 | ROI 25.00%
+Scenario +5.0%: Stock $272.93 | Long $42.93 | Short $37.93 | Spread $5.00 | Profit $+1.00 | ROI 25.00%
+ERROR:main:Exception on /step4/AVGO/steady/AVGO_balanced_13_1749239666 [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2878, in step4
+    return render_template_string(template,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/templating.py", line 161, in render_template_string
+    template = app.jinja_env.from_string(source)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/jinja2/environment.py", line 1111, in from_string
+    return cls.from_code(self, self.compile(source), gs, None)
+                               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "<unknown>", line 9, in template
+jinja2.exceptions.TemplateSyntaxError: expected token ',', got ';'
