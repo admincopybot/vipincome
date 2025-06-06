@@ -2646,7 +2646,7 @@ def step4(symbol, strategy, spread_id):
     scenario_long_price = spread_data['long_price']
     scenario_short_price = spread_data['short_price']
     
-    # Return the complete HTML page with proper navigation and styling
+    # Clean Step 4 template without syntax errors
     template = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2784,7 +2784,7 @@ def step4(symbol, strategy, spread_id):
     
     <div class="container">
         <div class="page-title">
-            <h1>{symbol} {strategy.title()} Trade Analysis</h1>
+            <h1>{{ symbol }} {{ strategy.title() }} Trade Analysis</h1>
             <div class="page-subtitle">Comprehensive options trade analysis using real-time market data</div>
         </div>
         
