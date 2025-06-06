@@ -1560,6 +1560,7 @@ def fetch_options_data(symbol, current_price):
             if strategy_data.get('found'):
                 options_data[frontend_key] = {
                     'found': True,
+                    'spread_id': strategy_data.get('spread_id'),  # Pass spread_id to frontend
                     'dte': strategy_data.get('dte', 0),
                     'roi': strategy_data.get('roi', '0.0%'),
                     'expiration': strategy_data.get('expiration', 'N/A'),
@@ -2516,9 +2517,8 @@ def calculate_single_option_analysis(option_data, current_stock_price):
     except Exception as e:
         return {'error': f'Calculation error: {str(e)}'}
 
-@app.route('/step4/<symbol>/<strategy>/<option_id>')
-@app.route('/step4/<symbol>/<strategy>/<option_id>/<short_strike>')
-def step4(symbol, strategy, option_id, short_strike=None):
+@app.route('/step4/<symbol>/<strategy>/<spread_id>')
+def step4(symbol, strategy, spread_id):
     """Step 4: Detailed Options Trade Analysis using authentic spread data from Step 3"""
     
     print(f"\n=== STEP 4 TRADE ANALYSIS: {symbol} {strategy.upper()} ===")
@@ -4836,7 +4836,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.contract_symbol if not options_data.passive.error else 'none' }}/{{ options_data.passive.short_strike_price if not options_data.passive.error else 0 }}" class="strategy-btn">Select Conservative Strategy</a>
+                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.spread_id if options_data.passive.found else 'none' }}" class="strategy-btn">Select Conservative Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
@@ -4883,7 +4883,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.contract_symbol if not options_data.steady.error else 'none' }}/{{ options_data.steady.short_strike_price if not options_data.steady.error else 0 }}" class="strategy-btn">Select Balanced Strategy</a>
+                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.spread_id if options_data.steady.found else 'none' }}" class="strategy-btn">Select Balanced Strategy</a>
                 </div>
                 
                 <div class="strategy-card">
@@ -4930,7 +4930,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.contract_symbol if not options_data.aggressive.error else 'none' }}/{{ options_data.aggressive.short_strike_price if not options_data.aggressive.error else 0 }}" class="strategy-btn">Select Aggressive Strategy</a>
+                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.spread_id if options_data.aggressive.found else 'none' }}" class="strategy-btn">Select Aggressive Strategy</a>
                 </div>
             </div>
             
