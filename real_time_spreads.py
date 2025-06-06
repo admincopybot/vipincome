@@ -309,8 +309,17 @@ class RealTimeSpreadDetector:
                         logger.info(f"New best {strategy} spread: {metrics['roi']:.1f}% ROI")
             
             if best_spread:
+                # Store authentic spread and get unique session ID
+                from spread_storage import spread_storage
+                
+                # Add current price to spread data
+                best_spread['current_price'] = current_price
+                
+                spread_id = spread_storage.store_spread(symbol, strategy, best_spread)
+                
                 results[strategy] = {
                     'found': True,
+                    'spread_id': spread_id,  # Unique ID for Step 4 retrieval
                     'roi': f"{best_spread['roi']:.1f}%",
                     'expiration': best_spread['expiration'],
                     'dte': best_spread['dte'],
@@ -323,7 +332,7 @@ class RealTimeSpreadDetector:
                     'management': 'Hold to expiration',
                     'strategy_title': f"{strategy.title()} Strategy"
                 }
-                logger.info(f"Found {strategy} spread: {best_spread['roi']:.1f}% ROI")
+                logger.info(f"Found {strategy} spread: {best_spread['roi']:.1f}% ROI, stored as {spread_id}")
             else:
                 results[strategy] = {
                     'found': False,
