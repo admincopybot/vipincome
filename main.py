@@ -4366,7 +4366,7 @@ def step2(symbol=None):
             // Disable button and apply flowing animation
             btn.style.pointerEvents = 'none';
             btn.classList.add('loading-flow');
-            btn.innerHTML = 'Navigating to Step 3...';
+            btn.innerHTML = 'Finding Best Strategies...';
             
             // Navigate after 1 second delay
             setTimeout(() => {
