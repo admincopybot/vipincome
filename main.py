@@ -2822,27 +2822,27 @@ def step4(symbol, strategy, spread_id):
             <div class="summary-row">
                 <div class="summary-cell">
                     <div class="cell-label">Current Stock Price</div>
-                    <div class="cell-value">${{current_price:.2f}}</div>
+                    <div class="cell-value">${{ current_price|round(2) }}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Spread Cost</div>
-                    <div class="cell-value">${{spread_cost:.2f}}</div>
+                    <div class="cell-value">${{ spread_cost|round(2) }}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Call Strikes</div>
-                    <div class="cell-value">${{scenario_long_strike:.2f}} & ${{scenario_short_strike:.2f}}</div>
+                    <div class="cell-value">${{ scenario_long_strike|round(2) }} & ${{ scenario_short_strike|round(2) }}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Breakeven Price</div>
-                    <div class="cell-value">${{breakeven:.2f}}</div>
+                    <div class="cell-value">${{ breakeven|round(2) }}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Max Profit</div>
-                    <div class="cell-value">${{max_profit:.2f}}</div>
+                    <div class="cell-value">${{ max_profit|round(2) }}</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Return on Investment</div>
-                    <div class="cell-value">{{roi:.2f}}%</div>
+                    <div class="cell-value">{{ roi|round(2) }}%</div>
                 </div>
             </div>
         </div>
