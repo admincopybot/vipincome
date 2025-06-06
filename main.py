@@ -5472,44 +5472,49 @@ def step3(symbol=None):
                         </div>
                     </div>
                     
-                    <div class="trade-details-section">
-                        <h3>Trade Details</h3>
-                        <div class="trade-info-grid">
-                            <div class="trade-info-card">
-                                <h4>Buy ($<span id="longStrike">0.00</span>)</h4>
-                                <div class="info-row">
-                                    <span>Option ID:</span>
-                                    <span id="longContract">-</span>
+                    <div class="trade-cards-grid">
+                        <div class="trade-card buy-card">
+                            <h3 class="card-title">Buy ($<span id="buyStrike">230.00</span>)</h3>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Option ID:</span>
+                                    <span class="detail-value" id="longContract">O:AVGO250627C00230000</span>
                                 </div>
-                                <div class="info-row">
-                                    <span>Price:</span>
-                                    <span id="longPrice">$0.00</span>
-                                </div>
-                            </div>
-                            <div class="trade-info-card">
-                                <h4>Sell ($<span id="shortStrike">0.00</span>)</h4>
-                                <div class="info-row">
-                                    <span>Option ID:</span>
-                                    <span id="shortContract">-</span>
-                                </div>
-                                <div class="info-row">
-                                    <span>Price:</span>
-                                    <span id="shortPrice">$0.00</span>
+                                <div class="detail-row">
+                                    <span class="detail-label">Price:</span>
+                                    <span class="detail-value" id="longPrice">$2.50</span>
                                 </div>
                             </div>
-                            <div class="trade-info-card">
-                                <h4>Spread Details</h4>
-                                <div class="info-row">
-                                    <span>Width:</span>
-                                    <span id="spreadWidth">$1.00</span>
+                        </div>
+                        
+                        <div class="trade-card sell-card">
+                            <h3 class="card-title">Sell ($<span id="sellStrike">235.00</span>)</h3>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Option ID:</span>
+                                    <span class="detail-value" id="shortContract">N/A</span>
                                 </div>
-                                <div class="info-row">
-                                    <span>Expiration:</span>
-                                    <span id="expirationDate">-</span>
+                                <div class="detail-row">
+                                    <span class="detail-label">Price:</span>
+                                    <span class="detail-value" id="shortPrice">$1.50</span>
                                 </div>
-                                <div class="info-row">
-                                    <span>DTE:</span>
-                                    <span id="daysToExpiry">0 days</span>
+                            </div>
+                        </div>
+                        
+                        <div class="trade-card spread-card">
+                            <h3 class="card-title">Spread Details</h3>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Width:</span>
+                                    <span class="detail-value" id="spreadWidth">$5.00</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Expiration:</span>
+                                    <span class="detail-value" id="expirationDate">2025-06-27</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">DTE:</span>
+                                    <span class="detail-value" id="daysToExpiry">20 days</span>
                                 </div>
                             </div>
                         </div>
@@ -5577,15 +5582,15 @@ function showTradeAnalysis(strategy, symbol, data) {
     document.getElementById('maxProfit').textContent = `$${maxProfit.toFixed(2)}`;
     document.getElementById('roiPercent').textContent = `${roi.toFixed(1)}%`;
     
-    // Populate trade details with real contract data
-    document.getElementById('longStrike').textContent = longStrike.toFixed(2);
-    document.getElementById('shortStrike').textContent = shortStrike.toFixed(2);
-    document.getElementById('longContract').textContent = data.long_contract || data.contract_symbol || 'N/A';
-    document.getElementById('shortContract').textContent = data.short_contract || 'N/A';
+    // Populate three-card layout with authentic spread data
+    document.getElementById('buyStrike').textContent = longStrike.toFixed(2);
+    document.getElementById('sellStrike').textContent = shortStrike.toFixed(2);
+    document.getElementById('longContract').textContent = data.contract_symbol || 'N/A';
+    document.getElementById('shortContract').textContent = data.short_contract_symbol || 'N/A';
     document.getElementById('longPrice').textContent = `$${longPrice.toFixed(2)}`;
     document.getElementById('shortPrice').textContent = `$${shortPrice.toFixed(2)}`;
     document.getElementById('spreadWidth').textContent = `$${(shortStrike - longStrike).toFixed(2)}`;
-    document.getElementById('expirationDate').textContent = data.expiration_date || data.expiration || 'N/A';
+    document.getElementById('expirationDate').textContent = data.expiration || 'N/A';
     document.getElementById('daysToExpiry').textContent = `${data.dte || 0} days`;
     
     // Generate scenario analysis with authentic data
