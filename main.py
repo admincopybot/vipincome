@@ -2628,9 +2628,9 @@ def step4(symbol, strategy, spread_id):
         
         scenarios.append({
             'change': f"{change:+.1f}%",
-            'price': f"${future_price:.2f}",
-            'roi': f"{scenario_roi:.2f}%",
-            'profit': f"${profit:+.2f}",
+            'stock_price': future_price,
+            'roi': scenario_roi,
+            'profit': profit,
             'outcome': outcome
         })
         
@@ -2640,13 +2640,7 @@ def step4(symbol, strategy, spread_id):
     long_option_id = spread_data['long_contract']
     short_option_id = spread_data['short_contract']
     
-    # Build scenario rows for the HTML table
-    scenario_rows = {
-        'price': ''.join(f'<div class="scenario-cell">{s["price"]}</div>' for s in scenarios),
-        'roi': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["roi"]}</div>' for s in scenarios),
-        'profit': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["profit"]}</div>' for s in scenarios),
-        'outcome': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["outcome"]}</div>' for s in scenarios)
-    }
+    # Scenarios data is now passed directly to template
     
     # Calculate option prices for display
     scenario_long_price = spread_data['long_price']
@@ -2869,19 +2863,27 @@ def step4(symbol, strategy, spread_id):
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Stock Price</div>
-                    {{scenario_rows['price']}}
+                    {% for scenario in scenarios %}
+                    <div class="scenario-cell">${{ "%.2f"|format(scenario.stock_price) }}</div>
+                    {% endfor %}
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">ROI %</div>
-                    {{scenario_rows['roi']}}
+                    {% for scenario in scenarios %}
+                    <div class="scenario-cell {{ scenario.outcome }}">{{ "%.1f"|format(scenario.roi) }}%</div>
+                    {% endfor %}
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Profit</div>
-                    {{scenario_rows['profit']}}
+                    {% for scenario in scenarios %}
+                    <div class="scenario-cell {{ scenario.outcome }}">${{ "{:+.2f}".format(scenario.profit) }}</div>
+                    {% endfor %}
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Outcome</div>
-                    {{scenario_rows['outcome']}}
+                    {% for scenario in scenarios %}
+                    <div class="scenario-cell {{ scenario.outcome }}">{{ scenario.outcome|title }}</div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -2910,7 +2912,6 @@ def step4(symbol, strategy, spread_id):
         expiration_date=expiration_date,
         spread_width=scenario_short_strike - scenario_long_strike,
         breakeven=scenario_long_strike + spread_cost,
-        scenario_rows=scenario_rows,
         scenarios=scenarios
     )
 
