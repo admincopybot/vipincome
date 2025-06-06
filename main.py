@@ -2522,75 +2522,44 @@ def step4(symbol, strategy, spread_id):
     """Step 4: Detailed Options Trade Analysis using authentic spread data from Step 3"""
     
     print(f"\n=== STEP 4 TRADE ANALYSIS: {symbol} {strategy.upper()} ===")
-    print(f"Long Contract: {option_id}")
-    print(f"Short Strike: {short_strike}")
+    print(f"Spread ID: {spread_id}")
     
-    # Use authentic current price from CSV database (same as Step 3)
-    etf_data = etf_db.get_all_etfs()
-    current_price = None
+    # Retrieve authentic spread data from session storage
+    from spread_storage import spread_storage
     
-    for etf_symbol, etf_info in etf_data.items():
-        if etf_symbol == symbol:
-            current_price = etf_info['current_price']
-            print(f"✓ AUTHENTIC PRICE: {symbol} = ${current_price:.2f} (from CSV data)")
-            break
+    spread_data = spread_storage.get_spread(spread_id)
     
-    if not current_price:
-        return f"Error: No authentic price data found for {symbol}"
+    if not spread_data:
+        print(f"Error: Spread {spread_id} not found in session storage")
+        return f"Error: Spread data not found. Please return to Step 3 to regenerate spreads."
     
-    # Use the authentic spread data that matches Step 3 calculations
-    if symbol == 'AVGO':
-        # Map strategy names to consistent data structure
-        strategy_mapping = {'steady': 'balanced', 'passive': 'conservative'}
-        mapped_strategy = strategy_mapping.get(strategy, strategy)
-        
-        # Get authentic spread data from Step 3 pre-calculated values
-        authentic_spreads = {
-            'aggressive': {
-                'long_strike': 450.0,
-                'short_strike': 460.0,
-                'expiration_date': '2025-06-20',
-                'spread_cost': 1.75,
-                'max_profit': 4.25,
-                'roi': 47.3
-            },
-            'balanced': {
-                'long_strike': 260.0,
-                'short_strike': 265.0,
-                'expiration_date': '2025-06-27',
-                'spread_cost': 1.85,
-                'max_profit': 3.15,
-                'roi': 23.1
-            },
-            'conservative': {
-                'long_strike': 265.0,
-                'short_strike': 270.0,
-                'expiration_date': '2025-07-11',
-                'spread_cost': 2.15,
-                'max_profit': 2.85,
-                'roi': 12.8
-            }
-        }
-        
-        if mapped_strategy in authentic_spreads:
-            spread_data = authentic_spreads[mapped_strategy]
-            scenario_long_strike = spread_data['long_strike']
-            scenario_short_strike = spread_data['short_strike']
-            expiration_date = spread_data['expiration_date']
-            spread_cost = spread_data['spread_cost']
-            max_profit = spread_data['max_profit']
-            roi = spread_data['roi']
-            
-            print(f"✓ USING AUTHENTIC SPREAD DATA: {mapped_strategy.upper()}")
-            print(f"✓ Long Strike: ${scenario_long_strike:.2f}")
-            print(f"✓ Short Strike: ${scenario_short_strike:.2f}")
-            print(f"✓ Spread Cost: ${spread_cost:.2f}")
-            print(f"✓ Max Profit: ${max_profit:.2f}")
-            print(f"✓ ROI: {roi:.1f}%")
-        else:
-            return f"Error: No authentic spread data for {strategy} strategy"
-    else:
-        return f"Error: Step 4 requires authentic spread data. Please upload CSV with {symbol} data."
+    print(f"✓ RETRIEVED AUTHENTIC SPREAD DATA: {strategy.upper()}")
+    print(f"✓ Long Contract: {spread_data['long_contract']}")
+    print(f"✓ Short Contract: {spread_data['short_contract']}")
+    print(f"✓ Long Strike: ${spread_data['long_strike']:.2f}")
+    print(f"✓ Short Strike: ${spread_data['short_strike']:.2f}")
+    print(f"✓ Spread Cost: ${spread_data['spread_cost']:.2f}")
+    print(f"✓ Max Profit: ${spread_data['max_profit']:.2f}")
+    print(f"✓ ROI: {spread_data['roi']:.1f}%")
+    print(f"✓ Current Price: ${spread_data['current_price']:.2f}")
+    print(f"✓ DTE: {spread_data['dte']}")
+    
+    current_price = spread_data['current_price']
+    
+    # Use authentic spread data from session storage
+    scenario_long_strike = spread_data['long_strike']
+    scenario_short_strike = spread_data['short_strike']
+    expiration_date = spread_data['expiration']
+    spread_cost = spread_data['spread_cost']
+    max_profit = spread_data['max_profit']
+    roi = spread_data['roi']
+    
+    print(f"✓ USING AUTHENTIC SPREAD DATA: {strategy.upper()}")
+    print(f"✓ Long Strike: ${scenario_long_strike:.2f}")
+    print(f"✓ Short Strike: ${scenario_short_strike:.2f}")
+    print(f"✓ Spread Cost: ${spread_cost:.2f}")
+    print(f"✓ Max Profit: ${max_profit:.2f}")
+    print(f"✓ ROI: {roi:.1f}%")
     
     # Calculate spread metrics
     spread_width = scenario_short_strike - scenario_long_strike
