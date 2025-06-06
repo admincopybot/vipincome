@@ -2661,91 +2661,91 @@ def step4(symbol, strategy, spread_id):
     <title>Step 4: Trade Analysis - {{ symbol }} {{ strategy.title() }} Strategy</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {{{{ margin: 0; padding: 0; box-sizing: border-box; }}}}
-        body {{{{ font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; line-height: 1.6; }}}}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; line-height: 1.6; }
         
-        .top-banner {{{{ background: linear-gradient(135deg, #1e40af, #3b82f6); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; font-weight: 500; }}}}
+        .top-banner { background: linear-gradient(135deg, #1e40af, #3b82f6); text-align: center; padding: 8px; font-size: 14px; color: #ffffff; font-weight: 500; }
         
-        .header {{{{ display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.02); }}}}
-        .logo {{{{ display: flex; align-items: center; gap: 12px; }}}}
-        .header-logo {{{{ height: 80px; width: auto; }}}}
-        .nav-menu {{{{ display: flex; align-items: center; gap: 30px; }}}}
-        .nav-item {{{{ color: rgba(255, 255, 255, 0.8); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }}}}
-        .nav-item:hover {{{{ color: #ffffff; }}}}
-        .get-offer-btn {{{{ background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1f2e; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 13px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); transition: all 0.3s ease; text-transform: uppercase; }}}}
-        .get-offer-btn:hover {{{{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6); }}}}
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(255, 255, 255, 0.02); }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .header-logo { height: 80px; width: auto; }
+        .nav-menu { display: flex; align-items: center; gap: 30px; }
+        .nav-item { color: rgba(255, 255, 255, 0.8); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }
+        .nav-item:hover { color: #ffffff; }
+        .get-offer-btn { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1f2e; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 13px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); transition: all 0.3s ease; text-transform: uppercase; }
+        .get-offer-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6); }
         
-        .steps-nav {{{{ background: rgba(255, 255, 255, 0.05); padding: 20px 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }}}}
-        .steps-container {{{{ display: flex; justify-content: center; align-items: center; gap: 40px; }}}}
-        .step {{{{ display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-weight: 500; font-size: 14px; }}}}
-        .step.active {{{{ color: #8b5cf6; }}}}
-        .step.completed {{{{ color: rgba(255, 255, 255, 0.7); animation: pulse-glow 2s ease-in-out infinite; }}}}
-        .step-number {{{{ width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }}}}
-        .step.active .step-number {{{{ background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #ffffff;
+        .steps-nav { background: rgba(255, 255, 255, 0.05); padding: 20px 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .steps-container { display: flex; justify-content: center; align-items: center; gap: 40px; }
+        .step { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-weight: 500; font-size: 14px; }
+        .step.active { color: #8b5cf6; }
+        .step.completed { color: rgba(255, 255, 255, 0.7); animation: pulse-glow 2s ease-in-out infinite; }
+        .step-number { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+        .step.active .step-number { background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #ffffff;
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
-            animation: pulse-glow-purple 2s ease-in-out infinite; }}}}
-        .step.completed .step-number {{{{ background: linear-gradient(135deg, #10b981, #059669); color: #ffffff;
+            animation: pulse-glow-purple 2s ease-in-out infinite; }
+        .step.completed .step-number { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff;
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
-            animation: pulse-glow-green 2s ease-in-out infinite; }}}}
-        .step:not(.active):not(.completed) .step-number {{{{ background: rgba(255, 255, 255, 0.1); }}}}
-        .step-connector {{{{ 
+            animation: pulse-glow-green 2s ease-in-out infinite; }
+        .step:not(.active):not(.completed) .step-number { background: rgba(255, 255, 255, 0.1); }
+        .step-connector { 
             width: 60px;
             height: 2px;
             background: rgba(255, 255, 255, 0.1);
             margin: 0 15px;
             transition: all 0.3s ease;
-        }}}}
-        .step-connector.completed {{{{ background: linear-gradient(135deg, #10b981, #059669); }}}}
+        }
+        .step-connector.completed { background: linear-gradient(135deg, #10b981, #059669); }
         
         
         
-        .container {{{{ max-width: 1200px; margin: 0 auto; padding: 40px 20px; }}}}
-        .page-title {{{{ text-align: center; margin-bottom: 40px; }}}}
-        .page-title h1 {{{{ font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}}}
-        .page-subtitle {{{{ font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); }}}}
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .page-title { text-align: center; margin-bottom: 40px; }
+        .page-title h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .page-subtitle { font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); }
         
-        .spread-header {{{{ background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; animation: pulse-glow 3s ease-in-out infinite; }}}}
-        .expiration-info {{{{ color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; }}}}
-        .spread-title {{{{ color: #ffffff; font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}}}
-        .width-badge {{{{ background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }}}}
+        .spread-header { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; animation: pulse-glow 3s ease-in-out infinite; }
+        .expiration-info { color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; }
+        .spread-title { color: #ffffff; font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .width-badge { background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
         
-        .trade-construction {{{{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }}}}
-        .trade-section {{{{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; transition: all 0.3s ease; }}}}
-        .trade-section:hover {{{{ transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }}}}
-        .section-header {{{{ color: #ffffff; font-weight: 700; margin-bottom: 12px; font-size: 16px; }}}}
-        .option-detail {{{{ color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 6px; }}}}
+        .trade-construction { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+        .trade-section { background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; transition: all 0.3s ease; }
+        .trade-section:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }
+        .section-header { color: #ffffff; font-weight: 700; margin-bottom: 12px; font-size: 16px; }
+        .option-detail { color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-bottom: 6px; }
         
-        .summary-section {{{{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}}}
-        .summary-header {{{{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}}}
-        .summary-row {{{{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }}}}
-        .summary-cell {{{{ text-align: center; }}}}
-        .cell-label {{{{ color: rgba(255, 255, 255, 0.6); font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }}}}
-        .cell-value {{{{ color: #ffffff; font-weight: 700; font-size: 16px; }}}}
+        .summary-section { background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }
+        .summary-header { color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }
+        .summary-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }
+        .summary-cell { text-align: center; }
+        .cell-label { color: rgba(255, 255, 255, 0.6); font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cell-value { color: #ffffff; font-weight: 700; font-size: 16px; }
         
-        .scenarios-section {{{{ background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }}}}
-        .scenarios-header {{{{ color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }}}}
-        .scenarios-grid {{{{ display: grid; gap: 2px; }}}}
-        .scenario-header-row {{{{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }}}}
-        .scenario-row {{{{ display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }}}}
-        .scenario-cell {{{{ background: rgba(30, 41, 59, 0.9); padding: 10px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; }}}}
-        .scenario-header-cell {{{{ background: rgba(139, 92, 246, 0.2); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 4px; font-weight: 700; text-transform: uppercase; }}}}
-        .scenario-cell-label {{{{ background: rgba(139, 92, 246, 0.3); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; font-weight: 700; border-radius: 4px; text-transform: uppercase; }}}}
-        .win {{{{ background: linear-gradient(135deg, #10b981, #059669) !important; color: #ffffff; animation: win-pulse 2s ease-in-out infinite; }}}}
-        .loss {{{{ background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff; }}}}
+        .scenarios-section { background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }
+        .scenarios-header { color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }
+        .scenarios-grid { display: grid; gap: 2px; }
+        .scenario-header-row { display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
+        .scenario-row { display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }
+        .scenario-cell { background: rgba(30, 41, 59, 0.9); padding: 10px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; }
+        .scenario-header-cell { background: rgba(139, 92, 246, 0.2); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+        .scenario-cell-label { background: rgba(139, 92, 246, 0.3); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; font-weight: 700; border-radius: 4px; text-transform: uppercase; }
+        .win { background: linear-gradient(135deg, #10b981, #059669) !important; color: #ffffff; animation: win-pulse 2s ease-in-out infinite; }
+        .loss { background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff; }
         
-        @keyframes pulse-glow {{{{
-            0%, 100% {{{{ box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }}}}
-            50% {{{{ box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); }}}}
-        }}}}
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); }
+        }
         
-        @keyframes win-pulse {{{{
-            0%, 100% {{{{ box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }}}}
-            50% {{{{ box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }}}}
-        }}}}
+        @keyframes win-pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
+        }
         
-        .back-navigation {{{{ margin-top: 40px; text-align: center; }}}}
-        .back-btn {{{{ background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; }}}}
-        .back-btn:hover {{{{ background: rgba(139, 92, 246, 0.2); transform: translateY(-1px); }}}}
+        .back-navigation { margin-top: 40px; text-align: center; }
+        .back-btn { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; }
+        .back-btn:hover { background: rgba(139, 92, 246, 0.2); transform: translateY(-1px); }
     </style>
 </head>
 <body>
