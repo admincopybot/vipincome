@@ -58,22 +58,22 @@ class RealTimeSpreadDetector:
         """Filter contracts by DTE and strike price criteria for each strategy"""
         filtered = []
         
-        # Define strategy criteria
+        # Define strategy criteria - Focus on near-the-money strikes for viable debit spreads
         strategy_criteria = {
             'aggressive': {
                 'dte_min': 10,
                 'dte_max': 17,
-                'strike_filter': lambda strike, price: strike < price  # Below current price
+                'strike_filter': lambda strike, price: price * 0.90 <= strike < price  # 90-100% of current price
             },
             'balanced': {
                 'dte_min': 17,
                 'dte_max': 28,
-                'strike_filter': lambda strike, price: strike >= price * 0.98  # Within 2% below
+                'strike_filter': lambda strike, price: price * 0.85 <= strike < price  # 85-100% of current price
             },
             'conservative': {
                 'dte_min': 28,
                 'dte_max': 42,
-                'strike_filter': lambda strike, price: strike >= price * 0.90  # Within 10% below
+                'strike_filter': lambda strike, price: price * 0.80 <= strike < price  # 80-100% of current price
             }
         }
         
@@ -128,6 +128,14 @@ class RealTimeSpreadDetector:
                     # Ensure proper debit spread structure
                     if long_strike >= short_strike:
                         continue
+                    
+                    # CRITICAL: For debit spreads, short call must be below current price
+                    current_price = getattr(self, 'current_price', 260)  # Use stored current price
+                    if short_strike >= current_price:
+                        logger.debug(f"Rejecting spread: short strike {short_strike} >= current price {current_price}")
+                        continue
+                    
+                    logger.debug(f"Valid spread found: Buy ${long_strike} / Sell ${short_strike} (current: ${current_price})")
                     
                     # Check if spread width matches valid intervals
                     spread_width = short_strike - long_strike
@@ -235,6 +243,9 @@ class RealTimeSpreadDetector:
         """Main function to find best spreads for all strategies"""
         results = {}
         
+        # Store current price for use in spread generation
+        self.current_price = current_price
+        
         # Get all contracts
         all_contracts = self.get_all_contracts(symbol)
         if not all_contracts:
@@ -287,6 +298,9 @@ class RealTimeSpreadDetector:
             for i, (long_contract, short_contract) in enumerate(pairs_to_check):
                 logger.info(f"Checking spread {i+1}/{len(pairs_to_check)}: {long_contract.get('ticker')} / {short_contract.get('ticker')}")
                 metrics = self.calculate_spread_metrics(long_contract, short_contract)
+                
+                if metrics:
+                    logger.info(f"ROI calculated: {metrics['roi']:.1f}% (target: {roi_min}-{roi_max}%)")
                 
                 if metrics and roi_min <= metrics['roi'] <= roi_max:
                     logger.info(f"Found viable {strategy} spread: {metrics['roi']:.1f}% ROI")
