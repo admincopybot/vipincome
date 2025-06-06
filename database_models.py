@@ -246,7 +246,13 @@ class ETFDatabase:
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT * FROM etf_scores WHERE symbol = ?
+            SELECT symbol, current_price, total_score, avg_volume_10d,
+                   trend1_pass, trend1_current, trend1_threshold, trend1_description,
+                   trend2_pass, trend2_current, trend2_threshold, trend2_description,
+                   snapback_pass, snapback_current, snapback_threshold, snapback_description,
+                   momentum_pass, momentum_current, momentum_threshold, momentum_description,
+                   stabilizing_pass, stabilizing_current, stabilizing_threshold, stabilizing_description
+            FROM etf_scores WHERE symbol = ?
         ''', (symbol,))
         
         row = cursor.fetchone()
@@ -257,13 +263,13 @@ class ETFDatabase:
         
         total_score = row[2]
         
-        # USE ACTUAL CSV CRITERIA VALUES - read boolean columns directly
+        # USE ACTUAL CSV CRITERIA VALUES - correct column positions
         met_criteria = {
-            'trend1': bool(row[4]),  # trend1_pass column
-            'trend2': bool(row[8]),  # trend2_pass column  
-            'snapback': bool(row[12]), # snapback_pass column
-            'momentum': bool(row[16]), # momentum_pass column
-            'stabilizing': bool(row[20]) # stabilizing_pass column
+            'trend1': bool(row[4]),      # trend1_pass
+            'trend2': bool(row[8]),      # trend2_pass  
+            'snapback': bool(row[12]),   # snapback_pass
+            'momentum': bool(row[16]),   # momentum_pass
+            'stabilizing': bool(row[20]) # stabilizing_pass
         }
         
         return {

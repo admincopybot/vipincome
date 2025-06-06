@@ -61,13 +61,13 @@ def load_etf_data_from_database():
             criteria = data['criteria']
             total_score = data['total_score']
             
-            # USE ACTUAL CSV CRITERIA VALUES - not auto-generated from score
+            # USE ACTUAL DATABASE CRITERIA VALUES - directly from stored CSV data
             met_criteria = {
-                'trend1': criteria['trend1'],
-                'trend2': criteria['trend2'], 
-                'snapback': criteria['snapback'],
-                'momentum': criteria['momentum'],
-                'stabilizing': criteria['stabilizing']
+                'trend1': bool(criteria['trend1']),
+                'trend2': bool(criteria['trend2']), 
+                'snapback': bool(criteria['snapback']),
+                'momentum': bool(criteria['momentum']),
+                'stabilizing': bool(criteria['stabilizing'])
             }
             
             logger.info(f"REAL CRITERIA: {symbol} score={total_score}, criteria={met_criteria}")
