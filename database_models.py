@@ -251,7 +251,8 @@ class ETFDatabase:
                    trend2_pass, trend2_current, trend2_threshold, trend2_description,
                    snapback_pass, snapback_current, snapback_threshold, snapback_description,
                    momentum_pass, momentum_current, momentum_threshold, momentum_description,
-                   stabilizing_pass, stabilizing_current, stabilizing_threshold, stabilizing_description
+                   stabilizing_pass, stabilizing_current, stabilizing_threshold, stabilizing_description,
+                   data_age_hours
             FROM etf_scores WHERE symbol = ?
         ''', (symbol,))
         
