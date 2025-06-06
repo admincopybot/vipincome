@@ -27,12 +27,66 @@ app = Flask(__name__)
 # Global storage for Step 3 spread calculations to ensure Step 4 consistency
 spread_calculations_cache = {}
 
+# Global ETF scores storage
+etf_scores = {}
+
 # Global timestamp for last CSV update
 last_csv_update = datetime.now()
 
 # Initialize database and CSV loader
 etf_db = ETFDatabase()
 csv_loader = CsvDataLoader()
+
+@app.route('/')
+def step1():
+    """Step 1: ETF Scoreboard - Database Version"""
+    # Load ETF data from database
+    load_etf_data_from_database()
+    
+    # Get top 12 ETFs for display
+    top_etfs = list(etf_scores.items())[:12]
+    
+    template = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 1: ETF Scoreboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #1a1f2e; color: #ffffff; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .title { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        .subtitle { font-size: 1.2rem; color: rgba(255, 255, 255, 0.7); }
+        .etf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .etf-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .etf-symbol { font-size: 1.5rem; font-weight: 600; color: #8b5cf6; margin-bottom: 10px; }
+        .etf-score { font-size: 2rem; font-weight: 700; color: #10b981; margin-bottom: 15px; }
+        .analyze-btn { background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; }
+        .analyze-btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">ETF Scoreboard</h1>
+            <p class="subtitle">Top performing ETFs based on technical analysis</p>
+        </div>
+        <div class="etf-grid">
+            {% for symbol, data in etfs %}
+            <div class="etf-card">
+                <div class="etf-symbol">{{ symbol }}</div>
+                <div class="etf-score">{{ data.total_score }}/5</div>
+                <a href="/step2/{{ symbol }}" class="analyze-btn">Analyze {{ symbol }}</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>"""
+    
+    return render_template_string(template, etfs=top_etfs)
 
 def load_etf_data_from_database():
     """Load ETF data from database with AUTOMATIC RANKING by score + trading volume tiebreaker"""
