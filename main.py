@@ -2801,7 +2801,6 @@ def step4(symbol, strategy, spread_id):
         <div class="spread-header">
             <div class="expiration-info">Expiration: {{ expiration_date }} ({{ days_to_exp }} days)</div>
             <div class="spread-title">${{ scenario_long_strike|round(2) }} / ${{ scenario_short_strike|round(2) }}</div>
-            <div class="width-badge">Width: $1</div>
         </div>
         
         <div class="trade-construction">
