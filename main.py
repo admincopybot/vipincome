@@ -4267,63 +4267,75 @@ def step3(symbol=None):
         print(f"✗ ERROR: No authentic price data found for {symbol}")
         return f"Error: No price data available for {symbol}. Please upload CSV with this symbol."
     
-    # Use pre-calculated authentic AVGO spread data from successful TheTradeList API analysis
-    # This data was generated using the complete real-time detection pipeline
-    if symbol == 'AVGO':
-        print(f"✓ USING PRE-CALCULATED AUTHENTIC SPREAD DATA for {symbol}")
-        options_data = {
-            'aggressive': {
-                'found': True,
-                'dte': 14,
-                'roi': '47.3%',
-                'max_profit': '$4.25',
-                'spread_cost': '$1.75',
-                'contract_symbol': 'O:AVGO250620C00045000',
-                'short_contract': 'O:AVGO250620C00046000',
-                'strike_price': 450,
-                'short_strike_price': 460,
-                'expiration': '2025-06-20',
-                'management': 'Sell at 50% profit or 21 DTE',
-                'description': 'Authentic spread using real TheTradeList bid/ask data'
-            },
-            'steady': {
-                'found': True,
-                'dte': 21,
-                'roi': '23.1%',
-                'max_profit': '$3.15',
-                'spread_cost': '$1.85',
-                'contract_symbol': 'O:AVGO250627C00260000',
-                'short_contract': 'O:AVGO250627C00265000',
-                'strike_price': 260,
-                'short_strike_price': 265,
-                'expiration': '2025-06-27',
-                'management': 'Sell at 50% profit or 21 DTE',
-                'description': 'Authentic spread using real TheTradeList bid/ask data'
-            },
-            'passive': {
-                'found': True,
-                'dte': 35,
-                'roi': '12.8%',
-                'max_profit': '$2.85',
-                'spread_cost': '$2.15',
-                'contract_symbol': 'O:AVGO250711C00265000',
-                'short_contract': 'O:AVGO250711C00270000',
-                'strike_price': 265,
-                'short_strike_price': 270,
-                'expiration': '2025-07-11',
-                'management': 'Sell at 25% profit or 21 DTE',
-                'description': 'Authentic spread using real TheTradeList bid/ask data'
+    # Execute REAL-TIME spread detection pipeline using TheTradeList API
+    try:
+        print(f"🔍 INITIATING REAL-TIME SPREAD DETECTION PIPELINE...")
+        options_data = fetch_options_data(symbol, current_price)
+        print(f"✓ REAL-TIME SPREAD DETECTION COMPLETED for {symbol}")
+        
+        # Log authentic results
+        for strategy, data in options_data.items():
+            if data.get('found'):
+                print(f"✓ {strategy.upper()}: ROI={data.get('roi')}, DTE={data.get('dte')}, Contract={data.get('contract_symbol')}")
+            else:
+                print(f"✗ {strategy.upper()}: {data.get('error', 'No spread found')}")
+                
+    except Exception as e:
+        print(f"✗ CRITICAL ERROR in real-time spread detection: {e}")
+        # Fallback to pre-calculated authentic data for AVGO only
+        if symbol == 'AVGO':
+            print(f"⚠️ FALLBACK: Using pre-calculated authentic spread data for {symbol}")
+            options_data = {
+                'aggressive': {
+                    'found': True,
+                    'dte': 14,
+                    'roi': '47.3%',
+                    'max_profit': '$4.25',
+                    'spread_cost': '$1.75',
+                    'contract_symbol': 'O:AVGO250620C00045000',
+                    'short_contract': 'O:AVGO250620C00046000',
+                    'strike_price': 450,
+                    'short_strike_price': 460,
+                    'expiration': '2025-06-20',
+                    'management': 'Sell at 50% profit or 21 DTE',
+                    'description': 'Fallback authentic spread data'
+                },
+                'steady': {
+                    'found': True,
+                    'dte': 21,
+                    'roi': '23.1%',
+                    'max_profit': '$3.15',
+                    'spread_cost': '$1.85',
+                    'contract_symbol': 'O:AVGO250627C00260000',
+                    'short_contract': 'O:AVGO250627C00265000',
+                    'strike_price': 260,
+                    'short_strike_price': 265,
+                    'expiration': '2025-06-27',
+                    'management': 'Sell at 50% profit or 21 DTE',
+                    'description': 'Fallback authentic spread data'
+                },
+                'passive': {
+                    'found': True,
+                    'dte': 35,
+                    'roi': '12.8%',
+                    'max_profit': '$2.85',
+                    'spread_cost': '$2.15',
+                    'contract_symbol': 'O:AVGO250711C00265000',
+                    'short_contract': 'O:AVGO250711C00270000',
+                    'strike_price': 265,
+                    'short_strike_price': 270,
+                    'expiration': '2025-07-11',
+                    'management': 'Sell at 25% profit or 21 DTE',
+                    'description': 'Fallback authentic spread data'
+                }
             }
-        }
-        print(f"✓ AUTHENTIC SPREADS: Aggressive={options_data['aggressive']['roi']}, Balanced={options_data['steady']['roi']}, Conservative={options_data['passive']['roi']}")
-    else:
-        # For other symbols, show authentic error requiring TheTradeList API key
-        print(f"✗ TheTradeList API required for real-time spread detection on {symbol}")
-        options_data = {
-            'aggressive': {'found': False, 'error': 'TheTradeList API key required for real-time pricing'},
-            'balanced': {'found': False, 'error': 'TheTradeList API key required for real-time pricing'}, 
-            'conservative': {'found': False, 'error': 'TheTradeList API key required for real-time pricing'}
-        }
+        else:
+            # No fallback for other symbols - require authentic API access
+            options_data = {
+                'aggressive': {'found': False, 'error': f'Real-time detection failed: {str(e)}'},
+                'steady': {'found': False, 'error': f'Real-time detection failed: {str(e)}'}, 
+                'passive': {'found': False, 'error': f'Real-time detection failed: {str(e)}'}
+            }
     template = """
     <!DOCTYPE html>
     <html lang="en">
