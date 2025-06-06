@@ -167,6 +167,9 @@ class RealTimeSpreadDetector:
             long_ticker = long_contract.get('ticker')
             short_ticker = short_contract.get('ticker')
             
+            if not long_ticker or not short_ticker:
+                return None
+            
             long_quote = self.get_real_time_quote(long_ticker)
             short_quote = self.get_real_time_quote(short_ticker)
             
