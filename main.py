@@ -4981,75 +4981,117 @@ def step3(symbol=None):
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(26, 32, 44, 0.95);
+            background: #1a202c;
             display: none;
-            justify-content: center;
-            align-items: center;
             z-index: 10000;
-            backdrop-filter: blur(10px);
+            overflow-y: auto;
         }
 
         .modal-container {
-            background: linear-gradient(135deg, #2d3748, #4a5568);
-            border-radius: 20px;
-            max-width: 1000px;
-            width: 95%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            min-height: 100vh;
+            background: #1a202c;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 25px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            border-bottom: 2px solid #8b5cf6;
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .modal-header h2 {
             color: #ffffff;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 600;
             margin: 0;
         }
 
         .modal-close {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 28px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 24px;
             cursor: pointer;
-            transition: color 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
         .modal-close:hover {
-            color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
 
         .modal-content {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .trade-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .trade-card {
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
             padding: 30px;
         }
 
-        .trade-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+        .trade-card.buy-card {
+            border-color: #8b5cf6;
         }
 
-        .summary-card {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
+        .trade-card.sell-card {
+            border-color: #ec4899;
         }
 
-        .summary-card.highlight {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.2));
-            border: 1px solid #8b5cf6;
+        .trade-card.spread-card {
+            border-color: #10b981;
+        }
+
+        .card-title {
+            color: #8b5cf6;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .sell-card .card-title {
+            color: #ec4899;
+        }
+
+        .spread-card .card-title {
+            color: #10b981;
+        }
+
+        .card-details {
+            space-y: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .detail-value {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 16px;
         }
 
         .summary-label {
