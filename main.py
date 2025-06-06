@@ -4078,7 +4078,24 @@ def step2(symbol=None):
                     Data is automatically refreshed every 15 minutes during market hours.
                 </div>
                 <div class="strategy-button-container">
-                    <a href="/step3/{{ symbol }}" class="choose-strategy-btn">Choose Income Strategy →</a>
+                    <a href="/step3/{{ symbol }}" class="choose-strategy-btn" onclick="showStep3Loading()">Choose Income Strategy →</a>
+                </div>
+                
+                <!-- Loading Overlay for Step 3 Navigation -->
+                <div id="step3NavigationOverlay" class="loading-overlay">
+                    <div class="loading-container">
+                        <div class="loading-spinner"></div>
+                        <h3 class="loading-title">Analyzing {{ symbol }} Options</h3>
+                        <p class="loading-subtitle">Finding optimal income strategies...</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div class="loading-steps">
+                            <div class="loading-step active" id="nav-step1">Fetching live options contracts</div>
+                            <div class="loading-step" id="nav-step2">Calculating spread scenarios</div>
+                            <div class="loading-step" id="nav-step3">Optimizing trade parameters</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4226,6 +4243,25 @@ def step2(symbol=None):
                     }
                 }
             });
+        }
+        
+        function showStep3Loading() {
+            const overlay = document.getElementById('step3NavigationOverlay');
+            overlay.style.display = 'flex';
+            
+            // Simulate progress steps
+            setTimeout(() => {
+                document.getElementById('nav-step1').classList.remove('active');
+                document.getElementById('nav-step2').classList.add('active');
+            }, 600);
+            
+            setTimeout(() => {
+                document.getElementById('nav-step2').classList.remove('active');
+                document.getElementById('nav-step3').classList.add('active');
+            }, 1200);
+            
+            // Allow normal navigation to proceed
+            return true;
         }
         
         console.log('Step 2 loaded for {{ symbol }}');
@@ -4704,6 +4740,118 @@ def step3(symbol=None):
         .back-scoreboard-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
+        }
+
+        /* Loading Overlay Styles for Step 2 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 32, 44, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-container {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(139, 92, 246, 0.3);
+            border-top: 4px solid #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .loading-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-radius: 4px;
+            animation: progress 3s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        .loading-steps {
+            text-align: left;
+        }
+
+        .loading-step {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .loading-step::before {
+            content: '○';
+            position: absolute;
+            left: 0;
+            color: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .loading-step.active {
+            color: #8b5cf6;
+        }
+
+        .loading-step.active::before {
+            content: '●';
+            color: #8b5cf6;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         /* Loading Overlay Styles */
