@@ -41,7 +41,7 @@ def load_etf_data_from_database():
     try:
         # Get all ETF data from database - ALREADY SORTED by score DESC, volume DESC
         db_data = etf_db.get_all_etfs()
-        logger.info(f"RANKING: Loading {len(db_data)} symbols with automatic score + volume ranking")
+        # Database loaded silently
         
         # Default sector mappings to keep frontend naming consistent
         sector_mappings = {
@@ -71,7 +71,7 @@ def load_etf_data_from_database():
                 'stabilizing': bool(criteria['stabilizing'])
             }
             
-            logger.info(f"REAL CRITERIA: {symbol} score={total_score}, criteria={met_criteria}")
+            # Criteria processed silently
             
             # Create indicators structure exactly as frontend expects
             indicators = {
@@ -122,7 +122,7 @@ def load_etf_data_from_database():
                 "indicators": indicators
             }
         
-        logger.info(f"Loaded {len(db_data)} symbols from database into etf_scores")
+        # Symbols loaded silently
         
     except Exception as e:
         logger.error(f"Error loading ETF data from database: {str(e)}")
