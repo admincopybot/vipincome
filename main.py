@@ -4817,6 +4817,185 @@ def step3(symbol=None):
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 32, 44, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-container {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            border-radius: 20px;
+            max-width: 1000px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header h2 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #ffffff;
+        }
+
+        .modal-content {
+            padding: 30px;
+        }
+
+        .trade-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .summary-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-card.highlight {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.2));
+            border: 1px solid #8b5cf6;
+        }
+
+        .summary-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .trade-details-section, .scenarios-section {
+            margin-bottom: 40px;
+        }
+
+        .trade-details-section h3, .scenarios-section h3 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #8b5cf6;
+            padding-bottom: 10px;
+        }
+
+        .trade-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .trade-info-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .trade-info-card h4 {
+            color: #8b5cf6;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .scenarios-table {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .scenario-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 1px;
+            background: #8b5cf6;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 15px 0;
+        }
+
+        .scenario-header > div {
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .scenario-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 1px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .scenario-row > div {
+            text-align: center;
+            padding: 0 10px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .scenario-row.win {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .scenario-row.loss {
+            background: rgba(239, 68, 68, 0.1);
+        }
         
         @media (max-width: 768px) {
             .strategies-grid {
@@ -4939,7 +5118,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.spread_id if options_data.passive.found else 'none' }}" class="strategy-btn">Select Conservative Strategy</a>
+                    <button class="strategy-btn" onclick="showTradeAnalysis('passive', '{{ symbol }}', {{ options_data.passive|tojson }})">View Trade Analysis</button>
                 </div>
                 
                 <div class="strategy-card">
@@ -4986,7 +5165,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.spread_id if options_data.steady.found else 'none' }}" class="strategy-btn">Select Balanced Strategy</a>
+                    <button class="strategy-btn" onclick="showTradeAnalysis('steady', '{{ symbol }}', {{ options_data.steady|tojson }})">View Trade Analysis</button>
                 </div>
                 
                 <div class="strategy-card">
@@ -5033,7 +5212,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.spread_id if options_data.aggressive.found else 'none' }}" class="strategy-btn" onclick="showTradeLoading()">Select Aggressive Strategy</a>
+                    <button class="strategy-btn" onclick="showTradeAnalysis('aggressive', '{{ symbol }}', {{ options_data.aggressive|tojson }})">View Trade Analysis</button>
                 </div>
             </div>
             
@@ -5042,19 +5221,100 @@ def step3(symbol=None):
             </div>
         </div>
 
-        <!-- Loading Overlay -->
-        <div id="tradeLoadingOverlay" class="loading-overlay">
-            <div class="loading-container">
-                <div class="loading-spinner"></div>
-                <h3 class="loading-title">Finding Best Trades</h3>
-                <p class="loading-subtitle">Analyzing real-time options data...</p>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
+        <!-- Trade Analysis Modal -->
+        <div id="tradeAnalysisModal" class="modal-overlay">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Trade Analysis</h2>
+                    <button class="modal-close" onclick="closeTradeAnalysis()">&times;</button>
                 </div>
-                <div class="loading-steps">
-                    <div class="loading-step active" id="step1">Fetching live market data</div>
-                    <div class="loading-step" id="step2">Calculating spread scenarios</div>
-                    <div class="loading-step" id="step3">Optimizing trade parameters</div>
+                
+                <div class="modal-content">
+                    <div class="trade-summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-label">Current Stock Price</div>
+                            <div class="summary-value" id="currentPrice">$0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Spread Cost</div>
+                            <div class="summary-value" id="spreadCost">$0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Call Strikes</div>
+                            <div class="summary-value" id="callStrikes">$0.00 & $0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Breakeven Price</div>
+                            <div class="summary-value" id="breakevenPrice">$0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Max Profit</div>
+                            <div class="summary-value" id="maxProfit">$0.00</div>
+                        </div>
+                        <div class="summary-card highlight">
+                            <div class="summary-label">Return on Investment</div>
+                            <div class="summary-value" id="roiPercent">0.00%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trade-details-section">
+                        <h3>Trade Details</h3>
+                        <div class="trade-info-grid">
+                            <div class="trade-info-card">
+                                <h4>Buy ($<span id="longStrike">0.00</span>)</h4>
+                                <div class="info-row">
+                                    <span>Option ID:</span>
+                                    <span id="longContract">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span>Price:</span>
+                                    <span id="longPrice">$0.00</span>
+                                </div>
+                            </div>
+                            <div class="trade-info-card">
+                                <h4>Sell ($<span id="shortStrike">0.00</span>)</h4>
+                                <div class="info-row">
+                                    <span>Option ID:</span>
+                                    <span id="shortContract">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span>Price:</span>
+                                    <span id="shortPrice">$0.00</span>
+                                </div>
+                            </div>
+                            <div class="trade-info-card">
+                                <h4>Spread Details</h4>
+                                <div class="info-row">
+                                    <span>Width:</span>
+                                    <span id="spreadWidth">$1.00</span>
+                                </div>
+                                <div class="info-row">
+                                    <span>Expiration:</span>
+                                    <span id="expirationDate">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span>DTE:</span>
+                                    <span id="daysToExpiry">0 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="scenarios-section">
+                        <h3>Stock Price Scenarios</h3>
+                        <div class="scenarios-table">
+                            <div class="scenario-header">
+                                <div>Change</div>
+                                <div>Stock Price</div>
+                                <div>ROI %</div>
+                                <div>Profit</div>
+                                <div>Outcome</div>
+                            </div>
+                            <div id="scenariosContent">
+                                <!-- Scenarios will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -5072,31 +5332,113 @@ function updateCountdown() {
     }
 }
 
-function showTradeLoading() {
-    const overlay = document.getElementById('tradeLoadingOverlay');
-    overlay.style.display = 'flex';
+function showTradeAnalysis(strategy, symbol, data) {
+    console.log('Opening trade analysis for:', strategy, symbol, data);
     
-    // Simulate progress steps
-    setTimeout(() => {
-        document.getElementById('step1').classList.remove('active');
-        document.getElementById('step2').classList.add('active');
-    }, 1000);
+    if (!data || !data.found) {
+        alert('No viable trade data available for this strategy.');
+        return;
+    }
     
-    setTimeout(() => {
-        document.getElementById('step2').classList.remove('active');
-        document.getElementById('step3').classList.add('active');
-    }, 2000);
+    // Update modal title
+    document.getElementById('modalTitle').textContent = `${symbol} ${strategy.charAt(0).toUpperCase() + strategy.slice(1)} Trade Analysis`;
+    
+    // Populate summary data
+    document.getElementById('currentPrice').textContent = `$${parseFloat(data.current_price || 0).toFixed(2)}`;
+    document.getElementById('spreadCost').textContent = `$${parseFloat(data.spread_cost || 0).toFixed(2)}`;
+    document.getElementById('callStrikes').textContent = `$${parseFloat(data.long_strike || 0).toFixed(2)} & $${parseFloat(data.short_strike || 0).toFixed(2)}`;
+    document.getElementById('breakevenPrice').textContent = `$${parseFloat(data.breakeven || 0).toFixed(2)}`;
+    document.getElementById('maxProfit').textContent = `$${parseFloat(data.max_profit || 0).toFixed(2)}`;
+    document.getElementById('roiPercent').textContent = `${parseFloat(data.roi || 0).toFixed(1)}%`;
+    
+    // Populate trade details
+    document.getElementById('longStrike').textContent = parseFloat(data.long_strike || 0).toFixed(2);
+    document.getElementById('shortStrike').textContent = parseFloat(data.short_strike || 0).toFixed(2);
+    document.getElementById('longContract').textContent = data.long_contract || '-';
+    document.getElementById('shortContract').textContent = data.short_contract || '-';
+    document.getElementById('longPrice').textContent = `$${parseFloat(data.long_price || 0).toFixed(2)}`;
+    document.getElementById('shortPrice').textContent = `$${parseFloat(data.short_price || 0).toFixed(2)}`;
+    document.getElementById('spreadWidth').textContent = `$${parseFloat(data.spread_width || 1).toFixed(2)}`;
+    document.getElementById('expirationDate').textContent = data.expiration || '-';
+    document.getElementById('daysToExpiry').textContent = `${data.dte || 0} days`;
+    
+    // Generate scenario analysis
+    generateScenarios(data);
+    
+    // Show modal
+    document.getElementById('tradeAnalysisModal').style.display = 'flex';
 }
 
-// Add click handlers to all strategy buttons
+function closeTradeAnalysis() {
+    document.getElementById('tradeAnalysisModal').style.display = 'none';
+}
+
+function generateScenarios(data) {
+    const scenarios = [
+        { change: '-5%', multiplier: 0.95 },
+        { change: '-2.5%', multiplier: 0.975 },
+        { change: '-1%', multiplier: 0.99 },
+        { change: '0%', multiplier: 1.0 },
+        { change: '+1%', multiplier: 1.01 },
+        { change: '+2.5%', multiplier: 1.025 },
+        { change: '+5%', multiplier: 1.05 }
+    ];
+    
+    const currentPrice = parseFloat(data.current_price || 0);
+    const longStrike = parseFloat(data.long_strike || 0);
+    const shortStrike = parseFloat(data.short_strike || 0);
+    const spreadCost = parseFloat(data.spread_cost || 0);
+    const maxProfit = parseFloat(data.max_profit || 0);
+    
+    const scenariosContent = document.getElementById('scenariosContent');
+    scenariosContent.innerHTML = '';
+    
+    scenarios.forEach(scenario => {
+        const stockPrice = currentPrice * scenario.multiplier;
+        let profit;
+        let outcome;
+        let roi;
+        
+        if (stockPrice >= shortStrike) {
+            // Maximum profit
+            profit = maxProfit;
+            outcome = 'WIN';
+            roi = (profit / spreadCost) * 100;
+        } else if (stockPrice >= longStrike) {
+            // Partial profit
+            profit = stockPrice - longStrike - spreadCost;
+            outcome = profit > 0 ? 'WIN' : 'LOSS';
+            roi = (profit / spreadCost) * 100;
+        } else {
+            // Maximum loss
+            profit = -spreadCost;
+            outcome = 'LOSS';
+            roi = -100;
+        }
+        
+        const row = document.createElement('div');
+        row.className = `scenario-row ${outcome.toLowerCase()}`;
+        row.innerHTML = `
+            <div>${scenario.change}</div>
+            <div>$${stockPrice.toFixed(2)}</div>
+            <div>${roi.toFixed(1)}%</div>
+            <div>$${profit.toFixed(2)}</div>
+            <div>${outcome}</div>
+        `;
+        scenariosContent.appendChild(row);
+    });
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('tradeAnalysisModal');
+    if (e.target === modal) {
+        closeTradeAnalysis();
+    }
+});
+
 document.addEventListener("DOMContentLoaded", function() {
     updateCountdown();
-    
-    // Add loading to all strategy buttons
-    const strategyBtns = document.querySelectorAll('.strategy-btn');
-    strategyBtns.forEach(btn => {
-        btn.addEventListener('click', showTradeLoading);
-    });
 });
 </script>
 </body>
