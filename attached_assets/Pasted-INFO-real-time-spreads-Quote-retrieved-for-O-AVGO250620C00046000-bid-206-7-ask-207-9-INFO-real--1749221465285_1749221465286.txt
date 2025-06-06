@@ -1,0 +1,189 @@
+INFO:real_time_spreads:Quote retrieved for O:AVGO250620C00046000: bid=$206.7, ask=$207.9
+INFO:real_time_spreads:Quote retrieved for O:AVGO250620C00051000: bid=$201.9, ask=$203.7
+INFO:real_time_spreads:Checking spread 18/20: O:AVGO250620C00046000 / O:AVGO250620C00056000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250620C00046000: bid=$206.8, ask=$208.8
+INFO:real_time_spreads:Quote retrieved for O:AVGO250620C00056000: bid=$196.6, ask=$198.6
+INFO:real_time_spreads:Checking spread 19/20: O:AVGO250620C00047000 / O:AVGO250620C00048000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250620C00047000: bid=$205.85, ask=$207.15
+INFO:real_time_spreads:Quote retrieved for O:AVGO250620C00048000: bid=$204.65, ask=$206.6
+INFO:real_time_spreads:Checking spread 20/20: O:AVGO250620C00047000 / O:AVGO250620C00052000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250620C00047000: bid=$205.85, ask=$207.15
+INFO:real_time_spreads:Quote retrieved for O:AVGO250620C00052000: bid=$200.8, ask=$202.35
+INFO:real_time_spreads:Processing balanced strategy for AVGO
+INFO:real_time_spreads:Filtered to 35 contracts for balanced strategy
+INFO:real_time_spreads:Generated 61 viable spread pairs
+INFO:real_time_spreads:Processing 20 spread pairs for balanced (optimized for speed)
+INFO:real_time_spreads:Checking spread 1/20: O:AVGO250627C00255000 / O:AVGO250627C00260000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00255000: bid=$8.75, ask=$8.9
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00260000: bid=$6.6, ask=$6.75
+INFO:real_time_spreads:Checking spread 2/20: O:AVGO250627C00255000 / O:AVGO250627C00265000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00255000: bid=$8.7, ask=$8.9
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00265000: bid=$4.9, ask=$5.05
+INFO:real_time_spreads:Checking spread 3/20: O:AVGO250627C00260000 / O:AVGO250627C00265000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00260000: bid=$6.6, ask=$6.75
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00265000: bid=$4.9, ask=$5.05
+INFO:real_time_spreads:Checking spread 4/20: O:AVGO250627C00260000 / O:AVGO250627C00270000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00260000: bid=$6.6, ask=$6.75
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00270000: bid=$3.6, ask=$3.75
+INFO:real_time_spreads:Checking spread 5/20: O:AVGO250627C00265000 / O:AVGO250627C00270000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00265000: bid=$4.95, ask=$5.05
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00270000: bid=$3.6, ask=$3.75
+INFO:real_time_spreads:Checking spread 6/20: O:AVGO250627C00265000 / O:AVGO250627C00275000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00265000: bid=$4.95, ask=$5.05
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00275000: bid=$2.65, ask=$2.74
+INFO:real_time_spreads:Checking spread 7/20: O:AVGO250627C00270000 / O:AVGO250627C00275000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00270000: bid=$3.6, ask=$3.75
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00275000: bid=$2.65, ask=$2.74
+INFO:real_time_spreads:Checking spread 8/20: O:AVGO250627C00270000 / O:AVGO250627C00280000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00270000: bid=$3.6, ask=$3.75
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00280000: bid=$1.93, ask=$1.99
+INFO:real_time_spreads:Checking spread 9/20: O:AVGO250627C00275000 / O:AVGO250627C00280000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00275000: bid=$2.65, ask=$2.74
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00280000: bid=$1.93, ask=$1.99
+INFO:real_time_spreads:Checking spread 10/20: O:AVGO250627C00275000 / O:AVGO250627C00285000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00275000: bid=$2.65, ask=$2.73
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00285000: bid=$1.42, ask=$1.47
+INFO:real_time_spreads:Checking spread 11/20: O:AVGO250627C00280000 / O:AVGO250627C00285000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00280000: bid=$1.91, ask=$2
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00285000: bid=$1.4, ask=$1.47
+INFO:real_time_spreads:Checking spread 12/20: O:AVGO250627C00280000 / O:AVGO250627C00290000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00280000: bid=$1.92, ask=$1.99
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00290000: bid=$1.03, ask=$1.08
+INFO:real_time_spreads:Checking spread 13/20: O:AVGO250627C00285000 / O:AVGO250627C00290000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00285000: bid=$1.4, ask=$1.47
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00290000: bid=$1.03, ask=$1.08
+INFO:real_time_spreads:Checking spread 14/20: O:AVGO250627C00285000 / O:AVGO250627C00295000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00285000: bid=$1.4, ask=$1.47
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00295000: bid=$0.79, ask=$0.84
+INFO:real_time_spreads:Checking spread 15/20: O:AVGO250627C00290000 / O:AVGO250627C00295000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00290000: bid=$1.03, ask=$1.08
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00295000: bid=$0.79, ask=$0.84
+INFO:real_time_spreads:Checking spread 16/20: O:AVGO250627C00290000 / O:AVGO250627C00300000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00290000: bid=$1.03, ask=$1.08
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00300000: bid=$0.62, ask=$0.65
+INFO:real_time_spreads:Checking spread 17/20: O:AVGO250627C00295000 / O:AVGO250627C00300000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00295000: bid=$0.79, ask=$0.84
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00300000: bid=$0.62, ask=$0.65
+INFO:real_time_spreads:Checking spread 18/20: O:AVGO250627C00295000 / O:AVGO250627C00305000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00295000: bid=$0.79, ask=$0.84
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00305000: bid=$0.48, ask=$0.52
+INFO:real_time_spreads:Checking spread 19/20: O:AVGO250627C00300000 / O:AVGO250627C00305000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00300000: bid=$0.62, ask=$0.65
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00305000: bid=$0.48, ask=$0.52
+INFO:real_time_spreads:Checking spread 20/20: O:AVGO250627C00300000 / O:AVGO250627C00310000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00300000: bid=$0.62, ask=$0.65
+INFO:real_time_spreads:Quote retrieved for O:AVGO250627C00310000: bid=$0.38, ask=$0.41
+INFO:real_time_spreads:Processing conservative strategy for AVGO
+INFO:real_time_spreads:Filtered to 36 contracts for conservative strategy
+INFO:real_time_spreads:Generated 52 viable spread pairs
+INFO:real_time_spreads:Processing 20 spread pairs for conservative (optimized for speed)
+INFO:real_time_spreads:Checking spread 1/20: O:AVGO250711C00235000 / O:AVGO250711C00240000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00235000: bid=$23.25, ask=$24.45
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00240000: bid=$19.75, ask=$21.25
+INFO:real_time_spreads:Checking spread 2/20: O:AVGO250711C00235000 / O:AVGO250711C00245000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00235000: bid=$23.3, ask=$24.4
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00245000: bid=$16.7, ask=$17.3
+INFO:real_time_spreads:Checking spread 3/20: O:AVGO250711C00240000 / O:AVGO250711C00245000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00240000: bid=$19.75, ask=$21.2
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00245000: bid=$16.75, ask=$17.3
+INFO:real_time_spreads:Found viable conservative spread: 12.4% ROI
+INFO:real_time_spreads:New best conservative spread: 12.4% ROI
+INFO:real_time_spreads:Checking spread 4/20: O:AVGO250711C00240000 / O:AVGO250711C00250000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00240000: bid=$19.75, ask=$21.2
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00250000: bid=$13.9, ask=$14.6
+INFO:real_time_spreads:Checking spread 5/20: O:AVGO250711C00245000 / O:AVGO250711C00250000
+INFO:real_time_spreads:Quote retrieved for O:AVGO250711C00245000: bid=$16.75, ask=$17.3
+[2025-06-06 14:50:48 +0000] [4358] [CRITICAL] WORKER TIMEOUT (pid:4500)
+[2025-06-06 14:50:48 +0000] [4500] [ERROR] Error handling request /step3/AVGO
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 4364, in step3
+    options_data = fetch_options_data(symbol, current_price)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 1546, in fetch_options_data
+    spread_results = get_real_time_spreads(symbol, current_price)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/real_time_spreads.py", line 324, in get_real_time_spreads
+    return detector.find_best_spreads(symbol, current_price)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/real_time_spreads.py", line 289, in find_best_spreads
+    metrics = self.calculate_spread_metrics(long_contract, short_contract)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/real_time_spreads.py", line 189, in calculate_spread_metrics
+    short_quote = self.get_real_time_quote(short_ticker)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/real_time_spreads.py", line 152, in get_real_time_quote
+    response = requests.get(url, params=params, timeout=10)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/adapters.py", line 667, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connection.py", line 741, in connect
+    sock_and_verified = _ssl_wrap_socket_and_match_hostname(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connection.py", line 920, in _ssl_wrap_socket_and_match_hostname
+    ssl_sock = ssl_wrap_socket(
+               ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/util/ssl_.py", line 460, in ssl_wrap_socket
+    ssl_sock = _ssl_wrap_socket_impl(sock, context, tls_in_tls, server_hostname)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/util/ssl_.py", line 504, in _ssl_wrap_socket_impl
+    return ssl_context.wrap_socket(sock, server_hostname=server_hostname)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/ssl.py", line 517, in wrap_socket
+    return self.sslsocket_class._create(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/ssl.py", line 1104, in _create
+    self.do_handshake()
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/ssl.py", line 1382, in do_handshake
+    self._sslobj.do_handshake()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
+[2025-06-06 14:50:48 +0000] [4500] [INFO] Worker exiting (pid: 4500)
+[2025-06-06 14:50:48 +0000] [4540] [INFO] Booting worker with pid: 4540
+INFO:database_models:Database initialized with CSV format and trading volume support
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+INFO:main:Loaded 1 symbols from database into etf_scores
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+INFO:main:Loaded 1 symbols from database into etf_scores
+[2025-06-06 14:50:53 +0000] [4358] [INFO] Handling signal: term
+[2025-06-06 14:50:53 +0000] [4540] [INFO] Worker exiting (pid: 4540)
+[2025-06-06 14:50:53 +0000] [4358] [INFO] Shutting down: Master

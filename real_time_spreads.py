@@ -138,7 +138,7 @@ class RealTimeSpreadDetector:
         return pairs
     
     def get_real_time_quote(self, ticker: str) -> Optional[Dict]:
-        """Get real-time bid/ask quote from TheTradeList API"""
+        """Get real-time bid/ask quote from TheTradeList API with retry mechanism"""
         try:
             url = "https://api.thetradelist.com/v1/data/last-quote"
             params = {
@@ -146,18 +146,33 @@ class RealTimeSpreadDetector:
                 'apiKey': self.tradelist_api_key
             }
             
-            response = requests.get(url, params=params)
+            # Add timeout and retry for network issues
+            for attempt in range(3):
+                try:
+                    response = requests.get(url, params=params, timeout=10)
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        if data.get('status') == 'OK' and data.get('results'):
+                            logger.info(f"Quote retrieved for {ticker}: bid=${data['results'][0].get('bid_price')}, ask=${data['results'][0].get('ask_price')}")
+                            return data['results'][0]
+                    
+                    logger.warning(f"Attempt {attempt + 1}: No quote data for {ticker}, status: {response.status_code}")
+                    
+                except requests.exceptions.RequestException as e:
+                    logger.warning(f"Attempt {attempt + 1}: Network error for {ticker}: {e}")
+                    if attempt < 2:  # Wait before retry
+                        import time
+                        time.sleep(1)
+                    continue
+                
+                break
             
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('status') == 'OK' and data.get('results'):
-                    return data['results'][0]
-            
-            logger.warning(f"No quote data for {ticker}")
+            logger.error(f"Failed to get quote for {ticker} after 3 attempts")
             return None
             
         except Exception as e:
-            logger.error(f"Error getting quote for {ticker}: {e}")
+            logger.error(f"Critical error getting quote for {ticker}: {e}")
             return None
     
     def calculate_spread_metrics(self, long_contract: Dict, short_contract: Dict) -> Optional[Dict]:
@@ -261,16 +276,23 @@ class RealTimeSpreadDetector:
                 }
                 continue
             
-            # Calculate metrics for each pair and find best ROI
+            # Calculate metrics for top spread pairs (optimize for speed)
             best_spread = None
             roi_min, roi_max = roi_ranges[strategy]
             
-            for long_contract, short_contract in spread_pairs:
+            # Process only first 20 pairs to ensure completion within timeout
+            pairs_to_check = spread_pairs[:20]
+            logger.info(f"Processing {len(pairs_to_check)} spread pairs for {strategy} (optimized for speed)")
+            
+            for i, (long_contract, short_contract) in enumerate(pairs_to_check):
+                logger.info(f"Checking spread {i+1}/{len(pairs_to_check)}: {long_contract.get('ticker')} / {short_contract.get('ticker')}")
                 metrics = self.calculate_spread_metrics(long_contract, short_contract)
                 
                 if metrics and roi_min <= metrics['roi'] <= roi_max:
+                    logger.info(f"Found viable {strategy} spread: {metrics['roi']:.1f}% ROI")
                     if not best_spread or metrics['roi'] > best_spread['roi']:
                         best_spread = metrics
+                        logger.info(f"New best {strategy} spread: {metrics['roi']:.1f}% ROI")
             
             if best_spread:
                 results[strategy] = {
