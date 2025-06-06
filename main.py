@@ -5291,7 +5291,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick="showTradeAnalysis('passive', '{{ symbol }}', {{ options_data.passive|tojson|safe }})">View Trade Analysis</button>
+                    <button class="strategy-btn" onclick='showTradeAnalysis("passive", "{{ symbol }}", {{ options_data.passive|tojson|safe }})'>View Trade Analysis</button>
                 </div>
                 
                 <div class="strategy-card">
@@ -5338,7 +5338,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick="showTradeAnalysis('steady', '{{ symbol }}', {{ options_data.steady|tojson|safe }})">View Trade Analysis</button>
+                    <button class="strategy-btn" onclick='showTradeAnalysis("steady", "{{ symbol }}", {{ options_data.steady|tojson|safe }})'>View Trade Analysis</button>
                 </div>
                 
                 <div class="strategy-card">
@@ -5385,7 +5385,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick="showTradeAnalysis('aggressive', '{{ symbol }}', {{ options_data.aggressive|tojson|safe }})">View Trade Analysis</button>
+                    <button class="strategy-btn" onclick='showTradeAnalysis("aggressive", "{{ symbol }}", {{ options_data.aggressive|tojson|safe }})'>View Trade Analysis</button>
                 </div>
             </div>
             
