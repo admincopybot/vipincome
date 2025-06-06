@@ -59,16 +59,15 @@ def load_etf_data_from_database():
         
         # Convert database format to frontend format using new CSV structure
         for symbol, data in db_data.items():
-            criteria = data['criteria']
             total_score = data['total_score']
             
             # USE ACTUAL DATABASE CRITERIA VALUES - directly from stored CSV data
             met_criteria = {
-                'trend1': bool(criteria['trend1']),
-                'trend2': bool(criteria['trend2']), 
-                'snapback': bool(criteria['snapback']),
-                'momentum': bool(criteria['momentum']),
-                'stabilizing': bool(criteria['stabilizing'])
+                'trend1': bool(data.get('trend1_pass', False)),
+                'trend2': bool(data.get('trend2_pass', False)), 
+                'snapback': bool(data.get('snapback_pass', False)),
+                'momentum': bool(data.get('momentum_pass', False)),
+                'stabilizing': bool(data.get('stabilizing_pass', False))
             }
             
             # Criteria processed silently
