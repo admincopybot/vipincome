@@ -246,9 +246,9 @@ class RealTimeSpreadDetector:
         
         strategies = ['aggressive', 'balanced', 'conservative']
         roi_ranges = {
-            'aggressive': (35, 50),
-            'balanced': (15, 25),
-            'conservative': (10, 15)
+            'aggressive': (25, 50),
+            'balanced': (12, 25),
+            'conservative': (8, 15)
         }
         
         for strategy in strategies:
