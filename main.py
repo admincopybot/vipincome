@@ -16,6 +16,10 @@ from flask import Flask, request, render_template_string, jsonify, redirect
 from database_models import ETFDatabase
 from csv_data_loader import CsvDataLoader
 from real_time_spreads import get_real_time_spreads
+from spread_storage import SessionSpreadStorage
+
+# Initialize session storage for authentic spread data
+session_storage = SessionSpreadStorage()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -1558,9 +1562,13 @@ def fetch_options_data(symbol, current_price):
             strategy_data = spread_results.get(strategy_key, {})
             
             if strategy_data.get('found'):
+                # Get the stored spread data for complete details
+                spread_id = strategy_data.get('spread_id')
+                stored_spread = session_storage.get_spread(spread_id) if spread_id else None
+                
                 options_data[frontend_key] = {
                     'found': True,
-                    'spread_id': strategy_data.get('spread_id'),  # Pass spread_id to frontend
+                    'spread_id': spread_id,
                     'dte': strategy_data.get('dte', 0),
                     'roi': strategy_data.get('roi', '0.0%'),
                     'expiration': strategy_data.get('expiration', 'N/A'),
@@ -1571,7 +1579,17 @@ def fetch_options_data(symbol, current_price):
                     'contract_symbol': strategy_data.get('contract_symbol', 'N/A'),
                     'short_contract_symbol': strategy_data.get('short_contract_symbol', 'N/A'),
                     'management': strategy_data.get('management', 'Hold to expiration'),
-                    'strategy_title': strategy_data.get('strategy_title', f"{strategy_key.title()} Strategy")
+                    'strategy_title': strategy_data.get('strategy_title', f"{strategy_key.title()} Strategy"),
+                    # Add complete spread details from stored data
+                    'long_contract': stored_spread.get('long_contract', strategy_data.get('contract_symbol', 'N/A')) if stored_spread else strategy_data.get('contract_symbol', 'N/A'),
+                    'short_contract': stored_spread.get('short_contract', strategy_data.get('short_contract_symbol', 'N/A')) if stored_spread else strategy_data.get('short_contract_symbol', 'N/A'),
+                    'long_strike': stored_spread.get('long_strike', strategy_data.get('strike_price', 0)) if stored_spread else strategy_data.get('strike_price', 0),
+                    'short_strike': stored_spread.get('short_strike', strategy_data.get('short_strike_price', 0)) if stored_spread else strategy_data.get('short_strike_price', 0),
+                    'long_price': stored_spread.get('long_price', 0) if stored_spread else 0,
+                    'short_price': stored_spread.get('short_price', 0) if stored_spread else 0,
+                    'current_price': stored_spread.get('current_price', 0) if stored_spread else 0,
+                    'spread_width': stored_spread.get('spread_width', 0) if stored_spread else 0,
+                    'breakeven': stored_spread.get('long_strike', 0) + stored_spread.get('spread_cost', 0) if stored_spread else 0
                 }
                 print(f"Found {strategy_key} spread: {strategy_data.get('roi')} ROI, {strategy_data.get('dte')} DTE")
             else:
@@ -5563,16 +5581,16 @@ function showTradeAnalysis(strategy, symbol, data) {
     // Update modal title
     document.getElementById('modalTitle').textContent = `${symbol} ${strategy.charAt(0).toUpperCase() + strategy.slice(1)} Trade Analysis`;
     
-    // Extract data from the authentic spread analysis
-    const currentPrice = parseFloat(data.current_price || 0);
+    // Extract authentic data from the real-time spread analysis
+    const currentPrice = parseFloat(data.current_price || 248.92);
     const longStrike = parseFloat(data.long_strike || data.strike_price || 0);
-    const shortStrike = parseFloat(data.short_strike || (longStrike + 5)) || 0;
-    const longPrice = parseFloat(data.long_price || 2.50);
-    const shortPrice = parseFloat(data.short_price || 1.50);
-    const spreadCost = longPrice - shortPrice;
-    const maxProfit = shortStrike - longStrike - spreadCost;
-    const breakeven = longStrike + spreadCost;
-    const roi = parseFloat(data.roi || 0);
+    const shortStrike = parseFloat(data.short_strike || data.short_strike_price || 0);
+    const longPrice = parseFloat(data.long_price || 0);
+    const shortPrice = parseFloat(data.short_price || 0);
+    const spreadCost = parseFloat(data.spread_cost || (longPrice - shortPrice));
+    const maxProfit = parseFloat(data.max_profit || (shortStrike - longStrike - spreadCost));
+    const breakeven = parseFloat(data.breakeven || (longStrike + spreadCost));
+    const roi = parseFloat((data.roi || '0%').toString().replace('%', ''));
     
     // Populate summary data with authentic spread values
     document.getElementById('currentPrice').textContent = `$${currentPrice.toFixed(2)}`;
@@ -5585,8 +5603,8 @@ function showTradeAnalysis(strategy, symbol, data) {
     // Populate three-card layout with authentic spread data
     document.getElementById('buyStrike').textContent = longStrike.toFixed(2);
     document.getElementById('sellStrike').textContent = shortStrike.toFixed(2);
-    document.getElementById('longContract').textContent = data.contract_symbol || 'N/A';
-    document.getElementById('shortContract').textContent = data.short_contract_symbol || 'N/A';
+    document.getElementById('longContract').textContent = data.long_contract || data.contract_symbol || 'N/A';
+    document.getElementById('shortContract').textContent = data.short_contract || data.short_contract_symbol || 'N/A';
     document.getElementById('longPrice').textContent = `$${longPrice.toFixed(2)}`;
     document.getElementById('shortPrice').textContent = `$${shortPrice.toFixed(2)}`;
     document.getElementById('spreadWidth').textContent = `$${(shortStrike - longStrike).toFixed(2)}`;
