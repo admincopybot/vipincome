@@ -1,0 +1,96 @@
+27:49.13
+94484f5d
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 14:27:49.13
+94484f5d
+User
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+2025-06-06 14:27:49.13
+94484f5d
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 14:28:25.19
+94484f5d
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 14:28:25.19
+94484f5d
+User
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+2025-06-06 14:28:25.19
+94484f5d
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 14:28:39.75
+94484f5d
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 14:28:39.75
+94484f5d
+User
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+2025-06-06 14:28:39.75
+94484f5d
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 14:27:49.13
+94484f5d
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 14:27:49.13
+94484f5d
+User
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+2025-06-06 14:27:49.13
+94484f5d
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 14:28:25.19
+94484f5d
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 14:28:25.19
+94484f5d
+User
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+2025-06-06 14:28:25.19
+94484f5d
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 14:28:39.75
+94484f5d
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 14:28:39.75
+94484f5d
+User
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+2025-06-06 14:28:39.75
+94484f5d
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 14:34:58.01
+94484f5d
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 14:34:58.01
+94484f5d
+User
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+2025-06-06 14:34:58.01
+94484f5d
+User
+INFO:main:Loaded 1 symbols from database into etf_scores
+2025-06-06 14:34:59.67
+94484f5d
+User
+INFO:main:RANKING: Loading 1 symbols with automatic score + volume ranking
+2025-06-06 14:34:59.67
+94484f5d
+User
+INFO:main:REAL CRITERIA: AVGO score=4, criteria={'trend1': True, 'trend2': True, 'snapback': False, 'momentum': True, 'stabilizing': True}
+2025-06-06 14:34:59.67
+94484f5d
+User
+INFO:main:Loaded 1 symbols from database into etf_scores

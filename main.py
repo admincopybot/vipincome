@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from flask import Flask, request, render_template_string, jsonify, redirect
 from database_models import ETFDatabase
 from csv_data_loader import CsvDataLoader
+from real_time_spreads import get_real_time_spreads
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -1536,56 +1537,65 @@ def create_step4_demo_data(symbol, strategy, current_price):
     return render_template_string(template, symbol=symbol, strategy=strategy, option_data=demo_data)
 
 def fetch_options_data(symbol, current_price):
-    """Fetch options data from Polygon API and process for each strategy"""
-    import requests
-    from datetime import datetime, timedelta
-    
-    api_key = os.environ.get('POLYGON_API_KEY')
-    if not api_key:
-        return {
-            'passive': {'error': 'API key not configured'},
-            'steady': {'error': 'API key not configured'},
-            'aggressive': {'error': 'API key not configured'}
-        }
+    """Fetch real-time options spread data using complete detection pipeline"""
     
     try:
-        # Fetch options contracts
-        url = f"https://api.polygon.io/v3/reference/options/contracts"
-        params = {
-            'underlying_ticker': symbol,
-            'limit': 1000,
-            'apikey': api_key
+        print(f"Starting real-time spread detection for {symbol} at ${current_price:.2f}")
+        
+        # Use real-time spread detection system
+        spread_results = get_real_time_spreads(symbol, current_price)
+        print(f"Real-time spread detection completed for {symbol}")
+        
+        # Convert to format expected by frontend
+        options_data = {}
+        strategy_mapping = {
+            'aggressive': 'aggressive',
+            'balanced': 'steady',  # Map balanced to steady for frontend compatibility
+            'conservative': 'passive'  # Map conservative to passive for frontend compatibility
         }
         
-        response = requests.get(url, params=params)
-        if response.status_code != 200:
-            error_msg = f"API error: {response.status_code}"
-            return {
-                'passive': {'error': error_msg},
-                'steady': {'error': error_msg},
-                'aggressive': {'error': error_msg}
-            }
+        for strategy_key, frontend_key in strategy_mapping.items():
+            strategy_data = spread_results.get(strategy_key, {})
+            
+            if strategy_data.get('found'):
+                options_data[frontend_key] = {
+                    'found': True,
+                    'dte': strategy_data.get('dte', 0),
+                    'roi': strategy_data.get('roi', '0.0%'),
+                    'expiration': strategy_data.get('expiration', 'N/A'),
+                    'strike_price': strategy_data.get('strike_price', 0),
+                    'short_strike_price': strategy_data.get('short_strike_price', 0),
+                    'spread_cost': strategy_data.get('spread_cost', 0),
+                    'max_profit': strategy_data.get('max_profit', 0),
+                    'contract_symbol': strategy_data.get('contract_symbol', 'N/A'),
+                    'short_contract_symbol': strategy_data.get('short_contract_symbol', 'N/A'),
+                    'management': strategy_data.get('management', 'Hold to expiration'),
+                    'strategy_title': strategy_data.get('strategy_title', f"{strategy_key.title()} Strategy")
+                }
+                print(f"Found {strategy_key} spread: {strategy_data.get('roi')} ROI, {strategy_data.get('dte')} DTE")
+            else:
+                options_data[frontend_key] = {
+                    'found': False,
+                    'error': strategy_data.get('reason', 'No suitable spreads found'),
+                    'roi': '0.0%',
+                    'expiration': 'N/A',
+                    'dte': 0,
+                    'strike_price': 0,
+                    'short_strike_price': 0,
+                    'spread_cost': 0,
+                    'max_profit': 0,
+                    'contract_symbol': 'N/A',
+                    'short_contract_symbol': 'N/A',
+                    'management': 'N/A',
+                    'strategy_title': f"{strategy_key.title()} Strategy"
+                }
+                print(f"No {strategy_key} spread found: {strategy_data.get('reason')}")
         
-        data = response.json()
-        contracts = data.get('results', [])
-        
-        if not contracts:
-            no_data_msg = f"No options contracts available for {symbol}"
-            return {
-                'passive': {'error': no_data_msg},
-                'steady': {'error': no_data_msg},
-                'aggressive': {'error': no_data_msg}
-            }
-        
-        # Analyze contracts to find $1-wide debit spreads for each strategy
-        today = datetime.now()
-        print(f"Analyzing {len(contracts)} contracts for {symbol} at ${current_price:.2f}")
-        strategies = analyze_contracts_for_debit_spreads(contracts, current_price, today, symbol)
-        
-        return strategies
+        return options_data
         
     except Exception as e:
-        error_msg = f"Error fetching options data: {str(e)}"
+        error_msg = f"Real-time spread detection failed: {str(e)}"
+        print(f"Error in real-time spread detection: {e}")
         return {
             'passive': {'error': error_msg},
             'steady': {'error': error_msg},
