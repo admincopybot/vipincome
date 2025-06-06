@@ -5411,7 +5411,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick='showTradeAnalysis("passive", "{{ symbol }}", {{ options_data.passive|tojson|safe }})'>View Trade Analysis</button>
+                    <a href="/step4/{{ symbol }}/passive/{{ options_data.passive.spread_id }}" class="strategy-btn">View Trade Analysis</a>
                 </div>
                 
                 <div class="strategy-card">
@@ -5458,7 +5458,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick='showTradeAnalysis("steady", "{{ symbol }}", {{ options_data.steady|tojson|safe }})'>View Trade Analysis</button>
+                    <a href="/step4/{{ symbol }}/steady/{{ options_data.steady.spread_id }}" class="strategy-btn">View Trade Analysis</a>
                 </div>
                 
                 <div class="strategy-card">
@@ -5505,7 +5505,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <button class="strategy-btn" onclick='showTradeAnalysis("aggressive", "{{ symbol }}", {{ options_data.aggressive|tojson|safe }})'>View Trade Analysis</button>
+                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.spread_id }}" class="strategy-btn">View Trade Analysis</a>
                 </div>
             </div>
             
@@ -5514,136 +5514,7 @@ def step3(symbol=None):
             </div>
         </div>
 
-        <!-- Trade Analysis Modal -->
-        <div id="tradeAnalysisModal" class="modal-overlay">
-            <div class="modal-container">
-                <div class="modal-header">
-                    <h2 id="modalTitle">Trade Analysis</h2>
-                    <button class="modal-close" onclick="closeTradeAnalysis()">&times;</button>
-                </div>
-                
-                <div class="modal-content">
-                    <!-- Header Info Section -->
-                    <div class="header-info">
-                        <div class="expiration-display">
-                            <span>Expiration: <span id="modalExpiration">2025-06-27</span> (<span id="modalDTE">20</span> days)</span>
-                        </div>
-                        <div class="strikes-display">
-                            $<span id="modalLongStrike">230.00</span> / $<span id="modalShortStrike">235.00</span>
-                        </div>
-                        <div class="width-badge">
-                            Width: $<span id="modalWidth">5</span>
-                        </div>
-                    </div>
-
-                    <!-- Four Card Layout exactly like screenshot -->
-                    <div class="main-cards-grid">
-                        <div class="main-card buy-card">
-                            <h3>Buy ($<span id="buyStrike">230.00</span>)</h3>
-                            <div class="card-content">
-                                <div class="card-row">
-                                    <span class="card-label">Option ID:</span>
-                                    <span class="card-value" id="longContract">O:AVGO250627C00230000</span>
-                                </div>
-                                <div class="card-row">
-                                    <span class="card-label">Price:</span>
-                                    <span class="card-value" id="longPrice">$20.15</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="main-card sell-card">
-                            <h3>Sell ($<span id="sellStrike">235.00</span>)</h3>
-                            <div class="card-content">
-                                <div class="card-row">
-                                    <span class="card-label">Option ID:</span>
-                                    <span class="card-value" id="shortContract">O:AVGO250627C00235000</span>
-                                </div>
-                                <div class="card-row">
-                                    <span class="card-label">Price:</span>
-                                    <span class="card-value" id="shortPrice">$16.40</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="main-card spread-card">
-                            <h3>Spread Details</h3>
-                            <div class="card-content">
-                                <div class="card-row">
-                                    <span class="card-label">Spread Cost:</span>
-                                    <span class="card-value" id="spreadCost">$4.15</span>
-                                </div>
-                                <div class="card-row">
-                                    <span class="card-label">Max Value:</span>
-                                    <span class="card-value" id="maxValue">$5.00</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="main-card trade-card">
-                            <h3>Trade Info</h3>
-                            <div class="card-content">
-                                <div class="card-row">
-                                    <span class="card-label">ROI:</span>
-                                    <span class="card-value" id="roiPercent">20.5%</span>
-                                </div>
-                                <div class="card-row">
-                                    <span class="card-label">Breakeven:</span>
-                                    <span class="card-value" id="breakevenPrice">$234.15</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Trade Summary Section -->
-                    <div class="trade-summary-section">
-                        <h3>Trade Summary</h3>
-                        <div class="summary-grid-six">
-                            <div class="summary-item">
-                                <div class="summary-label">CURRENT STOCK PRICE</div>
-                                <div class="summary-value" id="currentPrice">$248.92</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">SPREAD COST</div>
-                                <div class="summary-value" id="summarySpreadCost">$4.15</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">CALL STRIKES</div>
-                                <div class="summary-value" id="callStrikes">$230.00 & $235.00</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">BREAKEVEN PRICE</div>
-                                <div class="summary-value" id="summaryBreakeven">$234.15</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">MAX PROFIT</div>
-                                <div class="summary-value" id="maxProfit">$0.85</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">RETURN ON INVESTMENT</div>
-                                <div class="summary-value" id="summaryROI">20.5%</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="scenarios-section">
-                        <h3>Stock Price Scenarios</h3>
-                        <div class="scenarios-table">
-                            <div class="scenario-header">
-                                <div>Change</div>
-                                <div>Stock Price</div>
-                                <div>ROI %</div>
-                                <div>Profit</div>
-                                <div>Outcome</div>
-                            </div>
-                            <div id="scenariosContent">
-                                <!-- Scenarios will be populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Modal removed - using separate Step 4 page instead -->
 
     <script>
 function updateCountdown() {
