@@ -2876,7 +2876,7 @@ def step4(symbol, strategy, spread_id):
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Profit</div>
                     {% for scenario in scenarios %}
-                    <div class="scenario-cell {{ scenario.outcome }}">${{ "{:+.2f}".format(scenario.profit) }}</div>
+                    <div class="scenario-cell {{ scenario.outcome }}">${{ "%+.2f"|format(scenario.profit) }}</div>
                     {% endfor %}
                 </div>
                 <div class="scenario-row">
