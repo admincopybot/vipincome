@@ -2737,6 +2737,16 @@ def step4(symbol, strategy, spread_id):
             50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
         }
         
+        .income-calculator { background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }
+        .calculator-header { color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }
+        .calculator-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; align-items: center; }
+        .calculator-input { display: flex; flex-direction: column; gap: 8px; }
+        .calculator-input label { color: #a1a1aa; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .calculator-input input { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(139, 92, 246, 0.3); color: #ffffff; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 600; text-align: center; }
+        .calculator-input input:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
+        .calculator-result { text-align: center; }
+        .result-label { color: #a1a1aa; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .result-value { color: #ffffff; font-size: 18px; font-weight: 700; padding: 12px; background: rgba(30, 41, 59, 0.9); border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.2); }
         .back-navigation { margin-top: 40px; text-align: center; }
         .back-btn { background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-block; }
         .back-btn:hover { background: rgba(139, 92, 246, 0.2); transform: translateY(-1px); }
@@ -2847,6 +2857,28 @@ def step4(symbol, strategy, spread_id):
             </div>
         </div>
         
+        <div class="income-calculator">
+            <div class="calculator-header">Income Potential Calculator</div>
+            <div class="calculator-grid">
+                <div class="calculator-input">
+                    <label for="contracts">Number of Contracts:</label>
+                    <input type="number" id="contracts" min="1" max="1000" value="1" onchange="calculateIncome()">
+                </div>
+                <div class="calculator-result">
+                    <div class="result-label">Total Investment</div>
+                    <div class="result-value" id="totalInvestment">${{ (spread_cost * 100)|round(2) }}</div>
+                </div>
+                <div class="calculator-result">
+                    <div class="result-label">Income Potential</div>
+                    <div class="result-value" id="incomePotential">${{ (max_profit * 100)|round(2) }}</div>
+                </div>
+                <div class="calculator-result">
+                    <div class="result-label">ROI Per Contract</div>
+                    <div class="result-value">{{ roi|round(2) }}%</div>
+                </div>
+            </div>
+        </div>
+        
         <div class="scenarios-section">
             <div class="scenarios-header">Stock Price Scenarios</div>
             <div class="scenarios-grid">
@@ -2891,6 +2923,29 @@ def step4(symbol, strategy, spread_id):
             <a href="/step3/{{ symbol }}" class="back-btn">← Back to Strategy Selection</a>
         </div>
     </div>
+
+    <script>
+        function calculateIncome() {
+            const contracts = parseInt(document.getElementById('contracts').value) || 0;
+            const spreadCost = {{ spread_cost }};
+            const maxProfit = {{ max_profit }};
+            
+            // Calculate total investment (spread cost * contracts * 100 shares per contract)
+            const totalInvestment = contracts * spreadCost * 100;
+            
+            // Calculate income potential (max profit * contracts * 100 shares per contract)
+            const incomePotential = contracts * maxProfit * 100;
+            
+            // Update display values
+            document.getElementById('totalInvestment').textContent = '$' + totalInvestment.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('incomePotential').textContent = '$' + incomePotential.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        
+        // Initialize calculations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateIncome();
+        });
+    </script>
 </body>
 </html>"""
     
