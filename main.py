@@ -3989,11 +3989,13 @@ def step2(symbol=None):
         }
         
         .loading-flow {
-            background: linear-gradient(-45deg, #8b5cf6, #06b6d4, #10b981, #f59e0b) !important;
-            background-size: 400% 400% !important;
-            animation: flowingGradient 2s ease-in-out infinite !important;
+            background: linear-gradient(-45deg, #8b5cf6, #6366f1, #3b82f6, #06b6d4, #8b5cf6) !important;
+            background-size: 600% 600% !important;
+            animation: flowingGradient 1.5s ease-in-out infinite, pulse 2s ease-in-out infinite !important;
             position: relative !important;
             overflow: hidden !important;
+            transform: scale(1.02) !important;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(99, 102, 241, 0.4) !important;
         }
         
         .loading-flow::before {
@@ -4003,19 +4005,43 @@ def step2(symbol=None):
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 1.5s infinite;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 1.2s infinite;
+        }
+        
+        .loading-flow::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+            animation: rotate 3s linear infinite;
         }
         
         @keyframes flowingGradient {
             0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
             100% { background-position: 0% 50%; }
         }
         
         @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            0% { left: -100%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.8), 0 0 60px rgba(99, 102, 241, 0.6); }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .back-to-scoreboard {
