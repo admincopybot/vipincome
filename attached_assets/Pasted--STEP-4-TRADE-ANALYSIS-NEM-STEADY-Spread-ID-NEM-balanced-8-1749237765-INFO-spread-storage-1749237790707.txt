@@ -1,0 +1,60 @@
+=== STEP 4 TRADE ANALYSIS: NEM STEADY ===
+Spread ID: NEM_balanced_8_1749237765
+INFO:spread_storage:Retrieved session spread NEM_balanced_8_1749237765: NEM balanced
+✓ RETRIEVED AUTHENTIC SPREAD DATA: STEADY
+✓ Long Contract: O:NEM250627C00047000
+✓ Short Contract: O:NEM250627C00052000
+✓ Long Strike: $47.00
+✓ Short Strike: $52.00
+✓ Spread Cost: $4.05
+✓ Max Profit: $0.95
+✓ ROI: 23.5%
+✓ Current Price: $54.51
+✓ DTE: 20
+✓ USING AUTHENTIC SPREAD DATA: STEADY
+✓ Long Strike: $47.00
+✓ Short Strike: $52.00
+✓ Spread Cost: $4.05
+✓ Max Profit: $0.95
+✓ ROI: 23.5%
+Scenario Analysis Spread: Buy $47.00 ($4.62) / Sell $52.00 ($0.38)
+Spread cost: $4.05, Max profit: $0.95, ROI: 23.46%
+Calculating scenarios with REAL current price: $54.51
+Spread cost: $4.05, Max profit potential: $0.95
+Scenario -2.0%: Stock $53.42 | Long $6.42 | Short $1.42 | Spread $5.00 | Profit $+0.95 | ROI 23.46%
+Scenario -1.0%: Stock $53.96 | Long $6.96 | Short $1.96 | Spread $5.00 | Profit $+0.95 | ROI 23.46%
+Scenario -0.5%: Stock $54.24 | Long $7.24 | Short $2.24 | Spread $5.00 | Profit $+0.95 | ROI 23.46%
+Scenario +0.0%: Stock $54.51 | Long $7.51 | Short $2.51 | Spread $5.00 | Profit $+0.95 | ROI 23.46%
+Scenario +0.5%: Stock $54.78 | Long $7.78 | Short $2.78 | Spread $5.00 | Profit $+0.95 | ROI 23.46%
+Scenario +1.0%: Stock $55.06 | Long $8.06 | Short $3.06 | Spread $5.00 | Profit $+0.95 | ROI 23.46%
+Scenario +2.0%: Stock $55.60 | Long $8.60 | Short $3.60 | Spread $5.00 | Profit $+0.95 | ROI 23.46%
+Scenario +5.0%: Stock $57.24 | Long $10.24 | Short $5.24 | Spread $5.00 | Profit $+0.95 | ROI 23.46%
+ERROR:main:Exception on /step4/NEM/steady/NEM_balanced_8_1749237765 [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2882, in step4
+    return render_template_string(template,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/templating.py", line 161, in render_template_string
+    template = app.jinja_env.from_string(source)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/jinja2/environment.py", line 1111, in from_string
+    return cls.from_code(self, self.compile(source), gs, None)
+                               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/jinja2/environment.py", line 771, in compile
+    self.handle_exception(source=source_hint)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "<unknown>", line 9, in template
+jinja2.exceptions.TemplateSyntaxError: expected token ',', got ';'

@@ -2640,7 +2640,7 @@ def step4(symbol, strategy, spread_id):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step 4: Trade Analysis - {symbol} {strategy.title()} Strategy</title>
+    <title>Step 4: Trade Analysis - {{ symbol }} {{ strategy.title() }} Strategy</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {{{{ margin: 0; padding: 0; box-sizing: border-box; }}}}
@@ -2661,8 +2661,7 @@ def step4(symbol, strategy, spread_id):
         .steps-container {{{{ display: flex; justify-content: center; align-items: center; gap: 40px; }}}}
         .step {{{{ display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-weight: 500; font-size: 14px; }}}}
         .step.active {{{{ color: #8b5cf6; }}}}
-        .step.completed {{{{ color: rgba(255, 255, 255, 0.7); }}}}
-            animation: pulse-glow 2s ease-in-out infinite;
+        .step.completed {{{{ color: rgba(255, 255, 255, 0.7); animation: pulse-glow 2s ease-in-out infinite; }}}}
         .step-number {{{{ width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }}}}
         .step.active .step-number {{{{ background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #ffffff;
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
