@@ -2618,8 +2618,9 @@ def step4(symbol, strategy, spread_id):
         
         print(f"Scenario {change:+.1f}%: Stock ${future_price:.2f} | Long ${long_call_value:.2f} | Short ${short_call_value:.2f} | Spread ${spread_value:.2f} | Profit ${profit:+.2f} | ROI {scenario_roi:.2f}%")
     
-    # Create short option ID by modifying the long option ID  
-    short_option_id = option_id.replace(f"{int(scenario_long_strike*1000):08d}", f"{int(scenario_short_strike*1000):08d}")
+    # Create short option ID by modifying the long option contract
+    long_option_id = spread_data['long_contract']
+    short_option_id = spread_data['short_contract']
     
     # Build scenario rows for the HTML table
     scenario_rows = {
@@ -2629,8 +2630,12 @@ def step4(symbol, strategy, spread_id):
         'outcome': ''.join(f'<div class="scenario-cell {s["outcome"]}">{s["outcome"]}</div>' for s in scenarios)
     }
     
+    # Calculate option prices for display
+    scenario_long_price = spread_data['long_price']
+    scenario_short_price = spread_data['short_price']
+    
     # Return the complete HTML page with proper navigation and styling
-    return f"""<!DOCTYPE html>
+    template = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -2784,7 +2789,7 @@ def step4(symbol, strategy, spread_id):
         <div class="trade-construction">
             <div class="trade-section">
                 <div class="section-header">Buy (${{scenario_long_strike:.2f}})</div>
-                <div class="option-detail">Option ID: {{option_id}}</div>
+                <div class="option-detail">Option ID: {{long_option_id}}</div>
                 <div class="option-detail">Price: ${{scenario_long_price:.2f}}</div>
             </div>
             <div class="trade-section">
@@ -2868,11 +2873,32 @@ def step4(symbol, strategy, spread_id):
         </div>
         
         <div class="back-navigation">
-            <a href="/step3/{{{symbol}}}" class="back-btn">← Back to Strategy Selection</a>
+            <a href="/step3/{{ symbol }}" class="back-btn">← Back to Strategy Selection</a>
         </div>
     </div>
 </body>
 </html>"""
+    
+    return render_template_string(template, 
+        symbol=symbol,
+        strategy=strategy,
+        spread_id=spread_id,
+        scenario_long_strike=scenario_long_strike,
+        scenario_short_strike=scenario_short_strike,
+        scenario_long_price=scenario_long_price,
+        scenario_short_price=scenario_short_price,
+        long_option_id=long_option_id,
+        short_option_id=short_option_id,
+        spread_cost=spread_cost,
+        max_profit=max_profit,
+        roi=roi,
+        current_price=current_price,
+        expiration_date=expiration_date,
+        spread_width=scenario_short_strike - scenario_long_strike,
+        breakeven=scenario_long_strike + spread_cost,
+        scenario_rows=scenario_rows,
+        scenarios=scenarios
+    )
 
 @app.route('/')
 def index():

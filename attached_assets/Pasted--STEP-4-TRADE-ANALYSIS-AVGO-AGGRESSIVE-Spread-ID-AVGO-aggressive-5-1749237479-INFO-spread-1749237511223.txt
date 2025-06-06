@@ -1,0 +1,49 @@
+=== STEP 4 TRADE ANALYSIS: AVGO AGGRESSIVE ===
+Spread ID: AVGO_aggressive_5_1749237479
+INFO:spread_storage:Retrieved session spread AVGO_aggressive_5_1749237479: AVGO aggressive
+✓ RETRIEVED AUTHENTIC SPREAD DATA: AGGRESSIVE
+✓ Long Contract: O:AVGO250620C00235000
+✓ Short Contract: O:AVGO250620C00245000
+✓ Long Strike: $235.00
+✓ Short Strike: $245.00
+✓ Spread Cost: $6.80
+✓ Max Profit: $3.20
+✓ ROI: 47.1%
+✓ Current Price: $259.93
+✓ DTE: 13
+✓ USING AUTHENTIC SPREAD DATA: AGGRESSIVE
+✓ Long Strike: $235.00
+✓ Short Strike: $245.00
+✓ Spread Cost: $6.80
+✓ Max Profit: $3.20
+✓ ROI: 47.1%
+Scenario Analysis Spread: Buy $235.00 ($8.72) / Sell $245.00 ($1.28)
+Spread cost: $6.80, Max profit: $3.20, ROI: 47.06%
+Calculating scenarios with REAL current price: $259.93
+Spread cost: $6.80, Max profit potential: $3.20
+Scenario -2.0%: Stock $254.73 | Long $19.73 | Short $9.73 | Spread $10.00 | Profit $+3.20 | ROI 47.06%
+Scenario -1.0%: Stock $257.33 | Long $22.33 | Short $12.33 | Spread $10.00 | Profit $+3.20 | ROI 47.06%
+Scenario -0.5%: Stock $258.63 | Long $23.63 | Short $13.63 | Spread $10.00 | Profit $+3.20 | ROI 47.06%
+Scenario +0.0%: Stock $259.93 | Long $24.93 | Short $14.93 | Spread $10.00 | Profit $+3.20 | ROI 47.06%
+Scenario +0.5%: Stock $261.23 | Long $26.23 | Short $16.23 | Spread $10.00 | Profit $+3.20 | ROI 47.06%
+Scenario +1.0%: Stock $262.53 | Long $27.53 | Short $17.53 | Spread $10.00 | Profit $+3.20 | ROI 47.06%
+Scenario +2.0%: Stock $265.13 | Long $30.13 | Short $20.13 | Spread $10.00 | Profit $+3.20 | ROI 47.06%
+Scenario +5.0%: Stock $272.93 | Long $37.93 | Short $27.93 | Spread $10.00 | Profit $+3.20 | ROI 47.06%
+ERROR:main:Exception on /step4/AVGO/aggressive/AVGO_aggressive_5_1749237479 [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2622, in step4
+    short_option_id = option_id.replace(f"{int(scenario_long_strike*1000):08d}", f"{int(scenario_short_strike*1000):08d}")
+                      ^^^^^^^^^
+NameError: name 'option_id' is not defined
