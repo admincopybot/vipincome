@@ -4150,7 +4150,7 @@ def step2(symbol=None):
                     Data is automatically refreshed every 15 minutes during market hours.
                 </div>
                 <div class="strategy-button-container">
-                    <a href="#" class="choose-strategy-btn" onclick="showStep3LoadingAndNavigate('{{ symbol }}')">Choose Income Strategy →</a>
+                    <a href="#" class="choose-strategy-btn" id="strategyBtn" onclick="startLoadingAndNavigate('{{ symbol }}')">Choose Income Strategy →</a>
                 </div>
                 
 
@@ -4302,29 +4302,34 @@ def step2(symbol=None):
             });
         }
         
-        function showStep3LoadingAndNavigate(symbol) {
-            // Prevent default link behavior
+        function startLoadingAndNavigate(symbol) {
             event.preventDefault();
             
-            // Show loading overlay immediately
-            const overlay = document.getElementById('step3NavigationOverlay');
-            overlay.style.display = 'flex';
+            const btn = document.getElementById('strategyBtn');
+            const originalText = btn.innerHTML;
             
-            // Simulate progress steps
-            setTimeout(() => {
-                document.getElementById('nav-step1').classList.remove('active');
-                document.getElementById('nav-step2').classList.add('active');
-            }, 300);
+            // Disable button and show loading state
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.7';
             
-            setTimeout(() => {
-                document.getElementById('nav-step2').classList.remove('active');
-                document.getElementById('nav-step3').classList.add('active');
-            }, 600);
+            let countdown = 5;
+            btn.innerHTML = `Loading... Please wait ${countdown} seconds`;
             
-            // Navigate to Step 3 after 1 second
+            // Update countdown every second
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    btn.innerHTML = `Loading... Please wait ${countdown} seconds`;
+                } else {
+                    btn.innerHTML = 'Navigating to Step 3...';
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+            
+            // Navigate after 5 seconds
             setTimeout(() => {
                 window.location.href = `/step3/${symbol}`;
-            }, 1000);
+            }, 5000);
             
             return false;
         }
