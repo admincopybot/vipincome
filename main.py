@@ -2667,20 +2667,17 @@ def step4(symbol, strategy, spread_id):
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
             animation: pulse-glow-purple 2s ease-in-out infinite; }}}}
         .step.completed .step-number {{{{ background: linear-gradient(135deg, #10b981, #059669); color: #ffffff;
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
-            animation: pulse-glow-purple 2s ease-in-out infinite;
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
             animation: pulse-glow-green 2s ease-in-out infinite; }}}}
         .step:not(.active):not(.completed) .step-number {{{{ background: rgba(255, 255, 255, 0.1); }}}}
-        .step-connector {{
+        .step-connector {{{{ 
             width: 60px;
             height: 2px;
             background: rgba(255, 255, 255, 0.1);
             margin: 0 15px;
             transition: all 0.3s ease;
-        }}
-        .step-connector.completed {{
-        }}
+        }}}}
+        .step-connector.completed {{{{ background: linear-gradient(135deg, #10b981, #059669); }}}}
         
         
         
