@@ -4705,6 +4705,118 @@ def step3(symbol=None):
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
         }
+
+        /* Loading Overlay Styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 32, 44, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-container {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(139, 92, 246, 0.3);
+            border-top: 4px solid #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .loading-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-radius: 4px;
+            animation: progress 3s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        .loading-steps {
+            text-align: left;
+        }
+
+        .loading-step {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .loading-step::before {
+            content: '○';
+            position: absolute;
+            left: 0;
+            color: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .loading-step.active {
+            color: #8b5cf6;
+        }
+
+        .loading-step.active::before {
+            content: '●';
+            color: #8b5cf6;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
         
         @media (max-width: 768px) {
             .strategies-grid {
@@ -4921,7 +5033,7 @@ def step3(symbol=None):
                     </div>
                     {% endif %}
                     
-                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.spread_id if options_data.aggressive.found else 'none' }}" class="strategy-btn">Select Aggressive Strategy</a>
+                    <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.spread_id if options_data.aggressive.found else 'none' }}" class="strategy-btn" onclick="showTradeLoading()">Select Aggressive Strategy</a>
                 </div>
             </div>
             
@@ -4929,6 +5041,24 @@ def step3(symbol=None):
                 <a href="{% if symbol %}/step2/{{ symbol }}{% else %}/{% endif %}" class="back-scoreboard-btn">← Back to Analysis</a>
             </div>
         </div>
+
+        <!-- Loading Overlay -->
+        <div id="tradeLoadingOverlay" class="loading-overlay">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <h3 class="loading-title">Finding Best Trades</h3>
+                <p class="loading-subtitle">Analyzing real-time options data...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="loading-steps">
+                    <div class="loading-step active" id="step1">Fetching live market data</div>
+                    <div class="loading-step" id="step2">Calculating spread scenarios</div>
+                    <div class="loading-step" id="step3">Optimizing trade parameters</div>
+                </div>
+            </div>
+        </div>
+
     <script>
 function updateCountdown() {
     const endDate = new Date('June 20, 2025 23:59:59');
@@ -4941,7 +5071,33 @@ function updateCountdown() {
         countdownEl.textContent = daysLeft > 0 ? daysLeft : 0;
     }
 }
-document.addEventListener("DOMContentLoaded", updateCountdown);
+
+function showTradeLoading() {
+    const overlay = document.getElementById('tradeLoadingOverlay');
+    overlay.style.display = 'flex';
+    
+    // Simulate progress steps
+    setTimeout(() => {
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.add('active');
+    }, 1000);
+    
+    setTimeout(() => {
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step3').classList.add('active');
+    }, 2000);
+}
+
+// Add click handlers to all strategy buttons
+document.addEventListener("DOMContentLoaded", function() {
+    updateCountdown();
+    
+    // Add loading to all strategy buttons
+    const strategyBtns = document.querySelectorAll('.strategy-btn');
+    strategyBtns.forEach(btn => {
+        btn.addEventListener('click', showTradeLoading);
+    });
+});
 </script>
 </body>
     </html>
