@@ -61,16 +61,16 @@ def load_etf_data_from_database():
             criteria = data['criteria']
             total_score = data['total_score']
             
-            # CRITICAL FIX: Calculate criteria based on total_score since CSV has score but criteria are all false
-            # This ensures the scoreboard displays correctly based on the actual score
-            criteria_list = ['trend1', 'trend2', 'snapback', 'momentum', 'stabilizing']
+            # USE ACTUAL CSV CRITERIA VALUES - not auto-generated from score
+            met_criteria = {
+                'trend1': criteria['trend1'],
+                'trend2': criteria['trend2'], 
+                'snapback': criteria['snapback'],
+                'momentum': criteria['momentum'],
+                'stabilizing': criteria['stabilizing']
+            }
             
-            # Determine which criteria are met based on total score
-            met_criteria = {}
-            for i, criterion in enumerate(criteria_list):
-                met_criteria[criterion] = i < total_score
-            
-            logger.info(f"CRITERIA FIX: {symbol} score={total_score}, criteria={met_criteria}")
+            logger.info(f"REAL CRITERIA: {symbol} score={total_score}, criteria={met_criteria}")
             
             # Create indicators structure exactly as frontend expects
             indicators = {

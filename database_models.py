@@ -257,11 +257,14 @@ class ETFDatabase:
         
         total_score = row[2]
         
-        # CRITICAL FIX: Calculate criteria based on total_score like in main scoreboard
-        criteria_list = ['trend1', 'trend2', 'snapback', 'momentum', 'stabilizing']
-        met_criteria = {}
-        for i, criterion in enumerate(criteria_list):
-            met_criteria[criterion] = i < total_score
+        # USE ACTUAL CSV CRITERIA VALUES - read boolean columns directly
+        met_criteria = {
+            'trend1': bool(row[4]),  # trend1_pass column
+            'trend2': bool(row[8]),  # trend2_pass column  
+            'snapback': bool(row[12]), # snapback_pass column
+            'momentum': bool(row[16]), # momentum_pass column
+            'stabilizing': bool(row[20]) # stabilizing_pass column
+        }
         
         return {
             'symbol': row[0],
