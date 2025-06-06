@@ -2598,7 +2598,7 @@ def step4(symbol, strategy, spread_id):
     # Generate scenario analysis using the REAL current stock price from database
     # Following the exact methodology from your comprehensive guide
     scenarios = []
-    changes = [-2, -1, -0.5, 0, 0.5, 1, 2, 5]
+    changes = [-2, -1, -0.5, 0, 0.5, 1, 2]
     
     print(f"Calculating scenarios with REAL current price: ${current_price:.2f}")
     print(f"Spread cost: ${spread_cost:.2f}, Max profit potential: ${max_profit:.2f}")
@@ -2859,7 +2859,6 @@ def step4(symbol, strategy, spread_id):
                     <div class="scenario-header-cell">+0.5%</div>
                     <div class="scenario-header-cell">+1%</div>
                     <div class="scenario-header-cell">+2%</div>
-                    <div class="scenario-header-cell">>5%</div>
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Stock Price</div>
