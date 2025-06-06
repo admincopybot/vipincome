@@ -5049,67 +5049,127 @@ def step3(symbol=None):
             margin: 0 auto;
         }
 
-        .trade-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-bottom: 50px;
-        }
-
-        .trade-card {
-            background: rgba(51, 65, 85, 0.8);
+        /* Header Info Section */
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
             border: 1px solid rgba(139, 92, 246, 0.3);
-            border-radius: 16px;
-            padding: 30px;
         }
 
-        .trade-card.buy-card {
-            border-color: #8b5cf6;
+        .expiration-display {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
         }
 
-        .trade-card.sell-card {
-            border-color: #ec4899;
+        .strikes-display {
+            color: #60a5fa;
+            font-size: 24px;
+            font-weight: 700;
         }
 
-        .trade-card.spread-card {
-            border-color: #10b981;
+        .width-badge {
+            background: #8b5cf6;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
         }
 
-        .card-title {
-            color: #8b5cf6;
+        /* Four Main Cards Grid */
+        .main-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .main-card {
+            background: rgba(51, 65, 85, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .main-card h3 {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .card-value {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Trade Summary Section */
+        .trade-summary-section {
+            margin: 40px 0;
+        }
+
+        .trade-summary-section h3 {
+            color: #ffffff;
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 20px;
         }
 
-        .sell-card .card-title {
-            color: #ec4899;
+        .summary-grid-six {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        .spread-card .card-title {
-            color: #10b981;
+        .summary-item {
+            background: rgba(51, 65, 85, 0.9);
+            padding: 15px 10px;
+            text-align: center;
         }
 
-        .card-details {
-            space-y: 15px;
+        .summary-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .detail-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-        }
-
-        .detail-value {
+        .summary-value {
             color: #ffffff;
-            font-weight: 600;
             font-size: 16px;
+            font-weight: 700;
         }
 
         .summary-label {
@@ -5463,77 +5523,105 @@ def step3(symbol=None):
                 </div>
                 
                 <div class="modal-content">
-                    <div class="trade-summary-grid">
-                        <div class="summary-card">
-                            <div class="summary-label">Current Stock Price</div>
-                            <div class="summary-value" id="currentPrice">$0.00</div>
+                    <!-- Header Info Section -->
+                    <div class="header-info">
+                        <div class="expiration-display">
+                            <span>Expiration: <span id="modalExpiration">2025-06-27</span> (<span id="modalDTE">20</span> days)</span>
                         </div>
-                        <div class="summary-card">
-                            <div class="summary-label">Spread Cost</div>
-                            <div class="summary-value" id="spreadCost">$0.00</div>
+                        <div class="strikes-display">
+                            $<span id="modalLongStrike">230.00</span> / $<span id="modalShortStrike">235.00</span>
                         </div>
-                        <div class="summary-card">
-                            <div class="summary-label">Call Strikes</div>
-                            <div class="summary-value" id="callStrikes">$0.00 & $0.00</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="summary-label">Breakeven Price</div>
-                            <div class="summary-value" id="breakevenPrice">$0.00</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="summary-label">Max Profit</div>
-                            <div class="summary-value" id="maxProfit">$0.00</div>
-                        </div>
-                        <div class="summary-card highlight">
-                            <div class="summary-label">Return on Investment</div>
-                            <div class="summary-value" id="roiPercent">0.00%</div>
+                        <div class="width-badge">
+                            Width: $<span id="modalWidth">5</span>
                         </div>
                     </div>
-                    
-                    <div class="trade-cards-grid">
-                        <div class="trade-card buy-card">
-                            <h3 class="card-title">Buy ($<span id="buyStrike">230.00</span>)</h3>
-                            <div class="card-details">
-                                <div class="detail-row">
-                                    <span class="detail-label">Option ID:</span>
-                                    <span class="detail-value" id="longContract">O:AVGO250627C00230000</span>
+
+                    <!-- Four Card Layout exactly like screenshot -->
+                    <div class="main-cards-grid">
+                        <div class="main-card buy-card">
+                            <h3>Buy ($<span id="buyStrike">230.00</span>)</h3>
+                            <div class="card-content">
+                                <div class="card-row">
+                                    <span class="card-label">Option ID:</span>
+                                    <span class="card-value" id="longContract">O:AVGO250627C00230000</span>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Price:</span>
-                                    <span class="detail-value" id="longPrice">$2.50</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="trade-card sell-card">
-                            <h3 class="card-title">Sell ($<span id="sellStrike">235.00</span>)</h3>
-                            <div class="card-details">
-                                <div class="detail-row">
-                                    <span class="detail-label">Option ID:</span>
-                                    <span class="detail-value" id="shortContract">N/A</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Price:</span>
-                                    <span class="detail-value" id="shortPrice">$1.50</span>
+                                <div class="card-row">
+                                    <span class="card-label">Price:</span>
+                                    <span class="card-value" id="longPrice">$20.15</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="trade-card spread-card">
-                            <h3 class="card-title">Spread Details</h3>
-                            <div class="card-details">
-                                <div class="detail-row">
-                                    <span class="detail-label">Width:</span>
-                                    <span class="detail-value" id="spreadWidth">$5.00</span>
+                        <div class="main-card sell-card">
+                            <h3>Sell ($<span id="sellStrike">235.00</span>)</h3>
+                            <div class="card-content">
+                                <div class="card-row">
+                                    <span class="card-label">Option ID:</span>
+                                    <span class="card-value" id="shortContract">O:AVGO250627C00235000</span>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Expiration:</span>
-                                    <span class="detail-value" id="expirationDate">2025-06-27</span>
+                                <div class="card-row">
+                                    <span class="card-label">Price:</span>
+                                    <span class="card-value" id="shortPrice">$16.40</span>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">DTE:</span>
-                                    <span class="detail-value" id="daysToExpiry">20 days</span>
+                            </div>
+                        </div>
+                        
+                        <div class="main-card spread-card">
+                            <h3>Spread Details</h3>
+                            <div class="card-content">
+                                <div class="card-row">
+                                    <span class="card-label">Spread Cost:</span>
+                                    <span class="card-value" id="spreadCost">$4.15</span>
                                 </div>
+                                <div class="card-row">
+                                    <span class="card-label">Max Value:</span>
+                                    <span class="card-value" id="maxValue">$5.00</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="main-card trade-card">
+                            <h3>Trade Info</h3>
+                            <div class="card-content">
+                                <div class="card-row">
+                                    <span class="card-label">ROI:</span>
+                                    <span class="card-value" id="roiPercent">20.5%</span>
+                                </div>
+                                <div class="card-row">
+                                    <span class="card-label">Breakeven:</span>
+                                    <span class="card-value" id="breakevenPrice">$234.15</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trade Summary Section -->
+                    <div class="trade-summary-section">
+                        <h3>Trade Summary</h3>
+                        <div class="summary-grid-six">
+                            <div class="summary-item">
+                                <div class="summary-label">CURRENT STOCK PRICE</div>
+                                <div class="summary-value" id="currentPrice">$248.92</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">SPREAD COST</div>
+                                <div class="summary-value" id="summarySpreadCost">$4.15</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">CALL STRIKES</div>
+                                <div class="summary-value" id="callStrikes">$230.00 & $235.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">BREAKEVEN PRICE</div>
+                                <div class="summary-value" id="summaryBreakeven">$234.15</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">MAX PROFIT</div>
+                                <div class="summary-value" id="maxProfit">$0.85</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">RETURN ON INVESTMENT</div>
+                                <div class="summary-value" id="summaryROI">20.5%</div>
                             </div>
                         </div>
                     </div>
@@ -5592,24 +5680,32 @@ function showTradeAnalysis(strategy, symbol, data) {
     const breakeven = parseFloat(data.breakeven || (longStrike + spreadCost));
     const roi = parseFloat((data.roi || '0%').toString().replace('%', ''));
     
-    // Populate summary data with authentic spread values
-    document.getElementById('currentPrice').textContent = `$${currentPrice.toFixed(2)}`;
-    document.getElementById('spreadCost').textContent = `$${spreadCost.toFixed(2)}`;
-    document.getElementById('callStrikes').textContent = `$${longStrike.toFixed(2)} & $${shortStrike.toFixed(2)}`;
-    document.getElementById('breakevenPrice').textContent = `$${breakeven.toFixed(2)}`;
-    document.getElementById('maxProfit').textContent = `$${maxProfit.toFixed(2)}`;
-    document.getElementById('roiPercent').textContent = `${roi.toFixed(1)}%`;
-    
-    // Populate three-card layout with authentic spread data
+    // Populate header info section
+    document.getElementById('modalExpiration').textContent = data.expiration || '2025-06-27';
+    document.getElementById('modalDTE').textContent = data.dte || 20;
+    document.getElementById('modalLongStrike').textContent = longStrike.toFixed(2);
+    document.getElementById('modalShortStrike').textContent = shortStrike.toFixed(2);
+    document.getElementById('modalWidth').textContent = (shortStrike - longStrike).toFixed(0);
+
+    // Populate four main cards with authentic spread data
     document.getElementById('buyStrike').textContent = longStrike.toFixed(2);
     document.getElementById('sellStrike').textContent = shortStrike.toFixed(2);
     document.getElementById('longContract').textContent = data.long_contract || data.contract_symbol || 'N/A';
     document.getElementById('shortContract').textContent = data.short_contract || data.short_contract_symbol || 'N/A';
     document.getElementById('longPrice').textContent = `$${longPrice.toFixed(2)}`;
     document.getElementById('shortPrice').textContent = `$${shortPrice.toFixed(2)}`;
-    document.getElementById('spreadWidth').textContent = `$${(shortStrike - longStrike).toFixed(2)}`;
-    document.getElementById('expirationDate').textContent = data.expiration || 'N/A';
-    document.getElementById('daysToExpiry').textContent = `${data.dte || 0} days`;
+    document.getElementById('spreadCost').textContent = `$${spreadCost.toFixed(2)}`;
+    document.getElementById('maxValue').textContent = `$${(shortStrike - longStrike).toFixed(2)}`;
+    document.getElementById('roiPercent').textContent = `${roi.toFixed(1)}%`;
+    document.getElementById('breakevenPrice').textContent = `$${breakeven.toFixed(2)}`;
+
+    // Populate trade summary section
+    document.getElementById('currentPrice').textContent = `$${currentPrice.toFixed(2)}`;
+    document.getElementById('summarySpreadCost').textContent = `$${spreadCost.toFixed(2)}`;
+    document.getElementById('callStrikes').textContent = `$${longStrike.toFixed(2)} & $${shortStrike.toFixed(2)}`;
+    document.getElementById('summaryBreakeven').textContent = `$${breakeven.toFixed(2)}`;
+    document.getElementById('maxProfit').textContent = `$${maxProfit.toFixed(2)}`;
+    document.getElementById('summaryROI').textContent = `${roi.toFixed(1)}%`;
     
     // Generate scenario analysis with authentic data
     generateScenarios({
