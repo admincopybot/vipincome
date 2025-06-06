@@ -4306,30 +4306,16 @@ def step2(symbol=None):
             event.preventDefault();
             
             const btn = document.getElementById('strategyBtn');
-            const originalText = btn.innerHTML;
             
-            // Disable button and show loading state
+            // Disable button and show loading state immediately
             btn.style.pointerEvents = 'none';
             btn.style.opacity = '0.7';
+            btn.innerHTML = 'Navigating to Step 3...';
             
-            let countdown = 5;
-            btn.innerHTML = `Loading... Please wait ${countdown} seconds`;
-            
-            // Update countdown every second
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                if (countdown > 0) {
-                    btn.innerHTML = `Loading... Please wait ${countdown} seconds`;
-                } else {
-                    btn.innerHTML = 'Navigating to Step 3...';
-                    clearInterval(countdownInterval);
-                }
-            }, 1000);
-            
-            // Navigate after 5 seconds
+            // Navigate after 1 second delay
             setTimeout(() => {
                 window.location.href = `/step3/${symbol}`;
-            }, 5000);
+            }, 1000);
             
             return false;
         }
