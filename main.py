@@ -4078,7 +4078,7 @@ def step2(symbol=None):
                     Data is automatically refreshed every 15 minutes during market hours.
                 </div>
                 <div class="strategy-button-container">
-                    <a href="/step3/{{ symbol }}" class="choose-strategy-btn" onclick="showStep3Loading()">Choose Income Strategy →</a>
+                    <a href="#" class="choose-strategy-btn" onclick="showStep3LoadingAndNavigate('{{ symbol }}')">Choose Income Strategy →</a>
                 </div>
                 
                 <!-- Loading Overlay for Step 3 Navigation -->
@@ -4245,7 +4245,11 @@ def step2(symbol=None):
             });
         }
         
-        function showStep3Loading() {
+        function showStep3LoadingAndNavigate(symbol) {
+            // Prevent default link behavior
+            event.preventDefault();
+            
+            // Show loading overlay immediately
             const overlay = document.getElementById('step3NavigationOverlay');
             overlay.style.display = 'flex';
             
@@ -4253,15 +4257,19 @@ def step2(symbol=None):
             setTimeout(() => {
                 document.getElementById('nav-step1').classList.remove('active');
                 document.getElementById('nav-step2').classList.add('active');
-            }, 600);
+            }, 300);
             
             setTimeout(() => {
                 document.getElementById('nav-step2').classList.remove('active');
                 document.getElementById('nav-step3').classList.add('active');
-            }, 1200);
+            }, 600);
             
-            // Allow normal navigation to proceed
-            return true;
+            // Navigate to Step 3 after 1 second
+            setTimeout(() => {
+                window.location.href = `/step3/${symbol}`;
+            }, 1000);
+            
+            return false;
         }
         
         console.log('Step 2 loaded for {{ symbol }}');
