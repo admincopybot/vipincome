@@ -187,9 +187,9 @@ class RealTimeSpreadDetector:
             }
             
             # Add timeout and retry for network issues
-            for attempt in range(3):
+            for attempt in range(2):
                 try:
-                    response = requests.get(url, params=params, timeout=10)
+                    response = requests.get(url, params=params, timeout=3)
                     
                     if response.status_code == 200:
                         data = response.json()
@@ -354,6 +354,9 @@ class RealTimeSpreadDetector:
             for i, (long_contract, short_contract) in enumerate(pairs_to_check):
                 logger.info(f"Checking spread {i+1}/{len(pairs_to_check)}: {long_contract.get('ticker')} / {short_contract.get('ticker')}")
                 metrics = self.calculate_spread_metrics(long_contract, short_contract)
+                
+                # Small delay to prevent API rate limiting
+                time.sleep(0.1)
                 
                 if metrics:
                     spread_width = metrics['spread_width']
