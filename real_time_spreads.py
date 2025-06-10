@@ -12,13 +12,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def send_to_webhook(data: Dict, webhook_url: str = "https://hook.us2.make.com/ejo1kmpk79pc7almoqtihiqv5rp5p9z7"):
-    """Send data to Make.com webhook for analysis"""
-    try:
-        response = requests.post(webhook_url, json=data, timeout=10)
-        logger.info(f"Webhook sent: {response.status_code}")
-    except Exception as e:
-        logger.warning(f"Webhook failed: {e}")
+
 
 class RealTimeSpreadDetector:
     """Handles real-time options spread detection with authentic pricing"""
@@ -47,40 +41,9 @@ class RealTimeSpreadDetector:
                         fmv = stock_data.get('fmv')
                         if fmv:
                             logger.info(f"Real-time price for {symbol}: ${fmv} (from TheTradeList FMV)")
-                            
-                            # Send stock price webhook
-                            price_webhook_data = {
-                                'timestamp': datetime.now().isoformat(),
-                                'calculation_type': 'real_time_stock_price',
-                                'symbol': symbol,
-                                'fmv_price': float(fmv),
-                                'api_source': 'TheTradeList',
-                                'api_response': {
-                                    'status': data.get('status'),
-                                    'results_available': len(results),
-                                    'full_stock_data': stock_data
-                                }
-                            }
-                            send_to_webhook(price_webhook_data)
-                            
                             return float(fmv)
                             
             logger.warning(f"Failed to get real-time price for {symbol} from TheTradeList API")
-            
-            # Send failed price webhook
-            failed_price_data = {
-                'timestamp': datetime.now().isoformat(),
-                'calculation_type': 'failed_stock_price',
-                'symbol': symbol,
-                'error': f'API returned status {response.status_code}',
-                'api_source': 'TheTradeList',
-                'api_response': {
-                    'status_code': response.status_code,
-                    'response_text': response.text[:200] if hasattr(response, 'text') else 'No response text'
-                }
-            }
-            send_to_webhook(failed_price_data)
-            
             return None
             
         except Exception as e:
@@ -459,52 +422,70 @@ class RealTimeSpreadDetector:
                 }
                 continue
             
-            # Calculate metrics for top spread pairs (optimize for speed)
+            # Calculate metrics for ALL spread pairs and prioritize $1 spreads
             best_spread = None
+            best_one_dollar_spread = None
             roi_min, roi_max = roi_ranges[strategy]
             
-            # Process only first 3 pairs to ensure completion within timeout
-            pairs_to_check = spread_pairs[:3]
-            logger.info(f"Processing {len(pairs_to_check)} spread pairs for {strategy} (optimized for speed)")
+            # Process ALL spread pairs and prioritize $1 spreads
+            pairs_to_check = spread_pairs
+            logger.info(f"Processing ALL {len(pairs_to_check)} spread pairs for {strategy} strategy")
             
             for i, (long_contract, short_contract) in enumerate(pairs_to_check):
                 logger.info(f"Checking spread {i+1}/{len(pairs_to_check)}: {long_contract.get('ticker')} / {short_contract.get('ticker')}")
                 metrics = self.calculate_spread_metrics(long_contract, short_contract)
                 
                 if metrics:
-                    logger.info(f"ROI calculated: {metrics['roi']:.1f}% (target: {roi_min}-{roi_max}%)")
-                
-                if metrics and roi_min <= metrics['roi'] <= roi_max:
-                    logger.info(f"Found viable {strategy} spread: {metrics['roi']:.1f}% ROI")
-                    if not best_spread or metrics['roi'] > best_spread['roi']:
-                        best_spread = metrics
-                        logger.info(f"New best {strategy} spread: {metrics['roi']:.1f}% ROI")
+                    spread_width = metrics['spread_width']
+                    roi = metrics['roi']
+                    logger.info(f"ROI calculated: {roi:.1f}% (target: {roi_min}-{roi_max}%), Spread width: ${spread_width:.2f}")
+                    
+                    if roi_min <= roi <= roi_max:
+                        logger.info(f"Found viable {strategy} spread: {roi:.1f}% ROI, ${spread_width:.2f} width")
+                        
+                        # Prioritize $1 spreads first
+                        if abs(spread_width - 1.0) <= 0.01:  # $1 spread (with small tolerance)
+                            if not best_one_dollar_spread or roi > best_one_dollar_spread['roi']:
+                                best_one_dollar_spread = metrics
+                                logger.info(f"New best $1 {strategy} spread: {roi:.1f}% ROI")
+                        
+                        # Track best overall spread as backup
+                        if not best_spread or roi > best_spread['roi']:
+                            best_spread = metrics
+                            logger.info(f"New best overall {strategy} spread: {roi:.1f}% ROI")
             
-            if best_spread:
+            # Use $1 spread if found, otherwise use best overall spread
+            final_spread = best_one_dollar_spread if best_one_dollar_spread else best_spread
+            
+            if final_spread:
+                spread_type = "$1 spread" if final_spread == best_one_dollar_spread else "spread"
+                logger.info(f"Selected best {strategy} {spread_type}: {final_spread['roi']:.1f}% ROI, ${final_spread['spread_width']:.2f} width")
+            
+            if final_spread:
                 # Store authentic spread and get unique session ID
                 from spread_storage import spread_storage
                 
                 # Add current price to spread data
-                best_spread['current_price'] = current_price
+                final_spread['current_price'] = current_price
                 
-                spread_id = spread_storage.store_spread(symbol, strategy, best_spread)
+                spread_id = spread_storage.store_spread(symbol, strategy, final_spread)
                 
                 results[strategy] = {
                     'found': True,
                     'spread_id': spread_id,  # Unique ID for Step 4 retrieval
-                    'roi': f"{best_spread['roi']:.1f}%",
-                    'expiration': best_spread['expiration'],
-                    'dte': best_spread['dte'],
-                    'strike_price': best_spread['long_strike'],
-                    'short_strike_price': best_spread['short_strike'],
-                    'spread_cost': best_spread['spread_cost'],
-                    'max_profit': best_spread['max_profit'],
-                    'contract_symbol': best_spread['long_ticker'],
-                    'short_contract_symbol': best_spread['short_ticker'],
+                    'roi': f"{final_spread['roi']:.1f}%",
+                    'expiration': final_spread['expiration'],
+                    'dte': final_spread['dte'],
+                    'strike_price': final_spread['long_strike'],
+                    'short_strike_price': final_spread['short_strike'],
+                    'spread_cost': final_spread['spread_cost'],
+                    'max_profit': final_spread['max_profit'],
+                    'contract_symbol': final_spread['long_ticker'],
+                    'short_contract_symbol': final_spread['short_ticker'],
                     'management': 'Hold to expiration',
                     'strategy_title': f"{strategy.title()} Strategy"
                 }
-                logger.info(f"Found {strategy} spread: {best_spread['roi']:.1f}% ROI, stored as {spread_id}")
+                logger.info(f"Found {strategy} spread: {final_spread['roi']:.1f}% ROI, stored as {spread_id}")
             else:
                 results[strategy] = {
                     'found': False,
