@@ -6405,42 +6405,69 @@ def api_chart_data(symbol):
 def test_polling():
     """Test the background polling functionality manually"""
     try:
-        # Simple test first - just get top 3 tickers
-        db_data = etf_db.get_all_etfs()
-        top_3_tickers = []
+        # Get ETF data as dictionary (symbol -> data)
+        etf_data = etf_db.get_all_etfs()
         
-        if db_data and len(db_data) >= 3:
-            for i in range(min(3, len(db_data))):
-                top_3_tickers.append(db_data[i][0])
+        if not etf_data:
+            return jsonify({'error': 'No ETF data found in database'}), 400
         
-        # Test one API call with short timeout
+        # Sort by score and get top 3 tickers
+        sorted_tickers = sorted(etf_data.items(), 
+                               key=lambda x: (x[1]['total_score'], x[1]['avg_volume_10d']), 
+                               reverse=True)
+        
+        top_3_tickers = [symbol for symbol, data in sorted_tickers[:3]]
+        
+        # Test API call on first ticker
         if top_3_tickers:
             test_ticker = top_3_tickers[0]
             try:
                 response = requests.post(
                     CRITERIA_API_URL,
                     json={"ticker": test_ticker},
-                    timeout=3
+                    timeout=5
                 )
                 
-                api_result = {
-                    'status_code': response.status_code,
-                    'response_time': 'quick',
-                    'data': response.json() if response.status_code == 200 else response.text[:200]
-                }
+                if response.status_code == 200:
+                    criteria_data = response.json()
+                    
+                    # Get current database data for comparison
+                    current_data = etf_db.get_ticker_details(test_ticker)
+                    current_score = current_data.get('total_score', 0) if current_data else 0
+                    
+                    # Calculate new score
+                    new_score = sum(1 for k, v in criteria_data.items() if v is True)
+                    
+                    api_result = {
+                        'status': 'success',
+                        'ticker': test_ticker,
+                        'current_score': current_score,
+                        'new_score': new_score,
+                        'score_changed': new_score != current_score,
+                        'criteria_data': criteria_data
+                    }
+                else:
+                    api_result = {
+                        'status': 'api_failed',
+                        'error': f'HTTP {response.status_code}',
+                        'response': response.text[:200]
+                    }
+                    
             except Exception as e:
                 api_result = {
-                    'error': str(e)[:200]
+                    'status': 'error',
+                    'error': str(e)
                 }
         else:
-            api_result = {'error': 'No tickers available'}
+            api_result = {'error': 'No tickers available for testing'}
         
         return jsonify({
             'success': True,
+            'database_count': len(etf_data),
             'top_3_tickers': top_3_tickers,
-            'database_count': len(db_data) if db_data else 0,
             'api_url': CRITERIA_API_URL,
-            'test_result': api_result
+            'test_result': api_result,
+            'background_polling_active': polling_active
         })
             
     except Exception as e:
