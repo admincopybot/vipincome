@@ -44,6 +44,14 @@ csv_loader = CsvDataLoader()
 CRITERIA_API_URL = "https://1-symbol-at-a-time-post-5-criteria-analysis-daiadigitalco.replit.app/analyze"
 polling_active = True
 last_poll_time = datetime.now()
+polling_stats = {
+    'total_polls': 0,
+    'successful_updates': 0,
+    'failed_updates': 0,
+    'last_poll_status': 'Not started',
+    'current_top_3': [],
+    'next_poll_time': None
+}
 
 def update_ticker_criteria(ticker):
     """Update criteria for a single ticker using the external API - ONE POST AT A TIME"""
@@ -6481,6 +6489,46 @@ def test_polling():
             
     except Exception as e:
         return jsonify({'error': f'Test failed: {str(e)}'}), 500
+
+@app.route('/api/polling-status')
+def polling_status():
+    """Real-time monitoring endpoint for background polling activity"""
+    try:
+        current_time = datetime.now()
+        time_since_last_poll = (current_time - last_poll_time).total_seconds()
+        next_poll_in = max(0, 120 - time_since_last_poll)
+        
+        # Get current top 3 for display
+        db_data = etf_db.get_all_etfs()
+        current_top_3 = []
+        
+        if db_data:
+            sorted_tickers = sorted(db_data.items(), 
+                                   key=lambda x: (x[1]['total_score'], x[1]['avg_volume_10d']), 
+                                   reverse=True)
+            current_top_3 = [
+                {
+                    'symbol': symbol, 
+                    'score': data['total_score']
+                } 
+                for symbol, data in sorted_tickers[:3]
+            ]
+        
+        return jsonify({
+            'polling_active': polling_active,
+            'total_polls': polling_stats.get('total_polls', 0),
+            'successful_updates': polling_stats.get('successful_updates', 0),
+            'failed_updates': polling_stats.get('failed_updates', 0),
+            'last_poll_status': polling_stats.get('last_poll_status', 'Not started'),
+            'current_top_3': current_top_3,
+            'last_poll_time': last_poll_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'next_poll_in_seconds': int(next_poll_in),
+            'next_poll_time': (current_time + timedelta(seconds=next_poll_in)).strftime('%H:%M:%S'),
+            'api_url': CRITERIA_API_URL,
+            'current_time': current_time.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    except Exception as e:
+        return jsonify({'error': f'Failed to get polling status: {str(e)}'}), 500
 
 if __name__ == '__main__':
     # Load initial data and start background polling
