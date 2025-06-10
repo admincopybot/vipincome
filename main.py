@@ -6577,58 +6577,57 @@ def polling_status():
 
 @app.route('/trigger-quick-analysis', methods=['POST'])
 def trigger_quick_analysis():
-    """Manual trigger endpoint to force immediate analysis of top 5 tickers"""
+    """Manual trigger endpoint to force immediate analysis of TOP 3 TICKERS ONLY"""
     global polling_stats, last_poll_time
     
     try:
-        logger.info("MANUAL TRIGGER: Starting immediate analysis of top 5 tickers")
+        logger.info("MANUAL TRIGGER: Starting immediate analysis of TOP 3 TICKERS ONLY")
         
-        # Get current top 5 tickers
+        # Get current top 3 tickers ONLY
         db_data = etf_db.get_all_etfs()
-        if len(db_data) < 5:
+        if len(db_data) < 3:
             return jsonify({
                 'success': False,
                 'error': 'Not enough tickers in database for analysis',
                 'ticker_count': len(db_data)
             }), 400
         
-        # Sort by score and get top 5 symbols
+        # Sort by score and get ONLY top 3 symbols
         sorted_tickers = sorted(db_data.items(), 
                                key=lambda x: (x[1]['total_score'], x[1]['avg_volume_10d']), 
                                reverse=True)
-        top_5_symbols = [symbol for symbol, data in sorted_tickers[:5]]
+        top_3_symbols = [symbol for symbol, data in sorted_tickers[:3]]
         
-        logger.info(f"MANUAL TRIGGER: Analyzing top 5 tickers: {top_5_symbols}")
+        logger.info(f"MANUAL TRIGGER: Analyzing ONLY top 3 tickers: {top_3_symbols}")
         
         # Update polling stats
         polling_stats['total_polls'] += 1
         polling_stats['last_poll_status'] = 'Manual trigger in progress'
         
-        # Process each ticker with POST requests
+        # Process ONLY the top 3 tickers with single API calls
         results = []
         changes_detected = False
         
-        for ticker in top_5_symbols:
+        for ticker in top_3_symbols:
             logger.info(f"MANUAL TRIGGER: Processing {ticker}")
             
             try:
-                # Make POST request to external API
+                # Make SINGLE POST request to external API
                 response = requests.post(
                     CRITERIA_API_URL,
                     json={"ticker": ticker},
                     headers={'Content-Type': 'application/json'},
-                    timeout=15
+                    timeout=10
                 )
                 
                 logger.info(f"MANUAL TRIGGER: API response for {ticker}: Status {response.status_code}")
-                logger.info(f"MANUAL TRIGGER: Response text for {ticker}: {response.text[:300]}")
                 
                 if response.status_code == 200:
                     criteria_data = response.json()
                     logger.info(f"MANUAL TRIGGER: Received criteria for {ticker}: {criteria_data}")
                     
-                    # Use existing update function
-                    if update_ticker_criteria(ticker):
+                    # DIRECTLY update database WITHOUT calling update_ticker_criteria
+                    if update_ticker_criteria_direct(ticker, criteria_data):
                         changes_detected = True
                         polling_stats['successful_updates'] += 1
                         results.append({
@@ -6648,8 +6647,7 @@ def trigger_quick_analysis():
                     results.append({
                         'symbol': ticker,
                         'status': 'api_error',
-                        'error': f"HTTP {response.status_code}",
-                        'response': response.text[:200]
+                        'error': f"HTTP {response.status_code}"
                     })
                     
             except Exception as e:
@@ -6672,12 +6670,12 @@ def trigger_quick_analysis():
         # Update last poll time
         last_poll_time = datetime.now()
         
-        logger.info(f"MANUAL TRIGGER: Completed analysis - changes detected: {changes_detected}")
+        logger.info(f"MANUAL TRIGGER: Completed analysis of TOP 3 ONLY - changes detected: {changes_detected}")
         
         return jsonify({
             'success': True,
             'changes_detected': changes_detected,
-            'processed_tickers': top_5_symbols,
+            'processed_tickers': top_3_symbols,
             'results': results,
             'timestamp': datetime.now().isoformat(),
             'api_url': CRITERIA_API_URL
@@ -6690,6 +6688,53 @@ def trigger_quick_analysis():
             'success': False,
             'error': str(e)
         }), 500
+
+def update_ticker_criteria_direct(ticker, criteria_data):
+    """Direct update function that ONLY updates database - NO API CALLS"""
+    try:
+        # Get current data from database
+        current_data = etf_db.get_ticker_details(ticker)
+        if not current_data:
+            logger.error(f"No current data found for {ticker} in database")
+            return False
+        
+        # Check if criteria changed
+        criteria_changed = False
+        new_score = 0
+        
+        # Map API response to database fields
+        criteria_mapping = {
+            'criteria1': 'trend1',
+            'criteria2': 'trend2', 
+            'criteria3': 'snapback',
+            'criteria4': 'momentum',
+            'criteria5': 'stabilizing'
+        }
+        
+        # Calculate new score and check for changes
+        for api_field, db_field in criteria_mapping.items():
+            if api_field in criteria_data:
+                new_value = criteria_data[api_field]
+                old_value = current_data.get(db_field, {}).get('pass', False)
+                
+                if new_value != old_value:
+                    criteria_changed = True
+                    logger.info(f"DIRECT UPDATE: Criteria change for {ticker}: {db_field} {old_value} -> {new_value}")
+                
+                if new_value:
+                    new_score += 1
+        
+        if criteria_changed:
+            logger.info(f"DIRECT UPDATE: Updating {ticker} criteria in database - new score: {new_score}")
+            etf_db.update_ticker_criteria(ticker, criteria_data, new_score)
+            return True
+        else:
+            logger.info(f"DIRECT UPDATE: No criteria changes for {ticker}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"DIRECT UPDATE: Error updating criteria for {ticker}: {str(e)}")
+        return False
 
 if __name__ == '__main__':
     # Load initial data and start background polling

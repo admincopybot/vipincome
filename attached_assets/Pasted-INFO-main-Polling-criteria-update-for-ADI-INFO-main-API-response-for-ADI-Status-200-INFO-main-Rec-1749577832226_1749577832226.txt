@@ -1,0 +1,201 @@
+INFO:main:Polling criteria update for ADI
+INFO:main:API response for ADI: Status 200
+INFO:main:Received criteria update for ADI: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': True, 'criteria5': False}
+INFO:main:Criteria change for ADI: trend1_pass None -> True
+INFO:main:Criteria change for ADI: trend2_pass None -> True
+INFO:main:Criteria change for ADI: snapback_pass None -> False
+INFO:main:Criteria change for ADI: momentum_pass None -> True
+INFO:main:Criteria change for ADI: stabilizing_pass None -> False
+INFO:main:Updating ADI criteria in database - new score: 3
+INFO:main:MANUAL TRIGGER: Processing ADP
+INFO:main:MANUAL TRIGGER: API response for ADP: Status 200
+INFO:main:MANUAL TRIGGER: Response text for ADP: {"criteria1":false,"criteria2":true,"criteria3":true,"criteria4":false,"criteria5":false}
+
+INFO:main:MANUAL TRIGGER: Received criteria for ADP: {'criteria1': False, 'criteria2': True, 'criteria3': True, 'criteria4': False, 'criteria5': False}
+INFO:main:Polling criteria update for ADP
+INFO:main:API response for ADP: Status 200
+INFO:main:Received criteria update for ADP: {'criteria1': False, 'criteria2': True, 'criteria3': True, 'criteria4': False, 'criteria5': False}
+INFO:main:Criteria change for ADP: trend1_pass None -> False
+INFO:main:Criteria change for ADP: trend2_pass None -> True
+INFO:main:Criteria change for ADP: snapback_pass None -> True
+INFO:main:Criteria change for ADP: momentum_pass None -> False
+INFO:main:Criteria change for ADP: stabilizing_pass None -> False
+INFO:main:Updating ADP criteria in database - new score: 2
+INFO:main:MANUAL TRIGGER: Processing AEE
+INFO:main:MANUAL TRIGGER: API response for AEE: Status 200
+INFO:main:MANUAL TRIGGER: Response text for AEE: {"criteria1":false,"criteria2":false,"criteria3":true,"criteria4":false,"criteria5":true}
+
+INFO:main:MANUAL TRIGGER: Received criteria for AEE: {'criteria1': False, 'criteria2': False, 'criteria3': True, 'criteria4': False, 'criteria5': True}
+INFO:main:Polling criteria update for AEE
+INFO:main:API response for AEE: Status 200
+INFO:main:Received criteria update for AEE: {'criteria1': False, 'criteria2': False, 'criteria3': True, 'criteria4': False, 'criteria5': True}
+INFO:main:Criteria change for AEE: trend1_pass None -> False
+INFO:main:Criteria change for AEE: trend2_pass None -> False
+INFO:main:Criteria change for AEE: snapback_pass None -> True
+INFO:main:Criteria change for AEE: momentum_pass None -> False
+INFO:main:Criteria change for AEE: stabilizing_pass None -> True
+INFO:main:Updating AEE criteria in database - new score: 2
+INFO:main:MANUAL TRIGGER: Completed analysis - changes detected: True
+INFO:main:MANUAL TRIGGER: Starting immediate analysis of top 3 tickers
+INFO:main:MANUAL TRIGGER: Analyzing top 3 tickers: ['AIG', 'AMT', 'APH']
+INFO:main:MANUAL TRIGGER: Processing AIG
+INFO:main:MANUAL TRIGGER: API response for AIG: Status 200
+INFO:main:MANUAL TRIGGER: Response text for AIG: {"criteria1":true,"criteria2":true,"criteria3":false,"criteria4":false,"criteria5":false}
+
+INFO:main:MANUAL TRIGGER: Received criteria for AIG: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': False}
+INFO:main:Polling criteria update for AIG
+INFO:main:API response for AIG: Status 200
+INFO:main:Received criteria update for AIG: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': False}
+INFO:main:Criteria change for AIG: trend1_pass None -> True
+INFO:main:Criteria change for AIG: trend2_pass None -> True
+INFO:main:Criteria change for AIG: snapback_pass None -> False
+INFO:main:Criteria change for AIG: momentum_pass None -> False
+INFO:main:Criteria change for AIG: stabilizing_pass None -> False
+INFO:main:Updating AIG criteria in database - new score: 2
+INFO:main:MANUAL TRIGGER: Processing AMT
+INFO:main:MANUAL TRIGGER: API response for AMT: Status 200
+INFO:main:MANUAL TRIGGER: Response text for AMT: {"criteria1":true,"criteria2":true,"criteria3":false,"criteria4":true,"criteria5":false}
+
+INFO:main:MANUAL TRIGGER: Received criteria for AMT: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': True, 'criteria5': False}
+INFO:main:Polling criteria update for AMT
+INFO:main:API response for AMT: Status 200
+INFO:main:Received criteria update for AMT: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': True, 'criteria5': False}
+INFO:main:Criteria change for AMT: trend1_pass None -> True
+INFO:main:Criteria change for AMT: trend2_pass None -> True
+INFO:main:Criteria change for AMT: snapback_pass None -> False
+INFO:main:Criteria change for AMT: momentum_pass None -> True
+INFO:main:Criteria change for AMT: stabilizing_pass None -> False
+INFO:main:Updating AMT criteria in database - new score: 3
+INFO:main:MANUAL TRIGGER: Processing APH
+INFO:main:MANUAL TRIGGER: API response for APH: Status 200
+INFO:main:MANUAL TRIGGER: Response text for APH: {"criteria1":true,"criteria2":true,"criteria3":false,"criteria4":false,"criteria5":false}
+
+INFO:main:MANUAL TRIGGER: Received criteria for APH: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': False}
+INFO:main:Polling criteria update for APH
+INFO:main:API response for APH: Status 200
+INFO:main:Received criteria update for APH: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': False}
+INFO:main:Criteria change for APH: trend1_pass None -> True
+INFO:main:Criteria change for APH: trend2_pass None -> True
+INFO:main:Criteria change for APH: snapback_pass None -> False
+INFO:main:Criteria change for APH: momentum_pass None -> False
+INFO:main:Criteria change for APH: stabilizing_pass None -> False
+INFO:main:Updating APH criteria in database - new score: 2
+INFO:main:MANUAL TRIGGER: Completed analysis - changes detected: True
+[2025-06-10 17:45:39 +0000] [13756] [INFO] Worker reloading: /home/runner/workspace/main.py modified
+[2025-06-10 17:45:39 +0000] [13756] [INFO] Worker exiting (pid: 13756)
+[2025-06-10 17:45:39 +0000] [13911] [INFO] Booting worker with pid: 13911
+INFO:database_models:Database initialized with CSV format and trading volume support
+[2025-06-10 17:45:49 +0000] [13911] [INFO] Worker reloading: /home/runner/workspace/main.py modified
+[2025-06-10 17:45:49 +0000] [13911] [INFO] Worker exiting (pid: 13911)
+[2025-06-10 17:45:49 +0000] [13950] [INFO] Booting worker with pid: 13950
+INFO:database_models:Database initialized with CSV format and trading volume support
+[2025-06-10 17:45:57 +0000] [13950] [INFO] Worker reloading: /home/runner/workspace/main.py modified
+[2025-06-10 17:45:57 +0000] [13950] [INFO] Worker exiting (pid: 13950)
+[2025-06-10 17:45:57 +0000] [13959] [INFO] Booting worker with pid: 13959
+INFO:database_models:Database initialized with CSV format and trading volume support
+INFO:main:MANUAL TRIGGER: Starting immediate analysis of top 5 tickers
+INFO:main:MANUAL TRIGGER: Analyzing top 5 tickers: ['AVGO', 'BK', 'CCEP', 'CCI', 'CDNS']
+INFO:main:MANUAL TRIGGER: Processing AVGO
+INFO:main:MANUAL TRIGGER: API response for AVGO: Status 200
+INFO:main:MANUAL TRIGGER: Response text for AVGO: {"criteria1":true,"criteria2":true,"criteria3":false,"criteria4":false,"criteria5":false}
+
+INFO:main:MANUAL TRIGGER: Received criteria for AVGO: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': False}
+INFO:main:Polling criteria update for AVGO
+INFO:main:API response for AVGO: Status 200
+INFO:main:Received criteria update for AVGO: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': False}
+INFO:main:Criteria change for AVGO: trend1_pass None -> True
+INFO:main:Criteria change for AVGO: trend2_pass None -> True
+INFO:main:Criteria change for AVGO: snapback_pass None -> False
+INFO:main:Criteria change for AVGO: momentum_pass None -> False
+INFO:main:Criteria change for AVGO: stabilizing_pass None -> False
+INFO:main:Updating AVGO criteria in database - new score: 2
+INFO:main:MANUAL TRIGGER: Processing BK
+INFO:main:MANUAL TRIGGER: API response for BK: Status 200
+INFO:main:MANUAL TRIGGER: Response text for BK: {"criteria1":true,"criteria2":true,"criteria3":false,"criteria4":false,"criteria5":false}
+
+INFO:main:MANUAL TRIGGER: Received criteria for BK: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': False}
+INFO:main:Polling criteria update for BK
+INFO:main:API response for BK: Status 200
+INFO:main:Received criteria update for BK: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': False}
+INFO:main:Criteria change for BK: trend1_pass None -> True
+INFO:main:Criteria change for BK: trend2_pass None -> True
+INFO:main:Criteria change for BK: snapback_pass None -> False
+INFO:main:Criteria change for BK: momentum_pass None -> False
+INFO:main:Criteria change for BK: stabilizing_pass None -> False
+INFO:main:Updating BK criteria in database - new score: 2
+INFO:main:MANUAL TRIGGER: Processing CCEP
+INFO:main:MANUAL TRIGGER: API response for CCEP: Status 200
+INFO:main:MANUAL TRIGGER: Response text for CCEP: {"criteria1":true,"criteria2":true,"criteria3":false,"criteria4":false,"criteria5":true}
+
+INFO:main:MANUAL TRIGGER: Received criteria for CCEP: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': False, 'criteria5': True}
+INFO:main:Polling criteria update for CCEP
+[2025-06-10 17:46:36 +0000] [13745] [CRITICAL] WORKER TIMEOUT (pid:13959)
+[2025-06-10 17:46:36 +0000] [13959] [ERROR] Error handling request /trigger-quick-analysis
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 6631, in trigger_quick_analysis
+    if update_ticker_criteria(ticker):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 62, in update_ticker_criteria
+    response = requests.post(
+               ^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/adapters.py", line 667, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connection.py", line 516, in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/http/client.py", line 1395, in getresponse
+    response.begin()
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/http/client.py", line 325, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/http/client.py", line 286, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/socket.py", line 718, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/ssl.py", line 1314, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/ssl.py", line 1166, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
