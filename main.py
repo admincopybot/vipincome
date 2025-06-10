@@ -1547,8 +1547,8 @@ def fetch_options_data(symbol, current_price):
     try:
         print(f"Starting real-time spread detection for {symbol} at ${current_price:.2f}")
         
-        # Use real-time spread detection system
-        spread_results = get_real_time_spreads(symbol, current_price)
+        # Use real-time spread detection system with TheTradeList API for stock price
+        spread_results = get_real_time_spreads(symbol)
         print(f"Real-time spread detection completed for {symbol}")
         
         # Convert to format expected by frontend

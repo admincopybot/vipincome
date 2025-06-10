@@ -26,6 +26,66 @@ class RealTimeSpreadDetector:
     def __init__(self):
         self.polygon_api_key = os.environ.get('POLYGON_API_KEY')
         self.tradelist_api_key = os.environ.get('TRADELIST_API_KEY')
+    
+    def get_real_time_stock_price(self, symbol: str) -> Optional[float]:
+        """Get real-time stock price using TheTradeList API snapshot endpoint"""
+        try:
+            url = "https://api.thetradelist.com/v1/data/snapshot-locale"
+            params = {
+                'tickers': symbol,
+                'apiKey': self.tradelist_api_key
+            }
+            
+            response = requests.get(url, params=params, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('status') == 'OK' and data.get('results'):
+                    results = data['results']
+                    if symbol in results:
+                        stock_data = results[symbol]
+                        fmv = stock_data.get('fmv')
+                        if fmv:
+                            logger.info(f"Real-time price for {symbol}: ${fmv} (from TheTradeList FMV)")
+                            
+                            # Send stock price webhook
+                            price_webhook_data = {
+                                'timestamp': datetime.now().isoformat(),
+                                'calculation_type': 'real_time_stock_price',
+                                'symbol': symbol,
+                                'fmv_price': float(fmv),
+                                'api_source': 'TheTradeList',
+                                'api_response': {
+                                    'status': data.get('status'),
+                                    'results_available': len(results),
+                                    'full_stock_data': stock_data
+                                }
+                            }
+                            send_to_webhook(price_webhook_data)
+                            
+                            return float(fmv)
+                            
+            logger.warning(f"Failed to get real-time price for {symbol} from TheTradeList API")
+            
+            # Send failed price webhook
+            failed_price_data = {
+                'timestamp': datetime.now().isoformat(),
+                'calculation_type': 'failed_stock_price',
+                'symbol': symbol,
+                'error': f'API returned status {response.status_code}',
+                'api_source': 'TheTradeList',
+                'api_response': {
+                    'status_code': response.status_code,
+                    'response_text': response.text[:200] if hasattr(response, 'text') else 'No response text'
+                }
+            }
+            send_to_webhook(failed_price_data)
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error fetching real-time price for {symbol}: {e}")
+            return None
         
     def calculate_dte(self, expiration_date: str) -> int:
         """Calculate days to expiration from expiration date string"""
@@ -453,7 +513,22 @@ class RealTimeSpreadDetector:
         
         return results
 
-def get_real_time_spreads(symbol: str, current_price: float) -> Dict[str, Dict]:
+def get_real_time_spreads(symbol: str, current_price: Optional[float] = None) -> Dict[str, Dict]:
     """Main entry point for real-time spread detection"""
     detector = RealTimeSpreadDetector()
+    
+    # Get real-time price from TheTradeList API if not provided
+    if current_price is None:
+        current_price = detector.get_real_time_stock_price(symbol)
+        if current_price is None:
+            logger.error(f"Failed to get real-time price for {symbol}")
+            return {
+                'aggressive': {'found': False, 'reason': 'Failed to get current stock price'},
+                'balanced': {'found': False, 'reason': 'Failed to get current stock price'},
+                'conservative': {'found': False, 'reason': 'Failed to get current stock price'}
+            }
+    
+    # Add logging for the actual price being used
+    logger.info(f"Using real-time price ${current_price:.2f} for {symbol} spread detection")
+    
     return detector.find_best_spreads(symbol, current_price)
