@@ -167,9 +167,9 @@ class RealTimeSpreadDetector:
                     if short_strike >= current_price:
                         continue
                     
-                    # Add ALL valid spread pairs (no width restrictions here)
+                    # Add spread pairs with MAXIMUM $10 width restriction
                     spread_width = short_strike - long_strike
-                    if spread_width > 0:  # Any positive width is valid
+                    if 0 < spread_width <= 10.0:  # Only spreads up to $10 wide
                         pairs.append((long_contract, short_contract))
         
         # Sort pairs by width priority: $1 first, then $2.50, then $5, then others
@@ -194,7 +194,7 @@ class RealTimeSpreadDetector:
         # Sort by priority (lower number = higher priority)
         pairs.sort(key=width_priority)
         
-        logger.info(f"Generated {len(pairs)} total spread pairs, prioritized by width ($1, $2.50, $5, etc.)")
+        logger.info(f"Generated {len(pairs)} total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)")
         return pairs
     
     def get_real_time_quote(self, ticker: str) -> Optional[Dict]:
