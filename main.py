@@ -17,6 +17,7 @@ from database_models import ETFDatabase
 from csv_data_loader import CsvDataLoader
 from real_time_spreads import get_real_time_spreads
 from spread_storage import SessionSpreadStorage
+from spread_diagnostics import SpreadDiagnostics, test_spread_calculation
 
 # Initialize session storage for authentic spread data
 session_storage = SessionSpreadStorage()
@@ -5980,6 +5981,215 @@ def api_etf_data():
         JSON: Current ETF data including prices and scores
     """
     return jsonify(etf_scores)
+
+@app.route('/diagnostics')
+def spread_diagnostics():
+    """Diagnostic tool for troubleshooting spread calculations"""
+    return render_template_string('''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Spread Calculation Diagnostics</title>
+        <style>
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                background: #0a0a0a; 
+                color: #e0e0e0; 
+                margin: 0; 
+                padding: 20px;
+            }
+            .container { 
+                max-width: 800px; 
+                margin: 0 auto; 
+                background: #1a1a1a; 
+                border-radius: 12px; 
+                padding: 30px;
+                border: 1px solid #333;
+            }
+            h1 { 
+                color: #8b5cf6; 
+                text-align: center; 
+                margin-bottom: 30px;
+            }
+            .form-group { 
+                margin-bottom: 20px; 
+            }
+            label { 
+                display: block; 
+                margin-bottom: 5px; 
+                color: #b0b0b0; 
+            }
+            input { 
+                width: 100%; 
+                padding: 10px; 
+                background: #2a2a2a; 
+                border: 1px solid #444; 
+                border-radius: 6px; 
+                color: #e0e0e0; 
+                box-sizing: border-box;
+            }
+            button { 
+                background: linear-gradient(90deg, #7c3aed, #a855f7); 
+                color: white; 
+                padding: 12px 30px; 
+                border: none; 
+                border-radius: 6px; 
+                cursor: pointer; 
+                font-weight: 600;
+                width: 100%;
+            }
+            button:hover { 
+                transform: translateY(-2px); 
+            }
+            .result { 
+                margin-top: 30px; 
+                padding: 20px; 
+                background: #2a2a2a; 
+                border-radius: 8px; 
+                border-left: 4px solid #8b5cf6;
+            }
+            .diagnostic-log { 
+                background: #1e1e1e; 
+                padding: 15px; 
+                border-radius: 6px; 
+                font-family: 'Courier New', monospace; 
+                font-size: 12px; 
+                white-space: pre-wrap; 
+                max-height: 300px; 
+                overflow-y: auto;
+            }
+            .row { 
+                display: flex; 
+                gap: 20px; 
+            }
+            .col { 
+                flex: 1; 
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Debit Spread Calculation Diagnostics</h1>
+            
+            <form id="diagnosticForm">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Long Strike Price:</label>
+                            <input type="number" step="0.01" id="longStrike" value="230.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Long Bid Price:</label>
+                            <input type="number" step="0.01" id="longBid" value="24.50" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Long Ask Price:</label>
+                            <input type="number" step="0.01" id="longAsk" value="24.80" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Short Strike Price:</label>
+                            <input type="number" step="0.01" id="shortStrike" value="235.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Short Bid Price:</label>
+                            <input type="number" step="0.01" id="shortBid" value="20.10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Short Ask Price:</label>
+                            <input type="number" step="0.01" id="shortAsk" value="20.35" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit">Run Diagnostic Analysis</button>
+            </form>
+            
+            <div id="results" style="display: none;">
+                <div class="result">
+                    <h3>Calculation Results</h3>
+                    <div id="calculationResults"></div>
+                    
+                    <h3>Diagnostic Log</h3>
+                    <div id="diagnosticLog" class="diagnostic-log"></div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            document.getElementById('diagnosticForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const data = {
+                    long_strike: parseFloat(document.getElementById('longStrike').value),
+                    short_strike: parseFloat(document.getElementById('shortStrike').value),
+                    long_bid: parseFloat(document.getElementById('longBid').value),
+                    long_ask: parseFloat(document.getElementById('longAsk').value),
+                    short_bid: parseFloat(document.getElementById('shortBid').value),
+                    short_ask: parseFloat(document.getElementById('shortAsk').value)
+                };
+                
+                fetch('/api/test-spread-calculation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    document.getElementById('results').style.display = 'block';
+                    
+                    if (result.calculation_result) {
+                        const calc = result.calculation_result;
+                        document.getElementById('calculationResults').innerHTML = `
+                            <p><strong>Spread Cost:</strong> $${calc.spread_cost.toFixed(2)}</p>
+                            <p><strong>Spread Width:</strong> $${calc.spread_width.toFixed(2)}</p>
+                            <p><strong>Max Profit:</strong> $${calc.max_profit.toFixed(2)}</p>
+                            <p><strong>ROI:</strong> ${calc.roi.toFixed(1)}%</p>
+                        `;
+                    } else {
+                        document.getElementById('calculationResults').innerHTML = '<p style="color: #ef4444;">Calculation failed - see diagnostic log</p>';
+                    }
+                    
+                    document.getElementById('diagnosticLog').textContent = result.diagnostic_report;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('results').style.display = 'block';
+                    document.getElementById('calculationResults').innerHTML = '<p style="color: #ef4444;">Error running diagnostic</p>';
+                    document.getElementById('diagnosticLog').textContent = 'Error: ' + error.message;
+                });
+            });
+        </script>
+    </body>
+    </html>
+    ''')
+
+@app.route('/api/test-spread-calculation', methods=['POST'])
+def api_test_spread_calculation():
+    """API endpoint for testing spread calculations"""
+    try:
+        data = request.get_json()
+        
+        result = test_spread_calculation(
+            long_strike=data['long_strike'],
+            short_strike=data['short_strike'],
+            long_bid=data['long_bid'],
+            long_ask=data['long_ask'],
+            short_bid=data['short_bid'],
+            short_ask=data['short_ask']
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Error in test spread calculation: {e}")
+        return jsonify({
+            'calculation_result': None,
+            'diagnostic_report': f"Error: {str(e)}"
+        }), 500
 
 @app.route('/api/chart_data/<symbol>')
 def api_chart_data(symbol):
