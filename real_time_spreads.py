@@ -12,6 +12,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def send_to_webhook(data: Dict, webhook_url: str = "https://hook.us2.make.com/ejo1kmpk79pc7almoqtihiqv5rp5p9z7"):
+    """Send data to Make.com webhook for analysis"""
+    try:
+        response = requests.post(webhook_url, json=data, timeout=10)
+        logger.info(f"Webhook sent: {response.status_code}")
+    except Exception as e:
+        logger.warning(f"Webhook failed: {e}")
+
 class RealTimeSpreadDetector:
     """Handles real-time options spread detection with authentic pricing"""
     
@@ -162,10 +170,52 @@ class RealTimeSpreadDetector:
                     if response.status_code == 200:
                         data = response.json()
                         if data.get('status') == 'OK' and data.get('results'):
-                            logger.info(f"Quote retrieved for {ticker}: bid=${data['results'][0].get('bid_price')}, ask=${data['results'][0].get('ask_price')}")
-                            return data['results'][0]
+                            quote = data['results'][0]
+                            logger.info(f"Quote retrieved for {ticker}: bid=${quote.get('bid_price')}, ask=${quote.get('ask_price')}")
+                            
+                            # Send individual quote data to webhook for analysis
+                            quote_webhook_data = {
+                                'timestamp': datetime.now().isoformat(),
+                                'calculation_type': 'individual_quote',
+                                'symbol': getattr(self, 'current_symbol', 'UNKNOWN'),
+                                'strategy_context': getattr(self, 'current_strategy', 'UNKNOWN'),
+                                'option_ticker': ticker,
+                                'quote_data': {
+                                    'bid_price': quote.get('bid_price', 0),
+                                    'ask_price': quote.get('ask_price', 0),
+                                    'last_price': quote.get('last_price', 0),
+                                    'volume': quote.get('volume', 0),
+                                    'open_interest': quote.get('open_interest', 0),
+                                    'implied_volatility': quote.get('implied_volatility', 0)
+                                },
+                                'api_response': {
+                                    'status_code': response.status_code,
+                                    'attempt_number': attempt + 1,
+                                    'api_status': data.get('status'),
+                                    'results_count': len(data.get('results', []))
+                                }
+                            }
+                            send_to_webhook(quote_webhook_data)
+                            
+                            return quote
                     
                     logger.warning(f"Attempt {attempt + 1}: No quote data for {ticker}, status: {response.status_code}")
+                    
+                    # Send failed quote attempt to webhook
+                    failed_quote_data = {
+                        'timestamp': datetime.now().isoformat(),
+                        'calculation_type': 'failed_quote_attempt',
+                        'symbol': getattr(self, 'current_symbol', 'UNKNOWN'),
+                        'strategy_context': getattr(self, 'current_strategy', 'UNKNOWN'),
+                        'option_ticker': ticker,
+                        'error': f'No quote data returned, status: {response.status_code}',
+                        'api_response': {
+                            'status_code': response.status_code,
+                            'attempt_number': attempt + 1,
+                            'response_text': response.text[:200] if hasattr(response, 'text') else 'No response text'
+                        }
+                    }
+                    send_to_webhook(failed_quote_data)
                     
                 except requests.exceptions.RequestException as e:
                     logger.warning(f"Attempt {attempt + 1}: Network error for {ticker}: {e}")
@@ -220,6 +270,52 @@ class RealTimeSpreadDetector:
             else:
                 roi = 0
             
+            # Prepare comprehensive webhook data
+            webhook_data = {
+                'timestamp': datetime.now().isoformat(),
+                'calculation_type': 'spread_metrics',
+                'symbol': getattr(self, 'current_symbol', 'UNKNOWN'),
+                'current_price': getattr(self, 'current_price', 0),
+                'long_contract': {
+                    'ticker': long_ticker,
+                    'strike_price': long_strike,
+                    'expiration_date': long_contract.get('expiration_date'),
+                    'contract_type': long_contract.get('contract_type'),
+                    'dte': long_contract.get('dte', 0)
+                },
+                'short_contract': {
+                    'ticker': short_ticker,
+                    'strike_price': short_strike,
+                    'expiration_date': short_contract.get('expiration_date'),
+                    'contract_type': short_contract.get('contract_type'),
+                    'dte': short_contract.get('dte', 0)
+                },
+                'long_quote': {
+                    'bid_price': long_quote.get('bid_price', 0),
+                    'ask_price': long_quote.get('ask_price', 0),
+                    'last_price': long_quote.get('last_price', 0),
+                    'volume': long_quote.get('volume', 0)
+                },
+                'short_quote': {
+                    'bid_price': short_quote.get('bid_price', 0),
+                    'ask_price': short_quote.get('ask_price', 0),
+                    'last_price': short_quote.get('last_price', 0),
+                    'volume': short_quote.get('volume', 0)
+                },
+                'calculations': {
+                    'spread_cost': spread_cost,
+                    'spread_width': spread_width,
+                    'max_profit': max_profit,
+                    'roi': roi,
+                    'long_price_used': long_price,  # ASK price
+                    'short_price_used': short_price  # BID price
+                },
+                'strategy_context': getattr(self, 'current_strategy', 'UNKNOWN')
+            }
+            
+            # Send to webhook for analysis
+            send_to_webhook(webhook_data)
+            
             return {
                 'long_ticker': long_ticker,
                 'short_ticker': short_ticker,
@@ -243,7 +339,8 @@ class RealTimeSpreadDetector:
         """Main function to find best spreads for all strategies"""
         results = {}
         
-        # Store current price for use in spread generation
+        # Store context for webhook logging
+        self.current_symbol = symbol
         self.current_price = current_price
         
         # Get all contracts
@@ -264,6 +361,21 @@ class RealTimeSpreadDetector:
         
         for strategy in strategies:
             logger.info(f"Processing {strategy} strategy for {symbol}")
+            
+            # Store current strategy for webhook context
+            self.current_strategy = strategy
+            
+            # Send strategy start webhook
+            strategy_start_data = {
+                'timestamp': datetime.now().isoformat(),
+                'calculation_type': 'strategy_start',
+                'symbol': symbol,
+                'current_price': current_price,
+                'strategy': strategy,
+                'roi_range': roi_ranges[strategy],
+                'total_contracts_available': len(all_contracts)
+            }
+            send_to_webhook(strategy_start_data)
             
             # Filter contracts by strategy criteria
             filtered_contracts = self.filter_contracts_by_strategy(

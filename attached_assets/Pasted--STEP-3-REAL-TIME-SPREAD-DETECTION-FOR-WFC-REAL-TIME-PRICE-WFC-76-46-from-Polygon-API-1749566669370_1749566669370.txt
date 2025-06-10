@@ -1,0 +1,66 @@
+=== STEP 3 REAL-TIME SPREAD DETECTION FOR WFC ===
+✓ REAL-TIME PRICE: WFC = $76.46 (from Polygon API)
+🔍 INITIATING REAL-TIME SPREAD DETECTION PIPELINE...
+Starting real-time spread detection for WFC at $76.46
+INFO:real_time_spreads:Fetched 580 call contracts for WFC
+INFO:real_time_spreads:Processing aggressive strategy for WFC
+INFO:real_time_spreads:Filtered to 8 contracts for aggressive strategy
+INFO:real_time_spreads:Generated 10 viable spread pairs
+INFO:real_time_spreads:Processing 3 spread pairs for aggressive (optimized for speed)
+INFO:real_time_spreads:Checking spread 1/3: O:WFC250627C00069000 / O:WFC250627C00070000
+INFO:real_time_spreads:Quote retrieved for O:WFC250627C00069000: bid=$6.6, ask=$6.85
+INFO:real_time_spreads:Quote retrieved for O:WFC250627C00070000: bid=$5.8, ask=$5.9
+INFO:real_time_spreads:ROI calculated: -4.8% (target: 25-50%)
+INFO:real_time_spreads:Checking spread 2/3: O:WFC250627C00069000 / O:WFC250627C00074000
+INFO:real_time_spreads:Quote retrieved for O:WFC250627C00069000: bid=$6.6, ask=$6.85
+INFO:real_time_spreads:Quote retrieved for O:WFC250627C00074000: bid=$2.57, ask=$2.6
+INFO:real_time_spreads:ROI calculated: 16.8% (target: 25-50%)
+INFO:real_time_spreads:Checking spread 3/3: O:WFC250627C00070000 / O:WFC250627C00071000
+INFO:real_time_spreads:Quote retrieved for O:WFC250627C00070000: bid=$5.8, ask=$5.9
+INFO:real_time_spreads:Quote retrieved for O:WFC250627C00071000: bid=$4.9, ask=$5
+INFO:real_time_spreads:ROI calculated: 0.0% (target: 25-50%)
+INFO:real_time_spreads:Processing balanced strategy for WFC
+INFO:real_time_spreads:Filtered to 12 contracts for balanced strategy
+INFO:real_time_spreads:Generated 20 viable spread pairs
+INFO:real_time_spreads:Processing 3 spread pairs for balanced (optimized for speed)
+INFO:real_time_spreads:Checking spread 1/3: O:WFC250703C00065000 / O:WFC250703C00066000
+INFO:real_time_spreads:Quote retrieved for O:WFC250703C00065000: bid=$10.6, ask=$10.85
+INFO:real_time_spreads:Quote retrieved for O:WFC250703C00066000: bid=$9.4, ask=$9.95
+INFO:real_time_spreads:ROI calculated: -31.0% (target: 12-25%)
+INFO:real_time_spreads:Checking spread 2/3: O:WFC250703C00065000 / O:WFC250703C00070000
+INFO:real_time_spreads:Quote retrieved for O:WFC250703C00065000: bid=$10.6, ask=$10.85
+INFO:real_time_spreads:Quote retrieved for O:WFC250703C00070000: bid=$5.75, ask=$6.05
+INFO:real_time_spreads:ROI calculated: -2.0% (target: 12-25%)
+INFO:real_time_spreads:Checking spread 3/3: O:WFC250703C00065000 / O:WFC250703C00075000
+INFO:real_time_spreads:Quote retrieved for O:WFC250703C00065000: bid=$10.6, ask=$10.85
+INFO:real_time_spreads:Quote retrieved for O:WFC250703C00075000: bid=$2.21, ask=$2.23
+INFO:real_time_spreads:ROI calculated: 15.7% (target: 12-25%)
+INFO:real_time_spreads:Found viable balanced spread: 15.7% ROI
+INFO:real_time_spreads:New best balanced spread: 15.7% ROI
+INFO:spread_storage:Stored session spread WFC_balanced_1_1749566622: WFC balanced ROI=15.7%
+INFO:real_time_spreads:Found balanced spread: 15.7% ROI, stored as WFC_balanced_1_1749566622
+INFO:real_time_spreads:Processing conservative strategy for WFC
+INFO:real_time_spreads:Filtered to 21 contracts for conservative strategy
+INFO:real_time_spreads:Generated 40 viable spread pairs
+INFO:real_time_spreads:Processing 3 spread pairs for conservative (optimized for speed)
+INFO:real_time_spreads:Checking spread 1/3: O:WFC250711C00062000 / O:WFC250711C00063000
+INFO:real_time_spreads:Quote retrieved for O:WFC250711C00062000: bid=$13.6, ask=$13.95
+INFO:real_time_spreads:Quote retrieved for O:WFC250711C00063000: bid=$12, ask=$12.95
+INFO:real_time_spreads:ROI calculated: -48.7% (target: 8-15%)
+INFO:real_time_spreads:Checking spread 2/3: O:WFC250711C00062000 / O:WFC250711C00067000
+INFO:real_time_spreads:Quote retrieved for O:WFC250711C00062000: bid=$13.6, ask=$13.95
+INFO:real_time_spreads:Quote retrieved for O:WFC250711C00067000: bid=$8.8, ask=$9.15
+INFO:real_time_spreads:ROI calculated: -2.9% (target: 8-15%)
+INFO:real_time_spreads:Checking spread 3/3: O:WFC250711C00062000 / O:WFC250711C00072000
+INFO:real_time_spreads:Quote retrieved for O:WFC250711C00062000: bid=$13.6, ask=$13.95
+INFO:real_time_spreads:Quote retrieved for O:WFC250711C00072000: bid=$4.55, ask=$4.95
+INFO:real_time_spreads:ROI calculated: 6.4% (target: 8-15%)
+Real-time spread detection completed for WFC
+No aggressive spread found: No spreads found within 25-50% ROI range
+WARNING:spread_storage:Spread WFC_balanced_1_1749566622 not found in session
+Found balanced spread: 15.7% ROI, 22 DTE
+No conservative spread found: No spreads found within 8-15% ROI range
+✓ REAL-TIME SPREAD DETECTION COMPLETED for WFC
+✗ AGGRESSIVE: No spreads found within 25-50% ROI range
+✓ STEADY: ROI=15.7%, DTE=22, Contract=O:WFC250703C00065000
+✗ PASSIVE: No spreads found within 8-15% ROI range
