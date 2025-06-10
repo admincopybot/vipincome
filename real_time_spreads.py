@@ -6,6 +6,7 @@ Uses TheTradeList API for authentic bid/ask pricing and Polygon API for contract
 import os
 import requests
 import json
+import time
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 import logging
@@ -26,7 +27,7 @@ class RealTimeSpreadDetector:
         try:
             url = "https://api.thetradelist.com/v1/data/snapshot-locale"
             params = {
-                'tickers': symbol,
+                'tickers': f"{symbol},",  # API requires comma after symbol
                 'apiKey': self.tradelist_api_key
             }
             
@@ -296,8 +297,7 @@ class RealTimeSpreadDetector:
                 'strategy_context': getattr(self, 'current_strategy', 'UNKNOWN')
             }
             
-            # Send to webhook for analysis
-            send_to_webhook(webhook_data)
+
             
             return {
                 'long_ticker': long_ticker,
