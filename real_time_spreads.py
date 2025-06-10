@@ -25,8 +25,9 @@ class RealTimeSpreadDetector:
         self.tradelist_api_key = os.environ.get('TRADELIST_API_KEY')
     
     def get_real_time_stock_price(self, symbol: str) -> Optional[float]:
-        """Get real-time stock price using TheTradeList API snapshot endpoint"""
+        """Get real-time stock price using TheTradeList API - PRIMARY PRICING SOURCE"""
         try:
+            # First try snapshot endpoint for FMV (Fair Market Value)
             url = "https://api.thetradelist.com/v1/data/snapshot-locale"
             params = {
                 'tickers': f"{symbol},",  # API requires comma after symbol
@@ -42,11 +43,33 @@ class RealTimeSpreadDetector:
                     if symbol in results:
                         stock_data = results[symbol]
                         fmv = stock_data.get('fmv')
-                        if fmv:
-                            logger.info(f"Real-time price for {symbol}: ${fmv} (from TheTradeList FMV)")
+                        if fmv and fmv > 0:
+                            logger.info(f"TheTradeList FMV price for {symbol}: ${fmv}")
                             return float(fmv)
-                            
-            logger.warning(f"Failed to get real-time price for {symbol} from TheTradeList API")
+            
+            # Fallback to trader scanner endpoint
+            logger.info(f"FMV not available, trying trader scanner for {symbol}")
+            scanner_url = "https://api.thetradelist.com/v1/data/get_trader_scanner_data.php"
+            scanner_params = {
+                'apiKey': self.tradelist_api_key,
+                'returntype': 'json'
+            }
+            
+            scanner_response = requests.get(scanner_url, params=scanner_params, timeout=15)
+            
+            if scanner_response.status_code == 200:
+                scanner_data = scanner_response.json()
+                
+                # Find the specific ticker
+                if isinstance(scanner_data, list):
+                    for item in scanner_data:
+                        if item.get('symbol') == symbol:
+                            last_price = item.get('lastprice')
+                            if last_price and float(last_price) > 0:
+                                logger.info(f"TheTradeList scanner price for {symbol}: ${last_price}")
+                                return float(last_price)
+                                
+            logger.warning(f"No valid price found for {symbol} from TheTradeList API")
             return None
             
         except Exception as e:

@@ -4519,29 +4519,22 @@ def step3(symbol=None):
     
     print(f"\n=== STEP 3 REAL-TIME SPREAD DETECTION FOR {symbol} ===")
     
-    # Get REAL current stock price from Polygon API (no CSV data)
+    # Get REAL current stock price from TheTradeList API (no CSV data)
     try:
-        import requests
-        import os
+        from tradelist_client import TradeListApiService
         
-        polygon_api_key = os.environ.get('POLYGON_API_KEY')
-        if not polygon_api_key:
-            return f"Error: Polygon API key required for real-time price data"
+        tradelist_api_key = os.environ.get('TRADELIST_API_KEY')
+        if not tradelist_api_key:
+            return f"Error: TheTradeList API key required for real-time price data"
         
-        # Fetch current stock price from Polygon
-        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/prev"
-        params = {'apikey': polygon_api_key}
+        # Fetch current stock price from TheTradeList
+        price_data = TradeListApiService.get_current_price(symbol)
         
-        response = requests.get(url, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get('results') and len(data['results']) > 0:
-                current_price = data['results'][0]['c']  # closing price
-                print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from Polygon API)")
-            else:
-                return f"Error: No price data available for {symbol} from Polygon API"
+        if price_data and price_data.get('price') and price_data['price'] > 0:
+            current_price = price_data['price']
+            print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from TheTradeList API)")
         else:
-            return f"Error: Failed to fetch price data for {symbol} from Polygon API (status: {response.status_code})"
+            return f"Error: No price data available for {symbol} from TheTradeList API"
             
     except Exception as e:
         print(f"✗ ERROR fetching real-time price: {e}")
