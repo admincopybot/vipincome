@@ -358,7 +358,7 @@ class RealTimeSpreadDetector:
                 'roi_range': roi_ranges[strategy],
                 'total_contracts_available': len(all_contracts)
             }
-            send_to_webhook(strategy_start_data)
+
             
             # Filter contracts by strategy criteria
             filtered_contracts = self.filter_contracts_by_strategy(
@@ -466,8 +466,8 @@ def get_real_time_spreads(symbol: str, current_price: Optional[float] = None) ->
         if current_price is None:
             logger.info(f"TheTradeList API failed for {symbol}, trying Polygon API fallback")
             try:
-                from enhanced_polygon_client import get_current_stock_price
-                current_price = get_current_stock_price(symbol)
+                from enhanced_polygon_client import EnhancedPolygonService
+                current_price = EnhancedPolygonService.get_etf_price(symbol)
                 if current_price:
                     logger.info(f"Polygon fallback successful: {symbol} = ${current_price}")
                 else:
