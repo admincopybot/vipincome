@@ -3747,6 +3747,21 @@ def step2(symbol=None):
     if not ticker_data:
         return redirect('/')
     
+    # Get real-time current price from TheTradeList API
+    try:
+        from real_time_spreads import RealTimeSpreadDetector
+        detector = RealTimeSpreadDetector()
+        real_time_price = detector.get_real_time_stock_price(symbol.upper())
+        
+        if real_time_price and real_time_price > 0:
+            # Update ticker_data with real-time price
+            ticker_data['current_price'] = real_time_price
+            logger.info(f"Step 2: Updated {symbol} current price to ${real_time_price:.2f} from TheTradeList")
+        else:
+            logger.warning(f"Step 2: Could not get real-time price for {symbol}, using database price")
+    except Exception as e:
+        logger.warning(f"Step 2: Price update failed for {symbol}: {e}, using database price")
+    
     template = """
 <!DOCTYPE html>
 <html lang="en">
