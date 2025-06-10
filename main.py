@@ -175,27 +175,31 @@ def start_background_polling():
     logger.info("Started background criteria polling thread for top 3 tickers")
 
 def update_prices_with_tradelist():
-    """Update current prices using TheTradeList API while preserving all other database record details"""
+    """Update current prices using TheTradeList API for TOP 3 TICKERS ONLY while preserving all other database record details"""
     global etf_scores
     
     try:
         from real_time_spreads import RealTimeSpreadDetector
         detector = RealTimeSpreadDetector()
         
-        # Update prices for all symbols in etf_scores
-        for symbol in etf_scores.keys():
+        # Get top 3 tickers by score (etf_scores is already sorted by score DESC from database)
+        top_3_symbols = list(etf_scores.keys())[:3]
+        logger.info(f"Updating real-time prices for TOP 3 tickers only: {top_3_symbols}")
+        
+        # Update prices for only the top 3 symbols
+        for symbol in top_3_symbols:
             try:
                 real_time_price = detector.get_real_time_stock_price(symbol)
                 if real_time_price and real_time_price > 0:
                     etf_scores[symbol]['price'] = real_time_price
-                    logger.info(f"Updated {symbol} price to ${real_time_price:.2f} from TheTradeList")
+                    logger.info(f"Updated TOP 3 ticker {symbol} price to ${real_time_price:.2f} from TheTradeList")
                 else:
-                    logger.warning(f"Could not get real-time price for {symbol} from TheTradeList")
+                    logger.warning(f"Could not get real-time price for TOP 3 ticker {symbol} from TheTradeList")
             except Exception as e:
-                logger.warning(f"Price update failed for {symbol}: {e}")
+                logger.warning(f"Price update failed for TOP 3 ticker {symbol}: {e}")
                 
     except Exception as e:
-        logger.error(f"Error updating prices with TheTradeList: {e}")
+        logger.error(f"Error updating TOP 3 ticker prices with TheTradeList: {e}")
 
 def load_etf_data_from_database():
     """Load ETF data from database with AUTOMATIC RANKING by score + trading volume tiebreaker"""

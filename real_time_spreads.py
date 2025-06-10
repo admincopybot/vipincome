@@ -40,7 +40,7 @@ class RealTimeSpreadDetector:
             logger.info(f"📡 SNAPSHOT PARAMS: tickers={symbol}, (with comma)")
             logger.info(f"📡 SNAPSHOT API KEY: {'Present' if self.tradelist_api_key else 'MISSING'}")
             
-            response = requests.get(url, params=params, timeout=10)
+            response = requests.get(url, params=params, timeout=3)
             
             logger.info(f"📡 SNAPSHOT RESPONSE: Status={response.status_code}")
             logger.info(f"📡 SNAPSHOT RESPONSE TEXT: {response.text[:500]}")
