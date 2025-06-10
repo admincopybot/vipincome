@@ -174,6 +174,29 @@ def start_background_polling():
     polling_thread.start()
     logger.info("Started background criteria polling thread for top 3 tickers")
 
+def update_prices_with_tradelist():
+    """Update current prices using TheTradeList API while preserving all other database record details"""
+    global etf_scores
+    
+    try:
+        from real_time_spreads import RealTimeSpreadDetector
+        detector = RealTimeSpreadDetector()
+        
+        # Update prices for all symbols in etf_scores
+        for symbol in etf_scores.keys():
+            try:
+                real_time_price = detector.get_real_time_stock_price(symbol)
+                if real_time_price and real_time_price > 0:
+                    etf_scores[symbol]['price'] = real_time_price
+                    logger.info(f"Updated {symbol} price to ${real_time_price:.2f} from TheTradeList")
+                else:
+                    logger.warning(f"Could not get real-time price for {symbol} from TheTradeList")
+            except Exception as e:
+                logger.warning(f"Price update failed for {symbol}: {e}")
+                
+    except Exception as e:
+        logger.error(f"Error updating prices with TheTradeList: {e}")
+
 def load_etf_data_from_database():
     """Load ETF data from database with AUTOMATIC RANKING by score + trading volume tiebreaker"""
     global etf_scores
@@ -257,7 +280,7 @@ def load_etf_data_from_database():
             etf_scores[symbol] = {
                 "name": sector_name,
                 "score": csv_total_score,  # Use total_score from CSV
-                "price": data['current_price'],
+                "price": data['current_price'],  # Will be updated with real-time price
                 "avg_volume_10d": data['avg_volume_10d'],  # Include trading volume for Step 2
                 "indicators": indicators
             }
@@ -3118,6 +3141,8 @@ def index():
     
     # Always reload from database to ensure latest data
     load_etf_data_from_database()
+    # Update prices with real-time data from TheTradeList API
+    update_prices_with_tradelist()
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
