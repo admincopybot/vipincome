@@ -137,9 +137,8 @@ class RealTimeSpreadDetector:
         return filtered
     
     def generate_spread_pairs(self, contracts: List[Dict]) -> List[Tuple[Dict, Dict]]:
-        """Generate viable debit spread pairs from filtered contracts"""
+        """Generate ALL possible debit spread pairs from filtered contracts, prioritized by width"""
         pairs = []
-        valid_widths = [0.50, 1.00, 2.50, 5.00, 10.00]
         
         # Group by expiration date
         by_expiration = {}
@@ -149,7 +148,7 @@ class RealTimeSpreadDetector:
                 by_expiration[exp_date] = []
             by_expiration[exp_date].append(contract)
         
-        # Generate pairs within each expiration
+        # Generate ALL possible pairs within each expiration
         for exp_date, exp_contracts in by_expiration.items():
             # Sort by strike price
             exp_contracts.sort(key=lambda x: float(x.get('strike_price', 0)))
@@ -166,17 +165,36 @@ class RealTimeSpreadDetector:
                     # CRITICAL: For debit spreads, short call must be below current price
                     current_price = getattr(self, 'current_price', 260)  # Use stored current price
                     if short_strike >= current_price:
-                        logger.debug(f"Rejecting spread: short strike {short_strike} >= current price {current_price}")
                         continue
                     
-                    logger.debug(f"Valid spread found: Buy ${long_strike} / Sell ${short_strike} (current: ${current_price})")
-                    
-                    # Check if spread width matches valid intervals
+                    # Add ALL valid spread pairs (no width restrictions here)
                     spread_width = short_strike - long_strike
-                    if spread_width in valid_widths:
+                    if spread_width > 0:  # Any positive width is valid
                         pairs.append((long_contract, short_contract))
         
-        logger.info(f"Generated {len(pairs)} viable spread pairs")
+        # Sort pairs by width priority: $1 first, then $2.50, then $5, then others
+        def width_priority(pair):
+            long_contract, short_contract = pair
+            width = float(short_contract.get('strike_price', 0)) - float(long_contract.get('strike_price', 0))
+            
+            # Priority order: $1, $2.50, $5, $0.50, $10, others
+            if abs(width - 1.0) < 0.01:
+                return 1  # $1 spreads get highest priority
+            elif abs(width - 2.5) < 0.01:
+                return 2  # $2.50 spreads second
+            elif abs(width - 5.0) < 0.01:
+                return 3  # $5 spreads third
+            elif abs(width - 0.5) < 0.01:
+                return 4  # $0.50 spreads fourth
+            elif abs(width - 10.0) < 0.01:
+                return 5  # $10 spreads fifth
+            else:
+                return 6 + width  # All other widths by size
+        
+        # Sort by priority (lower number = higher priority)
+        pairs.sort(key=width_priority)
+        
+        logger.info(f"Generated {len(pairs)} total spread pairs, prioritized by width ($1, $2.50, $5, etc.)")
         return pairs
     
     def get_real_time_quote(self, ticker: str) -> Optional[Dict]:
@@ -331,9 +349,8 @@ class RealTimeSpreadDetector:
                     'reason': f'No viable spread pairs for {strategy}'
                 }
             
-            # Calculate metrics for ALL spread pairs and prioritize $1 spreads
-            best_spread = None
-            best_one_dollar_spread = None
+            # Calculate metrics for ALL spread pairs with width prioritization
+            best_spreads_by_width = {}  # Track best spread for each width category
             roi_min, roi_max = roi_ranges[strategy]
             
             logger.info(f"Processing ALL {len(spread_pairs)} spread pairs for {strategy} strategy")
@@ -364,24 +381,48 @@ class RealTimeSpreadDetector:
                             if roi_min <= roi <= roi_max:
                                 logger.info(f"Found viable {strategy} spread: {roi:.1f}% ROI, ${spread_width:.2f} width")
                                 
-                                # Prioritize $1 spreads first
-                                if abs(spread_width - 1.0) <= 0.01:  # $1 spread (with small tolerance)
-                                    if not best_one_dollar_spread or roi > best_one_dollar_spread['roi']:
-                                        best_one_dollar_spread = metrics
-                                        logger.info(f"New best $1 {strategy} spread: {roi:.1f}% ROI")
+                                # Categorize by width for prioritization
+                                width_category = None
+                                if abs(spread_width - 1.0) <= 0.01:
+                                    width_category = "1.00"
+                                elif abs(spread_width - 2.5) <= 0.01:
+                                    width_category = "2.50" 
+                                elif abs(spread_width - 5.0) <= 0.01:
+                                    width_category = "5.00"
+                                elif abs(spread_width - 0.5) <= 0.01:
+                                    width_category = "0.50"
+                                elif abs(spread_width - 10.0) <= 0.01:
+                                    width_category = "10.00"
+                                else:
+                                    width_category = f"other_{spread_width:.2f}"
                                 
-                                # Track best overall spread as backup
-                                if not best_spread or roi > best_spread['roi']:
-                                    best_spread = metrics
-                                    logger.info(f"New best overall {strategy} spread: {roi:.1f}% ROI")
+                                # Track best spread for each width category
+                                if width_category not in best_spreads_by_width or roi > best_spreads_by_width[width_category]['roi']:
+                                    best_spreads_by_width[width_category] = metrics
+                                    logger.info(f"New best ${spread_width:.2f} {strategy} spread: {roi:.1f}% ROI")
                     except Exception as e:
                         logger.error(f"Error calculating spread metrics: {str(e)}")
             
-            # Use $1 spread if found, otherwise use best overall spread
-            final_spread = best_one_dollar_spread if best_one_dollar_spread else best_spread
+            # Select final spread based on priority: $1 first, then $2.50, then $5, etc.
+            final_spread = None
+            for priority_width in ["1.00", "2.50", "5.00", "0.50", "10.00"]:
+                if priority_width in best_spreads_by_width:
+                    final_spread = best_spreads_by_width[priority_width]
+                    logger.info(f"Selected ${priority_width} spread as best {strategy} option")
+                    break
+            
+            # If no priority widths found, use best from other widths
+            if not final_spread:
+                other_spreads = {k: v for k, v in best_spreads_by_width.items() if k.startswith("other_")}
+                if other_spreads:
+                    final_spread = max(other_spreads.values(), key=lambda x: x['roi'])
+                    logger.info(f"Selected best other-width spread for {strategy}: {final_spread['spread_width']:.2f}")
+            
+            logger.info(f"Found spreads by width: {list(best_spreads_by_width.keys())}")
             
             if final_spread:
-                spread_type = "$1 spread" if final_spread == best_one_dollar_spread else "spread"
+                width_value = final_spread['spread_width']
+                spread_type = f"${width_value:.2f} spread"
                 logger.info(f"Selected best {strategy} {spread_type}: {final_spread['roi']:.1f}% ROI, ${final_spread['spread_width']:.2f} width")
                 
                 # Store authentic spread and get unique session ID
