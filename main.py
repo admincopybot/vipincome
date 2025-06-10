@@ -3126,6 +3126,7 @@ def step4(symbol, strategy, spread_id):
         roi=roi,
         current_price=current_price,
         expiration_date=expiration_date,
+        days_to_exp=days_to_exp,
         spread_width=scenario_short_strike - scenario_long_strike,
         breakeven=scenario_long_strike + spread_cost,
         scenarios=scenarios
