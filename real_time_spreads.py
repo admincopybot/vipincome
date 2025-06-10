@@ -195,55 +195,15 @@ class RealTimeSpreadDetector:
                         if data.get('status') == 'OK' and data.get('results'):
                             quote = data['results'][0]
                             logger.info(f"Quote retrieved for {ticker}: bid=${quote.get('bid_price')}, ask=${quote.get('ask_price')}")
-                            
-                            # Send individual quote data to webhook for analysis
-                            quote_webhook_data = {
-                                'timestamp': datetime.now().isoformat(),
-                                'calculation_type': 'individual_quote',
-                                'symbol': getattr(self, 'current_symbol', 'UNKNOWN'),
-                                'strategy_context': getattr(self, 'current_strategy', 'UNKNOWN'),
-                                'option_ticker': ticker,
-                                'quote_data': {
-                                    'bid_price': quote.get('bid_price', 0),
-                                    'ask_price': quote.get('ask_price', 0),
-                                    'last_price': quote.get('last_price', 0),
-                                    'volume': quote.get('volume', 0),
-                                    'open_interest': quote.get('open_interest', 0),
-                                    'implied_volatility': quote.get('implied_volatility', 0)
-                                },
-                                'api_response': {
-                                    'status_code': response.status_code,
-                                    'attempt_number': attempt + 1,
-                                    'api_status': data.get('status'),
-                                    'results_count': len(data.get('results', []))
-                                }
-                            }
-                            send_to_webhook(quote_webhook_data)
-                            
                             return quote
                     
                     logger.warning(f"Attempt {attempt + 1}: No quote data for {ticker}, status: {response.status_code}")
                     
-                    # Send failed quote attempt to webhook
-                    failed_quote_data = {
-                        'timestamp': datetime.now().isoformat(),
-                        'calculation_type': 'failed_quote_attempt',
-                        'symbol': getattr(self, 'current_symbol', 'UNKNOWN'),
-                        'strategy_context': getattr(self, 'current_strategy', 'UNKNOWN'),
-                        'option_ticker': ticker,
-                        'error': f'No quote data returned, status: {response.status_code}',
-                        'api_response': {
-                            'status_code': response.status_code,
-                            'attempt_number': attempt + 1,
-                            'response_text': response.text[:200] if hasattr(response, 'text') else 'No response text'
-                        }
-                    }
-                    send_to_webhook(failed_quote_data)
+
                     
                 except requests.exceptions.RequestException as e:
                     logger.warning(f"Attempt {attempt + 1}: Network error for {ticker}: {e}")
-                    if attempt < 2:  # Wait before retry
-                        import time
+                    if attempt < 2:
                         time.sleep(1)
                     continue
                 
