@@ -6577,28 +6577,28 @@ def polling_status():
 
 @app.route('/trigger-quick-analysis', methods=['POST'])
 def trigger_quick_analysis():
-    """Manual trigger endpoint to force immediate analysis of top 3 tickers"""
+    """Manual trigger endpoint to force immediate analysis of top 5 tickers"""
     global polling_stats, last_poll_time
     
     try:
-        logger.info("MANUAL TRIGGER: Starting immediate analysis of top 3 tickers")
+        logger.info("MANUAL TRIGGER: Starting immediate analysis of top 5 tickers")
         
-        # Get current top 3 tickers
+        # Get current top 5 tickers
         db_data = etf_db.get_all_etfs()
-        if len(db_data) < 3:
+        if len(db_data) < 5:
             return jsonify({
                 'success': False,
                 'error': 'Not enough tickers in database for analysis',
                 'ticker_count': len(db_data)
             }), 400
         
-        # Sort by score and get top 3 symbols
+        # Sort by score and get top 5 symbols
         sorted_tickers = sorted(db_data.items(), 
                                key=lambda x: (x[1]['total_score'], x[1]['avg_volume_10d']), 
                                reverse=True)
-        top_3_symbols = [symbol for symbol, data in sorted_tickers[:3]]
+        top_5_symbols = [symbol for symbol, data in sorted_tickers[:5]]
         
-        logger.info(f"MANUAL TRIGGER: Analyzing top 3 tickers: {top_3_symbols}")
+        logger.info(f"MANUAL TRIGGER: Analyzing top 5 tickers: {top_5_symbols}")
         
         # Update polling stats
         polling_stats['total_polls'] += 1
@@ -6608,7 +6608,7 @@ def trigger_quick_analysis():
         results = []
         changes_detected = False
         
-        for ticker in top_3_symbols:
+        for ticker in top_5_symbols:
             logger.info(f"MANUAL TRIGGER: Processing {ticker}")
             
             try:
@@ -6677,7 +6677,7 @@ def trigger_quick_analysis():
         return jsonify({
             'success': True,
             'changes_detected': changes_detected,
-            'processed_tickers': top_3_symbols,
+            'processed_tickers': top_5_symbols,
             'results': results,
             'timestamp': datetime.now().isoformat(),
             'api_url': CRITERIA_API_URL
