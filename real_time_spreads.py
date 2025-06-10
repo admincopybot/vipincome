@@ -254,48 +254,8 @@ class RealTimeSpreadDetector:
             else:
                 roi = 0
             
-            # Prepare comprehensive webhook data
-            webhook_data = {
-                'timestamp': datetime.now().isoformat(),
-                'calculation_type': 'spread_metrics',
-                'symbol': getattr(self, 'current_symbol', 'UNKNOWN'),
-                'current_price': getattr(self, 'current_price', 0),
-                'long_contract': {
-                    'ticker': long_ticker,
-                    'strike_price': long_strike,
-                    'expiration_date': long_contract.get('expiration_date'),
-                    'contract_type': long_contract.get('contract_type'),
-                    'dte': long_contract.get('dte', 0)
-                },
-                'short_contract': {
-                    'ticker': short_ticker,
-                    'strike_price': short_strike,
-                    'expiration_date': short_contract.get('expiration_date'),
-                    'contract_type': short_contract.get('contract_type'),
-                    'dte': short_contract.get('dte', 0)
-                },
-                'long_quote': {
-                    'bid_price': long_quote.get('bid_price', 0),
-                    'ask_price': long_quote.get('ask_price', 0),
-                    'last_price': long_quote.get('last_price', 0),
-                    'volume': long_quote.get('volume', 0)
-                },
-                'short_quote': {
-                    'bid_price': short_quote.get('bid_price', 0),
-                    'ask_price': short_quote.get('ask_price', 0),
-                    'last_price': short_quote.get('last_price', 0),
-                    'volume': short_quote.get('volume', 0)
-                },
-                'calculations': {
-                    'spread_cost': spread_cost,
-                    'spread_width': spread_width,
-                    'max_profit': max_profit,
-                    'roi': roi,
-                    'long_price_used': long_price,  # ASK price
-                    'short_price_used': short_price  # BID price
-                },
-                'strategy_context': getattr(self, 'current_strategy', 'UNKNOWN')
-            }
+            # Log spread calculation details
+            logger.info(f"Spread calculated: {long_ticker}/{short_ticker}, ROI: {roi:.1f}%, Cost: ${spread_cost:.2f}")
             
 
             
