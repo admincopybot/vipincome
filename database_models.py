@@ -319,3 +319,39 @@ class ETFDatabase:
         count = cursor.fetchone()[0]
         conn.close()
         return count
+    
+    def update_ticker_criteria(self, symbol, criteria_data, new_score):
+        """Update criteria for a specific ticker and recalculate score"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # Map criteria to database fields
+        criteria_mapping = {
+            'criteria1': 'trend1_pass',
+            'criteria2': 'trend2_pass', 
+            'criteria3': 'snapback_pass',
+            'criteria4': 'momentum_pass',
+            'criteria5': 'stabilizing_pass'
+        }
+        
+        # Build update query
+        update_fields = []
+        update_values = []
+        
+        for api_field, db_field in criteria_mapping.items():
+            if api_field in criteria_data:
+                update_fields.append(f"{db_field} = ?")
+                update_values.append(criteria_data[api_field])
+        
+        # Add total score update
+        update_fields.append("total_score = ?")
+        update_values.append(new_score)
+        
+        # Add symbol for WHERE clause
+        update_values.append(symbol)
+        
+        query = f"UPDATE etf_scores SET {', '.join(update_fields)} WHERE symbol = ?"
+        
+        cursor.execute(query, update_values)
+        conn.commit()
+        conn.close()

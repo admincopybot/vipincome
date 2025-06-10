@@ -11,6 +11,7 @@ import time
 import math
 import requests
 import json
+import threading
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template_string, jsonify, redirect
 from database_models import ETFDatabase
@@ -38,6 +39,116 @@ last_csv_update = datetime.now()
 # Initialize database and CSV loader
 etf_db = ETFDatabase()
 csv_loader = CsvDataLoader()
+
+# Background polling configuration
+CRITERIA_API_URL = "https://1-symbol-5-criteria-post.replit.app/analyze"
+polling_active = True
+last_poll_time = datetime.now()
+
+def update_ticker_criteria(ticker):
+    """Update criteria for a single ticker using the external API"""
+    try:
+        logger.info(f"Polling criteria update for {ticker}")
+        response = requests.post(
+            CRITERIA_API_URL,
+            json={"ticker": ticker},
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            criteria_data = response.json()
+            logger.info(f"Received criteria update for {ticker}: {criteria_data}")
+            
+            # Update database with new criteria
+            current_data = etf_db.get_ticker_details(ticker)
+            if current_data:
+                # Check if criteria changed
+                criteria_changed = False
+                new_score = 0
+                
+                # Map API response to database fields
+                criteria_mapping = {
+                    'criteria1': 'trend1_pass',
+                    'criteria2': 'trend2_pass', 
+                    'criteria3': 'snapback_pass',
+                    'criteria4': 'momentum_pass',
+                    'criteria5': 'stabilizing_pass'
+                }
+                
+                # Calculate new score and check for changes
+                for api_field, db_field in criteria_mapping.items():
+                    if api_field in criteria_data:
+                        new_value = criteria_data[api_field]
+                        old_value = current_data.get(db_field)
+                        
+                        if new_value != old_value:
+                            criteria_changed = True
+                            logger.info(f"Criteria change for {ticker}: {db_field} {old_value} -> {new_value}")
+                        
+                        if new_value:
+                            new_score += 1
+                
+                if criteria_changed:
+                    logger.info(f"Updating {ticker} criteria in database - new score: {new_score}")
+                    etf_db.update_ticker_criteria(ticker, criteria_data, new_score)
+                    return True
+                else:
+                    logger.info(f"No criteria changes for {ticker}")
+                    return False
+            
+        else:
+            logger.warning(f"Failed to poll criteria for {ticker}: HTTP {response.status_code}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Error polling criteria for {ticker}: {str(e)}")
+        return False
+
+def background_criteria_polling():
+    """Background thread function to poll top 3 tickers every 2 minutes"""
+    global polling_active, last_poll_time
+    
+    while polling_active:
+        try:
+            current_time = datetime.now()
+            time_since_last_poll = (current_time - last_poll_time).total_seconds()
+            
+            if time_since_last_poll >= 120:  # 2 minutes
+                logger.info("Starting background criteria polling for top 3 tickers")
+                
+                # Get current top 3 tickers
+                db_data = etf_db.get_all_etfs()
+                if len(db_data) >= 3:
+                    top_3_tickers = [row[0] for row in db_data[:3]]  # First column is symbol
+                    logger.info(f"Polling top 3 tickers: {top_3_tickers}")
+                    
+                    changes_detected = False
+                    for ticker in top_3_tickers:
+                        if update_ticker_criteria(ticker):
+                            changes_detected = True
+                    
+                    if changes_detected:
+                        logger.info("Criteria changes detected - rankings may have updated")
+                        # Trigger a reload of the database cache
+                        load_etf_data_from_database()
+                    
+                    last_poll_time = current_time
+                else:
+                    logger.warning("Not enough tickers in database for polling")
+            
+            time.sleep(30)  # Check every 30 seconds, poll every 2 minutes
+            
+        except Exception as e:
+            logger.error(f"Error in background polling: {str(e)}")
+            time.sleep(60)  # Wait longer on error
+
+# Start background polling thread after function definitions
+def start_background_polling():
+    """Start the background criteria polling thread"""
+    global polling_thread
+    polling_thread = threading.Thread(target=background_criteria_polling, daemon=True)
+    polling_thread.start()
+    logger.info("Started background criteria polling thread for top 3 tickers")
 
 def load_etf_data_from_database():
     """Load ETF data from database with AUTOMATIC RANKING by score + trading volume tiebreaker"""
