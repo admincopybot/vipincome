@@ -137,7 +137,7 @@ def background_criteria_polling():
             current_time = datetime.now()
             time_since_last_poll = (current_time - last_poll_time).total_seconds()
             
-            if time_since_last_poll >= 120:  # 2 minutes
+            if time_since_last_poll >= 10:  # Temporarily 10 seconds for testing
                 logger.info("Starting background criteria polling for top 3 tickers")
                 
                 # Get current top 3 tickers
