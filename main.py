@@ -6401,7 +6401,74 @@ def api_chart_data(symbol):
     except Exception as e:
         return jsonify({'error': f'Failed to fetch chart data: {str(e)}'}), 500
 
-
+@app.route('/api/test-polling')
+def test_polling():
+    """Test the background polling functionality manually"""
+    try:
+        # Get current top 3 tickers
+        db_data = etf_db.get_all_etfs()
+        if len(db_data) >= 3:
+            # db_data is a list of tuples, get first 3 symbols
+            top_3_tickers = []
+            for i, row in enumerate(db_data):
+                if i < 3:
+                    top_3_tickers.append(row[0])  # First column is symbol
+                else:
+                    break
+            
+            results = []
+            for ticker in top_3_tickers:
+                # Test API call
+                try:
+                    response = requests.post(
+                        CRITERIA_API_URL,
+                        json={"ticker": ticker},
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 200:
+                        criteria_data = response.json()
+                        
+                        # Get current database data
+                        current_data = etf_db.get_ticker_details(ticker)
+                        current_score = current_data.get('total_score', 0) if current_data else 0
+                        
+                        # Calculate new score
+                        new_score = sum(1 for k, v in criteria_data.items() if v is True)
+                        
+                        results.append({
+                            'ticker': ticker,
+                            'current_score': current_score,
+                            'new_score': new_score,
+                            'criteria_data': criteria_data,
+                            'score_changed': new_score != current_score,
+                            'status': 'success'
+                        })
+                    else:
+                        results.append({
+                            'ticker': ticker,
+                            'status': 'api_failed',
+                            'error': f'HTTP {response.status_code}'
+                        })
+                        
+                except Exception as e:
+                    results.append({
+                        'ticker': ticker,
+                        'status': 'error',
+                        'error': str(e)
+                    })
+            
+            return jsonify({
+                'success': True,
+                'top_3_tickers': top_3_tickers,
+                'results': results,
+                'api_url': CRITERIA_API_URL
+            })
+        else:
+            return jsonify({'error': 'Not enough tickers in database'}), 400
+            
+    except Exception as e:
+        return jsonify({'error': f'Test failed: {str(e)}'}), 500
 
 if __name__ == '__main__':
     # Load initial data and start background polling
