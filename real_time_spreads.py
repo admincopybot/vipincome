@@ -517,11 +517,25 @@ def get_real_time_spreads(symbol: str, current_price: Optional[float] = None) ->
     """Main entry point for real-time spread detection"""
     detector = RealTimeSpreadDetector()
     
-    # Get real-time price from TheTradeList API if not provided
+    # Get real-time price from TheTradeList API if not provided, with Polygon fallback
     if current_price is None:
         current_price = detector.get_real_time_stock_price(symbol)
+        
+        # Fallback to Polygon API if TheTradeList fails
         if current_price is None:
-            logger.error(f"Failed to get real-time price for {symbol}")
+            logger.info(f"TheTradeList API failed for {symbol}, trying Polygon API fallback")
+            try:
+                from enhanced_polygon_client import get_current_stock_price
+                current_price = get_current_stock_price(symbol)
+                if current_price:
+                    logger.info(f"Polygon fallback successful: {symbol} = ${current_price}")
+                else:
+                    logger.error(f"Both TheTradeList and Polygon APIs failed for {symbol}")
+            except Exception as e:
+                logger.error(f"Polygon fallback failed: {e}")
+        
+        if current_price is None:
+            logger.error(f"Failed to get real-time price for {symbol} from all sources")
             return {
                 'aggressive': {'found': False, 'reason': 'Failed to get current stock price'},
                 'balanced': {'found': False, 'reason': 'Failed to get current stock price'},
