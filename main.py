@@ -4535,11 +4535,12 @@ def step3(symbol=None):
         if not tradelist_api_key:
             return f"Error: TheTradeList API key required for real-time price data"
         
-        # Fetch current stock price from TheTradeList
-        price_data = TradeListApiService.get_current_price(symbol)
+        # Use the real-time spread detector's price function which handles the comma format correctly
+        from real_time_spreads import RealTimeSpreadDetector
+        detector = RealTimeSpreadDetector()
+        current_price = detector.get_real_time_stock_price(symbol)
         
-        if price_data and price_data.get('price') and price_data['price'] > 0:
-            current_price = price_data['price']
+        if current_price and current_price > 0:
             print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from TheTradeList API)")
         else:
             return f"Error: No price data available for {symbol} from TheTradeList API"
