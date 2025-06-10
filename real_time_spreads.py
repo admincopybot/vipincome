@@ -10,6 +10,8 @@ import time
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 import logging
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 logger = logging.getLogger(__name__)
 
@@ -302,23 +304,12 @@ class RealTimeSpreadDetector:
             'conservative': (8, 15)
         }
         
-        for strategy in strategies:
+        def process_single_strategy(strategy):
+            """Process a single strategy with concurrent spread checking"""
             logger.info(f"Processing {strategy} strategy for {symbol}")
             
             # Store current strategy for webhook context
             self.current_strategy = strategy
-            
-            # Send strategy start webhook
-            strategy_start_data = {
-                'timestamp': datetime.now().isoformat(),
-                'calculation_type': 'strategy_start',
-                'symbol': symbol,
-                'current_price': current_price,
-                'strategy': strategy,
-                'roi_range': roi_ranges[strategy],
-                'total_contracts_available': len(all_contracts)
-            }
-
             
             # Filter contracts by strategy criteria
             filtered_contracts = self.filter_contracts_by_strategy(
@@ -326,56 +317,65 @@ class RealTimeSpreadDetector:
             )
             
             if not filtered_contracts:
-                results[strategy] = {
+                return strategy, {
                     'found': False,
                     'reason': f'No contracts match {strategy} criteria'
                 }
-                continue
             
             # Generate spread pairs
             spread_pairs = self.generate_spread_pairs(filtered_contracts)
             
             if not spread_pairs:
-                results[strategy] = {
+                return strategy, {
                     'found': False,
                     'reason': f'No viable spread pairs for {strategy}'
                 }
-                continue
             
             # Calculate metrics for ALL spread pairs and prioritize $1 spreads
             best_spread = None
             best_one_dollar_spread = None
             roi_min, roi_max = roi_ranges[strategy]
             
-            # Process ALL spread pairs and prioritize $1 spreads
-            pairs_to_check = spread_pairs
-            logger.info(f"Processing ALL {len(pairs_to_check)} spread pairs for {strategy} strategy")
+            logger.info(f"Processing ALL {len(spread_pairs)} spread pairs for {strategy} strategy")
             
-            for i, (long_contract, short_contract) in enumerate(pairs_to_check):
-                logger.info(f"Checking spread {i+1}/{len(pairs_to_check)}: {long_contract.get('ticker')} / {short_contract.get('ticker')}")
-                metrics = self.calculate_spread_metrics(long_contract, short_contract)
+            def calculate_single_spread(pair_data):
+                i, (long_contract, short_contract) = pair_data
+                return self.calculate_spread_metrics(long_contract, short_contract)
+            
+            # Use ThreadPoolExecutor for concurrent spread calculations within strategy
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                # Submit all spread calculations concurrently
+                future_to_pair = {
+                    executor.submit(calculate_single_spread, (i, pair)): pair 
+                    for i, pair in enumerate(spread_pairs)
+                }
                 
-                # Small delay to prevent API rate limiting
-                time.sleep(0.1)
-                
-                if metrics:
-                    spread_width = metrics['spread_width']
-                    roi = metrics['roi']
-                    logger.info(f"ROI calculated: {roi:.1f}% (target: {roi_min}-{roi_max}%), Spread width: ${spread_width:.2f}")
+                # Process results as they complete
+                for future in as_completed(future_to_pair):
+                    pair = future_to_pair[future]
+                    long_contract, short_contract = pair
                     
-                    if roi_min <= roi <= roi_max:
-                        logger.info(f"Found viable {strategy} spread: {roi:.1f}% ROI, ${spread_width:.2f} width")
-                        
-                        # Prioritize $1 spreads first
-                        if abs(spread_width - 1.0) <= 0.01:  # $1 spread (with small tolerance)
-                            if not best_one_dollar_spread or roi > best_one_dollar_spread['roi']:
-                                best_one_dollar_spread = metrics
-                                logger.info(f"New best $1 {strategy} spread: {roi:.1f}% ROI")
-                        
-                        # Track best overall spread as backup
-                        if not best_spread or roi > best_spread['roi']:
-                            best_spread = metrics
-                            logger.info(f"New best overall {strategy} spread: {roi:.1f}% ROI")
+                    try:
+                        metrics = future.result()
+                        if metrics:
+                            spread_width = metrics['spread_width']
+                            roi = metrics['roi']
+                            
+                            if roi_min <= roi <= roi_max:
+                                logger.info(f"Found viable {strategy} spread: {roi:.1f}% ROI, ${spread_width:.2f} width")
+                                
+                                # Prioritize $1 spreads first
+                                if abs(spread_width - 1.0) <= 0.01:  # $1 spread (with small tolerance)
+                                    if not best_one_dollar_spread or roi > best_one_dollar_spread['roi']:
+                                        best_one_dollar_spread = metrics
+                                        logger.info(f"New best $1 {strategy} spread: {roi:.1f}% ROI")
+                                
+                                # Track best overall spread as backup
+                                if not best_spread or roi > best_spread['roi']:
+                                    best_spread = metrics
+                                    logger.info(f"New best overall {strategy} spread: {roi:.1f}% ROI")
+                    except Exception as e:
+                        logger.error(f"Error calculating spread metrics: {str(e)}")
             
             # Use $1 spread if found, otherwise use best overall spread
             final_spread = best_one_dollar_spread if best_one_dollar_spread else best_spread
@@ -383,8 +383,7 @@ class RealTimeSpreadDetector:
             if final_spread:
                 spread_type = "$1 spread" if final_spread == best_one_dollar_spread else "spread"
                 logger.info(f"Selected best {strategy} {spread_type}: {final_spread['roi']:.1f}% ROI, ${final_spread['spread_width']:.2f} width")
-            
-            if final_spread:
+                
                 # Store authentic spread and get unique session ID
                 from spread_storage import spread_storage
                 
@@ -393,7 +392,7 @@ class RealTimeSpreadDetector:
                 
                 spread_id = spread_storage.store_spread(symbol, strategy, final_spread)
                 
-                results[strategy] = {
+                return strategy, {
                     'found': True,
                     'spread_id': spread_id,  # Unique ID for Step 4 retrieval
                     'roi': f"{final_spread['roi']:.1f}%",
@@ -409,12 +408,26 @@ class RealTimeSpreadDetector:
                     'management': 'Hold to expiration',
                     'strategy_title': f"{strategy.title()} Strategy"
                 }
-                logger.info(f"Found {strategy} spread: {final_spread['roi']:.1f}% ROI, stored as {spread_id}")
             else:
-                results[strategy] = {
+                return strategy, {
                     'found': False,
                     'reason': f'No spreads found within {roi_min}-{roi_max}% ROI range'
                 }
+        
+        # Process all strategies concurrently
+        logger.info("Starting concurrent processing of all three strategies")
+        with ThreadPoolExecutor(max_workers=3) as strategy_executor:
+            # Submit all strategies for concurrent processing
+            strategy_futures = {
+                strategy_executor.submit(process_single_strategy, strategy): strategy
+                for strategy in strategies
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(strategy_futures):
+                strategy, result = future.result()
+                results[strategy] = result
+                logger.info(f"Completed processing for {strategy} strategy")
         
         return results
 
