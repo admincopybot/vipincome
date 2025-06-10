@@ -41,65 +41,81 @@ etf_db = ETFDatabase()
 csv_loader = CsvDataLoader()
 
 # Background polling configuration
-CRITERIA_API_URL = "https://1-symbol-at-a-time-post-5-criteria-analysis-daiadigitalco.replit.app"
+CRITERIA_API_URL = "https://1-symbol-at-a-time-post-5-criteria-analysis-daiadigitalco.replit.app/analyze"
 polling_active = True
 last_poll_time = datetime.now()
 
 def update_ticker_criteria(ticker):
-    """Update criteria for a single ticker using the external API"""
+    """Update criteria for a single ticker using the external API - ONE POST AT A TIME"""
     try:
         logger.info(f"Polling criteria update for {ticker}")
+        
+        # Single POST request with proper headers
         response = requests.post(
             CRITERIA_API_URL,
             json={"ticker": ticker},
-            timeout=10
+            headers={'Content-Type': 'application/json'},
+            timeout=15
         )
         
+        logger.info(f"API response for {ticker}: Status {response.status_code}")
+        
         if response.status_code == 200:
-            criteria_data = response.json()
-            logger.info(f"Received criteria update for {ticker}: {criteria_data}")
-            
-            # Update database with new criteria
-            current_data = etf_db.get_ticker_details(ticker)
-            if current_data:
-                # Check if criteria changed
-                criteria_changed = False
-                new_score = 0
+            try:
+                criteria_data = response.json()
+                logger.info(f"Received criteria update for {ticker}: {criteria_data}")
                 
-                # Map API response to database fields
-                criteria_mapping = {
-                    'criteria1': 'trend1_pass',
-                    'criteria2': 'trend2_pass', 
-                    'criteria3': 'snapback_pass',
-                    'criteria4': 'momentum_pass',
-                    'criteria5': 'stabilizing_pass'
-                }
-                
-                # Calculate new score and check for changes
-                for api_field, db_field in criteria_mapping.items():
-                    if api_field in criteria_data:
-                        new_value = criteria_data[api_field]
-                        old_value = current_data.get(db_field)
-                        
-                        if new_value != old_value:
-                            criteria_changed = True
-                            logger.info(f"Criteria change for {ticker}: {db_field} {old_value} -> {new_value}")
-                        
-                        if new_value:
-                            new_score += 1
-                
-                if criteria_changed:
-                    logger.info(f"Updating {ticker} criteria in database - new score: {new_score}")
-                    etf_db.update_ticker_criteria(ticker, criteria_data, new_score)
-                    return True
+                # Update database with new criteria
+                current_data = etf_db.get_ticker_details(ticker)
+                if current_data:
+                    # Check if criteria changed
+                    criteria_changed = False
+                    new_score = 0
+                    
+                    # Map API response to database fields
+                    criteria_mapping = {
+                        'criteria1': 'trend1_pass',
+                        'criteria2': 'trend2_pass', 
+                        'criteria3': 'snapback_pass',
+                        'criteria4': 'momentum_pass',
+                        'criteria5': 'stabilizing_pass'
+                    }
+                    
+                    # Calculate new score and check for changes
+                    for api_field, db_field in criteria_mapping.items():
+                        if api_field in criteria_data:
+                            new_value = criteria_data[api_field]
+                            old_value = current_data.get(db_field)
+                            
+                            if new_value != old_value:
+                                criteria_changed = True
+                                logger.info(f"Criteria change for {ticker}: {db_field} {old_value} -> {new_value}")
+                            
+                            if new_value:
+                                new_score += 1
+                    
+                    if criteria_changed:
+                        logger.info(f"Updating {ticker} criteria in database - new score: {new_score}")
+                        etf_db.update_ticker_criteria(ticker, criteria_data, new_score)
+                        return True
+                    else:
+                        logger.info(f"No criteria changes for {ticker}")
+                        return False
                 else:
-                    logger.info(f"No criteria changes for {ticker}")
+                    logger.error(f"No current data found for {ticker} in database")
                     return False
-            
+                    
+            except Exception as e:
+                logger.error(f"Error parsing JSON response for {ticker}: {str(e)}")
+                logger.error(f"Response text: {response.text[:200]}")
+                return False
         else:
-            logger.warning(f"Failed to poll criteria for {ticker}: HTTP {response.status_code}")
+            logger.warning(f"API error for {ticker}: HTTP {response.status_code} - {response.text[:200]}")
             return False
             
+    except requests.exceptions.Timeout:
+        logger.error(f"API timeout for {ticker}")
+        return False
     except Exception as e:
         logger.error(f"Error polling criteria for {ticker}: {str(e)}")
         return False
