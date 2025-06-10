@@ -6575,6 +6575,122 @@ def polling_status():
     except Exception as e:
         return jsonify({'error': f'Failed to get polling status: {str(e)}'}), 500
 
+@app.route('/trigger-quick-analysis', methods=['POST'])
+def trigger_quick_analysis():
+    """Manual trigger endpoint to force immediate analysis of top 3 tickers"""
+    global polling_stats, last_poll_time
+    
+    try:
+        logger.info("MANUAL TRIGGER: Starting immediate analysis of top 3 tickers")
+        
+        # Get current top 3 tickers
+        db_data = etf_db.get_all_etfs()
+        if len(db_data) < 3:
+            return jsonify({
+                'success': False,
+                'error': 'Not enough tickers in database for analysis',
+                'ticker_count': len(db_data)
+            }), 400
+        
+        # Sort by score and get top 3 symbols
+        sorted_tickers = sorted(db_data.items(), 
+                               key=lambda x: (x[1]['total_score'], x[1]['avg_volume_10d']), 
+                               reverse=True)
+        top_3_symbols = [symbol for symbol, data in sorted_tickers[:3]]
+        
+        logger.info(f"MANUAL TRIGGER: Analyzing top 3 tickers: {top_3_symbols}")
+        
+        # Update polling stats
+        polling_stats['total_polls'] += 1
+        polling_stats['last_poll_status'] = 'Manual trigger in progress'
+        
+        # Process each ticker with POST requests
+        results = []
+        changes_detected = False
+        
+        for ticker in top_3_symbols:
+            logger.info(f"MANUAL TRIGGER: Processing {ticker}")
+            
+            try:
+                # Make POST request to external API
+                response = requests.post(
+                    CRITERIA_API_URL,
+                    json={"ticker": ticker},
+                    headers={'Content-Type': 'application/json'},
+                    timeout=15
+                )
+                
+                logger.info(f"MANUAL TRIGGER: API response for {ticker}: Status {response.status_code}")
+                logger.info(f"MANUAL TRIGGER: Response text for {ticker}: {response.text[:300]}")
+                
+                if response.status_code == 200:
+                    criteria_data = response.json()
+                    logger.info(f"MANUAL TRIGGER: Received criteria for {ticker}: {criteria_data}")
+                    
+                    # Use existing update function
+                    if update_ticker_criteria(ticker):
+                        changes_detected = True
+                        polling_stats['successful_updates'] += 1
+                        results.append({
+                            'symbol': ticker,
+                            'status': 'updated',
+                            'criteria': criteria_data
+                        })
+                    else:
+                        results.append({
+                            'symbol': ticker,
+                            'status': 'no_changes',
+                            'criteria': criteria_data
+                        })
+                        
+                else:
+                    polling_stats['failed_updates'] += 1
+                    results.append({
+                        'symbol': ticker,
+                        'status': 'api_error',
+                        'error': f"HTTP {response.status_code}",
+                        'response': response.text[:200]
+                    })
+                    
+            except Exception as e:
+                logger.error(f"MANUAL TRIGGER: Error processing {ticker}: {str(e)}")
+                polling_stats['failed_updates'] += 1
+                results.append({
+                    'symbol': ticker,
+                    'status': 'error',
+                    'error': str(e)
+                })
+        
+        # Update polling status
+        if changes_detected:
+            polling_stats['last_poll_status'] = 'Manual trigger completed - changes detected'
+            # Reload database cache
+            load_etf_data_from_database()
+        else:
+            polling_stats['last_poll_status'] = 'Manual trigger completed - no changes'
+        
+        # Update last poll time
+        last_poll_time = datetime.now()
+        
+        logger.info(f"MANUAL TRIGGER: Completed analysis - changes detected: {changes_detected}")
+        
+        return jsonify({
+            'success': True,
+            'changes_detected': changes_detected,
+            'processed_tickers': top_3_symbols,
+            'results': results,
+            'timestamp': datetime.now().isoformat(),
+            'api_url': CRITERIA_API_URL
+        })
+        
+    except Exception as e:
+        logger.error(f"MANUAL TRIGGER: Error in quick analysis: {str(e)}")
+        polling_stats['last_poll_status'] = f'Manual trigger failed: {str(e)}'
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     # Load initial data and start background polling
     load_etf_data_from_database()
