@@ -6404,4 +6404,7 @@ def api_chart_data(symbol):
 
 
 if __name__ == '__main__':
+    # Load initial data and start background polling
+    load_etf_data_from_database()
+    start_background_polling()
     app.run(debug=True, host='0.0.0.0', port=5000)
