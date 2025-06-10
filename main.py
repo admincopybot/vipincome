@@ -1589,7 +1589,7 @@ def fetch_options_data(symbol, current_price):
                     'long_price': stored_spread.get('long_price', 0) if stored_spread else 0,
                     'short_price': stored_spread.get('short_price', 0) if stored_spread else 0,
                     'current_price': stored_spread.get('current_price', 0) if stored_spread else 0,
-                    'spread_width': stored_spread.get('spread_width', 0) if stored_spread else 0,
+                    'spread_width': strategy_data.get('spread_width', 0),
                     'breakeven': stored_spread.get('long_strike', 0) + stored_spread.get('spread_cost', 0) if stored_spread else 0
                 }
                 print(f"Found {strategy_key} spread: {strategy_data.get('roi')} ROI, {strategy_data.get('dte')} DTE")

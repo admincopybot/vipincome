@@ -400,6 +400,7 @@ class RealTimeSpreadDetector:
                     'short_strike_price': final_spread['short_strike'],
                     'spread_cost': final_spread['spread_cost'],
                     'max_profit': final_spread['max_profit'],
+                    'spread_width': final_spread['spread_width'],  # Add spread width for Step 3 display
                     'contract_symbol': final_spread['long_ticker'],
                     'short_contract_symbol': final_spread['short_ticker'],
                     'management': 'Hold to expiration',
