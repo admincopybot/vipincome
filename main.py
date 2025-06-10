@@ -5480,6 +5480,10 @@ def step3(symbol=None):
                             <span class="detail-value">{{ options_data.passive.roi }}</span>
                         </div>
                         <div class="detail-row">
+                            <span class="detail-label">Spread Width:</span>
+                            <span class="detail-value">${{ "%.0f"|format(options_data.passive.spread_width) }} Wide</span>
+                        </div>
+                        <div class="detail-row">
                             <span class="detail-label">Strike Price:</span>
                             <span class="detail-value">${{ "%.2f"|format(options_data.passive.strike_price) }}</span>
                         </div>
@@ -5527,6 +5531,10 @@ def step3(symbol=None):
                             <span class="detail-value">{{ options_data.steady.roi }}</span>
                         </div>
                         <div class="detail-row">
+                            <span class="detail-label">Spread Width:</span>
+                            <span class="detail-value">${{ "%.0f"|format(options_data.steady.spread_width) }} Wide</span>
+                        </div>
+                        <div class="detail-row">
                             <span class="detail-label">Strike Price:</span>
                             <span class="detail-value">${{ "%.2f"|format(options_data.steady.strike_price) }}</span>
                         </div>
@@ -5572,6 +5580,10 @@ def step3(symbol=None):
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
                             <span class="detail-value">{{ options_data.aggressive.roi }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Spread Width:</span>
+                            <span class="detail-value">${{ "%.0f"|format(options_data.aggressive.spread_width) }} Wide</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Strike Price:</span>
