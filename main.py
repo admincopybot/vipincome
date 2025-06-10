@@ -41,7 +41,7 @@ etf_db = ETFDatabase()
 csv_loader = CsvDataLoader()
 
 # Background polling configuration
-CRITERIA_API_URL = "https://1-symbol-5-criteria-post.replit.app/analyze"
+CRITERIA_API_URL = "https://1-symbol-at-a-time-post-5-criteria-analysis-daiadigitalco.replit.app"
 polling_active = True
 last_poll_time = datetime.now()
 
