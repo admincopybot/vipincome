@@ -4544,7 +4544,7 @@ def step2(symbol=None):
         
         console.log('Step 2 loaded for {{ symbol }}');
         
-        // Add loading animation to the Choose Income Strategy button
+        // Add enhanced loading animation to the Choose Income Strategy button
         document.addEventListener('DOMContentLoaded', function() {
             const strategyButton = document.querySelector('.choose-strategy-btn');
             
@@ -4553,18 +4553,44 @@ def step2(symbol=None):
                     // Prevent immediate navigation
                     e.preventDefault();
                     
-                    // Add loading effect
+                    // Add enhanced loading effects
                     this.style.pointerEvents = 'none';
-                    this.style.opacity = '0.7';
+                    this.style.transform = 'scale(0.95)';
+                    this.style.transition = 'all 0.3s ease';
                     
-                    // Change button text to show loading
+                    // Change button text with animated dots
                     const originalText = this.textContent;
+                    let dotCount = 0;
                     this.textContent = 'Analyzing Options...';
+                    
+                    // Add loading message below button
+                    const loadingMessage = document.createElement('div');
+                    loadingMessage.style.cssText = `
+                        margin-top: 10px;
+                        font-size: 12px;
+                        color: #a1a1aa;
+                        text-align: center;
+                        font-style: italic;
+                        animation: pulse 1.5s ease-in-out infinite;
+                    `;
+                    loadingMessage.textContent = 'May take up to 15 seconds';
+                    this.parentNode.appendChild(loadingMessage);
+                    
+                    // Animate button with pulsing effect
+                    const pulseInterval = setInterval(() => {
+                        this.style.transform = this.style.transform === 'scale(0.95)' ? 'scale(1.02)' : 'scale(0.95)';
+                        
+                        // Animate dots in button text
+                        dotCount = (dotCount + 1) % 4;
+                        const dots = '.'.repeat(dotCount);
+                        this.textContent = `Analyzing Options${dots}`;
+                    }, 400);
                     
                     // Navigate after brief delay to show animation
                     setTimeout(() => {
+                        clearInterval(pulseInterval);
                         window.location.href = this.href;
-                    }, 800);
+                    }, 1200);
                     
                     return false;
                 });
