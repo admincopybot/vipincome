@@ -382,12 +382,18 @@ class RealTimeSpreadDetector:
             if not long_quote or not short_quote:
                 return None
             
-            # Calculate spread cost (we buy long at ASK, sell short at BID)
-            long_price = long_quote.get('ask_price', 0)
-            short_price = short_quote.get('bid_price', 0)
+            # Calculate spread cost using mid prices (standard for ROI calculations)
+            long_bid = long_quote.get('bid_price', 0)
+            long_ask = long_quote.get('ask_price', 0)
+            short_bid = short_quote.get('bid_price', 0)
+            short_ask = short_quote.get('ask_price', 0)
             
-            if long_price <= 0 or short_price <= 0:
+            if long_bid <= 0 or long_ask <= 0 or short_bid <= 0 or short_ask <= 0:
                 return None
+            
+            # Use mid prices for both legs
+            long_price = (long_bid + long_ask) / 2
+            short_price = (short_bid + short_ask) / 2
             
             spread_cost = long_price - short_price
             
