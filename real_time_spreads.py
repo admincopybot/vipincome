@@ -188,27 +188,55 @@ class RealTimeSpreadDetector:
         
         criteria = strategy_criteria.get(strategy)
         if not criteria:
+            logger.info(f"❌ No criteria found for strategy: {strategy}")
             return []
         
-        for contract in contracts:
+        logger.info(f"🔍 DETAILED FILTERING for {strategy.upper()} strategy:")
+        logger.info(f"   Current price: ${current_price}")
+        logger.info(f"   DTE range: {criteria['dte_min']}-{criteria['dte_max']} days")
+        logger.info(f"   Strike range: ${current_price * (0.75 if strategy == 'aggressive' else 0.70 if strategy == 'balanced' else 0.65):.2f} - ${current_price * (1.25 if strategy == 'aggressive' else 1.30 if strategy == 'balanced' else 1.35):.2f}")
+        logger.info(f"   Total contracts to check: {len(contracts)}")
+        
+        dte_passed = 0
+        strike_passed = 0
+        both_passed = 0
+        
+        for i, contract in enumerate(contracts):
             # Calculate DTE
             expiration = contract.get('expiration_date', '')
             dte = self.calculate_dte(expiration)
+            strike = float(contract.get('strike_price', 0))
+            
+            # Detailed logging for first 5 contracts
+            if i < 5:
+                logger.info(f"   Contract {i+1}: Strike=${strike}, DTE={dte}, Exp={expiration}")
             
             # Check DTE range
-            if not (criteria['dte_min'] <= dte <= criteria['dte_max']):
-                continue
+            dte_ok = criteria['dte_min'] <= dte <= criteria['dte_max']
+            if dte_ok:
+                dte_passed += 1
             
-            # Check strike price criteria
-            strike = float(contract.get('strike_price', 0))
-            if not criteria['strike_filter'](strike, current_price):
-                continue
-                
-            # Add DTE to contract for later use
-            contract['dte'] = dte
-            filtered.append(contract)
+            # Check strike price criteria  
+            strike_ok = criteria['strike_filter'](strike, current_price)
+            if strike_ok:
+                strike_passed += 1
+            
+            # Both criteria must pass
+            if dte_ok and strike_ok:
+                both_passed += 1
+                contract['dte'] = dte
+                filtered.append(contract)
+                if len(filtered) <= 3:  # Log first few that pass
+                    logger.info(f"   ✅ PASSED: Strike=${strike}, DTE={dte}")
+            elif i < 10:  # Log first 10 failures
+                logger.info(f"   ❌ FAILED: Strike=${strike}, DTE={dte} (DTE_OK:{dte_ok}, STRIKE_OK:{strike_ok})")
         
-        logger.info(f"Filtered to {len(filtered)} contracts for {strategy} strategy")
+        logger.info(f"🔍 FILTERING RESULTS for {strategy.upper()}:")
+        logger.info(f"   DTE passed: {dte_passed}/{len(contracts)}")
+        logger.info(f"   Strike passed: {strike_passed}/{len(contracts)}")
+        logger.info(f"   Both passed: {both_passed}/{len(contracts)}")
+        logger.info(f"   Final filtered contracts: {len(filtered)}")
+        
         return filtered
     
     def generate_spread_pairs(self, contracts: List[Dict]) -> List[Tuple[Dict, Dict]]:
@@ -399,17 +427,21 @@ class RealTimeSpreadDetector:
         
         def process_single_strategy(strategy):
             """Process a single strategy with concurrent spread checking"""
-            logger.info(f"Processing {strategy} strategy for {symbol}")
+            logger.info(f"🚀 STARTING {strategy.upper()} STRATEGY for {symbol}")
+            logger.info(f"   Total contracts available: {len(all_contracts)}")
             
             # Store current strategy for webhook context
             self.current_strategy = strategy
             
             # Filter contracts by strategy criteria
+            logger.info(f"🔍 CALLING FILTER for {strategy} strategy...")
             filtered_contracts = self.filter_contracts_by_strategy(
                 all_contracts, strategy, current_price
             )
+            logger.info(f"🔍 FILTER COMPLETE for {strategy}: {len(filtered_contracts)} contracts")
             
             if not filtered_contracts:
+                logger.info(f"❌ {strategy.upper()} FAILED: No contracts passed filtering")
                 return strategy, {
                     'found': False,
                     'reason': f'No contracts match {strategy} criteria'
@@ -531,7 +563,10 @@ class RealTimeSpreadDetector:
                 }
         
         # Process all strategies concurrently
-        logger.info("Starting concurrent processing of all three strategies")
+        logger.info(f"Starting concurrent processing of all three strategies for {symbol}")
+        logger.info(f"Available contracts: {len(all_contracts)}")
+        logger.info(f"Current price: ${current_price}")
+        
         with ThreadPoolExecutor(max_workers=3) as strategy_executor:
             # Submit all strategies for concurrent processing
             strategy_futures = {
@@ -543,7 +578,7 @@ class RealTimeSpreadDetector:
             for future in as_completed(strategy_futures):
                 strategy, result = future.result()
                 results[strategy] = result
-                logger.info(f"Completed processing for {strategy} strategy")
+                logger.info(f"Completed processing for {strategy} strategy: {result}")
         
         return results
 
