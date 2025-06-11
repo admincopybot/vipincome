@@ -6085,12 +6085,20 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const symbol = '{{ symbol }}';
     const cacheKey = `step3_data_${symbol}`;
+    
+    {% if cached_data %}
+    // Use server cache timestamp for accurate cache age calculation
+    const serverCacheTime = '{{ cache_timestamp }}';
+    const cacheTimestamp = new Date(serverCacheTime).getTime();
+    console.log(`Using existing cache timestamp for ${symbol}: ${cacheTimestamp}`);
+    {% else %}
+    // Fresh data - set current timestamp
     const cacheTimestamp = Date.now();
+    console.log(`Cache created for ${symbol}: ${cacheTimestamp}`);
+    {% endif %}
     
     // Store cache timestamp in sessionStorage so Step 2 can check it
     sessionStorage.setItem(`${cacheKey}_timestamp`, cacheTimestamp.toString());
-    
-    console.log(`Cache stored for ${symbol}: ${cacheTimestamp}`);
 });
 
 console.log('Step 3 loaded for {{ symbol }}');
@@ -6099,7 +6107,16 @@ console.log('Step 3 loaded for {{ symbol }}');
     </html>
     """
     
-    return render_template_string(template, symbol=symbol, options_data=options_data, current_price=current_price)
+    # Pass cache information to template for JavaScript synchronization
+    is_cached_data = cached_data is not None
+    cache_timestamp_str = cache_timestamp if cache_timestamp else None
+    
+    return render_template_string(template, 
+                                symbol=symbol, 
+                                options_data=options_data, 
+                                current_price=current_price,
+                                cached_data=is_cached_data,
+                                cache_timestamp=cache_timestamp_str)
 
 @app.route('/hidden-insert-csv')
 def hidden_csv_ui():
