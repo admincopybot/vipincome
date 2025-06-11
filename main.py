@@ -4606,6 +4606,9 @@ def step3(symbol=None):
         print(f"🔍 CACHE MISS: Performing fresh spread detection")
         options_data = None
     
+    # Initialize current_price for all code paths
+    current_price = 0
+    
     # Only perform fresh calculation if no valid cache
     if options_data is None:
         # Get REAL current stock price from TheTradeList API (no CSV data)
@@ -4657,7 +4660,7 @@ def step3(symbol=None):
             # Fallback to pre-calculated authentic data for AVGO only
             if symbol == 'AVGO':
                 print(f"⚠️ FALLBACK: Using pre-calculated authentic spread data for {symbol}")
-            options_data = {
+                options_data = {
                 'aggressive': {
                     'found': True,
                     'dte': 14,
@@ -4700,14 +4703,14 @@ def step3(symbol=None):
                     'management': 'Sell at 25% profit or 21 DTE',
                     'description': 'Fallback authentic spread data'
                 }
-            }
-        else:
-            # No fallback for other symbols - require authentic API access
-            options_data = {
-                'aggressive': {'found': False, 'error': f'Real-time detection failed: {str(e)}'},
-                'steady': {'found': False, 'error': f'Real-time detection failed: {str(e)}'}, 
-                'passive': {'found': False, 'error': f'Real-time detection failed: {str(e)}'}
-            }
+                }
+            else:
+                # No fallback for other symbols - require authentic API access
+                options_data = {
+                    'aggressive': {'found': False, 'error': f'Real-time detection failed: {str(e)}'},
+                    'steady': {'found': False, 'error': f'Real-time detection failed: {str(e)}'}, 
+                    'passive': {'found': False, 'error': f'Real-time detection failed: {str(e)}'}
+                }
     template = """
     <!DOCTYPE html>
     <html lang="en">
