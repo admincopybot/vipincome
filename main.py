@@ -4572,6 +4572,8 @@ def step3(symbol=None):
     
     print(f"\n=== STEP 3 REAL-TIME SPREAD DETECTION FOR {symbol} ===")
     
+    # Template will be defined after data processing
+    
     # Check for cached spread data first (5-minute cache)
     from datetime import datetime, timedelta
     cache_key = f"step3_data_{symbol}"
@@ -4595,64 +4597,66 @@ def step3(symbol=None):
             except:
                 current_price = cached_data.get('current_price', 0)
             
-            # Use cached data with existing template
-            return render_template_string(template, 
-                                        symbol=symbol, 
-                                        options_data=cached_data['options_data'], 
-                                        current_price=current_price)
-    
-    # Cache miss or stale data - proceed with fresh calculation
-    print(f"🔍 CACHE MISS: Performing fresh spread detection")
-    
-    # Get REAL current stock price from TheTradeList API (no CSV data)
-    try:
-        from tradelist_client import TradeListApiService
-        
-        tradelist_api_key = os.environ.get('TRADELIST_API_KEY')
-        if not tradelist_api_key:
-            return f"Error: TheTradeList API key required for real-time price data"
-        
-        # Use the real-time spread detector's price function which handles the comma format correctly
-        from real_time_spreads import RealTimeSpreadDetector
-        detector = RealTimeSpreadDetector()
-        current_price = detector.get_real_time_stock_price(symbol)
-        
-        if current_price and current_price > 0:
-            print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from TheTradeList API)")
+            # Set cached data to be used in template
+            options_data = cached_data['options_data']
         else:
-            return f"Error: No price data available for {symbol} from TheTradeList API"
-            
-    except Exception as e:
-        print(f"✗ ERROR fetching real-time price: {e}")
-        return f"Error: Could not fetch real-time price for {symbol}"
+            print(f"🔍 CACHE EXPIRED: Performing fresh spread detection (age: {cache_age.total_seconds():.0f} seconds)")
+            options_data = None
+    else:
+        print(f"🔍 CACHE MISS: Performing fresh spread detection")
+        options_data = None
     
-    # Execute REAL-TIME spread detection pipeline using TheTradeList API
-    try:
-        print(f"🔍 INITIATING REAL-TIME SPREAD DETECTION PIPELINE...")
-        options_data = fetch_options_data(symbol, current_price)
-        print(f"✓ REAL-TIME SPREAD DETECTION COMPLETED for {symbol}")
-        
-        # Log authentic results
-        for strategy, data in options_data.items():
-            if data.get('found'):
-                print(f"✓ {strategy.upper()}: ROI={data.get('roi')}, DTE={data.get('dte')}, Contract={data.get('contract_symbol')}")
+    # Only perform fresh calculation if no valid cache
+    if options_data is None:
+        # Get REAL current stock price from TheTradeList API (no CSV data)
+        try:
+            from tradelist_client import TradeListApiService
+            
+            tradelist_api_key = os.environ.get('TRADELIST_API_KEY')
+            if not tradelist_api_key:
+                return f"Error: TheTradeList API key required for real-time price data"
+            
+            # Use the real-time spread detector's price function which handles the comma format correctly
+            from real_time_spreads import RealTimeSpreadDetector
+            detector = RealTimeSpreadDetector()
+            current_price = detector.get_real_time_stock_price(symbol)
+            
+            if current_price and current_price > 0:
+                print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from TheTradeList API)")
             else:
-                print(f"✗ {strategy.upper()}: {data.get('error', 'No spread found')}")
-        
-        # Cache the successful results for 5 minutes
-        cache_data = {
-            'options_data': options_data,
-            'current_price': current_price
-        }
-        session[cache_key] = cache_data
-        session[f"{cache_key}_timestamp"] = datetime.now().isoformat()
-        print(f"✓ CACHED SPREAD DATA for future back-navigation (5-minute expiry)")
+                return f"Error: No price data available for {symbol} from TheTradeList API"
                 
-    except Exception as e:
-        print(f"✗ CRITICAL ERROR in real-time spread detection: {e}")
-        # Fallback to pre-calculated authentic data for AVGO only
-        if symbol == 'AVGO':
-            print(f"⚠️ FALLBACK: Using pre-calculated authentic spread data for {symbol}")
+        except Exception as e:
+            print(f"✗ ERROR fetching real-time price: {e}")
+            return f"Error: Could not fetch real-time price for {symbol}"
+        
+        # Execute REAL-TIME spread detection pipeline using TheTradeList API
+        try:
+            print(f"🔍 INITIATING REAL-TIME SPREAD DETECTION PIPELINE...")
+            options_data = fetch_options_data(symbol, current_price)
+            print(f"✓ REAL-TIME SPREAD DETECTION COMPLETED for {symbol}")
+            
+            # Log authentic results
+            for strategy, data in options_data.items():
+                if data.get('found'):
+                    print(f"✓ {strategy.upper()}: ROI={data.get('roi')}, DTE={data.get('dte')}, Contract={data.get('contract_symbol')}")
+                else:
+                    print(f"✗ {strategy.upper()}: {data.get('error', 'No spread found')}")
+            
+            # Cache the successful results for 5 minutes
+            cache_data = {
+                'options_data': options_data,
+                'current_price': current_price
+            }
+            session[cache_key] = cache_data
+            session[f"{cache_key}_timestamp"] = datetime.now().isoformat()
+            print(f"✓ CACHED SPREAD DATA for future back-navigation (5-minute expiry)")
+                    
+        except Exception as e:
+            print(f"✗ CRITICAL ERROR in real-time spread detection: {e}")
+            # Fallback to pre-calculated authentic data for AVGO only
+            if symbol == 'AVGO':
+                print(f"⚠️ FALLBACK: Using pre-calculated authentic spread data for {symbol}")
             options_data = {
                 'aggressive': {
                     'found': True,
