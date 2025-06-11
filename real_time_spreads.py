@@ -167,22 +167,22 @@ class RealTimeSpreadDetector:
         """Filter contracts by DTE and strike price criteria for each strategy"""
         filtered = []
         
-        # Define strategy criteria - Allow strikes around current price for viable debit spreads
+        # Define strategy criteria - Allow wide strike ranges, let spread generation handle short call restriction
         strategy_criteria = {
             'aggressive': {
                 'dte_min': 10,
                 'dte_max': 17,
-                'strike_filter': lambda strike, price: price * 0.85 <= strike <= price * 1.10  # 85-110% of current price
+                'strike_filter': lambda strike, price: price * 0.75 <= strike <= price * 1.25  # Wide range for long/short combinations
             },
             'balanced': {
                 'dte_min': 17,
                 'dte_max': 28,
-                'strike_filter': lambda strike, price: price * 0.80 <= strike <= price * 1.15  # 80-115% of current price
+                'strike_filter': lambda strike, price: price * 0.70 <= strike <= price * 1.30  # Wide range for long/short combinations
             },
             'conservative': {
                 'dte_min': 28,
                 'dte_max': 42,
-                'strike_filter': lambda strike, price: price * 0.75 <= strike <= price * 1.20  # 75-120% of current price
+                'strike_filter': lambda strike, price: price * 0.65 <= strike <= price * 1.35  # Wide range for long/short combinations
             }
         }
         
