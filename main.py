@@ -13,7 +13,7 @@ import requests
 import json
 import threading
 from datetime import datetime, timedelta
-from flask import Flask, request, render_template_string, jsonify, redirect
+from flask import Flask, request, render_template_string, jsonify, redirect, session
 from database_models import ETFDatabase
 from csv_data_loader import CsvDataLoader
 from real_time_spreads import get_real_time_spreads
@@ -4568,9 +4568,41 @@ def step2(symbol=None):
 @app.route('/step3')
 @app.route('/step3/<symbol>')
 def step3(symbol=None):
-    """Step 3: Income Strategy Selection - AUTHENTIC DATA ONLY"""
+    """Step 3: Income Strategy Selection - AUTHENTIC DATA ONLY with intelligent caching"""
     
     print(f"\n=== STEP 3 REAL-TIME SPREAD DETECTION FOR {symbol} ===")
+    
+    # Check for cached spread data first (5-minute cache)
+    from datetime import datetime, timedelta
+    cache_key = f"step3_data_{symbol}"
+    cached_data = session.get(cache_key)
+    cache_timestamp = session.get(f"{cache_key}_timestamp")
+    
+    # Use cache if data exists and is less than 5 minutes old
+    if cached_data and cache_timestamp:
+        cache_age = datetime.now() - datetime.fromisoformat(cache_timestamp)
+        if cache_age < timedelta(minutes=5):
+            print(f"✓ USING CACHED SPREAD DATA (age: {cache_age.total_seconds():.0f} seconds)")
+            print(f"✓ CACHE HIT: Skipping expensive spread detection for back-navigation")
+            
+            # Still need current price for display
+            try:
+                from real_time_spreads import RealTimeSpreadDetector
+                detector = RealTimeSpreadDetector()
+                current_price = detector.get_real_time_stock_price(symbol)
+                if not current_price or current_price <= 0:
+                    current_price = cached_data.get('current_price', 0)
+            except:
+                current_price = cached_data.get('current_price', 0)
+            
+            # Use cached data with existing template
+            return render_template_string(template, 
+                                        symbol=symbol, 
+                                        options_data=cached_data['options_data'], 
+                                        current_price=current_price)
+    
+    # Cache miss or stale data - proceed with fresh calculation
+    print(f"🔍 CACHE MISS: Performing fresh spread detection")
     
     # Get REAL current stock price from TheTradeList API (no CSV data)
     try:
@@ -4606,6 +4638,15 @@ def step3(symbol=None):
                 print(f"✓ {strategy.upper()}: ROI={data.get('roi')}, DTE={data.get('dte')}, Contract={data.get('contract_symbol')}")
             else:
                 print(f"✗ {strategy.upper()}: {data.get('error', 'No spread found')}")
+        
+        # Cache the successful results for 5 minutes
+        cache_data = {
+            'options_data': options_data,
+            'current_price': current_price
+        }
+        session[cache_key] = cache_data
+        session[f"{cache_key}_timestamp"] = datetime.now().isoformat()
+        print(f"✓ CACHED SPREAD DATA for future back-navigation (5-minute expiry)")
                 
     except Exception as e:
         print(f"✗ CRITICAL ERROR in real-time spread detection: {e}")
