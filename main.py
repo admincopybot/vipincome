@@ -4388,7 +4388,7 @@ def step2(symbol=None):
                     Data is automatically refreshed every 15 minutes during market hours.
                 </div>
                 <div class="strategy-button-container">
-                    <a href="#" class="choose-strategy-btn" id="strategyBtn" onclick="startLoadingAndNavigate('{{ symbol }}')">Choose Income Strategy →</a>
+                    <a href="/step3/{{ symbol }}" class="choose-strategy-btn">Choose Income Strategy →</a>
                 </div>
                 
 
@@ -4540,37 +4540,7 @@ def step2(symbol=None):
             });
         }
         
-        function startLoadingAndNavigate(symbol) {
-            event.preventDefault();
-            
-            const btn = document.getElementById('strategyBtn');
-            
-            // Check if we have cached Step 3 data (5-minute cache)
-            const cacheKey = `step3_data_${symbol}`;
-            const cacheTimestamp = sessionStorage.getItem(`${cacheKey}_timestamp`);
-            
-            if (cacheTimestamp) {
-                const cacheAge = (Date.now() - parseInt(cacheTimestamp)) / 1000; // seconds
-                if (cacheAge < 300) { // 5 minutes = 300 seconds
-                    // Use cached data - navigate immediately
-                    btn.innerHTML = 'Using Cached Data...';
-                    window.location.href = `/step3/${symbol}`;
-                    return false;
-                }
-            }
-            
-            // No cache or expired - show loading animation
-            btn.style.pointerEvents = 'none';
-            btn.classList.add('loading-flow');
-            btn.innerHTML = 'Finding Best Strategies...';
-            
-            // Navigate after 1 second delay for fresh calculations
-            setTimeout(() => {
-                window.location.href = `/step3/${symbol}`;
-            }, 1000);
-            
-            return false;
-        }
+
         
         console.log('Step 2 loaded for {{ symbol }}');
     </script>
