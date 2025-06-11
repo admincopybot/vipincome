@@ -29,7 +29,7 @@ class ETFDatabase:
     
     def get_connection(self):
         """Get PostgreSQL database connection"""
-        return psycopg2.connect(self.connection_string, cursor_factory=RealDictCursor)
+        return psycopg2.connect(self.connection_string)
     
     def init_database(self):
         """Initialize PostgreSQL database matching exact CSV format"""
@@ -199,9 +199,9 @@ class ETFDatabase:
             result = cursor.fetchone()
             conn.close()
             
-            if result and result['timestamp']:
+            if result and result[0]:
                 # PostgreSQL returns datetime objects directly
-                return result['timestamp']
+                return result[0]
             else:
                 # If no timestamp exists, return current time
                 from datetime import datetime
@@ -232,17 +232,17 @@ class ETFDatabase:
             # Convert to format expected by frontend
             etf_data = {}
             for row in rows:
-                symbol = row['symbol']
+                symbol = row[0]
                 etf_data[symbol] = {
-                    'current_price': row['current_price'],
-                    'total_score': row['total_score'],
-                    'avg_volume_10d': row['avg_volume_10d'],
+                    'current_price': row[1],
+                    'total_score': row[2],
+                    'avg_volume_10d': row[3],
                     'criteria': {
-                        'trend1': row['trend1_pass'],
-                        'trend2': row['trend2_pass'], 
-                        'snapback': row['snapback_pass'],
-                        'momentum': row['momentum_pass'],
-                        'stabilizing': row['stabilizing_pass']
+                        'trend1': row[4],
+                        'trend2': row[5], 
+                        'snapback': row[6],
+                        'momentum': row[7],
+                        'stabilizing': row[8]
                     }
                 }
             
