@@ -107,9 +107,13 @@ class SpreadDiagnostics:
         self.log_diagnostic(f"Long Option Pricing: bid=${long_bid}, ask=${long_ask}")
         self.log_diagnostic(f"Short Option Pricing: bid=${short_bid}, ask=${short_ask}")
         
-        # Calculate spread cost (buy long at ask, sell short at bid)
-        spread_cost = long_ask - short_bid
-        self.log_diagnostic(f"Spread Cost Calculation: ${long_ask} - ${short_bid} = ${spread_cost:.2f}")
+        # Calculate spread cost using MID PRICES (consistent with main system)
+        long_mid = (long_bid + long_ask) / 2
+        short_mid = (short_bid + short_ask) / 2
+        spread_cost = long_mid - short_mid
+        self.log_diagnostic(f"Long Mid Price: (${long_bid} + ${long_ask}) / 2 = ${long_mid:.2f}")
+        self.log_diagnostic(f"Short Mid Price: (${short_bid} + ${short_ask}) / 2 = ${short_mid:.2f}")
+        self.log_diagnostic(f"Spread Cost Calculation (MID PRICES): ${long_mid:.2f} - ${short_mid:.2f} = ${spread_cost:.2f}")
         
         if spread_cost <= 0:
             self.log_diagnostic(f"Non-positive spread cost: ${spread_cost:.2f}", "WARNING")
