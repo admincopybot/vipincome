@@ -4543,6 +4543,33 @@ def step2(symbol=None):
 
         
         console.log('Step 2 loaded for {{ symbol }}');
+        
+        // Add loading animation to the Choose Income Strategy button
+        document.addEventListener('DOMContentLoaded', function() {
+            const strategyButton = document.querySelector('.choose-strategy-btn');
+            
+            if (strategyButton) {
+                strategyButton.addEventListener('click', function(e) {
+                    // Prevent immediate navigation
+                    e.preventDefault();
+                    
+                    // Add loading effect
+                    this.style.pointerEvents = 'none';
+                    this.style.opacity = '0.7';
+                    
+                    // Change button text to show loading
+                    const originalText = this.textContent;
+                    this.textContent = 'Analyzing Options...';
+                    
+                    // Navigate after brief delay to show animation
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 800);
+                    
+                    return false;
+                });
+            }
+        });
     </script>
 </body>
 </html>
