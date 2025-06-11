@@ -199,53 +199,58 @@ class ETFDatabase:
             result = cursor.fetchone()
             conn.close()
             
-            if result:
-                from datetime import datetime
-                return datetime.fromisoformat(result[0])
+            if result and result['timestamp']:
+                # PostgreSQL returns datetime objects directly
+                return result['timestamp']
             else:
                 # If no timestamp exists, return current time
                 from datetime import datetime
                 return datetime.now()
                 
         except Exception as e:
-            logger.error(f"Error getting last update time: {e}")
+            logger.error(f"Error getting last update time: {str(e)}")
             from datetime import datetime
             return datetime.now()
     
     def get_all_etfs(self):
         """Get all ETF data with TRADING VOLUME TIE-BREAKER for top rankings"""
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        
-        # ORDER BY: total_score DESC, then avg_volume_10d DESC for tie-breaker
-        cursor.execute('''
-            SELECT symbol, current_price, total_score, avg_volume_10d,
-                   trend1_pass, trend2_pass, snapback_pass, momentum_pass, stabilizing_pass
-            FROM etf_scores
-            ORDER BY total_score DESC, avg_volume_10d DESC, symbol ASC
-        ''')
-        
-        rows = cursor.fetchall()
-        conn.close()
-        
-        # Convert to format expected by frontend
-        etf_data = {}
-        for row in rows:
-            symbol = row[0]
-            etf_data[symbol] = {
-                'current_price': row[1],
-                'total_score': row[2],
-                'avg_volume_10d': row[3],
-                'criteria': {
-                    'trend1': row[4],
-                    'trend2': row[5], 
-                    'snapback': row[6],
-                    'momentum': row[7],
-                    'stabilizing': row[8]
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
+            # ORDER BY: total_score DESC, then avg_volume_10d DESC for tie-breaker
+            cursor.execute('''
+                SELECT symbol, current_price, total_score, avg_volume_10d,
+                       trend1_pass, trend2_pass, snapback_pass, momentum_pass, stabilizing_pass
+                FROM etf_scores
+                ORDER BY total_score DESC, avg_volume_10d DESC, symbol ASC
+            ''')
+            
+            rows = cursor.fetchall()
+            conn.close()
+            
+            # Convert to format expected by frontend
+            etf_data = {}
+            for row in rows:
+                symbol = row['symbol']
+                etf_data[symbol] = {
+                    'current_price': row['current_price'],
+                    'total_score': row['total_score'],
+                    'avg_volume_10d': row['avg_volume_10d'],
+                    'criteria': {
+                        'trend1': row['trend1_pass'],
+                        'trend2': row['trend2_pass'], 
+                        'snapback': row['snapback_pass'],
+                        'momentum': row['momentum_pass'],
+                        'stabilizing': row['stabilizing_pass']
+                    }
                 }
-            }
-        
-        return etf_data
+            
+            return etf_data
+            
+        except Exception as e:
+            logger.error(f"Error retrieving ETF data: {str(e)}")
+            return {}
     
     def get_ticker_details(self, symbol):
         """Get detailed scoring data for Step 2 analysis with FIXED criteria parsing"""
