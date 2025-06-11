@@ -4992,6 +4992,11 @@ def step3(symbol=None):
             box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
         }
         
+        .strategy-btn:active {
+            transform: scale(0.95) translateY(-1px);
+            transition: transform 0.1s ease;
+        }
+        
         .strategy-error {
             background: rgba(220, 38, 38, 0.2);
             border: 1px solid rgba(220, 38, 38, 0.4);
