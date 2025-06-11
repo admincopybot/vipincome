@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
+app.secret_key = os.environ.get("SESSION_SECRET", "income-machine-secret-key-2025")
 
 # Global storage for Step 3 spread calculations to ensure Step 4 consistency
 spread_calculations_cache = {}
