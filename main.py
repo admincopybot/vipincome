@@ -4545,12 +4545,26 @@ def step2(symbol=None):
             
             const btn = document.getElementById('strategyBtn');
             
-            // Disable button and apply flowing animation
+            // Check if we have cached Step 3 data (5-minute cache)
+            const cacheKey = `step3_data_${symbol}`;
+            const cacheTimestamp = sessionStorage.getItem(`${cacheKey}_timestamp`);
+            
+            if (cacheTimestamp) {
+                const cacheAge = (Date.now() - parseInt(cacheTimestamp)) / 1000; // seconds
+                if (cacheAge < 300) { // 5 minutes = 300 seconds
+                    // Use cached data - navigate immediately
+                    btn.innerHTML = 'Using Cached Data...';
+                    window.location.href = `/step3/${symbol}`;
+                    return false;
+                }
+            }
+            
+            // No cache or expired - show loading animation
             btn.style.pointerEvents = 'none';
             btn.classList.add('loading-flow');
             btn.innerHTML = 'Finding Best Strategies...';
             
-            // Navigate after 1 second delay
+            // Navigate after 1 second delay for fresh calculations
             setTimeout(() => {
                 window.location.href = `/step3/${symbol}`;
             }, 1000);
@@ -6066,6 +6080,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Store cache information in sessionStorage for "3 Strategy" button cache check
+document.addEventListener('DOMContentLoaded', function() {
+    const symbol = '{{ symbol }}';
+    const cacheKey = `step3_data_${symbol}`;
+    const cacheTimestamp = Date.now();
+    
+    // Store cache timestamp in sessionStorage so Step 2 can check it
+    sessionStorage.setItem(`${cacheKey}_timestamp`, cacheTimestamp.toString());
+    
+    console.log(`Cache stored for ${symbol}: ${cacheTimestamp}`);
+});
+
+console.log('Step 3 loaded for {{ symbol }}');
 </script>
 </body>
     </html>
