@@ -2939,12 +2939,12 @@ def step4(symbol, strategy, spread_id):
                 <span>Scoreboard</span>
             </a>
             <div class="step-connector completed"></div>
-            <a href="/step2/{symbol}" class="step completed">
+            <a href="/step2/{{ symbol }}" class="step completed">
                 <div class="step-number">2</div>
                 <span>Stock Analysis</span>
             </a>
             <div class="step-connector completed"></div>
-            <a href="/step3/{symbol}" class="step completed">
+            <a href="/step3/{{ symbol }}" class="step completed">
                 <div class="step-number">3</div>
                 <span>Strategy</span>
             </a>
