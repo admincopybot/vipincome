@@ -1,17 +1,22 @@
 """
-Database models for ETF scoring system - Updated for CSV format
+Database models for ETF scoring system - PostgreSQL version
 Handles 292 tickers with trading volume tie-breaker for top rankings
+Persistent data storage across deployments
 """
 
-import sqlite3
+import os
+import psycopg2
 import pandas as pd
 import logging
+from psycopg2.extras import RealDictCursor
 
 logger = logging.getLogger(__name__)
 
 class ETFDatabase:
-    def __init__(self, db_path='etf_scores.db'):
-        self.db_path = db_path
+    def __init__(self):
+        self.connection_string = os.environ.get('DATABASE_URL')
+        if not self.connection_string:
+            raise ValueError("DATABASE_URL environment variable not set")
         self.init_database()
     
     def _convert_bool(self, value):
@@ -22,31 +27,35 @@ class ETFDatabase:
             return value.lower() in ('true', 't', '1', 'yes')
         return bool(value)
     
+    def get_connection(self):
+        """Get PostgreSQL database connection"""
+        return psycopg2.connect(self.connection_string, cursor_factory=RealDictCursor)
+    
     def init_database(self):
-        """Initialize database matching exact CSV format"""
-        conn = sqlite3.connect(self.db_path)
+        """Initialize PostgreSQL database matching exact CSV format"""
+        conn = self.get_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS etf_scores (
-                symbol TEXT PRIMARY KEY,
-                current_price REAL,
+                symbol VARCHAR(10) PRIMARY KEY,
+                current_price DECIMAL(10,2),
                 total_score INTEGER,
-                avg_volume_10d INTEGER,
+                avg_volume_10d BIGINT,
                 
                 trend1_pass BOOLEAN,
-                trend1_current REAL,
-                trend1_threshold REAL,
+                trend1_current DECIMAL(10,2),
+                trend1_threshold DECIMAL(10,2),
                 trend1_description TEXT,
                 
                 trend2_pass BOOLEAN,
-                trend2_current REAL,
-                trend2_threshold REAL,
+                trend2_current DECIMAL(10,2),
+                trend2_threshold DECIMAL(10,2),
                 trend2_description TEXT,
                 
                 snapback_pass BOOLEAN,
-                snapback_current REAL,
-                snapback_threshold REAL,
+                snapback_current DECIMAL(10,2),
+                snapback_threshold DECIMAL(10,2),
                 snapback_description TEXT,
                 
                 momentum_pass BOOLEAN,
@@ -67,14 +76,14 @@ class ETFDatabase:
         # Create table for tracking last update timestamp
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS last_update (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT
+                id SERIAL PRIMARY KEY,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         
         conn.commit()
         conn.close()
-        logger.info("Database initialized with CSV format and trading volume support")
+        logger.info("PostgreSQL database initialized with CSV format and trading volume support")
     
     def upload_csv_data(self, csv_content):
         """Upload ETF data from CSV - SIMPLE: DELETE ALL THEN INSERT NEW"""
@@ -83,7 +92,7 @@ class ETFDatabase:
             df = pd.read_csv(io.StringIO(csv_content))
             
             # Step 1: DELETE ALL RECORDS IMMEDIATELY
-            conn = sqlite3.connect(self.db_path)
+            conn = self.get_connection()
             cursor = conn.cursor()
             cursor.execute('DELETE FROM etf_scores')
             cursor.execute('DELETE FROM last_update') 
@@ -137,7 +146,7 @@ class ETFDatabase:
                         momentum_pass, momentum_current, momentum_threshold, momentum_description,
                         stabilizing_pass, stabilizing_current, stabilizing_threshold, stabilizing_description,
                         data_age_hours
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     str(row['symbol']),
                     float(row['current_price']),
@@ -168,10 +177,8 @@ class ETFDatabase:
                 updated_count += 1
             
             # Update last update timestamp
-            from datetime import datetime
-            current_time = datetime.now().isoformat()
             cursor.execute('DELETE FROM last_update')
-            cursor.execute('INSERT INTO last_update (timestamp) VALUES (?)', (current_time,))
+            cursor.execute('INSERT INTO last_update (timestamp) VALUES (CURRENT_TIMESTAMP)')
             
             conn.commit()
             conn.close()
@@ -186,7 +193,7 @@ class ETFDatabase:
     def get_last_update_time(self):
         """Get the timestamp of the last CSV update"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self.get_connection()
             cursor = conn.cursor()
             cursor.execute('SELECT timestamp FROM last_update ORDER BY timestamp DESC LIMIT 1')
             result = cursor.fetchone()
