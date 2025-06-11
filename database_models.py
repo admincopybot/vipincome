@@ -214,7 +214,7 @@ class ETFDatabase:
     
     def get_all_etfs(self):
         """Get all ETF data with TRADING VOLUME TIE-BREAKER for top rankings"""
-        conn = sqlite3.connect(self.db_path)
+        conn = self.get_connection()
         cursor = conn.cursor()
         
         # ORDER BY: total_score DESC, then avg_volume_10d DESC for tie-breaker
@@ -249,7 +249,7 @@ class ETFDatabase:
     
     def get_ticker_details(self, symbol):
         """Get detailed scoring data for Step 2 analysis with FIXED criteria parsing"""
-        conn = sqlite3.connect(self.db_path)
+        conn = self.get_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -260,7 +260,7 @@ class ETFDatabase:
                    momentum_pass, momentum_current, momentum_threshold, momentum_description,
                    stabilizing_pass, stabilizing_current, stabilizing_threshold, stabilizing_description,
                    data_age_hours
-            FROM etf_scores WHERE symbol = ?
+            FROM etf_scores WHERE symbol = %s
         ''', (symbol,))
         
         row = cursor.fetchone()
@@ -320,7 +320,7 @@ class ETFDatabase:
     
     def get_etf_count(self):
         """Get total count of ETFs in database"""
-        conn = sqlite3.connect(self.db_path)
+        conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute('SELECT COUNT(*) FROM etf_scores')
         count = cursor.fetchone()[0]
@@ -329,7 +329,7 @@ class ETFDatabase:
     
     def update_ticker_criteria(self, symbol, criteria_data, new_score):
         """Update criteria for a specific ticker and recalculate score"""
-        conn = sqlite3.connect(self.db_path)
+        conn = self.get_connection()
         cursor = conn.cursor()
         
         # Map criteria to database fields
@@ -347,17 +347,17 @@ class ETFDatabase:
         
         for api_field, db_field in criteria_mapping.items():
             if api_field in criteria_data:
-                update_fields.append(f"{db_field} = ?")
+                update_fields.append(f"{db_field} = %s")
                 update_values.append(criteria_data[api_field])
         
         # Add total score update
-        update_fields.append("total_score = ?")
+        update_fields.append("total_score = %s")
         update_values.append(new_score)
         
         # Add symbol for WHERE clause
         update_values.append(symbol)
         
-        query = f"UPDATE etf_scores SET {', '.join(update_fields)} WHERE symbol = ?"
+        query = f"UPDATE etf_scores SET {', '.join(update_fields)} WHERE symbol = %s"
         
         cursor.execute(query, update_values)
         conn.commit()
