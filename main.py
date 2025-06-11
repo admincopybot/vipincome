@@ -2963,7 +2963,7 @@ def step4(symbol, strategy, spread_id):
         </div>
         
         <div class="spread-header">
-            <div class="expiration-info">Expiration: {{ expiration_date }} ({{ days_to_exp }} days)</div>
+            <div class="expiration-info">Expiration: {{ expiration_date }} ({{ days_to_exp + 1 }} days)</div>
             <div class="spread-title">${{ scenario_long_strike|round(2) }} / ${{ scenario_short_strike|round(2) }}</div>
         </div>
         
@@ -5975,7 +5975,7 @@ function showTradeAnalysis(strategy, symbol, data) {
     
     // Populate header info section
     document.getElementById('modalExpiration').textContent = data.expiration || '2025-06-27';
-    document.getElementById('modalDTE').textContent = data.dte || 20;
+    document.getElementById('modalDTE').textContent = (data.dte || 20) + 1;
     document.getElementById('modalLongStrike').textContent = longStrike.toFixed(2);
     document.getElementById('modalShortStrike').textContent = shortStrike.toFixed(2);
     document.getElementById('modalWidth').textContent = (shortStrike - longStrike).toFixed(0);
