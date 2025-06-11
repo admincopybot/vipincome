@@ -4563,17 +4563,40 @@ def step2(symbol=None):
                     let dotCount = 0;
                     this.textContent = 'Analyzing Options...';
                     
-                    // Add loading message below button
+                    // Add enhanced loading message below button
                     const loadingMessage = document.createElement('div');
                     loadingMessage.style.cssText = `
-                        margin-top: 10px;
-                        font-size: 12px;
-                        color: #a1a1aa;
+                        margin-top: 15px;
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+                        border: 1px solid rgba(59, 130, 246, 0.3);
+                        border-radius: 8px;
+                        font-size: 13px;
+                        color: #3b82f6;
                         text-align: center;
-                        font-style: italic;
-                        animation: pulse 1.5s ease-in-out infinite;
+                        font-weight: 500;
+                        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+                        animation: loadingMessagePulse 2s ease-in-out infinite;
+                        backdrop-filter: blur(5px);
                     `;
-                    loadingMessage.textContent = 'May take up to 15 seconds';
+                    
+                    // Add custom animation keyframes
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        @keyframes loadingMessagePulse {
+                            0%, 100% { 
+                                transform: scale(1);
+                                box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+                            }
+                            50% { 
+                                transform: scale(1.02);
+                                box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    loadingMessage.innerHTML = '<span style="margin-right: 8px;">⏱️</span>May take up to 15 seconds';
                     this.parentNode.appendChild(loadingMessage);
                     
                     // Animate button with pulsing effect
