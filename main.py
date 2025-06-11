@@ -4997,6 +4997,37 @@ def step3(symbol=None):
             transition: transform 0.1s ease;
         }
         
+        .strategy-btn.loading {
+            background: linear-gradient(45deg, #8b5cf6, #06b6d4, #8b5cf6, #06b6d4);
+            background-size: 400% 100%;
+            animation: loading-flow 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(6, 182, 212, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        @keyframes loading-flow {
+            0% {
+                background-position: 0% 50%;
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(6, 182, 212, 0.4);
+            }
+            25% {
+                background-position: 100% 50%;
+                box-shadow: 0 0 30px rgba(6, 182, 212, 0.8), 0 0 60px rgba(139, 92, 246, 0.6);
+            }
+            50% {
+                background-position: 200% 50%;
+                box-shadow: 0 0 25px rgba(139, 92, 246, 0.7), 0 0 50px rgba(6, 182, 212, 0.5);
+            }
+            75% {
+                background-position: 300% 50%;
+                box-shadow: 0 0 35px rgba(6, 182, 212, 0.9), 0 0 70px rgba(139, 92, 246, 0.7);
+            }
+            100% {
+                background-position: 400% 50%;
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(6, 182, 212, 0.4);
+            }
+        }
+        
         .strategy-error {
             background: rgba(220, 38, 38, 0.2);
             border: 1px solid rgba(220, 38, 38, 0.4);
@@ -5955,6 +5986,32 @@ document.addEventListener("DOMContentLoaded", function() {
         const loadingOverlay = document.getElementById('step3LoadingOverlay');
         loadingOverlay.style.display = 'none';
     }, 2400);
+});
+
+// Add loading animation to strategy buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const strategyButtons = document.querySelectorAll('.strategy-btn');
+    
+    strategyButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Add loading class for visual effect
+            this.classList.add('loading');
+            this.style.pointerEvents = 'none';
+            
+            // Change button text to show loading
+            const originalText = this.textContent;
+            this.textContent = 'Analyzing Trade...';
+            
+            // Navigate after brief delay to show animation
+            setTimeout(() => {
+                window.location.href = this.href;
+            }, 800);
+            
+            // Prevent immediate navigation
+            e.preventDefault();
+            return false;
+        });
+    });
 });
 </script>
 </body>
