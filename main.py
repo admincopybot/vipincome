@@ -4571,6 +4571,10 @@ def step2(symbol=None):
 def step3(symbol=None):
     """Step 3: Income Strategy Selection - AUTHENTIC DATA ONLY with intelligent caching"""
     
+    # Get symbol from URL parameter or query string
+    if not symbol:
+        symbol = request.args.get('symbol')
+    
     print(f"\n=== STEP 3 REAL-TIME SPREAD DETECTION FOR {symbol} ===")
     
     # Template will be defined after data processing

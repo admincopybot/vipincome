@@ -1,0 +1,57 @@
+INFO:real_time_spreads:✅ TheTradeList FMV price for CDW: $178.445
+INFO:real_time_spreads:Using real-time price $178.44 for CDW spread detection
+INFO:real_time_spreads:Fetched 128 call contracts for CDW
+INFO:real_time_spreads:Starting concurrent processing of all three strategies
+INFO:real_time_spreads:Processing aggressive strategy for CDW
+INFO:real_time_spreads:Processing balanced strategy for CDW
+INFO:real_time_spreads:Filtered to 0 contracts for aggressive strategy
+INFO:real_time_spreads:Filtered to 0 contracts for balanced strategy
+INFO:real_time_spreads:Processing conservative strategy for CDW
+INFO:real_time_spreads:Completed processing for aggressive strategy
+INFO:real_time_spreads:Filtered to 7 contracts for conservative strategy
+INFO:real_time_spreads:Completed processing for balanced strategy
+INFO:real_time_spreads:Generated 11 total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)
+INFO:real_time_spreads:Processing ALL 11 spread pairs for conservative strategy
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00155000: bid=$23.5, ask=$28.2
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00160000: bid=$19.4, ask=$22.5
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00150000: bid=$28.3, ask=$32
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00145000: bid=$32.5, ask=$36.8
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00165000: bid=$14.7, ask=$18.7
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00160000: bid=$19.4, ask=$22.5
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00155000/O:CDW250718C00160000, ROI: -43.2%, Cost: $8.80
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00150000: bid=$28.3, ask=$32
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00145000/O:CDW250718C00150000, ROI: -41.2%, Cost: $8.50
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00155000: bid=$23.5, ask=$28.2
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00150000/O:CDW250718C00155000, ROI: -41.2%, Cost: $8.50
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00170000: bid=$11.2, ask=$14.1
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00165000/O:CDW250718C00170000, ROI: -33.3%, Cost: $7.50
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00165000: bid=$14.7, ask=$18.7
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00160000/O:CDW250718C00165000, ROI: -35.9%, Cost: $7.80
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00145000: bid=$32.5, ask=$36.8
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00170000: bid=$11.2, ask=$14.1
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00150000: bid=$28.3, ask=$32
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00155000: bid=$23.5, ask=$28.2
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00160000: bid=$19.4, ask=$22.5
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00155000: bid=$23.5, ask=$28.2
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00145000/O:CDW250718C00155000, ROI: -24.8%, Cost: $13.30
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00175000: bid=$7.8, ask=$10.1
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00170000/O:CDW250718C00175000, ROI: -20.6%, Cost: $6.30
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00165000: bid=$14.7, ask=$18.7
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00155000/O:CDW250718C00165000, ROI: -25.9%, Cost: $13.50
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00170000: bid=$11.2, ask=$14.1
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00160000/O:CDW250718C00170000, ROI: -11.5%, Cost: $11.30
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00160000: bid=$19.4, ask=$22.5
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00150000/O:CDW250718C00160000, ROI: -20.6%, Cost: $12.60
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00165000: bid=$14.7, ask=$18.7
+INFO:real_time_spreads:Quote retrieved for O:CDW250718C00175000: bid=$7.8, ask=$10.1
+INFO:real_time_spreads:Spread calculated: O:CDW250718C00165000/O:CDW250718C00175000, ROI: -8.3%, Cost: $10.90
+INFO:real_time_spreads:Found spreads by width: []
+INFO:real_time_spreads:Completed processing for conservative strategy
+Real-time spread detection completed for CDW
+No aggressive spread found: No contracts match aggressive criteria
+No balanced spread found: No contracts match balanced criteria
+No conservative spread found: No spreads found within 8-15% ROI range
+✓ REAL-TIME SPREAD DETECTION COMPLETED for CDW
+✗ AGGRESSIVE: No contracts match aggressive criteria
+✗ STEADY: No contracts match balanced criteria
+✗ PASSIVE: No spreads found within 8-15% ROI range
