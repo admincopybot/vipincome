@@ -138,26 +138,52 @@ class RealTimeSpreadDetector:
             return 0
     
     def get_all_contracts(self, symbol: str) -> List[Dict]:
-        """Fetch ALL option contracts for a symbol from Polygon API"""
+        """Fetch ALL option contracts for a symbol from Polygon API with pagination"""
         try:
+            all_contracts = []
             url = f"https://api.polygon.io/v3/reference/options/contracts"
-            params = {
-                'underlying_ticker': symbol,
-                'contract_type': 'call',  # Only call options for debit spreads
-                'limit': 1000,
-                'apikey': self.polygon_api_key
-            }
+            next_url = None
+            page_count = 0
             
-            response = requests.get(url, params=params)
+            while True:
+                page_count += 1
+                logger.info(f"📥 Fetching contracts page {page_count} for {symbol}")
+                
+                if next_url:
+                    # Use next_url for pagination
+                    response = requests.get(f"{next_url}&apikey={self.polygon_api_key}")
+                else:
+                    # Initial request
+                    params = {
+                        'underlying_ticker': symbol,
+                        'contract_type': 'call',  # Only call options for debit spreads
+                        'limit': 1000,  # Maximum per page
+                        'apikey': self.polygon_api_key
+                    }
+                    response = requests.get(url, params=params)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    contracts = data.get('results', [])
+                    all_contracts.extend(contracts)
+                    
+                    logger.info(f"📥 Page {page_count}: {len(contracts)} contracts (Total: {len(all_contracts)})")
+                    
+                    # Check for pagination
+                    next_url = data.get('next_url')
+                    if not next_url or len(contracts) == 0:
+                        break
+                        
+                    # Safety limit to prevent infinite loops
+                    if page_count >= 10:
+                        logger.warning(f"⚠️  Reached page limit (10), stopping at {len(all_contracts)} contracts")
+                        break
+                else:
+                    logger.error(f"Polygon API error: {response.status_code}")
+                    break
             
-            if response.status_code == 200:
-                data = response.json()
-                contracts = data.get('results', [])
-                logger.info(f"Fetched {len(contracts)} call contracts for {symbol}")
-                return contracts
-            else:
-                logger.error(f"Polygon API error: {response.status_code}")
-                return []
+            logger.info(f"📥 TOTAL CONTRACTS FETCHED: {len(all_contracts)} call contracts for {symbol}")
+            return all_contracts
                 
         except Exception as e:
             logger.error(f"Error fetching contracts: {e}")
