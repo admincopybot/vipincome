@@ -3729,6 +3729,108 @@ def index():
         // Check for updates every 5 seconds to catch CSV uploads
         setInterval(checkForUpdates, 5000);
         checkForUpdates(); // Initial check
+        
+        // Check market hours and show popup if outside trading hours
+        function checkMarketHours() {
+            const now = new Date();
+            const etTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const hour = etTime.getHours();
+            const minutes = etTime.getMinutes();
+            const day = etTime.getDay(); // 0 = Sunday, 6 = Saturday
+            
+            // Check if it's a weekday (Monday = 1, Friday = 5)
+            const isWeekday = day >= 1 && day <= 5;
+            
+            // Market hours: 9:30 AM - 4:00 PM ET
+            const beforeMarket = hour < 9 || (hour === 9 && minutes < 30);
+            const afterMarket = hour >= 16;
+            const outsideMarketHours = !isWeekday || beforeMarket || afterMarket;
+            
+            if (outsideMarketHours) {
+                showMarketHoursPopup();
+            }
+        }
+        
+        function showMarketHoursPopup() {
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            // Create popup
+            const popup = document.createElement('div');
+            popup.style.cssText = `
+                background: linear-gradient(145deg, #1e293b, #334155);
+                border: 2px solid #3b82f6;
+                border-radius: 16px;
+                padding: 40px;
+                max-width: 500px;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+            `;
+            
+            popup.innerHTML = `
+                <div style="font-size: 24px; margin-bottom: 20px; color: #3b82f6;">⏰</div>
+                <h3 style="color: #ffffff; margin-bottom: 20px; font-size: 18px; font-weight: 600;">Market Hours Notice</h3>
+                <p style="color: #cbd5e1; margin-bottom: 30px; line-height: 1.6; font-size: 16px;">
+                    The Income Machine Will Produce Results from 9:30am - 4pm ET During Regular Market Hours
+                </p>
+                <button id="closeMarketPopup" style="
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">Got It</button>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Add animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Close popup handler
+            document.getElementById('closeMarketPopup').addEventListener('click', function() {
+                overlay.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                }, 300);
+            });
+        }
+        
+        // Check market hours on page load
+        setTimeout(checkMarketHours, 1000); // Slight delay for page load
     </script>
 </body>
 </html>
@@ -4543,6 +4645,112 @@ def step2(symbol=None):
 
         
         console.log('Step 2 loaded for {{ symbol }}');
+        
+        // Check market hours and show popup if outside trading hours
+        function checkMarketHours() {
+            const now = new Date();
+            const etTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const hour = etTime.getHours();
+            const minutes = etTime.getMinutes();
+            const day = etTime.getDay(); // 0 = Sunday, 6 = Saturday
+            
+            // Check if it's a weekday (Monday = 1, Friday = 5)
+            const isWeekday = day >= 1 && day <= 5;
+            
+            // Market hours: 9:30 AM - 4:00 PM ET
+            const beforeMarket = hour < 9 || (hour === 9 && minutes < 30);
+            const afterMarket = hour >= 16;
+            const outsideMarketHours = !isWeekday || beforeMarket || afterMarket;
+            
+            if (outsideMarketHours) {
+                showMarketHoursPopup();
+            }
+        }
+        
+        function showMarketHoursPopup() {
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            // Create popup
+            const popup = document.createElement('div');
+            popup.style.cssText = `
+                background: linear-gradient(145deg, #1e293b, #334155);
+                border: 2px solid #3b82f6;
+                border-radius: 16px;
+                padding: 40px;
+                max-width: 500px;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+            `;
+            
+            popup.innerHTML = `
+                <div style="font-size: 24px; margin-bottom: 20px; color: #3b82f6;">⏰</div>
+                <h3 style="color: #ffffff; margin-bottom: 20px; font-size: 18px; font-weight: 600;">Market Hours Notice</h3>
+                <p style="color: #cbd5e1; margin-bottom: 30px; line-height: 1.6; font-size: 16px;">
+                    The Income Machine Will Produce Results from 9:30am - 4pm ET During Regular Market Hours
+                </p>
+                <button id="closeMarketPopup" style="
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">Got It</button>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Add animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Close popup handler
+            document.getElementById('closeMarketPopup').addEventListener('click', function() {
+                overlay.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                }, 300);
+            });
+            
+            // Add fade out animation
+            style.textContent += `
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+        }
+        
+        // Check market hours on page load
+        checkMarketHours();
         
         // Add enhanced loading animation to the Choose Income Strategy button
         document.addEventListener('DOMContentLoaded', function() {
