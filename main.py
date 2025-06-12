@@ -64,6 +64,29 @@ def validate_jwt_token(token):
         logger.error(f"JWT validation error: {str(e)}")
         return {'valid': False, 'error': 'Validation failed'}
 
+def check_pro_authentication():
+    """Check if user is authenticated for Pro access"""
+    token = session.get('jwt_token')
+    if not token:
+        return False
+    
+    auth_result = validate_jwt_token(token)
+    if not auth_result['valid']:
+        # Clear invalid token from session
+        session.pop('jwt_token', None)
+        session.pop('user_id', None)
+        return False
+    
+    return True
+
+@app.route('/logout')
+def logout():
+    """Logout route to clear JWT session"""
+    session.pop('jwt_token', None)
+    session.pop('user_id', None)
+    logger.info("User logged out - session cleared")
+    return redirect('/')
+
 # Global storage for Step 3 spread calculations to ensure Step 4 consistency
 spread_calculations_cache = {}
 
@@ -3168,8 +3191,9 @@ def step4(symbol, strategy, spread_id):
 
 @app.route('/pro')
 def pro_index():
-    # Check for valid JWT token
-    token = request.args.get('token')
+    # Check for JWT token in URL (for initial login) or session (for navigation)
+    token = request.args.get('token') or session.get('jwt_token')
+    
     if not token:
         logger.warning("Pro access attempted without token")
         return redirect('/')
@@ -3178,8 +3202,13 @@ def pro_index():
     auth_result = validate_jwt_token(token)
     if not auth_result['valid']:
         logger.warning(f"Pro access denied: {auth_result.get('error', 'Invalid token')}")
+        # Clear invalid token from session
+        session.pop('jwt_token', None)
         return redirect('/')
     
+    # Store valid token in session for future navigation
+    session['jwt_token'] = token
+    session['user_id'] = auth_result['user_id']
     logger.info(f"Pro access granted to user: {auth_result['user_id']}")
     
     # CRITICAL: Force fresh data reload every time to catch CSV updates
