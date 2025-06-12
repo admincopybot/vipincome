@@ -1,0 +1,380 @@
+Complete JWT Authentication Implementation Guide
+Here's everything you need to implement the exact same JWT authentication system in your other application:
+
+1. Required Dependencies
+First, install these packages:
+
+# Backend dependencies
+npm install jsonwebtoken
+npm install @types/jsonwebtoken
+# No additional frontend dependencies needed (uses standard React hooks)
+2. Backend Implementation
+A. Create the auth route (server/routes/auth.ts)
+import { Router, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+const router = Router();
+// Public key from One Click Trading for JWT verification
+const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtSt0xH5N6SOVXY4E2h1X
+WE6edernQCmw2kfg6023C64hYR4PZH8XM2P9qoyAzq19UDJZbVj4hi/75GKHEFBC
+zL+SrJLgc/6jZoMpOYtEhDgzEKKdfFtgpGD18Idc5IyvBLeW2d8gvfIJMuxRUnT6
+K3spmisjdZtd+7bwMKPl6BGAsxZbhlkGjLI1gP/fHrdfU2uoL5okxbbzg1NH95xc
+LSXX2JJ+q//t8vLGy+zMh8HPqFM9ojsxzT97AiR7uZZPBvR6c/rX5GDIFPvo5QVr
+crCucCyTMeYqwyGl14zN0rArFi6eFXDn+JWTs3Qf04F8LQn7TiwxKV9KRgPHYFtG
+qwIDAQAB
+-----END PUBLIC KEY-----`;
+interface JWTPayload {
+  sub: string;  // User ID
+  iat: number;  // Issued at
+  exp: number;  // Expires at
+}
+/**
+ * POST /api/auth/validate
+ * Validates JWT token from One Click Trading
+ */
+router.post('/validate', async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ 
+        error: "No token provided",
+        valid: false 
+      });
+    }
+    // Verify the JWT token using the public key
+    const decoded = jwt.verify(token, PUBLIC_KEY, {
+      algorithms: ['RS256']
+    }) as JWTPayload;
+    // Return the validated user information
+    return res.json({
+      valid: true,
+      user: {
+        id: decoded.sub,
+        issuedAt: new Date(decoded.iat * 1000),
+        expiresAt: new Date(decoded.exp * 1000)
+      }
+    });
+  } catch (error: any) {
+    // Handle specific JWT errors
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        error: "Token expired",
+        valid: false,
+        expired: true
+      });
+    }
+    
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        error: "Invalid token",
+        valid: false
+      });
+    }
+    return res.status(500).json({
+      error: "Token validation failed",
+      valid: false
+    });
+  }
+});
+export default router;
+B. Register the auth route in your main routes file
+// In your server/routes.ts or main routes file
+import authRoutes from "./routes/auth";
+export function registerRoutes(app: Express): Server {
+  // ... other routes
+  app.use("/api/auth", authRoutes);
+  // ... rest of your routes
+}
+3. Frontend Implementation
+A. Auth Hook (client/src/hooks/useAuth.ts)
+import { useState, useEffect, createContext, useContext } from 'react';
+interface User {
+  id: string;
+  issuedAt: Date;
+  expiresAt: Date;
+}
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (token: string) => Promise<boolean>;
+  logout: () => void;
+}
+const AuthContext = createContext<AuthContextType | null>(null);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+export const useAuthProvider = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  // Check for existing authentication on page load
+  useEffect(() => {
+    checkExistingAuth();
+  }, []);
+  const checkExistingAuth = async () => {
+    try {
+      const storedToken = localStorage.getItem('oneClickTradingToken');
+      if (storedToken) {
+        const success = await validateToken(storedToken);
+        if (!success) {
+          // Token is invalid, remove it
+          localStorage.removeItem('oneClickTradingToken');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking existing auth:', error);
+      localStorage.removeItem('oneClickTradingToken');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const validateToken = async (token: string): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/auth/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+      const data = await response.json();
+      if (data.valid && data.user) {
+        setUser({
+          id: data.user.id,
+          issuedAt: new Date(data.user.issuedAt),
+          expiresAt: new Date(data.user.expiresAt),
+        });
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      return false;
+    }
+  };
+  const login = async (token: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const success = await validateToken(token);
+      if (success) {
+        // Store token for persistence across sessions
+        localStorage.setItem('oneClickTradingToken', token);
+      }
+      return success;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('oneClickTradingToken');
+  };
+  return {
+    user,
+    isAuthenticated: !!user,
+    isLoading,
+    login,
+    logout,
+  };
+};
+export { AuthContext };
+B. Auth Provider Component (client/src/components/AuthProvider.tsx)
+import { useEffect, useState } from 'react';
+import { AuthContext, useAuthProvider } from '@/hooks/useAuth';
+import { AccessRestricted } from '@/components/AccessRestricted';
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
+export function AuthProvider({ children }: AuthProviderProps) {
+  const auth = useAuthProvider();
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [returnUrl, setReturnUrl] = useState<string | null>(null);
+  useEffect(() => {
+    // Check for JWT token in URL parameters (One Click Trading integration)
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const returnTo = urlParams.get('return-to');
+    // Store return URL for potential use in AccessRestricted component
+    if (returnTo) {
+      setReturnUrl(returnTo);
+    }
+    if (token) {
+      // Attempt to authenticate with the provided token
+      auth.login(token).then(success => {
+        if (success) {
+          // Remove token from URL for security
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+        setIsInitialized(true);
+      }).catch(error => {
+        console.error('Authentication error:', error);
+        setIsInitialized(true);
+      });
+    } else {
+      setIsInitialized(true);
+    }
+  }, [auth]);
+  // Show loading while initializing authentication
+  if (!isInitialized || auth.isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Authenticating...</p>
+        </div>
+      </div>
+    );
+  }
+  // Show access restricted page if user is not authenticated
+  if (!auth.isAuthenticated) {
+    return <AccessRestricted returnUrl={returnUrl} />;
+  }
+  return (
+    <AuthContext.Provider value={auth}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+C. Access Restricted Component (client/src/components/AccessRestricted.tsx)
+interface AccessRestrictedProps {
+  returnUrl?: string | null;
+}
+export function AccessRestricted({ returnUrl }: AccessRestrictedProps) {
+  const handleReturnClick = () => {
+    if (returnUrl) {
+      window.location.href = returnUrl;
+    }
+  };
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center max-w-md mx-auto px-6">
+        <h1 className="text-4xl font-bold text-white mb-6">
+          Access Restricted
+        </h1>
+        
+        <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+          This dashboard is only accessible from One Click Trading with a valid authentication token.
+        </p>
+        {returnUrl && (
+          <button
+            onClick={handleReturnClick}
+            className="text-white underline hover:text-gray-300 transition-colors cursor-pointer text-lg"
+          >
+            Click here to return to One Click Trading.
+          </button>
+        )}
+        {!returnUrl && (
+          <div className="space-y-4">
+            <p className="text-gray-400 text-sm">
+              Please access this dashboard through One Click Trading.
+            </p>
+            <a
+              href="https://app.oneclicktrading.com/landing/login"
+              className="text-white underline hover:text-gray-300 transition-colors text-lg inline-block"
+            >
+              Log in with One Click Trading
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+D. Authenticated Component Wrapper (client/src/components/AuthenticatedDashboard.tsx)
+import { useAuth } from '@/hooks/useAuth';
+import YourMainComponent from '@/pages/YourMainComponent'; // Replace with your main component
+interface AuthenticatedDashboardProps {
+  // Add any props your main component needs
+}
+export function AuthenticatedDashboard({ }: AuthenticatedDashboardProps) {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Authenticating...</p>
+        </div>
+      </div>
+    );
+  }
+  // Show access denied if not authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Access Restricted</h1>
+            <p className="text-muted-foreground">
+              This dashboard is only accessible from One Click Trading with a valid authentication token.
+            </p>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            <p>Please access this dashboard through One Click Trading platform.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // Show authenticated dashboard with user info
+  return (
+    <div className="relative">
+      {/* User ID display in top area */}
+      <div className="absolute top-2 right-4 z-50">
+        <div className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+          User: {user.id.slice(0, 8)}...
+        </div>
+      </div>
+      {/* Main component */}
+      <YourMainComponent />
+    </div>
+  );
+}
+4. App Integration
+Update your main App component:
+
+import { AuthProvider } from "@/components/AuthProvider";
+import { AuthenticatedDashboard } from "@/components/AuthenticatedDashboard";
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          {/* Your routes - wrap protected routes with AuthenticatedDashboard */}
+          <Router />
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
+5. Usage in Routes
+Replace your protected routes:
+
+// Before
+<Route path="/" component={YourDashboard} />
+// After
+<Route path="/">
+  {() => <AuthenticatedDashboard />}
+</Route>
+6. Key Features
+URL Token Parsing: Automatically extracts JWT from ?token=... parameter
+Persistent Authentication: Stores token in localStorage for session persistence
+Auto Token Cleanup: Removes token from URL after successful authentication
+Return URL Support: Handles ?return-to=... parameter for navigation back to One Click Trading
+Comprehensive Error Handling: Handles expired tokens, invalid tokens, and network errors
+Loading States: Shows appropriate loading spinners during authentication
+Security: Uses RS256 algorithm with public key verification
+7. Testing
+Test the implementation by accessing your app with:
+
+https://yourdomain.com/?token=YOUR_JWT_TOKEN&return-to=https://app.oneclicktrading.com
+The system will automatically authenticate the user and remove the token from the URL for security.

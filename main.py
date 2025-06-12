@@ -3322,7 +3322,7 @@ def pro_index():
             position: relative;
         }
         .etf-card {
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.6));
+            background: linear-gradient(145deg, rgba(21, 30, 45, 0.9), rgba(30, 41, 59, 0.8));
             border: 1px solid rgba(59, 130, 246, 0.2);
             border-radius: 16px;
             padding: 30px;
@@ -3361,7 +3361,7 @@ def pro_index():
         .ticker-symbol {
             font-size: 32px;
             font-weight: 700;
-            color: #60a5fa;
+            color: #ffffff;
             margin-bottom: 12px;
         }
         .current-price {
@@ -3371,7 +3371,8 @@ def pro_index():
             margin-bottom: 20px;
         }
         .choose-btn-text {
-            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
