@@ -12,6 +12,7 @@ import math
 import requests
 import json
 import threading
+import jwt
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template_string, jsonify, redirect, session
 from database_models import ETFDatabase
@@ -30,6 +31,38 @@ logger = logging.getLogger(__name__)
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "income-machine-secret-key-2025")
+
+# JWT Public Key for One Click Trading authentication
+JWT_PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtSt0xH5N6SOVXY4E2h1X
+WE6edernQCmw2kfg6023C64hYR4PZH8XM2P9qoyAzq19UDJZbVj4hi/75GKHEFBC
+zL+SrJLgc/6jZoMpOYtEhDgzEKKdfFtgpGD18Idc5IyvBLeW2d8gvfIJMuxRUnT6
+K3spmisjdZtd+7bwMKPl6BGAsxZbhlkGjLI1gP/fHrdfU2uoL5okxbbzg1NH95xc
+LSXX2JJ+q//t8vLGy+zMh8HPqFM9ojsxzT97AiR7uZZPBvR6c/rX5GDIFPvo5QVr
+crCucCyTMeYqwyGl14zN0rArFi6eFXDn+JWTs3Qf04F8LQn7TiwxKV9KRgPHYFtG
+qwIDAQAB
+-----END PUBLIC KEY-----"""
+
+def validate_jwt_token(token):
+    """Validate JWT token using the One Click Trading public key"""
+    try:
+        decoded = jwt.decode(token, JWT_PUBLIC_KEY, algorithms=['RS256'])
+        logger.info(f"JWT validation successful for user: {decoded.get('sub', 'unknown')}")
+        return {
+            'valid': True,
+            'user_id': decoded.get('sub'),
+            'issued_at': datetime.fromtimestamp(decoded.get('iat', 0)),
+            'expires_at': datetime.fromtimestamp(decoded.get('exp', 0))
+        }
+    except jwt.ExpiredSignatureError:
+        logger.warning("JWT token expired")
+        return {'valid': False, 'error': 'Token expired'}
+    except jwt.InvalidTokenError as e:
+        logger.warning(f"JWT token invalid: {str(e)}")
+        return {'valid': False, 'error': 'Invalid token'}
+    except Exception as e:
+        logger.error(f"JWT validation error: {str(e)}")
+        return {'valid': False, 'error': 'Validation failed'}
 
 # Global storage for Step 3 spread calculations to ensure Step 4 consistency
 spread_calculations_cache = {}
@@ -3135,10 +3168,19 @@ def step4(symbol, strategy, spread_id):
 
 @app.route('/pro')
 def pro_index():
-    # Check for valid token
+    # Check for valid JWT token
     token = request.args.get('token')
-    if token != '123':
+    if not token:
+        logger.warning("Pro access attempted without token")
         return redirect('/')
+    
+    # Validate JWT token
+    auth_result = validate_jwt_token(token)
+    if not auth_result['valid']:
+        logger.warning(f"Pro access denied: {auth_result.get('error', 'Invalid token')}")
+        return redirect('/')
+    
+    logger.info(f"Pro access granted to user: {auth_result['user_id']}")
     
     # CRITICAL: Force fresh data reload every time to catch CSV updates
     global etf_scores, last_csv_update
