@@ -3233,9 +3233,6 @@ def pro_index():
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
         
         .nav-menu {
             display: flex;
@@ -5066,7 +5063,11 @@ def step2(symbol=None):
                     Data is automatically refreshed every 15 minutes during market hours.
                 </div>
                 <div class="strategy-button-container">
+                    {% if is_pro %}
+                    <a href="/step3/{{ symbol }}?pro=true" class="choose-strategy-btn">Choose Income Strategy →</a>
+                    {% else %}
                     <a href="/step3/{{ symbol }}" class="choose-strategy-btn">Choose Income Strategy →</a>
+                    {% endif %}
                 </div>
                 
 
@@ -5412,12 +5413,15 @@ def step2(symbol=None):
 </html>
 """
     
-    return render_template_string(template, symbol=symbol, ticker_data=ticker_data)
+    return render_template_string(template, symbol=symbol, ticker_data=ticker_data, is_pro=is_pro)
 
 @app.route('/step3')
 @app.route('/step3/<symbol>')
 def step3(symbol=None):
     """Step 3: Income Strategy Selection - AUTHENTIC DATA ONLY with intelligent caching"""
+    
+    # Check if this is Pro mode
+    is_pro = request.args.get('pro') == 'true'
     
     # Get symbol from URL parameter or query string
     if not symbol:
