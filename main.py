@@ -3513,7 +3513,7 @@ def pro_index():
     
     <div class="header">
         <div class="logo">
-            <a href="/pro?token=123"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
+            <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
         </div>
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
@@ -3556,7 +3556,7 @@ def pro_index():
             {% for symbol, etf in sorted_etfs %}
             {% if loop.index <= 10 %}
             <div class="etf-card-wrapper">
-                <a href="/step2/{{ symbol }}?pro=true" class="etf-card">
+                <a href="/step2/{{ symbol }}?token={{ request.args.get('token') }}" class="etf-card">
                     <div class="card-content">
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
