@@ -85,15 +85,15 @@ def get_top_3_tickers():
         # Get all ETFs sorted by score and trading volume (tie-breaker)
         all_etfs = etf_db.get_all_etfs()
         if not all_etfs:
-            return ['AVGO', 'WFC', 'MDT']  # Fallback
+            return ['D', 'FOX', 'PFE']  # Current fallback based on live data
         
-        # Extract top 3 symbols
-        top_3 = [etf['symbol'] for etf in all_etfs[:3]]
+        # Extract top 3 symbols from dictionary (already sorted by score)
+        top_3 = list(all_etfs.keys())[:3]
         logger.info(f"Current top 3 tickers: {top_3}")
         return top_3
     except Exception as e:
         logger.error(f"Error getting top 3 tickers: {e}")
-        return ['AVGO', 'WFC', 'MDT']  # Fallback
+        return ['D', 'FOX', 'PFE']  # Current fallback based on live data
 
 def check_ticker_access(symbol, is_pro):
     """Check if user has access to this ticker based on their subscription"""
