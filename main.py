@@ -79,6 +79,31 @@ def check_pro_authentication():
     
     return True
 
+def get_top_3_tickers():
+    """Get current top 3 tickers from database with live rankings"""
+    try:
+        # Get all ETFs sorted by score and trading volume (tie-breaker)
+        all_etfs = etf_db.get_all_etfs()
+        if not all_etfs:
+            return ['AVGO', 'WFC', 'MDT']  # Fallback
+        
+        # Extract top 3 symbols
+        top_3 = [etf['symbol'] for etf in all_etfs[:3]]
+        logger.info(f"Current top 3 tickers: {top_3}")
+        return top_3
+    except Exception as e:
+        logger.error(f"Error getting top 3 tickers: {e}")
+        return ['AVGO', 'WFC', 'MDT']  # Fallback
+
+def check_ticker_access(symbol, is_pro):
+    """Check if user has access to this ticker based on their subscription"""
+    if is_pro:
+        return True  # Pro users can access all tickers
+    
+    # Free users can only access top 3 tickers
+    top_3 = get_top_3_tickers()
+    return symbol.upper() in [t.upper() for t in top_3]
+
 @app.route('/logout')
 def logout():
     """Logout route to clear JWT session"""
@@ -2759,6 +2784,14 @@ def calculate_single_option_analysis(option_data, current_stock_price):
 def step4(symbol, strategy, spread_id):
     """Step 4: Detailed Options Trade Analysis using authentic spread data from Step 3"""
     
+    # Check if this is Pro mode based on session authentication
+    is_pro = check_pro_authentication()
+    
+    # Check if user has access to this ticker
+    if not check_ticker_access(symbol, is_pro):
+        logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
+        return redirect('/')
+    
     print(f"\n=== STEP 4 TRADE ANALYSIS: {symbol} {strategy.upper()} ===")
     print(f"Spread ID: {spread_id}")
     
@@ -3585,7 +3618,7 @@ def pro_index():
             {% for symbol, etf in sorted_etfs %}
             {% if loop.index <= 10 %}
             <div class="etf-card-wrapper">
-                <a href="/step2/{{ symbol }}?token={{ request.args.get('token') }}" class="etf-card">
+                <a href="/step2/{{ symbol }}" class="etf-card">
                     <div class="card-content">
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
@@ -4473,15 +4506,20 @@ def step2(symbol=None):
     if not symbol:
         return redirect('/')
     
-    # Check if this is Pro mode
-    is_pro = request.args.get('pro') == 'true'
+    # Check if this is Pro mode based on session authentication
+    is_pro = check_pro_authentication()
+    
+    # Check if user has access to this ticker
+    if not check_ticker_access(symbol, is_pro):
+        logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
+        return redirect('/')
     
     # Get detailed data for the symbol from database
     ticker_data = etf_db.get_ticker_details(symbol.upper())
     
     if not ticker_data:
         if is_pro:
-            return redirect('/pro?token=123')
+            return redirect('/pro')
         return redirect('/')
     
     # Get real-time current price from TheTradeList API
@@ -5480,12 +5518,20 @@ def step2(symbol=None):
 def step3(symbol=None):
     """Step 3: Income Strategy Selection - AUTHENTIC DATA ONLY with intelligent caching"""
     
-    # Check if this is Pro mode
-    is_pro = request.args.get('pro') == 'true'
+    # Check if this is Pro mode based on session authentication
+    is_pro = check_pro_authentication()
     
     # Get symbol from URL parameter or query string
     if not symbol:
         symbol = request.args.get('symbol')
+    
+    if not symbol:
+        return redirect('/')
+    
+    # Check if user has access to this ticker
+    if not check_ticker_access(symbol, is_pro):
+        logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
+        return redirect('/')
     
     print(f"\n=== STEP 3 REAL-TIME SPREAD DETECTION FOR {symbol} ===")
     
