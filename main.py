@@ -3006,6 +3006,18 @@ def step4(symbol, strategy, spread_id):
     </style>
 </head>
 <body>
+    {% if is_pro %}
+    <div class="header">
+        <div class="logo">
+            <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item">Trade Classes</a>
+            <a href="/logout" class="nav-item">Logout</a>
+        </div>
+    </div>
+    {% else %}
     <div class="top-banner">
         🎯 Free access to The Income Machine ends July 21
     </div>
@@ -3020,10 +3032,11 @@ def step4(symbol, strategy, spread_id):
             <a href="#" class="get-offer-btn">Get 50% OFF</a>
         </div>
     </div>
+    {% endif %}
     
     <div class="steps-nav">
         <div class="steps-container">
-            <a href="/" class="step completed">
+            <a href="{% if is_pro %}/pro{% else %}/{% endif %}" class="step completed">
                 <div class="step-number">1</div>
                 <span>Scoreboard</span>
             </a>
