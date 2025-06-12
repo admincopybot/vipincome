@@ -3585,7 +3585,6 @@ def pro_index():
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
             <a href="#" class="nav-item">Trade Classes</a>
-            <a href="#" class="get-offer-btn">Get 50% OFF</a>
         </div>
     </div>
     
@@ -7846,8 +7845,9 @@ def update_ticker_criteria_direct(ticker, criteria_data):
         logger.error(f"DIRECT UPDATE: Error updating criteria for {ticker}: {str(e)}")
         return False
 
+# Initialize the application when module is imported
+load_etf_data_from_database()
+start_background_polling()
+
 if __name__ == '__main__':
-    # Load initial data and start background polling
-    load_etf_data_from_database()
-    start_background_polling()
     app.run(debug=True, host='0.0.0.0', port=5000)
