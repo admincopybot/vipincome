@@ -3133,6 +3133,577 @@ def step4(symbol, strategy, spread_id):
         scenarios=scenarios
     )
 
+@app.route('/pro')
+def pro_index():
+    # Check for valid token
+    token = request.args.get('token')
+    if token != '123':
+        return redirect('/')
+    
+    # CRITICAL: Force fresh data reload every time to catch CSV updates
+    global etf_scores, last_csv_update
+    
+    # Check if we need to force refresh based on database timestamp
+    db_update_time = etf_db.get_last_update_time()
+    if db_update_time and db_update_time > last_csv_update:
+        logger.info(f"PRO SCOREBOARD: Detected fresh database update, forcing complete refresh")
+        etf_scores = {}  # Clear cached data
+        last_csv_update = db_update_time
+    
+    # Always reload from database to ensure latest data
+    load_etf_data_from_database()
+    # Update prices with real-time data from TheTradeList API
+    update_prices_with_tradelist()
+    # Synchronize scores before displaying
+    synchronize_etf_scores()
+    
+    # Calculate minutes since last update
+    try:
+        last_update = etf_db.get_last_update_time()
+        minutes_ago = int((datetime.now() - last_update).total_seconds() / 60)
+        if minutes_ago == 0:
+            last_update_text = "Last updated just now"
+        elif minutes_ago == 1:
+            last_update_text = "Last updated 1 minute ago"
+        else:
+            last_update_text = f"Last updated {minutes_ago} minutes ago"
+    except:
+        last_update_text = "Last updated recently"
+    
+    # Create Pro template with 10 tickers and Pro styling
+    template = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Machine Pro - Step 1: Scoreboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1a1f2e;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .top-banner {
+            background: linear-gradient(135deg, #059669, #10b981);
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .header {
+            background: #1e293b;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-logo {
+            height: 35px;
+            width: auto;
+        }
+        
+        .pro-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1f2937;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .nav-item {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            color: #3b82f6;
+        }
+        
+        .get-offer-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .get-offer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .steps-nav {
+            background: #334155;
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .steps-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .step.active {
+            color: #3b82f6;
+        }
+        
+        .step-number {
+            background: #64748b;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .step.active .step-number {
+            background: #3b82f6;
+        }
+        
+        .step-connector {
+            width: 30px;
+            height: 2px;
+            background: #64748b;
+        }
+        
+        .main-content {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .dashboard-subtitle {
+            color: #94a3b8;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .update-info {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .etf-card-wrapper {
+            position: relative;
+        }
+        
+        .etf-card {
+            background: linear-gradient(145deg, #1e293b, #334155);
+            border: 2px solid #475569;
+            border-radius: 12px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .etf-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .etf-card:hover::before {
+            opacity: 1;
+        }
+        
+        .etf-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+        
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .ticker-symbol {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        
+        .current-price {
+            font-size: 20px;
+            font-weight: 600;
+            color: #10b981;
+            margin-bottom: 15px;
+        }
+        
+        .choose-btn-text {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .etf-card:hover .choose-btn-text {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+        
+        .criteria-visual {
+            text-align: center;
+        }
+        
+        .criteria-score {
+            font-size: 16px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+        
+        .criteria-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .criteria-check {
+            color: #10b981;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .criteria-x {
+            color: #64748b;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 25px;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .nav-menu {
+                gap: 20px;
+            }
+            
+            .main-content {
+                padding: 30px 25px;
+            }
+            
+            .dashboard-title {
+                font-size: 32px;
+            }
+            
+            .etf-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-banner">
+        🎯 Income Machine Pro - Advanced Trading Opportunities
+    </div>
+    
+    <div class="header">
+        <div class="logo">
+            <a href="/pro?token=123"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
+            <div class="pro-badge">PRO</div>
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item">Trade Classes</a>
+            <a href="#" class="get-offer-btn">Pro Dashboard</a>
+        </div>
+    </div>
+    
+    <div class="steps-nav">
+        <div class="steps-container">
+            <div class="step active">
+                <div class="step-number">1</div>
+                <span>Scoreboard</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <span>Stock Analysis</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>Strategy</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <span>Trade Details</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <h1 class="dashboard-title">Pro Trade Opportunities</h1>
+        <p class="dashboard-subtitle">Premium access to our top 10 high-probability income opportunities.</p>
+        <p class="update-info">{{ last_update_text }}</p>
+        
+        <div class="etf-grid">
+            {% set sorted_etfs = etf_scores.items() | list %}
+            {% for symbol, etf in sorted_etfs %}
+            {% if loop.index <= 10 %}
+            <div class="etf-card-wrapper">
+                <a href="/step2/{{ symbol }}?pro=true" class="etf-card">
+                    <div class="card-content">
+                        <div class="ticker-symbol">{{ symbol }}</div>
+                        <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
+                        <div class="choose-btn-text">Analyze Opportunity</div>
+                        <div class="criteria-visual">
+                            <div class="criteria-score">{{ etf.score }}/5 Criteria Met</div>
+                            <div class="criteria-indicators">
+                                {% for i in range(5) %}
+                                    {% if i < etf.score %}
+                                        <span class="criteria-check">✓</span>
+                                    {% else %}
+                                        <span class="criteria-x">✗</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    
+    <script>
+        // Real-time price updates for Pro version
+        console.log('Starting real-time ETF price updates...');
+        
+        async function updatePrices() {
+            try {
+                const response = await fetch('/api/etf_data');
+                const data = await response.json();
+                
+                // Update prices on the page
+                Object.keys(data).forEach(symbol => {
+                    const priceElement = document.querySelector(`a[href*="${symbol}"] .current-price`);
+                    if (priceElement && data[symbol].price) {
+                        priceElement.textContent = `$${data[symbol].price.toFixed(2)}`;
+                    }
+                });
+            } catch (error) {
+                console.log('Price update failed:', error);
+            }
+        }
+        
+        // Update prices every 10 seconds
+        setInterval(updatePrices, 10000);
+        
+        async function checkForUpdates() {
+            try {
+                const response = await fetch('/scoreboard_status');
+                const data = await response.json();
+                
+                if (data.update_detected) {
+                    // NEW CSV DATA DETECTED - Reload scoreboard automatically
+                    console.log('CSV update detected, refreshing Pro scoreboard...');
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.log('Update check failed:', error);
+            }
+        }
+        
+        // Check for updates every 5 seconds to catch CSV uploads
+        setInterval(checkForUpdates, 5000);
+        checkForUpdates(); // Initial check
+        
+        // Check market hours and show popup if outside trading hours
+        function checkMarketHours() {
+            const now = new Date();
+            const etTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const hour = etTime.getHours();
+            const minutes = etTime.getMinutes();
+            const day = etTime.getDay(); // 0 = Sunday, 6 = Saturday
+            
+            // Check if it's a weekday (Monday = 1, Friday = 5)
+            const isWeekday = day >= 1 && day <= 5;
+            
+            // Market hours: 9:30 AM - 4:00 PM ET
+            const beforeMarket = hour < 9 || (hour === 9 && minutes < 30);
+            const afterMarket = hour >= 16;
+            const outsideMarketHours = !isWeekday || beforeMarket || afterMarket;
+            
+            if (outsideMarketHours) {
+                showMarketHoursPopup();
+            }
+        }
+        
+        function showMarketHoursPopup() {
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            // Create popup
+            const popup = document.createElement('div');
+            popup.style.cssText = `
+                background: linear-gradient(145deg, #1e293b, #334155);
+                border: 2px solid #3b82f6;
+                border-radius: 16px;
+                padding: 40px;
+                max-width: 500px;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+            `;
+            
+            popup.innerHTML = `
+                <div style="font-size: 24px; margin-bottom: 20px; color: #3b82f6;">⏰</div>
+                <h3 style="color: #ffffff; margin-bottom: 20px; font-size: 18px; font-weight: 600;">Market Hours Notice</h3>
+                <p style="color: #cbd5e1; margin-bottom: 30px; line-height: 1.6; font-size: 16px;">
+                    The Income Machine Will Produce Results from 9:30am - 4pm ET During Regular Market Hours
+                </p>
+                <button id="closeMarketPopup" style="
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">Got It</button>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Add animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Close popup handler
+            document.getElementById('closeMarketPopup').addEventListener('click', function() {
+                overlay.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                }, 300);
+            });
+        }
+        
+        // Check market hours on page load
+        setTimeout(checkMarketHours, 1000); // Slight delay for page load
+    </script>
+</body>
+</html>
+"""
+    
+    return render_template_string(template, etf_scores=etf_scores, last_update_text=last_update_text)
+
 @app.route('/')
 def index():
     # CRITICAL: Force fresh data reload every time to catch CSV updates
@@ -3845,10 +4416,15 @@ def step2(symbol=None):
     if not symbol:
         return redirect('/')
     
+    # Check if this is Pro mode
+    is_pro = request.args.get('pro') == 'true'
+    
     # Get detailed data for the symbol from database
     ticker_data = etf_db.get_ticker_details(symbol.upper())
     
     if not ticker_data:
+        if is_pro:
+            return redirect('/pro?token=123')
         return redirect('/')
     
     # Get real-time current price from TheTradeList API
@@ -4514,7 +5090,11 @@ def step2(symbol=None):
         </div>
         
         <div class="back-to-scoreboard">
+            {% if is_pro %}
+            <a href="/pro?token=123" class="back-scoreboard-btn">← Back to Pro Scoreboard</a>
+            {% else %}
             <a href="/" class="back-scoreboard-btn">← Back to Scoreboard</a>
+            {% endif %}
         </div>
         </div>
     </div>
