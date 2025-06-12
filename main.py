@@ -3244,6 +3244,11 @@ def pro_index():
     session['user_id'] = auth_result['user_id']
     logger.info(f"Pro access granted to user: {auth_result['user_id']}")
     
+    # If token was provided in URL, redirect to clean URL without token parameter
+    if request.args.get('token'):
+        logger.info("Redirecting to clean Pro URL after storing token in session")
+        return redirect('/pro')
+    
     # CRITICAL: Force fresh data reload every time to catch CSV updates
     global etf_scores, last_csv_update
     
@@ -5190,7 +5195,7 @@ def step2(symbol=None):
         
         <div class="back-to-scoreboard">
             {% if is_pro %}
-            <a href="/pro?token=123" class="back-scoreboard-btn">← Back to Pro Scoreboard</a>
+            <a href="/pro" class="back-scoreboard-btn">← Back to Pro Scoreboard</a>
             {% else %}
             <a href="/" class="back-scoreboard-btn">← Back to Scoreboard</a>
             {% endif %}
