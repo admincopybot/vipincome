@@ -3170,14 +3170,14 @@ def pro_index():
     except:
         last_update_text = "Last updated recently"
     
-    # Create Pro template with 10 tickers and Pro styling
+    # Create Pro template with EXACT original styling, only showing 10 tickers
     template = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Income Machine Pro - Step 1: Scoreboard</title>
+    <title>Income Machine - Step 1: Scoreboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -3203,166 +3203,137 @@ def pro_index():
         }
         
         .header {
-            background: #1e293b;
-            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #334155;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.02);
         }
-        
         .logo {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
-        
         .header-logo {
-            height: 35px;
+            height: 80px;
             width: auto;
         }
-        
-        .pro-badge {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #1f2937;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
         .nav-menu {
             display: flex;
             align-items: center;
             gap: 30px;
         }
-        
         .nav-item {
-            color: #cbd5e1;
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
         }
-        
         .nav-item:hover {
-            color: #3b82f6;
+            color: #ffffff;
         }
-        
         .get-offer-btn {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 6px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1f2e;
+            padding: 12px 24px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
             transition: all 0.3s ease;
         }
-        
         .get-offer-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
         }
-        
         .steps-nav {
-            background: #334155;
-            padding: 15px 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 0;
             display: flex;
             justify-content: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
         .steps-container {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        
         .step {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #64748b;
+            color: rgba(255, 255, 255, 0.5);
             font-weight: 500;
         }
-        
         .step.active {
-            color: #3b82f6;
+            color: #60a5fa;
         }
-        
         .step-number {
-            background: #64748b;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
         }
-        
         .step.active .step-number {
             background: #3b82f6;
         }
-        
         .step-connector {
-            width: 30px;
+            width: 40px;
             height: 2px;
-            background: #64748b;
+            background: rgba(255, 255, 255, 0.2);
         }
-        
         .main-content {
-            padding: 40px;
+            padding: 60px 40px;
             max-width: 1400px;
             margin: 0 auto;
         }
-        
         .dashboard-title {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
         }
-        
         .dashboard-subtitle {
-            color: #94a3b8;
-            font-size: 18px;
-            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            margin-bottom: 16px;
+            text-align: center;
         }
-        
         .update-info {
-            color: #64748b;
+            color: rgba(255, 255, 255, 0.5);
             font-size: 14px;
-            margin-bottom: 30px;
+            margin-bottom: 50px;
+            text-align: center;
         }
-        
         .etf-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
         }
-        
         .etf-card-wrapper {
             position: relative;
         }
-        
         .etf-card {
-            background: linear-gradient(145deg, #1e293b, #334155);
-            border: 2px solid #475569;
-            border-radius: 12px;
-            padding: 25px;
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.6));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 30px;
             text-decoration: none;
             color: inherit;
             display: block;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
         }
-        
         .etf-card::before {
             content: '';
             position: absolute;
@@ -3370,103 +3341,122 @@ def pro_index():
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(167, 139, 250, 0.1));
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
-        
         .etf-card:hover::before {
             opacity: 1;
         }
-        
         .etf-card:hover {
-            border-color: #3b82f6;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            border-color: #60a5fa;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
         }
-        
         .card-content {
             position: relative;
             z-index: 1;
+            text-align: center;
         }
-        
         .ticker-symbol {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 700;
-            color: #3b82f6;
-            margin-bottom: 8px;
+            color: #60a5fa;
+            margin-bottom: 12px;
         }
-        
         .current-price {
-            font-size: 20px;
+            font-size: 28px;
             font-weight: 600;
-            color: #10b981;
-            margin-bottom: 15px;
+            color: #34d399;
+            margin-bottom: 20px;
         }
-        
         .choose-btn-text {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             text-align: center;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
         }
-        
         .etf-card:hover .choose-btn-text {
-            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            background: linear-gradient(135deg, #1d4ed8, #4338ca);
+            transform: translateY(-2px);
         }
-        
         .criteria-visual {
             text-align: center;
         }
-        
         .criteria-score {
             font-size: 16px;
             font-weight: 600;
-            color: #cbd5e1;
-            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 12px;
         }
-        
         .criteria-indicators {
             display: flex;
             justify-content: center;
             gap: 8px;
         }
-        
         .criteria-check {
-            color: #10b981;
+            color: #22d3ee;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 18px;
         }
-        
         .criteria-x {
-            color: #64748b;
+            color: rgba(255, 255, 255, 0.3);
             font-weight: 700;
-            font-size: 16px;
+            font-size: 18px;
         }
-        
+        .blurred {
+            position: relative;
+        }
+        .blurred::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            backdrop-filter: blur(4px);
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 16px;
+            z-index: 2;
+        }
+        .free-version-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            text-align: center;
+            padding: 20px;
+        }
+        .free-version-text {
+            color: #60a5fa;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .upgrade-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
         @media (max-width: 768px) {
             .header {
                 padding: 15px 25px;
                 flex-direction: column;
                 gap: 20px;
             }
-            
             .nav-menu {
                 gap: 20px;
             }
-            
             .main-content {
-                padding: 30px 25px;
+                padding: 40px 25px;
             }
-            
             .dashboard-title {
-                font-size: 32px;
+                font-size: 36px;
             }
-            
             .etf-grid {
                 grid-template-columns: 1fr;
             }
@@ -3481,7 +3471,6 @@ def pro_index():
     <div class="header">
         <div class="logo">
             <a href="/pro?token=123"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
-
         </div>
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
