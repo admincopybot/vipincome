@@ -5045,6 +5045,18 @@ def step2(symbol=None):
     </style>
 </head>
 <body>
+    {% if is_pro %}
+    <div class="header">
+        <div class="logo">
+            <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item">Trade Classes</a>
+            <a href="/logout" class="nav-item">Logout</a>
+        </div>
+    </div>
+    {% else %}
     <div class="top-banner">
         🎯 Free access to The Income Machine ends July 21
     </div>
@@ -5059,10 +5071,11 @@ def step2(symbol=None):
             <a href="#" class="get-offer-btn">Get 50% OFF</a>
         </div>
     </div>
+    {% endif %}
     
     <div class="steps-nav">
         <div class="steps-container">
-            <a href="/" class="step completed">
+            <a href="{% if is_pro %}/pro{% else %}/{% endif %}" class="step completed">
                 <div class="step-number">1</div>
                 <span>Scoreboard</span>
             </a>
@@ -6616,6 +6629,18 @@ def step3(symbol=None):
         </style>
     </head>
     <body>
+        {% if is_pro %}
+        <div class="header">
+            <div class="logo">
+                <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item">How to Use</a>
+                <a href="#" class="nav-item">Trade Classes</a>
+                <a href="/logout" class="nav-item">Logout</a>
+            </div>
+        </div>
+        {% else %}
         <div class="top-banner">
             🎯 Free access to The Income Machine ends July 21
         </div>
@@ -6630,10 +6655,11 @@ def step3(symbol=None):
                 <a href="#" class="get-offer-btn">Get 50% OFF</a>
             </div>
         </div>
+        {% endif %}
         
         <div class="steps-nav">
             <div class="steps-container">
-                <a href="/" class="step completed">
+                <a href="{% if is_pro %}/pro{% else %}/{% endif %}" class="step completed">
                     <div class="step-number">1</div>
                     <span>Scoreboard</span>
                 </a>
@@ -7064,7 +7090,8 @@ console.log('Step 3 loaded for {{ symbol }}');
                                 options_data=options_data, 
                                 current_price=current_price,
                                 cached_data=is_cached_data,
-                                cache_timestamp=cache_timestamp_str)
+                                cache_timestamp=cache_timestamp_str,
+                                is_pro=is_pro)
 
 @app.route('/hidden-insert-csv')
 def hidden_csv_ui():
