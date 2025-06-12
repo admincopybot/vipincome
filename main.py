@@ -3219,7 +3219,8 @@ def step4(symbol, strategy, spread_id):
         days_to_exp=days_to_exp,
         spread_width=scenario_short_strike - scenario_long_strike,
         breakeven=scenario_long_strike + spread_cost,
-        scenarios=scenarios
+        scenarios=scenarios,
+        is_pro=is_pro
     )
 
 @app.route('/pro')
