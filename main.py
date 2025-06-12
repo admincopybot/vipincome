@@ -225,7 +225,7 @@ def background_criteria_polling():
                 # Get current top 3 tickers
                 db_data = etf_db.get_all_etfs()
                 if len(db_data) >= 3:
-                    top_3_tickers = [row[0] for row in db_data[:3]]  # First column is symbol
+                    top_3_tickers = list(db_data.keys())[:3]  # Get first 3 symbols from dictionary
                     logger.info(f"Polling top 3 tickers: {top_3_tickers}")
                     
                     changes_detected = False
@@ -3588,10 +3588,6 @@ def pro_index():
     </style>
 </head>
 <body>
-    <div class="top-banner">
-        🎯 Free access to The Income Machine ends July 21
-    </div>
-    
     <div class="header">
         <div class="logo">
             <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
@@ -3599,6 +3595,7 @@ def pro_index():
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
             <a href="#" class="nav-item">Trade Classes</a>
+            <a href="/logout" class="nav-item">Logout</a>
         </div>
     </div>
     
