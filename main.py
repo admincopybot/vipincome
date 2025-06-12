@@ -3195,12 +3195,11 @@ def pro_index():
         }
         
         .top-banner {
-            background: linear-gradient(135deg, #059669, #10b981);
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
             text-align: center;
             padding: 8px;
             font-size: 14px;
             color: #ffffff;
-            font-weight: 600;
         }
         
         .header {
@@ -3476,18 +3475,18 @@ def pro_index():
 </head>
 <body>
     <div class="top-banner">
-        🎯 Income Machine Pro - Advanced Trading Opportunities
+        🎯 Free access to The Income Machine ends July 21
     </div>
     
     <div class="header">
         <div class="logo">
             <a href="/pro?token=123"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
-            <div class="pro-badge">PRO</div>
+
         </div>
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
             <a href="#" class="nav-item">Trade Classes</a>
-            <a href="#" class="get-offer-btn">Pro Dashboard</a>
+            <a href="#" class="get-offer-btn">Get 50% OFF</a>
         </div>
     </div>
     
@@ -3516,8 +3515,8 @@ def pro_index():
     </div>
     
     <div class="main-content">
-        <h1 class="dashboard-title">Pro Trade Opportunities</h1>
-        <p class="dashboard-subtitle">Premium access to our top 10 high-probability income opportunities.</p>
+        <h1 class="dashboard-title">Top Trade Opportunities</h1>
+        <p class="dashboard-subtitle">High-probability income opportunities that match our criteria.</p>
         <p class="update-info">{{ last_update_text }}</p>
         
         <div class="etf-grid">
@@ -3529,7 +3528,7 @@ def pro_index():
                     <div class="card-content">
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
-                        <div class="choose-btn-text">Analyze Opportunity</div>
+                        <div class="choose-btn-text">Choose Opportunity</div>
                         <div class="criteria-visual">
                             <div class="criteria-score">{{ etf.score }}/5 Criteria Met</div>
                             <div class="criteria-indicators">
