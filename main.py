@@ -332,6 +332,9 @@ def load_etf_data_from_database():
         db_data = etf_db.get_all_etfs()
         # Database loaded silently
         
+        # Clear and rebuild etf_scores to maintain exact database order
+        etf_scores = {}
+        
         # Default sector mappings to keep frontend naming consistent
         sector_mappings = {
             "XLC": "Communication Services",
@@ -347,6 +350,7 @@ def load_etf_data_from_database():
         }
         
         # Convert database format to frontend format using new CSV structure
+        # Process in the exact order returned by database (score DESC, volume DESC)
         for symbol, data in db_data.items():
             criteria = data['criteria']
             total_score = data['total_score']
