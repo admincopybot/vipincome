@@ -1716,15 +1716,17 @@ def create_step4_demo_data(symbol, strategy, current_price):
             
             <div class="main-grid">
                 <div class="info-card">
-                    <h3>Buy (${{ "%.2f"|format(option_data.strike_price) }})</h3>
-                    <div class="option-id">Option ID: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
-                    <div class="price">${{ "%.2f"|format(option_data.option_price + 0.15) }}</div>
+                    <h3>${{ "%.2f"|format(option_data.strike_price) }} / ${{ "%.2f"|format(option_data.short_strike_price) }} Call Debit Spread</h3>
+                    <div class="option-id">Long: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
+                    <div class="option-id">Short: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
+                    <div class="price">Net Debit: ${{ "%.2f"|format(option_data.option_price) }}</div>
                 </div>
                 
                 <div class="info-card">
-                    <h3>Sell (${{ "%.2f"|format(option_data.short_strike_price) }})</h3>
-                    <div class="option-id">Option ID: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
-                    <div class="price">${{ "%.2f"|format(0.15) }}</div>
+                    <h3>Position Summary</h3>
+                    <div class="option-id">Spread Width: ${{ "%.2f"|format(option_data.short_strike_price - option_data.strike_price) }}</div>
+                    <div class="option-id">Max Profit: ${{ "%.2f"|format(option_data.max_profit) }}</div>
+                    <div class="price">ROI: {{ "%.1f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</div>
                 </div>
                 
                 <div class="info-card">
@@ -1755,7 +1757,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
                         <tr>
                             <th>Current Stock Price</th>
                             <th>Spread Cost</th>
-                            <th>Call Strikes</th>
+                            <th>Spread Position</th>
                             <th>Breakeven Price</th>
                             <th>Max Profit</th>
                             <th>Return on Investment</th>
@@ -1765,7 +1767,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
                         <tr>
                             <td>${{ "%.2f"|format(option_data.current_stock_price) }}</td>
                             <td>${{ "%.2f"|format(option_data.option_price) }}</td>
-                            <td>${{ "%.2f"|format(option_data.strike_price) }} & ${{ "%.2f"|format(option_data.short_strike_price) }}</td>
+                            <td>${{ "%.2f"|format(option_data.strike_price) }}/${{ "%.2f"|format(option_data.short_strike_price) }} Debit</td>
                             <td>${{ "%.2f"|format(option_data.breakeven) }}</td>
                             <td>${{ "%.2f"|format(option_data.max_profit) }}</td>
                             <td>{{ "%.2f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</td>
@@ -3130,14 +3132,14 @@ def step4(symbol, strategy, spread_id):
         
         <div class="trade-construction">
             <div class="trade-section">
-                <div class="section-header">Buy (${{ scenario_long_strike|round(2) }})</div>
-                <div class="option-detail">Option ID: {{ long_option_id }}</div>
-                <div class="option-detail">Price: ${{ scenario_long_price|round(2) }}</div>
+                <div class="section-header">${{ scenario_long_strike|round(2) }} / ${{ scenario_short_strike|round(2) }} Call Debit Spread</div>
+                <div class="option-detail">Long Position: {{ long_option_id }} @ ${{ scenario_long_price|round(2) }}</div>
+                <div class="option-detail">Short Position: {{ short_option_id }} @ ${{ scenario_short_price|round(2) }}</div>
             </div>
             <div class="trade-section">
-                <div class="section-header">Sell (${{ scenario_short_strike|round(2) }})</div>
-                <div class="option-detail">Option ID: {{ short_option_id }}</div>
-                <div class="option-detail">Price: ${{ scenario_short_price|round(2) }}</div>
+                <div class="section-header">Position Summary</div>
+                <div class="option-detail">Net Debit: ${{ spread_cost|round(2) }}</div>
+                <div class="option-detail">Width: ${{ (scenario_short_strike - scenario_long_strike)|round(2) }}</div>
             </div>
             <div class="trade-section">
                 <div class="section-header">Spread Details</div>
@@ -3163,8 +3165,8 @@ def step4(symbol, strategy, spread_id):
                     <div class="cell-value">${{ spread_cost|round(2) }}</div>
                 </div>
                 <div class="summary-cell">
-                    <div class="cell-label">Call Strikes</div>
-                    <div class="cell-value">${{ scenario_long_strike|round(2) }} & ${{ scenario_short_strike|round(2) }}</div>
+                    <div class="cell-label">Spread Position</div>
+                    <div class="cell-value">${{ scenario_long_strike|round(2) }}/${{ scenario_short_strike|round(2) }} Debit</div>
                 </div>
                 <div class="summary-cell">
                     <div class="cell-label">Breakeven Price</div>
