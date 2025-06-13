@@ -3060,6 +3060,23 @@ def step4(symbol, strategy, spread_id):
         .calculator-input input { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(139, 92, 246, 0.3); color: #ffffff; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 600; text-align: center; }
         .calculator-input input:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
         .calculator-result { text-align: center; }
+        .calculator-result.highlight-green { 
+            background: rgba(34, 197, 94, 0.1); 
+            border-radius: 12px; 
+            padding: 16px; 
+            border: 2px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+        }
+        .calculator-result.highlight-green .result-label { 
+            color: #16a34a; 
+            font-weight: 700; 
+        }
+        .calculator-result.highlight-green .result-value { 
+            background: rgba(34, 197, 94, 0.15); 
+            border: 1px solid rgba(34, 197, 94, 0.4); 
+            color: #15803d; 
+            font-weight: 800; 
+        }
         .result-label { color: #a1a1aa; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
         .result-value { color: #ffffff; font-size: 18px; font-weight: 700; padding: 12px; background: rgba(30, 41, 59, 0.9); border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.2); }
         .back-navigation { margin-top: 40px; text-align: center; }
@@ -3197,11 +3214,11 @@ def step4(symbol, strategy, spread_id):
                     <div class="result-label">Total Investment</div>
                     <div class="result-value" id="totalInvestment">${{ (spread_cost * 100)|round(2) }}</div>
                 </div>
-                <div class="calculator-result">
+                <div class="calculator-result highlight-green">
                     <div class="result-label">Income Potential</div>
                     <div class="result-value" id="incomePotential">${{ (max_profit * 100)|round(2) }}</div>
                 </div>
-                <div class="calculator-result">
+                <div class="calculator-result highlight-green">
                     <div class="result-label">ROI Per Contract</div>
                     <div class="result-value">{{ roi|round(2) }}%</div>
                 </div>

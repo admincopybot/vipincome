@@ -133,6 +133,7 @@ Changelog:
 - June 13, 2025: Updated Step 4 to display "CONSERVATIVE" instead of "PASSIVE" for conservative strategy trades
 - June 13, 2025: Changed Step 4 display across ALL versions (free, /pro, /vip) to show unified spread position instead of separate "Buy/Sell" components
 - June 13, 2025: Updated Step 4 to use simple format: "Buy the $58 July 03 Call" and "Sell the $59 July 03 Call" for clearer trade construction display
+- June 13, 2025: Added green highlighting to Income Potential and ROI Per Contract boxes in Step 4 calculator section
 
 # User Preferences
 
