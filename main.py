@@ -1716,16 +1716,16 @@ def create_step4_demo_data(symbol, strategy, current_price):
             
             <div class="main-grid">
                 <div class="info-card">
-                    <h3>${{ "%.2f"|format(option_data.strike_price) }} / ${{ "%.2f"|format(option_data.short_strike_price) }} Call Debit Spread</h3>
-                    <div class="option-id">Long: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
-                    <div class="option-id">Short: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
+                    <h3>Trade Construction</h3>
+                    <div class="option-id">Buy the ${{ "%.0f"|format(option_data.strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</div>
+                    <div class="option-id">Sell the ${{ "%.0f"|format(option_data.short_strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</div>
                     <div class="price">Net Debit: ${{ "%.2f"|format(option_data.option_price) }}</div>
                 </div>
                 
                 <div class="info-card">
-                    <h3>Position Summary</h3>
-                    <div class="option-id">Spread Width: ${{ "%.2f"|format(option_data.short_strike_price - option_data.strike_price) }}</div>
-                    <div class="option-id">Max Profit: ${{ "%.2f"|format(option_data.max_profit) }}</div>
+                    <h3>Option Details</h3>
+                    <div class="option-id">Long: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
+                    <div class="option-id">Short: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
                     <div class="price">ROI: {{ "%.1f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</div>
                 </div>
                 
@@ -2904,10 +2904,11 @@ def step4(symbol, strategy, spread_id):
     print(f"Scenario Analysis Spread: Buy ${scenario_long_strike:.2f} (${scenario_long_price:.2f}) / Sell ${scenario_short_strike:.2f} (${scenario_short_price:.2f})")
     print(f"Spread cost: ${spread_cost:.2f}, Max profit: ${max_profit:.2f}, ROI: {roi:.2f}%")
     
-    # Calculate days to expiration
+    # Calculate days to expiration and format date for display
     from datetime import datetime
     exp_date = datetime.strptime(expiration_date, '%Y-%m-%d')
     days_to_exp = (exp_date - datetime.now()).days
+    formatted_expiration = exp_date.strftime('%B %d')
     
     # Generate scenario analysis using the REAL current stock price from database
     # Following the exact methodology from your comprehensive guide
@@ -3132,14 +3133,16 @@ def step4(symbol, strategy, spread_id):
         
         <div class="trade-construction">
             <div class="trade-section">
-                <div class="section-header">${{ scenario_long_strike|round(2) }} / ${{ scenario_short_strike|round(2) }} Call Debit Spread</div>
-                <div class="option-detail">Long Position: {{ long_option_id }} @ ${{ scenario_long_price|round(2) }}</div>
-                <div class="option-detail">Short Position: {{ short_option_id }} @ ${{ scenario_short_price|round(2) }}</div>
+                <div class="section-header">Trade Construction</div>
+                <div class="option-detail">Buy the ${{ scenario_long_strike|round(0) }} {{ formatted_expiration }} Call</div>
+                <div class="option-detail">Sell the ${{ scenario_short_strike|round(0) }} {{ formatted_expiration }} Call</div>
+                <div class="option-detail">Net Debit: ${{ spread_cost|round(2) }}</div>
             </div>
             <div class="trade-section">
-                <div class="section-header">Position Summary</div>
-                <div class="option-detail">Net Debit: ${{ spread_cost|round(2) }}</div>
-                <div class="option-detail">Width: ${{ (scenario_short_strike - scenario_long_strike)|round(2) }}</div>
+                <div class="section-header">Option Details</div>
+                <div class="option-detail">Long: {{ long_option_id }} @ ${{ scenario_long_price|round(2) }}</div>
+                <div class="option-detail">Short: {{ short_option_id }} @ ${{ scenario_short_price|round(2) }}</div>
+                <div class="option-detail">Spread Width: ${{ (scenario_short_strike - scenario_long_strike)|round(2) }}</div>
             </div>
             <div class="trade-section">
                 <div class="section-header">Spread Details</div>
@@ -3290,6 +3293,7 @@ def step4(symbol, strategy, spread_id):
         roi=roi,
         current_price=current_price,
         expiration_date=expiration_date,
+        formatted_expiration=formatted_expiration,
         days_to_exp=days_to_exp,
         spread_width=scenario_short_strike - scenario_long_strike,
         breakeven=scenario_long_strike + spread_cost,
