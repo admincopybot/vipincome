@@ -79,6 +79,21 @@ def check_pro_authentication():
     
     return True
 
+def check_vip_authentication():
+    """Check if user is authenticated for VIP access - same JWT validation as Pro for now"""
+    token = session.get('jwt_token')
+    if not token:
+        return False
+    
+    auth_result = validate_jwt_token(token)
+    if not auth_result['valid']:
+        # Clear invalid token from session
+        session.pop('jwt_token', None)
+        session.pop('user_id', None)
+        return False
+    
+    return True
+
 def get_top_3_tickers():
     """Get current top 3 tickers from database with live rankings"""
     try:
@@ -4409,8 +4424,7 @@ def vip_step3(symbol):
         cache_age = datetime.now() - datetime.fromisoformat(cache_timestamp)
         if cache_age < timedelta(seconds=60):
             print(f"✓ VIP USING CACHED SPREAD DATA (age: {cache_age.total_seconds():.0f} seconds)")
-            # Use existing step3 functionality for VIP users
-        return step3(symbol)
+            return step3(symbol)
     
     # Get current stock price for VIP ticker
     try:
@@ -4488,8 +4502,7 @@ def vip_step4(symbol):
             current_price = detector.get_real_time_stock_price(symbol) or 100.0
             spread_data = get_real_time_spreads(symbol, current_price)
         
-        # Use existing step4 functionality for VIP users
-        return step4(symbol)
+        return step4(symbol, strategy, 'vip')
         
     except Exception as e:
         logger.error(f"VIP Step 4 error for {symbol}: {e}")
