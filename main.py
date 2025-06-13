@@ -7484,7 +7484,7 @@ def step3(symbol=None):
                     <div class="strategy-details">
                         <div class="detail-row">
                             <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.passive.dte }} days</span>
+                            <span class="detail-value">{{ options_data.passive.dte + 1 }} days</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
@@ -7535,7 +7535,7 @@ def step3(symbol=None):
                     <div class="strategy-details">
                         <div class="detail-row">
                             <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.steady.dte }} days</span>
+                            <span class="detail-value">{{ options_data.steady.dte + 1 }} days</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
@@ -7586,7 +7586,7 @@ def step3(symbol=None):
                     <div class="strategy-details">
                         <div class="detail-row">
                             <span class="detail-label">DTE:</span>
-                            <span class="detail-value">{{ options_data.aggressive.dte }} days</span>
+                            <span class="detail-value">{{ options_data.aggressive.dte + 1 }} days</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Target ROI:</span>
