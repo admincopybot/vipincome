@@ -4350,6 +4350,151 @@ def vip_index():
                                   total_pages=total_pages,
                                   last_update_text=last_update_text)
 
+@app.route('/vip/step2/<symbol>')
+def vip_step2(symbol):
+    """VIP Step 2: Detailed Analysis with full ticker access"""
+    # Check VIP authentication
+    if not check_vip_authentication():
+        logger.warning("VIP Step 2 access attempted without valid authentication")
+        return redirect('/')
+    
+    access_level = 'vip'
+    if not check_ticker_access(symbol, access_level):
+        logger.warning(f"VIP user attempted to access invalid ticker: {symbol}")
+        return redirect('/vip')
+    
+    # Get detailed ticker data from database
+    ticker_data = etf_db.get_ticker_details(symbol)
+    if not ticker_data:
+        logger.warning(f"No data found for VIP ticker: {symbol}")
+        return redirect('/vip')
+    
+    # Update current price with real-time data if available
+    try:
+        from real_time_spreads import RealTimeSpreadDetector
+        detector = RealTimeSpreadDetector()
+        real_time_price = detector.get_real_time_stock_price(symbol)
+        if real_time_price and real_time_price > 0:
+            ticker_data['current_price'] = real_time_price
+            logger.info(f"VIP Step 2: Updated {symbol} current price to ${real_time_price:.2f} from TheTradeList")
+    except Exception as e:
+        logger.warning(f"Could not update real-time price for VIP ticker {symbol}: {e}")
+    
+    # Use existing step2 template but indicate VIP access
+    return step2(symbol)
+
+@app.route('/vip/step3/<symbol>')
+def vip_step3(symbol):
+    """VIP Step 3: Income Strategy Selection with full ticker access"""
+    if not check_vip_authentication():
+        logger.warning("VIP Step 3 access attempted without valid authentication")
+        return redirect('/')
+    
+    access_level = 'vip'
+    if not check_ticker_access(symbol, access_level):
+        logger.warning(f"VIP user attempted to access invalid ticker: {symbol}")
+        return redirect('/vip')
+    
+    # Use existing step3 logic but with VIP access level
+    print(f"\n=== VIP STEP 3 REAL-TIME SPREAD DETECTION FOR {symbol} ===")
+    
+    # Check for cached spread data first (60-second cache)
+    from datetime import datetime, timedelta
+    cache_key = f"vip_step3_data_{symbol}"
+    cached_data = session.get(cache_key)
+    cache_timestamp = session.get(f"{cache_key}_timestamp")
+    
+    # Use cache if data exists and is less than 60 seconds old
+    if cached_data and cache_timestamp:
+        cache_age = datetime.now() - datetime.fromisoformat(cache_timestamp)
+        if cache_age < timedelta(seconds=60):
+            print(f"✓ VIP USING CACHED SPREAD DATA (age: {cache_age.total_seconds():.0f} seconds)")
+            # Use existing step3 functionality for VIP users
+        return step3(symbol)
+    
+    # Get current stock price for VIP ticker
+    try:
+        from real_time_spreads import RealTimeSpreadDetector
+        detector = RealTimeSpreadDetector()
+        current_price = detector.get_real_time_stock_price(symbol)
+        if not current_price or current_price <= 0:
+            # Fallback to database price
+            ticker_data = etf_db.get_ticker_details(symbol)
+            current_price = ticker_data['current_price'] if ticker_data else 100.0
+            print(f"VIP: Using database price ${current_price:.2f} for {symbol}")
+        else:
+            print(f"VIP: Using real-time price ${current_price:.2f} for {symbol}")
+    except Exception as e:
+        print(f"VIP: Error getting price for {symbol}: {e}")
+        ticker_data = etf_db.get_ticker_details(symbol)
+        current_price = ticker_data['current_price'] if ticker_data else 100.0
+    
+    # Fetch real options data and generate strategies
+    try:
+        spread_data = get_real_time_spreads(symbol, current_price)
+        
+        # Cache the results for 60 seconds
+        cache_data = {
+            'current_price': current_price,
+            'spread_data': spread_data,
+            'symbol': symbol
+        }
+        session[cache_key] = cache_data
+        session[f"{cache_key}_timestamp"] = datetime.now().isoformat()
+        
+        print(f"✓ VIP CACHED SPREAD DATA for {symbol}")
+        
+        # Use existing step3 functionality for VIP users
+        return step3(symbol)
+        
+    except Exception as e:
+        print(f"VIP: Error generating strategies for {symbol}: {e}")
+        error_data = {
+            'current_price': current_price,
+            'spread_data': {'error': f'Unable to generate strategies: {str(e)}'},
+            'symbol': symbol
+        }
+        # Use existing step3 functionality for VIP users
+        return step3(symbol)
+
+@app.route('/vip/step4/<symbol>')
+def vip_step4(symbol):
+    """VIP Step 4: Final Analysis with full ticker access"""
+    if not check_vip_authentication():
+        logger.warning("VIP Step 4 access attempted without valid authentication")
+        return redirect('/')
+    
+    access_level = 'vip'
+    if not check_ticker_access(symbol, access_level):
+        logger.warning(f"VIP user attempted to access invalid ticker: {symbol}")
+        return redirect('/vip')
+    
+    # Get strategy from URL parameters
+    strategy = request.args.get('strategy', 'aggressive')
+    
+    # Use existing step4 logic but with VIP access level
+    try:
+        # Get cached spread data from step 3
+        cache_key = f"vip_step3_data_{symbol}"
+        cached_step3_data = session.get(cache_key)
+        
+        if cached_step3_data and 'spread_data' in cached_step3_data:
+            spread_data = cached_step3_data['spread_data']
+            current_price = cached_step3_data['current_price']
+        else:
+            # Fallback: regenerate data
+            from real_time_spreads import RealTimeSpreadDetector
+            detector = RealTimeSpreadDetector()
+            current_price = detector.get_real_time_stock_price(symbol) or 100.0
+            spread_data = get_real_time_spreads(symbol, current_price)
+        
+        # Use existing step4 functionality for VIP users
+        return step4(symbol)
+        
+    except Exception as e:
+        logger.error(f"VIP Step 4 error for {symbol}: {e}")
+        return redirect(f'/vip/step3/{symbol}')
+
 @app.route('/')
 def index():
     # CRITICAL: Force fresh data reload every time to catch CSV updates
