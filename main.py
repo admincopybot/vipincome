@@ -3054,7 +3054,7 @@ def step4(symbol, strategy, spread_id):
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
             <a href="#" class="nav-item">Trade Classes</a>
-            <a href="/logout" class="nav-item">Logout</a>
+
         </div>
     </div>
     {% else %}
@@ -3651,7 +3651,7 @@ def pro_index():
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
             <a href="#" class="nav-item">Trade Classes</a>
-            <a href="/logout" class="nav-item">Logout</a>
+
             <a href="/vip?demo=vip" class="upgrade-vip-btn">Upgrade to VIP</a>
         </div>
     </div>
@@ -4273,7 +4273,7 @@ def vip_index():
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
             <a href="#" class="nav-item">Trade Classes</a>
-            <a href="/logout" class="nav-item">Logout</a>
+
         </div>
     </div>
     
@@ -5809,7 +5809,7 @@ def step2(symbol=None):
         <div class="nav-menu">
             <a href="#" class="nav-item">How to Use</a>
             <a href="#" class="nav-item">Trade Classes</a>
-            <a href="/logout" class="nav-item">Logout</a>
+
         </div>
     </div>
     {% else %}
@@ -7393,7 +7393,7 @@ def step3(symbol=None):
             <div class="nav-menu">
                 <a href="#" class="nav-item">How to Use</a>
                 <a href="#" class="nav-item">Trade Classes</a>
-                <a href="/logout" class="nav-item">Logout</a>
+    
             </div>
         </div>
         {% else %}
