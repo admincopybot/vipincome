@@ -4277,22 +4277,7 @@ def vip_index():
             </form>
         </div>
         
-        <div class="stats-bar">
-            <div class="stat-item">
-                <span class="stat-number">{{ total_tickers }}</span>
-                <div class="stat-label">Total Tickers</div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number">{{ display_count }}</span>
-                <div class="stat-label">{% if search_term %}Search Results{% else %}Showing{% endif %}</div>
-            </div>
-            {% if not search_term %}
-            <div class="stat-item">
-                <span class="stat-number">{{ page }}</span>
-                <div class="stat-label">Page of {{ total_pages }}</div>
-            </div>
-            {% endif %}
-        </div>
+
         
         {% if vip_etf_data %}
         <div class="etf-grid">
