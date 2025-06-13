@@ -1187,6 +1187,13 @@ def create_step4_demo_data(symbol, strategy, current_price):
             'outcome': outcome
         })
     
+    # Map strategy names for display
+    strategy_display = {
+        'aggressive': 'Aggressive',
+        'steady': 'Steady', 
+        'passive': 'Conservative'
+    }
+    
     # Create comprehensive demo data
     demo_data = {
         'option_price': spec['cost'],
@@ -1208,7 +1215,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
         'max_profit': spec['max_profit'],
         'breakeven': long_strike + spec['cost'],
         'spread_type': 'Call Debit Spread',
-        'strategy': strategy.title(),
+        'strategy': strategy_display.get(strategy.lower(), strategy.title()),
         'symbol': symbol,
         'expiration_date': expiration_date.strftime('%Y-%m-%d'),
         'is_demo': True,
@@ -1220,7 +1227,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Step 4: Trade Analysis - {{ symbol }} {{ strategy.title() }} Strategy</title>
+        <title>Step 4: Trade Analysis - {{ symbol }} {{ strategy }} Strategy</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
@@ -2836,7 +2843,15 @@ def step4(symbol, strategy, spread_id):
         logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
         return redirect('/')
     
-    print(f"\n=== STEP 4 TRADE ANALYSIS: {symbol} {strategy.upper()} ===")
+    # Map strategy names for display
+    strategy_display = {
+        'aggressive': 'AGGRESSIVE',
+        'steady': 'STEADY', 
+        'passive': 'CONSERVATIVE'
+    }
+    display_strategy = strategy_display.get(strategy.lower(), strategy.upper())
+    
+    print(f"\n=== STEP 4 TRADE ANALYSIS: {symbol} {display_strategy} ===")
     print(f"Spread ID: {spread_id}")
     
     # Retrieve authentic spread data from session storage
@@ -2949,7 +2964,7 @@ def step4(symbol, strategy, spread_id):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step 4: Trade Analysis - {{ symbol }} {{ strategy.title() }} Strategy</title>
+    <title>Step 4: Trade Analysis - {{ symbol }} {{ strategy }} Strategy</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
