@@ -3652,6 +3652,7 @@ def pro_index():
             <a href="#" class="nav-item">How to Use</a>
             <a href="#" class="nav-item">Trade Classes</a>
             <a href="/logout" class="nav-item">Logout</a>
+            <a href="/vip?demo=vip" class="upgrade-vip-btn">Upgrade to VIP</a>
         </div>
     </div>
     
@@ -4261,7 +4262,7 @@ def vip_index():
 </head>
 <body>
     <div class="vip-banner">
-        🌟 VIP ACCESS - Full Database & Search • ALL Tickers
+        🌟 VIP ACCESS
     </div>
     
     <div class="header">
