@@ -131,6 +131,7 @@ Changelog:
 - June 13, 2025: Updated loading message to "The Income Machine is reviewing millions of option combinations to find the best opportunity – this may take up to 30 seconds"
 - June 13, 2025: Added +1 logic to DTE values displayed on Step 3 for all three strategies (aggressive, steady, passive)
 - June 13, 2025: Updated Step 4 to display "CONSERVATIVE" instead of "PASSIVE" for conservative strategy trades
+- June 13, 2025: Changed Step 4 display across ALL versions (free, /pro, /vip) to show unified spread position instead of separate "Buy/Sell" components
 
 # User Preferences
 
