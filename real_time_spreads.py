@@ -266,8 +266,11 @@ class RealTimeSpreadDetector:
         return filtered
     
     def generate_spread_pairs(self, contracts: List[Dict]) -> List[Tuple[Dict, Dict]]:
-        """Generate ALL possible debit spread pairs from filtered contracts, prioritized by width"""
+        """Generate optimized spread pairs focusing on standard widths only"""
         pairs = []
+        
+        # OPTIMIZATION: Limit total combinations to prevent memory issues
+        MAX_PAIRS = 50  # Strict limit to prevent timeouts
         
         # Group by expiration date
         by_expiration = {}
@@ -277,13 +280,17 @@ class RealTimeSpreadDetector:
                 by_expiration[exp_date] = []
             by_expiration[exp_date].append(contract)
         
-        # Generate ALL possible pairs within each expiration
+        # OPTIMIZATION: Focus only on standard spread widths
+        target_widths = [1.0, 2.5, 5.0]  # Only $1, $2.50, and $5 spreads
+        
         for exp_date, exp_contracts in by_expiration.items():
             # Sort by strike price
             exp_contracts.sort(key=lambda x: float(x.get('strike_price', 0)))
             
-            for i, long_contract in enumerate(exp_contracts):
-                for j, short_contract in enumerate(exp_contracts[i+1:], i+1):
+            # OPTIMIZATION: Only check adjacent and near-adjacent strikes
+            for i, long_contract in enumerate(exp_contracts[:15]):  # Limit to first 15 contracts
+                for j in range(i+1, min(i+6, len(exp_contracts))):  # Only check next 5 strikes
+                    short_contract = exp_contracts[j]
                     long_strike = float(long_contract.get('strike_price', 0))
                     short_strike = float(short_contract.get('strike_price', 0))
                     
@@ -296,10 +303,16 @@ class RealTimeSpreadDetector:
                     if short_strike >= current_price:
                         continue
                     
-                    # Add spread pairs with MAXIMUM $10 width restriction
+                    # OPTIMIZATION: Only standard width spreads
                     spread_width = short_strike - long_strike
-                    if 0 < spread_width <= 10.0:  # Only spreads up to $10 wide
+                    if any(abs(spread_width - target) < 0.1 for target in target_widths):
                         pairs.append((long_contract, short_contract))
+                        if len(pairs) >= MAX_PAIRS:
+                            logger.info(f"OPTIMIZATION: Reached maximum {MAX_PAIRS} pairs limit")
+                            break
+                
+                if len(pairs) >= MAX_PAIRS:
+                    break
         
         # Sort pairs by width priority: $1 first, then $2.50, then $5, then others
         def width_priority(pair):
