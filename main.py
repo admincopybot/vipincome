@@ -1625,7 +1625,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
             <div class="nav-menu">
                 <a href="#" class="nav-item">How to Use</a>
                 <a href="#" class="nav-item">Trade Classes</a>
-                <a href="#" class="nav-item upgrade-btn">GET 50% OFF</a>
+                <a href="#" class="nav-item upgrade-btn">Upgrade</a>
             </div>
         </div>
         
@@ -6663,7 +6663,7 @@ def step3(symbol=None):
             <div class="nav-menu">
                 <a href="#" class="nav-item">How to Use</a>
                 <a href="#" class="nav-item">Trade Classes</a>
-                <a href="#" class="get-offer-btn">Get 50% OFF</a>
+                <a href="#" class="get-offer-btn">Upgrade</a>
             </div>
         </div>
         {% endif %}
