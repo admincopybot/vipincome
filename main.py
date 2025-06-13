@@ -4262,7 +4262,7 @@ def vip_index():
     
     <div class="main-content">
         <div class="vip-header">
-            <h1 class="vip-title">VIP Scoreboard</h1>
+            <h1 class="vip-title">Top Trade Opportunities</h1>
             <p class="vip-subtitle">Complete access to ALL tickers with instant search</p>
             <p style="color: rgba(255,255,255,0.5); font-size: 14px;">{{ last_update_text }}</p>
         </div>
