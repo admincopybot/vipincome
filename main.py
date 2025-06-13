@@ -4245,7 +4245,7 @@ def vip_index():
 </head>
 <body>
     <div class="vip-banner">
-        🌟 VIP ACCESS - Full Database & Search • {{ total_tickers }} Total Tickers
+        🌟 VIP ACCESS - Full Database & Search • ALL Tickers
     </div>
     
     <div class="header">
@@ -4263,16 +4263,17 @@ def vip_index():
     <div class="main-content">
         <div class="vip-header">
             <h1 class="vip-title">VIP Scoreboard</h1>
-            <p class="vip-subtitle">Complete access to all {{ total_tickers }} tickers with advanced search</p>
+            <p class="vip-subtitle">Complete access to ALL tickers with instant search</p>
             <p style="color: rgba(255,255,255,0.5); font-size: 14px;">{{ last_update_text }}</p>
         </div>
         
         <div class="search-container">
-            <form method="GET" action="/vip">
-                <input type="text" name="search" class="search-input" 
-                       placeholder="Search by ticker symbol (e.g., AAPL, SPY, QQQ)..." 
+            <form method="GET" action="/vip" id="searchForm">
+                <input type="text" name="search" class="search-input" id="searchInput"
+                       placeholder="Start typing to search instantly (e.g., AA, SP, QQ)..." 
                        value="{{ search_term }}" 
                        autocomplete="off">
+                <input type="hidden" name="demo" value="vip">
             </form>
         </div>
         
@@ -4350,19 +4351,50 @@ def vip_index():
     </div>
     
     <script>
-        // Auto-submit search form on input
-        document.querySelector('.search-input').addEventListener('input', function(e) {
-            const form = e.target.closest('form');
+        // Instant search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchForm = document.getElementById('searchForm');
+        
+        searchInput.addEventListener('input', function(e) {
             clearTimeout(window.searchTimeout);
+            
+            // Instant search with minimal delay
             window.searchTimeout = setTimeout(() => {
-                if (e.target.value.length >= 1 || e.target.value.length === 0) {
-                    form.submit();
+                const searchTerm = e.target.value.trim();
+                
+                // Search immediately when typing 1+ characters or when clearing search
+                if (searchTerm.length >= 1 || searchTerm.length === 0) {
+                    // Update URL and reload page with search results
+                    const currentUrl = new URL(window.location);
+                    if (searchTerm.length > 0) {
+                        currentUrl.searchParams.set('search', searchTerm);
+                    } else {
+                        currentUrl.searchParams.delete('search');
+                    }
+                    currentUrl.searchParams.set('demo', 'vip');
+                    
+                    // Navigate to new URL for instant results
+                    window.location.href = currentUrl.toString();
                 }
-            }, 500);
+            }, 200); // Very fast response - 200ms delay
         });
         
-        // Real-time price updates
-        console.log("VIP Scoreboard loaded with {{ display_count }} tickers");
+        // Handle Enter key for immediate search
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(window.searchTimeout);
+                searchForm.submit();
+            }
+        });
+        
+        // Focus search input on page load for better UX
+        if (searchInput) {
+            searchInput.focus();
+        }
+        
+        // Real-time status
+        console.log("VIP Scoreboard loaded with instant search - {{ display_count }} tickers displayed");
     </script>
 </body>
 </html>
