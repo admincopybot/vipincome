@@ -6260,7 +6260,7 @@ def step2(symbol=None):
                     `;
                     document.head.appendChild(style);
                     
-                    loadingMessage.innerHTML = '<span style="margin-right: 8px;">⏱️</span>May take up to 15 seconds';
+                    loadingMessage.innerHTML = '<span style="margin-right: 8px;">⏱️</span>The Income Machine is reviewing millions of option combinations to find the best opportunity – this may take up to 30 seconds';
                     this.parentNode.appendChild(loadingMessage);
                     
                     // Animate button with pulsing effect

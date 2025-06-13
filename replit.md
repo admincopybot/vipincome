@@ -124,7 +124,11 @@ The application follows a database-first architecture with the following key com
 # Changelog
 
 Changelog:
-- June 13, 2025. Initial setup
+- June 13, 2025: Initial setup
+- June 13, 2025: Removed all "Logout" buttons from navigation across all versions
+- June 13, 2025: Updated "Trade Classes" link to external OneClick Trading platform
+- June 13, 2025: Fixed ETF sorting to maintain proper #1, #2, #3 order by score and volume
+- June 13, 2025: Updated loading message to "The Income Machine is reviewing millions of option combinations to find the best opportunity – this may take up to 30 seconds"
 
 # User Preferences
 
