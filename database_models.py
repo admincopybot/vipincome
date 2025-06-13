@@ -252,6 +252,80 @@ class ETFDatabase:
             logger.error(f"Error retrieving ETF data: {str(e)}")
             return {}
     
+    def search_etfs(self, search_term='', limit=None):
+        """Search ETFs by symbol with optional limit - optimized for VIP tier"""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
+            if search_term:
+                # Search by symbol (case-insensitive)
+                query = '''
+                    SELECT symbol, current_price, total_score, avg_volume_10d,
+                           trend1_pass, trend2_pass, snapback_pass, momentum_pass, stabilizing_pass
+                    FROM etf_scores
+                    WHERE UPPER(symbol) LIKE UPPER(%s)
+                    ORDER BY total_score DESC, avg_volume_10d DESC, symbol ASC
+                '''
+                params = [f'%{search_term}%']
+                
+                if limit:
+                    query += f' LIMIT {int(limit)}'
+                    
+                cursor.execute(query, params)
+            else:
+                # Return all ETFs with optional limit
+                query = '''
+                    SELECT symbol, current_price, total_score, avg_volume_10d,
+                           trend1_pass, trend2_pass, snapback_pass, momentum_pass, stabilizing_pass
+                    FROM etf_scores
+                    ORDER BY total_score DESC, avg_volume_10d DESC, symbol ASC
+                '''
+                
+                if limit:
+                    query += f' LIMIT {int(limit)}'
+                    
+                cursor.execute(query)
+            
+            rows = cursor.fetchall()
+            conn.close()
+            
+            # Convert to format expected by frontend
+            etf_data = {}
+            for row in rows:
+                symbol = row[0]
+                etf_data[symbol] = {
+                    'current_price': row[1],
+                    'total_score': row[2],
+                    'avg_volume_10d': row[3],
+                    'criteria': {
+                        'trend1': row[4],
+                        'trend2': row[5], 
+                        'snapback': row[6],
+                        'momentum': row[7],
+                        'stabilizing': row[8]
+                    }
+                }
+            
+            return etf_data
+            
+        except Exception as e:
+            logger.error(f"Error searching ETFs: {str(e)}")
+            return {}
+    
+    def get_total_etf_count(self):
+        """Get total count of ETFs in database - useful for VIP dashboard stats"""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            cursor.execute('SELECT COUNT(*) FROM etf_scores')
+            result = cursor.fetchone()
+            conn.close()
+            return result[0] if result else 0
+        except Exception as e:
+            logger.error(f"Error getting ETF count: {str(e)}")
+            return 0
+    
     def get_ticker_details(self, symbol):
         """Get detailed scoring data for Step 2 analysis with FIXED criteria parsing"""
         conn = self.get_connection()

@@ -95,14 +95,35 @@ def get_top_3_tickers():
         logger.error(f"Error getting top 3 tickers: {e}")
         return ['D', 'FOX', 'PFE']  # Current fallback based on live data
 
-def check_ticker_access(symbol, is_pro):
-    """Check if user has access to this ticker based on their subscription"""
-    if is_pro:
-        return True  # Pro users can access all tickers
+def check_ticker_access(symbol, access_level='free'):
+    """Check if user has access to this ticker based on their subscription level"""
+    if access_level == 'vip':
+        return True  # VIP users can access all tickers
+    elif access_level == 'pro':
+        return True  # Pro users can access all tickers  
+    else:
+        # Free users can only access top 3 tickers
+        top_3 = get_top_3_tickers()
+        return symbol.upper() in [t.upper() for t in top_3]
+
+def get_user_access_level():
+    """Determine user's access level based on session and URL"""
+    # Check if this is VIP mode
+    if request.endpoint and 'vip' in request.endpoint:
+        if check_vip_authentication():
+            return 'vip'
+        else:
+            return 'free'
     
-    # Free users can only access top 3 tickers
-    top_3 = get_top_3_tickers()
-    return symbol.upper() in [t.upper() for t in top_3]
+    # Check if this is Pro mode
+    if check_pro_authentication():
+        return 'pro'
+    
+    return 'free'
+
+def check_vip_authentication():
+    """Check if user is authenticated for VIP access - same JWT validation as Pro for now"""
+    return check_pro_authentication()
 
 @app.route('/logout')
 def logout():
@@ -2788,7 +2809,7 @@ def step4(symbol, strategy, spread_id):
     is_pro = check_pro_authentication()
     
     # Check if user has access to this ticker
-    if not check_ticker_access(symbol, is_pro):
+    if not check_ticker_access(symbol, "pro" if is_pro else "free"):
         logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
         return redirect('/')
     
@@ -3809,6 +3830,526 @@ def pro_index():
     
     return render_template_string(template, etf_scores=etf_scores, last_update_text=last_update_text)
 
+@app.route('/vip')
+def vip_index():
+    """VIP Scoreboard with full database access and search functionality"""
+    # Check for JWT token in URL (for initial login) or session (for navigation)
+    token = request.args.get('token') or session.get('jwt_token')
+    
+    if not token:
+        logger.warning("VIP access attempted without token")
+        return redirect('/')
+    
+    # Validate JWT token
+    auth_result = validate_jwt_token(token)
+    if not auth_result['valid']:
+        logger.warning(f"VIP access denied: {auth_result.get('error', 'Invalid token')}")
+        session.pop('jwt_token', None)
+        return redirect('/')
+    
+    # Store valid token in session for future navigation
+    session['jwt_token'] = token
+    session['user_id'] = auth_result['user_id']
+    logger.info(f"VIP access granted to user: {auth_result['user_id']}")
+    
+    # If token was provided in URL, redirect to clean URL without token parameter
+    if request.args.get('token'):
+        logger.info("Redirecting to clean VIP URL after storing token in session")
+        return redirect('/vip')
+    
+    # Get search parameters
+    search_term = request.args.get('search', '').strip()
+    page = int(request.args.get('page', 1))
+    per_page = 50  # Show 50 tickers per page for VIP
+    
+    # Force fresh data reload for VIP
+    global etf_scores, last_csv_update
+    db_update_time = etf_db.get_last_update_time()
+    if db_update_time and db_update_time > last_csv_update:
+        logger.info(f"VIP SCOREBOARD: Detected fresh database update, forcing complete refresh")
+        etf_scores = {}
+        last_csv_update = db_update_time
+    
+    # Get VIP data with search functionality
+    if search_term:
+        # Search specific tickers
+        vip_etf_data = etf_db.search_etfs(search_term, limit=per_page * 5)  # Get more for pagination
+        logger.info(f"VIP search for '{search_term}' returned {len(vip_etf_data)} results")
+    else:
+        # Get all tickers with pagination
+        offset = (page - 1) * per_page
+        vip_etf_data = etf_db.search_etfs('', limit=per_page * 10)  # Get more for pagination
+    
+    # Calculate pagination for display
+    total_tickers = etf_db.get_total_etf_count()
+    if search_term:
+        # For search, count actual results
+        display_count = len(vip_etf_data)
+        total_pages = 1  # Show all search results on one page
+    else:
+        # For full listing, calculate proper pagination
+        display_count = min(per_page, len(vip_etf_data))
+        total_pages = (total_tickers + per_page - 1) // per_page
+    
+    # Prepare pagination data
+    start_index = (page - 1) * per_page
+    end_index = start_index + display_count
+    
+    # Slice data for current page if not searching
+    if not search_term:
+        vip_etf_list = list(vip_etf_data.items())[start_index:end_index]
+        vip_etf_data = dict(vip_etf_list)
+    
+    # Calculate time since last update
+    try:
+        last_update = etf_db.get_last_update_time()
+        minutes_ago = int((datetime.now() - last_update).total_seconds() / 60)
+        if minutes_ago == 0:
+            last_update_text = "Last updated just now"
+        elif minutes_ago == 1:
+            last_update_text = "Last updated 1 minute ago"
+        else:
+            last_update_text = f"Last updated {minutes_ago} minutes ago"
+    except:
+        last_update_text = "Last updated recently"
+    
+    # VIP Template with search functionality
+    template = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Machine VIP - Full Database Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .vip-banner {
+            background: linear-gradient(135deg, #7c3aed, #a855f7, #c084fc);
+            text-align: center;
+            padding: 12px;
+            font-size: 16px;
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.3);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-logo {
+            height: 80px;
+            width: auto;
+        }
+        
+        .vip-badge {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-left: 15px;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+        }
+        
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .nav-item {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            color: #a855f7;
+        }
+        
+        .main-content {
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .vip-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .vip-title {
+            font-size: 52px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .vip-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(124, 58, 237, 0.3);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(124, 58, 237, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #a855f7;
+            display: block;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .etf-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .etf-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(168, 85, 247, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .etf-card:hover::before {
+            opacity: 1;
+        }
+        
+        .etf-card:hover {
+            border-color: #7c3aed;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(124, 58, 237, 0.2);
+        }
+        
+        .card-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        
+        .ticker-symbol {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .current-price {
+            font-size: 20px;
+            font-weight: 600;
+            color: #34d399;
+            margin-bottom: 12px;
+        }
+        
+        .criteria-score {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+        
+        .criteria-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .criteria-check {
+            color: #22d3ee;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .criteria-x {
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .volume-info {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .page-btn {
+            background: rgba(124, 58, 237, 0.2);
+            color: #a855f7;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover {
+            background: rgba(124, 58, 237, 0.4);
+            color: #ffffff;
+        }
+        
+        .page-btn.current {
+            background: #7c3aed;
+            color: #ffffff;
+        }
+        
+        .page-info {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .no-results h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: #a855f7;
+        }
+    </style>
+</head>
+<body>
+    <div class="vip-banner">
+        🌟 VIP ACCESS - Full Database & Search • {{ total_tickers }} Total Tickers
+    </div>
+    
+    <div class="header">
+        <div class="logo">
+            <a href="/vip"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
+            <span class="vip-badge">VIP</span>
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item">Trade Classes</a>
+            <a href="/logout" class="nav-item">Logout</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="vip-header">
+            <h1 class="vip-title">VIP Scoreboard</h1>
+            <p class="vip-subtitle">Complete access to all {{ total_tickers }} tickers with advanced search</p>
+            <p style="color: rgba(255,255,255,0.5); font-size: 14px;">{{ last_update_text }}</p>
+        </div>
+        
+        <div class="search-container">
+            <form method="GET" action="/vip">
+                <input type="text" name="search" class="search-input" 
+                       placeholder="Search by ticker symbol (e.g., AAPL, SPY, QQQ)..." 
+                       value="{{ search_term }}" 
+                       autocomplete="off">
+            </form>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-number">{{ total_tickers }}</span>
+                <div class="stat-label">Total Tickers</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ display_count }}</span>
+                <div class="stat-label">{% if search_term %}Search Results{% else %}Showing{% endif %}</div>
+            </div>
+            {% if not search_term %}
+            <div class="stat-item">
+                <span class="stat-number">{{ page }}</span>
+                <div class="stat-label">Page of {{ total_pages }}</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if vip_etf_data %}
+        <div class="etf-grid">
+            {% for symbol, data in vip_etf_data.items() %}
+            <a href="/vip/step2/{{ symbol }}" class="etf-card">
+                <div class="card-content">
+                    <div class="ticker-symbol">{{ symbol }}</div>
+                    <div class="current-price">${{ "%.2f"|format(data.current_price) }}</div>
+                    <div class="criteria-score">Score: {{ data.total_score }}/5</div>
+                    <div class="criteria-indicators">
+                        <span class="{% if data.criteria.trend1 %}criteria-check{% else %}criteria-x{% endif %}">
+                            {% if data.criteria.trend1 %}✓{% else %}✗{% endif %}
+                        </span>
+                        <span class="{% if data.criteria.trend2 %}criteria-check{% else %}criteria-x{% endif %}">
+                            {% if data.criteria.trend2 %}✓{% else %}✗{% endif %}
+                        </span>
+                        <span class="{% if data.criteria.snapback %}criteria-check{% else %}criteria-x{% endif %}">
+                            {% if data.criteria.snapback %}✓{% else %}✗{% endif %}
+                        </span>
+                        <span class="{% if data.criteria.momentum %}criteria-check{% else %}criteria-x{% endif %}">
+                            {% if data.criteria.momentum %}✓{% else %}✗{% endif %}
+                        </span>
+                        <span class="{% if data.criteria.stabilizing %}criteria-check{% else %}criteria-x{% endif %}">
+                            {% if data.criteria.stabilizing %}✓{% else %}✗{% endif %}
+                        </span>
+                    </div>
+                    <div class="volume-info">10d Avg Volume: {{ "{:,.0f}"|format(data.avg_volume_10d) }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        {% if not search_term and total_pages > 1 %}
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="/vip?page={{ page - 1 }}" class="page-btn">← Previous</a>
+            {% endif %}
+            
+            <div class="page-info">
+                Page {{ page }} of {{ total_pages }} • Showing {{ display_count }} tickers
+            </div>
+            
+            {% if page < total_pages %}
+                <a href="/vip?page={{ page + 1 }}" class="page-btn">Next →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="no-results">
+            <h3>No Results Found</h3>
+            <p>No tickers match your search "{{ search_term }}"</p>
+            <p><a href="/vip" style="color: #a855f7;">← Back to full listing</a></p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Auto-submit search form on input
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const form = e.target.closest('form');
+            clearTimeout(window.searchTimeout);
+            window.searchTimeout = setTimeout(() => {
+                if (e.target.value.length >= 1 || e.target.value.length === 0) {
+                    form.submit();
+                }
+            }, 500);
+        });
+        
+        // Real-time price updates
+        console.log("VIP Scoreboard loaded with {{ display_count }} tickers");
+    </script>
+</body>
+</html>
+"""
+    
+    return render_template_string(template, 
+                                  vip_etf_data=vip_etf_data,
+                                  search_term=search_term,
+                                  total_tickers=total_tickers,
+                                  display_count=display_count,
+                                  page=page,
+                                  total_pages=total_pages,
+                                  last_update_text=last_update_text)
+
 @app.route('/')
 def index():
     # CRITICAL: Force fresh data reload every time to catch CSV updates
@@ -4525,7 +5066,7 @@ def step2(symbol=None):
     is_pro = check_pro_authentication()
     
     # Check if user has access to this ticker
-    if not check_ticker_access(symbol, is_pro):
+    if not check_ticker_access(symbol, "pro" if is_pro else "free"):
         logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
         return redirect('/')
     
@@ -5557,7 +6098,7 @@ def step3(symbol=None):
         return redirect('/')
     
     # Check if user has access to this ticker
-    if not check_ticker_access(symbol, is_pro):
+    if not check_ticker_access(symbol, "pro" if is_pro else "free"):
         logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
         return redirect('/')
     
