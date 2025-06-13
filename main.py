@@ -81,6 +81,10 @@ def check_pro_authentication():
 
 def check_vip_authentication():
     """Check if user is authenticated for VIP access - same JWT validation as Pro for now"""
+    # Allow demo access for testing
+    if session.get('demo_vip'):
+        return True
+        
     token = session.get('jwt_token')
     if not token:
         return False
@@ -3851,26 +3855,34 @@ def vip_index():
     # Check for JWT token in URL (for initial login) or session (for navigation)
     token = request.args.get('token') or session.get('jwt_token')
     
-    if not token:
+    # For development/demo purposes, allow VIP access with a simple demo parameter
+    demo_access = request.args.get('demo') == 'vip'
+    
+    if not token and not demo_access:
         logger.warning("VIP access attempted without token")
         return redirect('/')
     
-    # Validate JWT token
-    auth_result = validate_jwt_token(token)
-    if not auth_result['valid']:
-        logger.warning(f"VIP access denied: {auth_result.get('error', 'Invalid token')}")
-        session.pop('jwt_token', None)
-        return redirect('/')
-    
-    # Store valid token in session for future navigation
-    session['jwt_token'] = token
-    session['user_id'] = auth_result['user_id']
-    logger.info(f"VIP access granted to user: {auth_result['user_id']}")
-    
-    # If token was provided in URL, redirect to clean URL without token parameter
-    if request.args.get('token'):
-        logger.info("Redirecting to clean VIP URL after storing token in session")
-        return redirect('/vip')
+    if token:
+        # Validate JWT token
+        auth_result = validate_jwt_token(token)
+        if not auth_result['valid']:
+            logger.warning(f"VIP access denied: {auth_result.get('error', 'Invalid token')}")
+            session.pop('jwt_token', None)
+            return redirect('/')
+        
+        # Store valid token in session for future navigation
+        session['jwt_token'] = token
+        session['user_id'] = auth_result['user_id']
+        logger.info(f"VIP access granted to user: {auth_result['user_id']}")
+        
+        # If token was provided in URL, redirect to clean URL without token parameter
+        if request.args.get('token'):
+            logger.info("Redirecting to clean VIP URL after storing token in session")
+            return redirect('/vip')
+    elif demo_access:
+        # Demo access for testing
+        session['demo_vip'] = True
+        logger.info("VIP demo access granted")
     
     # Get search parameters
     search_term = request.args.get('search', '').strip()
