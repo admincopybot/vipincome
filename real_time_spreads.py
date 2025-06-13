@@ -488,76 +488,82 @@ class RealTimeSpreadDetector:
                     'reason': f'No viable spread pairs for {strategy}'
                 }
             
-            # Calculate metrics for ALL spread pairs with width prioritization
-            best_spreads_by_width = {}  # Track best spread for each width category
+            # PROGRESSIVE WIDTH SEARCH: Start with $1, then $2, then $5, then $10
             roi_min, roi_max = roi_ranges[strategy]
-            
-            logger.info(f"Processing ALL {len(spread_pairs)} spread pairs for {strategy} strategy")
-            
-            def calculate_single_spread(pair_data):
-                i, (long_contract, short_contract) = pair_data
-                return self.calculate_spread_metrics(long_contract, short_contract)
-            
-            # Use ThreadPoolExecutor for concurrent spread calculations within strategy
-            with ThreadPoolExecutor(max_workers=5) as executor:
-                # Submit all spread calculations concurrently
-                future_to_pair = {
-                    executor.submit(calculate_single_spread, (i, pair)): pair 
-                    for i, pair in enumerate(spread_pairs)
-                }
-                
-                # Process results as they complete
-                for future in as_completed(future_to_pair):
-                    pair = future_to_pair[future]
-                    long_contract, short_contract = pair
-                    
-                    try:
-                        metrics = future.result()
-                        if metrics:
-                            spread_width = metrics['spread_width']
-                            roi = metrics['roi']
-                            
-                            if roi_min <= roi <= roi_max:
-                                logger.info(f"Found viable {strategy} spread: {roi:.1f}% ROI, ${spread_width:.2f} width")
-                                
-                                # Categorize by width for prioritization
-                                width_category = None
-                                if abs(spread_width - 1.0) <= 0.01:
-                                    width_category = "1.00"
-                                elif abs(spread_width - 2.5) <= 0.01:
-                                    width_category = "2.50" 
-                                elif abs(spread_width - 5.0) <= 0.01:
-                                    width_category = "5.00"
-                                elif abs(spread_width - 0.5) <= 0.01:
-                                    width_category = "0.50"
-                                elif abs(spread_width - 10.0) <= 0.01:
-                                    width_category = "10.00"
-                                else:
-                                    width_category = f"other_{spread_width:.2f}"
-                                
-                                # Track best spread for each width category
-                                if width_category not in best_spreads_by_width or roi > best_spreads_by_width[width_category]['roi']:
-                                    best_spreads_by_width[width_category] = metrics
-                                    logger.info(f"New best ${spread_width:.2f} {strategy} spread: {roi:.1f}% ROI")
-                    except Exception as e:
-                        logger.error(f"Error calculating spread metrics: {str(e)}")
-            
-            # Select final spread based on priority: $1 first, then $2.50, then $5, etc.
             final_spread = None
-            for priority_width in ["1.00", "2.50", "5.00", "0.50", "10.00"]:
-                if priority_width in best_spreads_by_width:
-                    final_spread = best_spreads_by_width[priority_width]
-                    logger.info(f"Selected ${priority_width} spread as best {strategy} option")
+            
+            # Define width search order: tightest spreads first
+            width_targets = [1.0, 2.0, 5.0, 10.0]
+            
+            for target_width in width_targets:
+                logger.info(f"🎯 Searching for ${target_width:.0f} wide {strategy} spreads...")
+                
+                # Filter pairs for this specific width
+                width_pairs = []
+                for pair in spread_pairs:
+                    long_contract, short_contract = pair
+                    long_strike = float(long_contract.get('strike_price', 0))
+                    short_strike = float(short_contract.get('strike_price', 0))
+                    spread_width = short_strike - long_strike
+                    
+                    # Allow small tolerance for width matching
+                    if abs(spread_width - target_width) <= 0.1:
+                        width_pairs.append(pair)
+                
+                if not width_pairs:
+                    logger.info(f"   No ${target_width:.0f} wide pairs found")
+                    continue
+                
+                logger.info(f"   Found {len(width_pairs)} pairs at ${target_width:.0f} width")
+                
+                # Analyze these width-specific pairs
+                best_width_spread = None
+                best_width_roi = 0
+                
+                def calculate_single_spread(pair_data):
+                    i, (long_contract, short_contract) = pair_data
+                    return self.calculate_spread_metrics(long_contract, short_contract)
+                
+                # Use ThreadPoolExecutor for concurrent calculations
+                with ThreadPoolExecutor(max_workers=5) as executor:
+                    future_to_pair = {
+                        executor.submit(calculate_single_spread, (i, pair)): pair 
+                        for i, pair in enumerate(width_pairs)
+                    }
+                    
+                    # Process results as they complete
+                    for future in as_completed(future_to_pair):
+                        pair = future_to_pair[future]
+                        long_contract, short_contract = pair
+                        
+                        try:
+                            metrics = future.result()
+                            if metrics:
+                                spread_width = metrics['spread_width']
+                                roi = metrics['roi']
+                                
+                                if roi_min <= roi <= roi_max:
+                                    logger.info(f"   Found viable ${target_width:.0f} wide spread: {roi:.1f}% ROI")
+                                    
+                                    # Track best for this width
+                                    if roi > best_width_roi:
+                                        best_width_spread = metrics
+                                        best_width_roi = roi
+                                        logger.info(f"   New best ${target_width:.0f} wide spread: {roi:.1f}% ROI")
+                        except Exception as e:
+                            logger.error(f"Error calculating spread metrics: {str(e)}")
+                
+                # If we found a viable spread at this width, use it and stop searching
+                if best_width_spread:
+                    final_spread = best_width_spread
+                    logger.info(f"✅ FOUND optimal ${target_width:.0f} wide {strategy} spread: {best_width_roi:.1f}% ROI - STOPPING search")
                     break
+                else:
+                    logger.info(f"   No viable ${target_width:.0f} wide spreads found, trying next width...")
             
-            # If no priority widths found, use best from other widths
+            # If no spreads found in any width category
             if not final_spread:
-                other_spreads = {k: v for k, v in best_spreads_by_width.items() if k.startswith("other_")}
-                if other_spreads:
-                    final_spread = max(other_spreads.values(), key=lambda x: x['roi'])
-                    logger.info(f"Selected best other-width spread for {strategy}: {final_spread['spread_width']:.2f}")
-            
-            logger.info(f"Found spreads by width: {list(best_spreads_by_width.keys())}")
+                logger.info(f"❌ No viable {strategy} spreads found in any width category")
             
             if final_spread:
                 width_value = final_spread['spread_width']
