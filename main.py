@@ -1834,7 +1834,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
     </html>
     """
     
-    return render_template_string(template, symbol=symbol, strategy=strategy, option_data=demo_data)
+    return render_template_string(template, symbol=symbol, strategy=strategy_display.get(strategy.lower(), strategy.title()), option_data=demo_data)
 
 def fetch_options_data(symbol, current_price):
     """Fetch real-time options spread data using complete detection pipeline"""
@@ -3119,7 +3119,7 @@ def step4(symbol, strategy, spread_id):
     
     <div class="container">
         <div class="page-title">
-            <h1>{{ symbol }} {{ strategy.title() }} Trade Analysis</h1>
+            <h1>{{ symbol }} {{ strategy }} Trade Analysis</h1>
             <div class="page-subtitle">Comprehensive options trade analysis using real-time market data</div>
         </div>
         
@@ -3275,7 +3275,7 @@ def step4(symbol, strategy, spread_id):
     
     return render_template_string(template, 
         symbol=symbol,
-        strategy=strategy,
+        strategy=display_strategy,
         spread_id=spread_id,
         scenario_long_strike=scenario_long_strike,
         scenario_short_strike=scenario_short_strike,

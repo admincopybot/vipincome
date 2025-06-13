@@ -130,6 +130,7 @@ Changelog:
 - June 13, 2025: Fixed ETF sorting to maintain proper #1, #2, #3 order by score and volume
 - June 13, 2025: Updated loading message to "The Income Machine is reviewing millions of option combinations to find the best opportunity – this may take up to 30 seconds"
 - June 13, 2025: Added +1 logic to DTE values displayed on Step 3 for all three strategies (aggressive, steady, passive)
+- June 13, 2025: Updated Step 4 to display "CONSERVATIVE" instead of "PASSIVE" for conservative strategy trades
 
 # User Preferences
 
