@@ -3408,6 +3408,22 @@ def pro_index():
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
         }
+        .upgrade-vip-btn {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+        .upgrade-vip-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+        }
         .steps-nav {
             background: rgba(255, 255, 255, 0.05);
             padding: 20px 0;
