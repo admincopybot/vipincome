@@ -4299,7 +4299,7 @@ def vip_index():
             <a href="/vip/step2/{{ symbol }}" class="etf-card">
                 <div class="card-content">
                     <div class="ticker-symbol">{{ symbol }}</div>
-                    <div class="current-price">${{ "%.2f"|format(data.current_price) }}</div>
+                    <div class="current-price">${{ "{:.2f}".format(data.current_price) }}</div>
                     <div class="criteria-score">Score: {{ data.total_score }}/5</div>
                     <div class="criteria-indicators">
                         <span class="{% if data.criteria.trend1 %}criteria-check{% else %}criteria-x{% endif %}">
@@ -4318,7 +4318,7 @@ def vip_index():
                             {% if data.criteria.stabilizing %}✓{% else %}✗{% endif %}
                         </span>
                     </div>
-                    <div class="volume-info">10d Avg Volume: {{ "{:,.0f}"|format(data.avg_volume_10d) }}</div>
+                    <div class="volume-info">10d Avg Volume: {{ "{:,.0f}".format(data.avg_volume_10d) }}</div>
                 </div>
             </a>
             {% endfor %}
