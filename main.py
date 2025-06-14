@@ -3376,7 +3376,7 @@ def pro_index():
     except:
         last_update_text = "Last updated recently"
     
-    # Create Pro template with EXACT original styling, only showing 10 tickers
+    # Create Pro template with EXACT original styling, only showing TOP 3 tickers
     template = """
 <!DOCTYPE html>
 <html lang="en">
