@@ -3695,7 +3695,7 @@ def pro_index():
             <a href="#" class="nav-item">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
 
-            <a href="/vip?demo=vip" class="upgrade-vip-btn">Upgrade to VIP</a>
+            <a href="#" class="upgrade-vip-btn" onclick="return false;">Upgrade to VIP</a>
         </div>
     </div>
     
@@ -3908,7 +3908,7 @@ def pro_index():
 """
     
     # Limit Pro version to top 3 tickers only (matching free version)
-    top_3_etf_scores = etf_scores[:3] if etf_scores else []
+    top_3_etf_scores = dict(list(etf_scores.items())[:3]) if etf_scores else {}
     
     return render_template_string(template, etf_scores=top_3_etf_scores, last_update_text=last_update_text)
 
