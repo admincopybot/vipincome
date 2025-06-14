@@ -36,12 +36,19 @@ class ETFDatabase:
         conn = self.get_connection()
         cursor = conn.cursor()
         
+        # Add the new options_contracts column if it doesn't exist
+        cursor.execute('''
+            ALTER TABLE etf_scores 
+            ADD COLUMN IF NOT EXISTS options_contracts_10_42_dte INTEGER DEFAULT 0
+        ''')
+        
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS etf_scores (
                 symbol VARCHAR(10) PRIMARY KEY,
                 current_price DECIMAL(10,2),
                 total_score INTEGER,
                 avg_volume_10d BIGINT,
+                options_contracts_10_42_dte INTEGER,
                 
                 trend1_pass BOOLEAN,
                 trend1_current DECIMAL(10,2),
@@ -104,6 +111,7 @@ class ETFDatabase:
             # Fill NaN values with defaults
             df = df.fillna({
                 'avg_volume_10d': 0,  # Keep as 0 when missing from CSV
+                'options_contracts_10_42_dte': 0,  # Default to 0 for new column
                 'trend1_current': 0.0,
                 'trend1_threshold': 0.0,
                 'trend1_description': '',
@@ -136,22 +144,34 @@ class ETFDatabase:
             
             df['avg_volume_10d'] = df['avg_volume_10d'].apply(clean_volume)
             
+            # Clean options_contracts_10_42_dte column (handle empty strings and convert to int)
+            def clean_options_contracts(value):
+                if pd.isna(value) or value == '':
+                    return 0
+                if isinstance(value, str):
+                    # Remove commas and convert to int
+                    return int(value.replace(',', ''))
+                return int(value)
+            
+            df['options_contracts_10_42_dte'] = df['options_contracts_10_42_dte'].apply(clean_options_contracts)
+            
             for _, row in df.iterrows():
                 cursor.execute('''
                     INSERT INTO etf_scores (
-                        symbol, current_price, total_score, avg_volume_10d,
+                        symbol, current_price, total_score, avg_volume_10d, options_contracts_10_42_dte,
                         trend1_pass, trend1_current, trend1_threshold, trend1_description,
                         trend2_pass, trend2_current, trend2_threshold, trend2_description,
                         snapback_pass, snapback_current, snapback_threshold, snapback_description,
                         momentum_pass, momentum_current, momentum_threshold, momentum_description,
                         stabilizing_pass, stabilizing_current, stabilizing_threshold, stabilizing_description,
                         data_age_hours
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ''', (
                     str(row['symbol']),
                     float(row['current_price']),
                     int(row['total_score']),
                     int(row['avg_volume_10d']),
+                    int(row['options_contracts_10_42_dte']),
                     self._convert_bool(row['trend1_pass']),
                     float(row['trend1_current']),
                     float(row['trend1_threshold']),
