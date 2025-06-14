@@ -134,6 +134,8 @@ Changelog:
 - June 13, 2025: Changed Step 4 display across ALL versions (free, /pro, /vip) to show unified spread position instead of separate "Buy/Sell" components
 - June 13, 2025: Updated Step 4 to use simple format: "Buy the $58 July 03 Call" and "Sell the $59 July 03 Call" for clearer trade construction display
 - June 13, 2025: Added green highlighting to Income Potential and ROI Per Contract boxes in Step 4 calculator section
+- June 14, 2025: Updated CSV parsing to handle new options_contracts_10_42_dte column for options availability data
+- June 14, 2025: Changed ranking system to prioritize option contracts count over trading volume as tiebreaker
 
 # User Preferences
 
