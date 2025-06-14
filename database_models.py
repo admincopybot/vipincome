@@ -233,17 +233,17 @@ class ETFDatabase:
             return datetime.now()
     
     def get_all_etfs(self):
-        """Get all ETF data with TRADING VOLUME TIE-BREAKER for top rankings"""
+        """Get all ETF data with OPTIONS CONTRACTS TIE-BREAKER for top rankings"""
         try:
             conn = self.get_connection()
             cursor = conn.cursor()
             
-            # ORDER BY: total_score DESC, then avg_volume_10d DESC for tie-breaker
+            # ORDER BY: total_score DESC, then options_contracts_10_42_dte DESC for tie-breaker, then trading volume DESC
             cursor.execute('''
-                SELECT symbol, current_price, total_score, avg_volume_10d,
+                SELECT symbol, current_price, total_score, avg_volume_10d, options_contracts_10_42_dte,
                        trend1_pass, trend2_pass, snapback_pass, momentum_pass, stabilizing_pass
                 FROM etf_scores
-                ORDER BY total_score DESC, avg_volume_10d DESC, symbol ASC
+                ORDER BY total_score DESC, options_contracts_10_42_dte DESC, avg_volume_10d DESC, symbol ASC
             ''')
             
             rows = cursor.fetchall()
@@ -257,12 +257,13 @@ class ETFDatabase:
                     'current_price': row[1],
                     'total_score': row[2],
                     'avg_volume_10d': row[3],
+                    'options_contracts_10_42_dte': row[4],
                     'criteria': {
-                        'trend1': row[4],
-                        'trend2': row[5], 
-                        'snapback': row[6],
-                        'momentum': row[7],
-                        'stabilizing': row[8]
+                        'trend1': row[5],
+                        'trend2': row[6], 
+                        'snapback': row[7],
+                        'momentum': row[8],
+                        'stabilizing': row[9]
                     }
                 }
             
@@ -281,11 +282,11 @@ class ETFDatabase:
             if search_term:
                 # Search by symbol (case-insensitive)
                 query = '''
-                    SELECT symbol, current_price, total_score, avg_volume_10d,
+                    SELECT symbol, current_price, total_score, avg_volume_10d, options_contracts_10_42_dte,
                            trend1_pass, trend2_pass, snapback_pass, momentum_pass, stabilizing_pass
                     FROM etf_scores
                     WHERE UPPER(symbol) LIKE UPPER(%s)
-                    ORDER BY total_score DESC, avg_volume_10d DESC, symbol ASC
+                    ORDER BY total_score DESC, options_contracts_10_42_dte DESC, avg_volume_10d DESC, symbol ASC
                 '''
                 params = [f'%{search_term}%']
                 
