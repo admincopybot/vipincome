@@ -3907,7 +3907,10 @@ def pro_index():
 </html>
 """
     
-    return render_template_string(template, etf_scores=etf_scores, last_update_text=last_update_text)
+    # Limit Pro version to top 3 tickers only (matching free version)
+    top_3_etf_scores = etf_scores[:3] if etf_scores else []
+    
+    return render_template_string(template, etf_scores=top_3_etf_scores, last_update_text=last_update_text)
 
 @app.route('/vip')
 def vip_index():
