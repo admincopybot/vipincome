@@ -406,12 +406,13 @@ def load_etf_data_from_database():
             # Use the total_score directly from CSV data (not calculated from criteria)
             csv_total_score = data['total_score']
             
-            # Update etf_scores with exact same structure as before
+            # Update etf_scores with exact same structure as before plus new options contracts column
             etf_scores[symbol] = {
                 "name": sector_name,
                 "score": csv_total_score,  # Use total_score from CSV
                 "price": data['current_price'],  # Will be updated with real-time price
                 "avg_volume_10d": data['avg_volume_10d'],  # Include trading volume for Step 2
+                "options_contracts_10_42_dte": data.get('options_contracts_10_42_dte', 0),  # New ranking column
                 "indicators": indicators
             }
         

@@ -297,10 +297,10 @@ class ETFDatabase:
             else:
                 # Return all ETFs with optional limit
                 query = '''
-                    SELECT symbol, current_price, total_score, avg_volume_10d,
+                    SELECT symbol, current_price, total_score, avg_volume_10d, options_contracts_10_42_dte,
                            trend1_pass, trend2_pass, snapback_pass, momentum_pass, stabilizing_pass
                     FROM etf_scores
-                    ORDER BY total_score DESC, avg_volume_10d DESC, symbol ASC
+                    ORDER BY total_score DESC, options_contracts_10_42_dte DESC, avg_volume_10d DESC, symbol ASC
                 '''
                 
                 if limit:
@@ -319,12 +319,13 @@ class ETFDatabase:
                     'current_price': row[1],
                     'total_score': row[2],
                     'avg_volume_10d': row[3],
+                    'options_contracts_10_42_dte': row[4],
                     'criteria': {
-                        'trend1': row[4],
-                        'trend2': row[5], 
-                        'snapback': row[6],
-                        'momentum': row[7],
-                        'stabilizing': row[8]
+                        'trend1': row[5],
+                        'trend2': row[6], 
+                        'snapback': row[7],
+                        'momentum': row[8],
+                        'stabilizing': row[9]
                     }
                 }
             
