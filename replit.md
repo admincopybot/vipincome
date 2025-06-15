@@ -141,6 +141,7 @@ Changelog:
 - June 15, 2025: Expanded scenario analysis to show 9 price ranges: -10%, -5%, -2.5%, -1%, 0%, +1%, +2.5%, +5%, +10%
 - June 15, 2025: Added video popup functionality for "How to Use" buttons across all application versions
 - June 15, 2025: Optimized scenario table layout with narrower columns and reduced padding for better mobile/desktop display
+- June 15, 2025: Renamed "Stock Price Scenarios" section to "Profit Matrix" for clearer user understanding
 
 # User Preferences
 

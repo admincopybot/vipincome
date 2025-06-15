@@ -1778,7 +1778,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
             </div>
             
             <div class="scenarios-section">
-                <h2 class="scenarios-title">Stock Price Scenarios</h2>
+                <h2 class="scenarios-title">Profit Matrix</h2>
                 <table class="scenarios-table">
                     <thead>
                         <tr>
@@ -3228,7 +3228,7 @@ def step4(symbol, strategy, spread_id):
         </div>
         
         <div class="scenarios-section">
-            <div class="scenarios-header">Stock Price Scenarios</div>
+            <div class="scenarios-header">Profit Matrix</div>
             <div class="scenarios-grid">
                 <div class="scenario-header-row">
                     <div class="scenario-cell-label">Change</div>
