@@ -142,6 +142,8 @@ Changelog:
 - June 15, 2025: Added video popup functionality for "How to Use" buttons across all application versions
 - June 15, 2025: Optimized scenario table layout with narrower columns and reduced padding for better mobile/desktop display
 - June 15, 2025: Renamed "Stock Price Scenarios" section to "Profit Matrix" for clearer user understanding
+- June 15, 2025: Fixed "How to Use" video popup functionality across all versions (Free, Pro, VIP)
+- June 15, 2025: Optimized tutorial video file size from 85MB to 23MB for faster loading
 
 # User Preferences
 
