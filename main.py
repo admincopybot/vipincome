@@ -1594,24 +1594,24 @@ def create_step4_demo_data(symbol, strategy, current_price):
             
             .scenarios-table th {
                 background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-                padding: 14px 10px;
+                padding: 10px 4px;
                 text-align: center;
                 font-weight: 600;
-                font-size: 13px;
+                font-size: 11px;
                 border: none;
                 color: #f1f5f9;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
             }
             
             .scenarios-table td {
-                padding: 14px 10px;
+                padding: 10px 4px;
                 text-align: center;
                 border: none;
                 background: rgba(30,41,59,0.6);
                 color: #cbd5e1;
                 font-weight: 500;
-                font-size: 14px;
+                font-size: 12px;
             }
             
             .loss-cell {
@@ -3036,11 +3036,11 @@ def step4(symbol, strategy, spread_id):
         .scenarios-section { background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 30px; }
         .scenarios-header { color: #ffffff; font-weight: 700; margin-bottom: 20px; font-size: 18px; }
         .scenarios-grid { display: grid; gap: 2px; }
-        .scenario-header-row { display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
-        .scenario-row { display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 3px; margin-bottom: 4px; }
-        .scenario-cell { background: rgba(30, 41, 59, 0.9); padding: 14px 8px; text-align: center; font-size: 12px; color: #ffffff; border-radius: 4px; font-weight: 600; min-height: 20px; line-height: 1.3; }
-        .scenario-header-cell { background: rgba(139, 92, 246, 0.2); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
-        .scenario-cell-label { background: rgba(139, 92, 246, 0.3); padding: 10px 8px; text-align: center; font-size: 11px; color: #ffffff; font-weight: 700; border-radius: 4px; text-transform: uppercase; }
+        .scenario-header-row { display: grid; grid-template-columns: 100px repeat(9, 1fr); gap: 1px; margin-bottom: 4px; }
+        .scenario-row { display: grid; grid-template-columns: 100px repeat(9, 1fr); gap: 1px; margin-bottom: 4px; }
+        .scenario-cell { background: rgba(30, 41, 59, 0.9); padding: 10px 4px; text-align: center; font-size: 11px; color: #ffffff; border-radius: 3px; font-weight: 600; min-height: 18px; line-height: 1.2; }
+        .scenario-header-cell { background: rgba(139, 92, 246, 0.2); padding: 8px 4px; text-align: center; font-size: 10px; color: #ffffff; border-radius: 3px; font-weight: 700; text-transform: uppercase; }
+        .scenario-cell-label { background: rgba(139, 92, 246, 0.3); padding: 8px 4px; text-align: center; font-size: 10px; color: #ffffff; font-weight: 700; border-radius: 3px; text-transform: uppercase; }
         .win { background: linear-gradient(135deg, #10b981, #059669) !important; color: #ffffff; animation: win-pulse 2s ease-in-out infinite; }
         .loss { background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff; }
         
@@ -7943,30 +7943,32 @@ def step3(symbol=None):
 
         .scenario-header {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            grid-template-columns: repeat(10, 1fr);
             gap: 1px;
             background: #8b5cf6;
             color: #ffffff;
             font-weight: 600;
-            padding: 15px 0;
+            padding: 10px 0;
         }
 
         .scenario-header > div {
             text-align: center;
-            padding: 0 10px;
+            padding: 0 4px;
+            font-size: 11px;
         }
 
         .scenario-row {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            grid-template-columns: repeat(10, 1fr);
             gap: 1px;
-            padding: 12px 0;
+            padding: 8px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .scenario-row > div {
             text-align: center;
-            padding: 0 10px;
+            padding: 0 4px;
+            font-size: 12px;
             color: rgba(255, 255, 255, 0.9);
         }
 
