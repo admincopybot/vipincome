@@ -9362,10 +9362,12 @@ def trigger_quick_analysis():
         polling_stats['total_polls'] += 1
         polling_stats['last_poll_status'] = 'Manual trigger in progress'
         
-        # Process ONLY the top 3 tickers with single API calls
+        # Process ONLY the top 3 tickers with single API calls + OPTIONS SPREAD VALIDATION
         results = []
         changes_detected = False
+        valid_tickers = []  # Tickers that pass options spread validation
         
+        # First phase: Update criteria and validate options spreads
         for ticker in top_3_symbols:
             logger.info(f"MANUAL TRIGGER: Processing {ticker}")
             
@@ -9417,6 +9419,116 @@ def trigger_quick_analysis():
                     'error': str(e)
                 })
         
+        # Second phase: Validate options spreads availability for each ticker
+        logger.info("MANUAL TRIGGER: Starting options spread validation phase")
+        
+        for ticker in top_3_symbols:
+            logger.info(f"MANUAL TRIGGER: Validating options spreads for {ticker}")
+            
+            try:
+                # Count available spreads for this ticker using the same logic as Step 3
+                from real_time_spreads import get_real_time_spreads
+                
+                # Get current price for spread analysis
+                current_price = etf_scores.get(ticker, {}).get('price', 0)
+                if not current_price:
+                    logger.warning(f"MANUAL TRIGGER: No current price for {ticker}, skipping spread validation")
+                    continue
+                
+                # Analyze spreads using existing logic
+                spread_results = get_real_time_spreads(ticker, current_price)
+                
+                # Count valid spreads across all strategies
+                total_spreads = 0
+                strategy_counts = {}
+                
+                for strategy in ['aggressive', 'steady', 'passive']:
+                    strategy_spreads = spread_results.get(strategy, [])
+                    valid_spreads = [s for s in strategy_spreads if s.get('roi', '0%').replace('%', '').replace('+', '') != '0.0']
+                    strategy_count = len(valid_spreads)
+                    total_spreads += strategy_count
+                    strategy_counts[strategy] = strategy_count
+                
+                logger.info(f"MANUAL TRIGGER: {ticker} spread count - Total: {total_spreads}, Aggressive: {strategy_counts['aggressive']}, Steady: {strategy_counts['steady']}, Passive: {strategy_counts['passive']}")
+                
+                # Apply 2/3 spreads minimum rule
+                if total_spreads >= 2:
+                    valid_tickers.append(ticker)
+                    logger.info(f"MANUAL TRIGGER: ✅ {ticker} PASSED spread validation with {total_spreads} spreads")
+                    
+                    # Update results with spread validation info
+                    for result in results:
+                        if result['symbol'] == ticker:
+                            result['spreads_found'] = total_spreads
+                            result['spread_validation'] = 'PASSED'
+                            result['strategy_breakdown'] = strategy_counts
+                            break
+                else:
+                    logger.warning(f"MANUAL TRIGGER: ❌ {ticker} FAILED spread validation - only {total_spreads} spreads found (minimum: 2)")
+                    
+                    # Update results with failure info
+                    for result in results:
+                        if result['symbol'] == ticker:
+                            result['spreads_found'] = total_spreads
+                            result['spread_validation'] = 'FAILED'
+                            result['strategy_breakdown'] = strategy_counts
+                            result['exclusion_reason'] = f"Insufficient spreads: {total_spreads}/2 minimum"
+                            break
+                    
+            except Exception as e:
+                logger.error(f"MANUAL TRIGGER: Error validating spreads for {ticker}: {str(e)}")
+                # Don't exclude ticker on validation error, but log the issue
+                for result in results:
+                    if result['symbol'] == ticker:
+                        result['spread_validation'] = 'ERROR'
+                        result['validation_error'] = str(e)
+                        break
+        
+        # Third phase: Auto-exclusion logic - replace failed tickers with next best candidates
+        excluded_tickers = []
+        replacement_tickers = []
+        
+        if len(valid_tickers) < 3:
+            logger.info(f"MANUAL TRIGGER: Only {len(valid_tickers)} tickers passed validation, finding replacements...")
+            
+            # Get next best candidates beyond top 3
+            remaining_candidates = [symbol for symbol, data in sorted_tickers[3:]]
+            
+            for failed_ticker in top_3_symbols:
+                if failed_ticker not in valid_tickers:
+                    excluded_tickers.append(failed_ticker)
+                    
+                    # Find replacement from remaining candidates
+                    for candidate in remaining_candidates:
+                        if candidate not in valid_tickers and candidate not in replacement_tickers:
+                            logger.info(f"MANUAL TRIGGER: Testing replacement candidate {candidate} for excluded {failed_ticker}")
+                            
+                            try:
+                                # Quick spread validation for candidate
+                                candidate_price = etf_scores.get(candidate, {}).get('price', 0)
+                                if candidate_price:
+                                    candidate_spreads = get_real_time_spreads(candidate, candidate_price)
+                                    candidate_total = sum(len([s for s in candidate_spreads.get(strategy, []) if s.get('roi', '0%').replace('%', '').replace('+', '') != '0.0']) for strategy in ['aggressive', 'steady', 'passive'])
+                                    
+                                    if candidate_total >= 2:
+                                        replacement_tickers.append(candidate)
+                                        valid_tickers.append(candidate)
+                                        logger.info(f"MANUAL TRIGGER: ✅ {candidate} added as replacement with {candidate_total} spreads")
+                                        
+                                        results.append({
+                                            'symbol': candidate,
+                                            'status': 'replacement_added',
+                                            'spreads_found': candidate_total,
+                                            'spread_validation': 'PASSED',
+                                            'replaced_ticker': failed_ticker
+                                        })
+                                        break
+                                    else:
+                                        logger.info(f"MANUAL TRIGGER: ❌ {candidate} rejected as replacement - only {candidate_total} spreads")
+                            except Exception as e:
+                                logger.error(f"MANUAL TRIGGER: Error testing replacement {candidate}: {str(e)}")
+                                continue
+        
         # Update polling status
         if changes_detected:
             polling_stats['last_poll_status'] = 'Manual trigger completed - changes detected'
@@ -9428,13 +9540,21 @@ def trigger_quick_analysis():
         # Update last poll time
         last_poll_time = datetime.now()
         
-        logger.info(f"MANUAL TRIGGER: Completed analysis of TOP 3 ONLY - changes detected: {changes_detected}")
+        logger.info(f"MANUAL TRIGGER: Completed analysis with spread validation - changes detected: {changes_detected}")
+        logger.info(f"MANUAL TRIGGER: Final valid tickers: {valid_tickers}")
+        logger.info(f"MANUAL TRIGGER: Excluded tickers: {excluded_tickers}")
+        logger.info(f"MANUAL TRIGGER: Replacement tickers: {replacement_tickers}")
         
         return jsonify({
             'success': True,
             'changes_detected': changes_detected,
-            'processed_tickers': top_3_symbols,
+            'original_top_3': top_3_symbols,
+            'final_valid_tickers': valid_tickers,
+            'excluded_tickers': excluded_tickers,
+            'replacement_tickers': replacement_tickers,
             'results': results,
+            'spread_validation_enabled': True,
+            'minimum_spreads_required': 2,
             'timestamp': datetime.now().isoformat(),
             'api_url': CRITERIA_API_URL
         })
