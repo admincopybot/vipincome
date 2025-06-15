@@ -1675,7 +1675,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
             </div>
             <div class="nav-menu">
-                <a href="#" class="nav-item">How to Use</a>
+                <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
                 <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
                 <a href="#" class="nav-item upgrade-btn">Upgrade</a>
             </div>
@@ -3092,7 +3092,7 @@ def step4(symbol, strategy, spread_id):
             <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
         </div>
         <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
 
         </div>
@@ -3107,7 +3107,7 @@ def step4(symbol, strategy, spread_id):
             <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
         </div>
         <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
             <a href="#" class="get-offer-btn">Upgrade</a>
         </div>
@@ -3692,7 +3692,7 @@ def pro_index():
             <img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo">
         </div>
         <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
 
             <a href="#" class="upgrade-vip-btn" onclick="return false;">Upgrade to VIP</a>
@@ -4317,7 +4317,7 @@ def vip_index():
             <span class="vip-badge">VIP</span>
         </div>
         <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
 
         </div>
@@ -5098,7 +5098,7 @@ def index():
             <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
         </div>
         <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
             <a href="#" class="get-offer-btn">Upgrade</a>
         </div>
@@ -5853,7 +5853,7 @@ def step2(symbol=None):
             <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
         </div>
         <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
 
         </div>
@@ -5868,7 +5868,7 @@ def step2(symbol=None):
             <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
         </div>
         <div class="nav-menu">
-            <a href="#" class="nav-item">How to Use</a>
+            <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
             <a href="#" class="get-offer-btn">Upgrade</a>
         </div>
@@ -7437,7 +7437,7 @@ def step3(symbol=None):
                 <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
             </div>
             <div class="nav-menu">
-                <a href="#" class="nav-item">How to Use</a>
+                <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
                 <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
     
             </div>
@@ -7452,7 +7452,7 @@ def step3(symbol=None):
                 <a href="/"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
             </div>
             <div class="nav-menu">
-                <a href="#" class="nav-item">How to Use</a>
+                <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
                 <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
                 <a href="#" class="get-offer-btn">Upgrade</a>
             </div>
