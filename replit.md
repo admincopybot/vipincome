@@ -144,6 +144,8 @@ Changelog:
 - June 15, 2025: Renamed "Stock Price Scenarios" section to "Profit Matrix" for clearer user understanding
 - June 15, 2025: Fixed "How to Use" video popup functionality across all versions (Free, Pro, VIP)
 - June 15, 2025: Optimized tutorial video file size from 85MB to 23MB for faster loading
+- June 15, 2025: Enhanced /trigger-quick-analysis endpoint with automatic options spread validation
+- June 15, 2025: Added auto-exclusion logic - tickers with <2 spreads automatically replaced with viable alternatives
 
 # User Preferences
 
