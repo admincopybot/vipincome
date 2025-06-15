@@ -138,6 +138,9 @@ Changelog:
 - June 14, 2025: Changed ranking system to STRICT hierarchy: SCORE → OPTIONS CONTRACTS → TRADING VOLUME → SYMBOL
 - June 14, 2025: Updated Pro version to show only top 3 tickers (matching free version) with enhanced features
 - June 14, 2025: Removed VIP upgrade button redirect functionality - now placeholder for future implementation
+- June 15, 2025: Expanded scenario analysis to show 9 price ranges: -10%, -5%, -2.5%, -1%, 0%, +1%, +2.5%, +5%, +10%
+- June 15, 2025: Added video popup functionality for "How to Use" buttons across all application versions
+- June 15, 2025: Optimized scenario table layout with narrower columns and reduced padding for better mobile/desktop display
 
 # User Preferences
 

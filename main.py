@@ -3232,13 +3232,15 @@ def step4(symbol, strategy, spread_id):
             <div class="scenarios-grid">
                 <div class="scenario-header-row">
                     <div class="scenario-cell-label">Change</div>
-                    <div class="scenario-header-cell">-2%</div>
+                    <div class="scenario-header-cell">-10%</div>
+                    <div class="scenario-header-cell">-5%</div>
+                    <div class="scenario-header-cell">-2.5%</div>
                     <div class="scenario-header-cell">-1%</div>
-                    <div class="scenario-header-cell">-0.5%</div>
                     <div class="scenario-header-cell">0%</div>
-                    <div class="scenario-header-cell">+0.5%</div>
                     <div class="scenario-header-cell">+1%</div>
-                    <div class="scenario-header-cell">+2%</div>
+                    <div class="scenario-header-cell">+2.5%</div>
+                    <div class="scenario-header-cell">+5%</div>
+                    <div class="scenario-header-cell">+10%</div>
                 </div>
                 <div class="scenario-row">
                     <div class="scenario-cell-label">Stock Price</div>
