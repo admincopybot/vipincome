@@ -1723,28 +1723,74 @@ def create_step4_demo_data(symbol, strategy, current_price):
             
 
             
-            <div class="main-grid-vertical">
-                <div class="info-card">
-                    <h3>Trade Construction</h3>
-                    <div class="option-id">Buy the ${{ "%.0f"|format(option_data.strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</div>
-                    <div class="option-id">Sell the ${{ "%.0f"|format(option_data.short_strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</div>
-                    <div class="price">Net Debit: ${{ "%.2f"|format(option_data.option_price) }}</div>
-                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
-                        <h4 style="color: #60a5fa; font-size: 16px; margin-bottom: 10px;">Spread Details</h4>
-                        <div class="option-id">Spread Cost: ${{ "%.2f"|format(option_data.option_price) }}</div>
-                        <div class="option-id">Max Value: ${{ "%.2f"|format(option_data.max_profit + option_data.option_price) }}</div>
+            <div class="step4-cards-container">
+                <div class="step4-card">
+                    <div class="card-header-clean">
+                        <h3>Trade Construction</h3>
+                    </div>
+                    <div class="card-content-clean">
+                        <div class="trade-item">
+                            <span class="trade-action buy">BUY</span>
+                            <span class="trade-details">${{ "%.0f"|format(option_data.strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</span>
+                        </div>
+                        <div class="trade-item">
+                            <span class="trade-action sell">SELL</span>
+                            <span class="trade-details">${{ "%.0f"|format(option_data.short_strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</span>
+                        </div>
+                        <div class="net-debit">
+                            <span class="label">Net Debit:</span>
+                            <span class="value">${{ "%.2f"|format(option_data.option_price) }}</span>
+                        </div>
+                        
+                        <div class="section-divider"></div>
+                        
+                        <div class="spread-details-section">
+                            <h4>Spread Details</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">Spread Cost:</span>
+                                <span class="detail-value">${{ "%.2f"|format(option_data.option_price) }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Max Value:</span>
+                                <span class="detail-value">${{ "%.2f"|format(option_data.max_profit + option_data.option_price) }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="info-card">
-                    <h3>Option Details</h3>
-                    <div class="option-id">Long: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
-                    <div class="option-id">Short: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
-                    <div class="price">Spread Width: ${{ "%.1f"|format(option_data.short_strike_price - option_data.strike_price) }}</div>
-                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
-                        <h4 style="color: #60a5fa; font-size: 16px; margin-bottom: 10px;">Trade Info</h4>
-                        <div class="option-id">ROI: {{ "%.1f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</div>
-                        <div class="option-id">Breakeven: ${{ "%.2f"|format(option_data.breakeven) }}</div>
+                <div class="step4-card">
+                    <div class="card-header-clean">
+                        <h3>Option Details</h3>
+                    </div>
+                    <div class="card-content-clean">
+                        <div class="option-contract">
+                            <div class="contract-type">LONG</div>
+                            <div class="contract-details">{{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
+                            <div class="contract-price">${{ "%.2f"|format(option_data.strike_price) }}</div>
+                        </div>
+                        <div class="option-contract">
+                            <div class="contract-type">SHORT</div>
+                            <div class="contract-details">{{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
+                            <div class="contract-price">${{ "%.2f"|format(option_data.short_strike_price) }}</div>
+                        </div>
+                        <div class="spread-width">
+                            <span class="label">Spread Width:</span>
+                            <span class="value">${{ "%.1f"|format(option_data.short_strike_price - option_data.strike_price) }}</span>
+                        </div>
+                        
+                        <div class="section-divider"></div>
+                        
+                        <div class="trade-info-section">
+                            <h4>Trade Info</h4>
+                            <div class="detail-row highlight">
+                                <span class="detail-label">ROI:</span>
+                                <span class="detail-value roi-highlight">{{ "%.1f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Breakeven:</span>
+                                <span class="detail-value">${{ "%.2f"|format(option_data.breakeven) }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3147,24 +3193,75 @@ def step4(symbol, strategy, spread_id):
             <div class="spread-title">${{ scenario_long_strike|round(2) }} / ${{ scenario_short_strike|round(2) }}</div>
         </div>
         
-        <div class="trade-construction">
-            <div class="trade-section">
-                <div class="section-header">Trade Construction</div>
-                <div class="option-detail">Buy the ${{ scenario_long_strike|round(0) }} {{ formatted_expiration }} Call</div>
-                <div class="option-detail">Sell the ${{ scenario_short_strike|round(0) }} {{ formatted_expiration }} Call</div>
-                <div class="option-detail">Net Debit: ${{ spread_cost|round(2) }}</div>
-                <div class="option-detail" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);"><strong>Spread Details</strong></div>
-                <div class="option-detail">Spread Cost: ${{ spread_cost|round(2) }}</div>
-                <div class="option-detail">Max Value: ${{ max_profit|round(2) }}</div>
+        <div class="step4-cards-container">
+            <div class="step4-card">
+                <div class="card-header-clean">
+                    <h3>Trade Construction</h3>
+                </div>
+                <div class="card-content-clean">
+                    <div class="trade-item">
+                        <span class="trade-action buy">BUY</span>
+                        <span class="trade-details">${{ scenario_long_strike|round(0) }} {{ formatted_expiration }} Call</span>
+                    </div>
+                    <div class="trade-item">
+                        <span class="trade-action sell">SELL</span>
+                        <span class="trade-details">${{ scenario_short_strike|round(0) }} {{ formatted_expiration }} Call</span>
+                    </div>
+                    <div class="net-debit">
+                        <span class="label">Net Debit:</span>
+                        <span class="value">${{ spread_cost|round(2) }}</span>
+                    </div>
+                    
+                    <div class="section-divider"></div>
+                    
+                    <div class="spread-details-section">
+                        <h4>Spread Details</h4>
+                        <div class="detail-row">
+                            <span class="detail-label">Spread Cost:</span>
+                            <span class="detail-value">${{ spread_cost|round(2) }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Max Value:</span>
+                            <span class="detail-value">${{ max_profit|round(2) }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="trade-section">
-                <div class="section-header">Option Details</div>
-                <div class="option-detail">Long: {{ long_option_id }} @ ${{ scenario_long_price|round(2) }}</div>
-                <div class="option-detail">Short: {{ short_option_id }} @ ${{ scenario_short_price|round(2) }}</div>
-                <div class="option-detail">Spread Width: ${{ (scenario_short_strike - scenario_long_strike)|round(2) }}</div>
-                <div class="option-detail" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);"><strong>Trade Info</strong></div>
-                <div class="option-detail">ROI: {{ roi|round(1) }}%</div>
-                <div class="option-detail">Breakeven: ${{ breakeven|round(2) }}</div>
+            
+            <div class="step4-card">
+                <div class="card-header-clean">
+                    <h3>Option Details</h3>
+                </div>
+                <div class="card-content-clean">
+                    <div class="option-contract">
+                        <div class="contract-type">LONG</div>
+                        <div class="contract-details">{{ long_option_id }}</div>
+                        <div class="contract-price">${{ scenario_long_price|round(2) }}</div>
+                    </div>
+                    <div class="option-contract">
+                        <div class="contract-type">SHORT</div>
+                        <div class="contract-details">{{ short_option_id }}</div>
+                        <div class="contract-price">${{ scenario_short_price|round(2) }}</div>
+                    </div>
+                    <div class="spread-width">
+                        <span class="label">Spread Width:</span>
+                        <span class="value">${{ (scenario_short_strike - scenario_long_strike)|round(2) }}</span>
+                    </div>
+                    
+                    <div class="section-divider"></div>
+                    
+                    <div class="trade-info-section">
+                        <h4>Trade Info</h4>
+                        <div class="detail-row highlight">
+                            <span class="detail-label">ROI:</span>
+                            <span class="detail-value roi-highlight">{{ roi|round(1) }}%</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Breakeven:</span>
+                            <span class="detail-value">${{ breakeven|round(2) }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -7799,11 +7896,11 @@ def step3(symbol=None):
             font-weight: 600;
         }
 
-        /* Four Main Cards Grid - Updated to Vertical Stack */
+        /* Two Main Cards Grid - Side by Side */
         .main-cards-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
             margin-bottom: 40px;
         }
 
@@ -7852,6 +7949,190 @@ def step3(symbol=None):
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 10px;
+        }
+
+        /* Step 4 Clean Card Styling */
+        .step4-cards-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .step4-card {
+            background: rgba(30, 41, 59, 0.95);
+            border-radius: 16px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header-clean {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header-clean h3 {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            text-align: center;
+        }
+
+        .card-content-clean {
+            padding: 25px;
+        }
+
+        .trade-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .trade-action {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            min-width: 50px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .trade-action.buy {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+        }
+
+        .trade-action.sell {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+        }
+
+        .trade-details {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .net-debit, .spread-width {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .net-debit .label, .spread-width .label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .net-debit .value, .spread-width .value {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+            margin: 25px 0;
+        }
+
+        .spread-details-section h4, .trade-info-section h4 {
+            color: #8b5cf6;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .roi-highlight {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .option-contract {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .contract-type {
+            color: #8b5cf6;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .contract-details {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .contract-price {
+            color: #10b981;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .step4-cards-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .card-header-clean {
+                padding: 15px 20px;
+            }
+            
+            .card-content-clean {
+                padding: 20px;
+            }
         }
 
         /* Trade Summary Section */
