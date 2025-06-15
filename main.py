@@ -1783,14 +1783,15 @@ def create_step4_demo_data(symbol, strategy, current_price):
                     <thead>
                         <tr>
                             <th>Change</th>
-                            <th>-2%</th>
+                            <th>-10%</th>
+                            <th>-5%</th>
+                            <th>-2.5%</th>
                             <th>-1%</th>
-                            <th>-0.5%</th>
                             <th>0%</th>
-                            <th>+0.5%</th>
                             <th>+1%</th>
-                            <th>+2%</th>
-                            <th>>5%</th>
+                            <th>+2.5%</th>
+                            <th>+5%</th>
+                            <th>+10%</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2714,7 +2715,7 @@ def calculate_debit_spread_analysis(long_option_data, short_option_data, current
         
         # Generate price scenarios
         scenarios = []
-        scenario_percentages = [-7.5, -5, -2.5, 0, 2.5, 5, 7.5]
+        scenario_percentages = [-10, -5, -2.5, -1, 0, 1, 2.5, 5, 10]
         
         for change_pct in scenario_percentages:
             future_price = current_stock_price * (1 + change_pct/100)
@@ -2914,7 +2915,7 @@ def step4(symbol, strategy, spread_id):
     # Generate scenario analysis using the REAL current stock price from database
     # Following the exact methodology from your comprehensive guide
     scenarios = []
-    changes = [-2, -1, -0.5, 0, 0.5, 1, 2]
+    changes = [-10, -5, -2.5, -1, 0, 1, 2.5, 5, 10]
     
     print(f"Calculating scenarios with REAL current price: ${current_price:.2f}")
     print(f"Spread cost: ${spread_cost:.2f}, Max profit potential: ${max_profit:.2f}")
@@ -3292,6 +3293,103 @@ def step4(symbol, strategy, spread_id):
         document.addEventListener('DOMContentLoaded', function() {
             calculateIncome();
         });
+        
+        // How to Use Video Popup Function
+        function showHowToUseVideo() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const popup = document.createElement('div');
+            popup.style.cssText = `
+                background: #1a1f2e;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+                border: 2px solid #3b82f6;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                    <button id="closeVideoPopup" style="
+                        background: none;
+                        border: none;
+                        color: #94a3b8;
+                        font-size: 24px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                <video controls style="
+                    width: 100%;
+                    max-width: 800px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                ">
+                    <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                    Learn how to maximize your income potential with The Income Machine
+                </p>
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Close popup handlers
+            document.getElementById('closeVideoPopup').addEventListener('click', closeVideoPopup);
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) closeVideoPopup();
+            });
+            
+            function closeVideoPopup() {
+                overlay.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            }
+        }
     </script>
 </body>
 </html>"""
@@ -7749,13 +7847,15 @@ function closeTradeAnalysis() {
 
 function generateScenarios(data) {
     const scenarios = [
+        { change: '-10%', multiplier: 0.90 },
         { change: '-5%', multiplier: 0.95 },
         { change: '-2.5%', multiplier: 0.975 },
         { change: '-1%', multiplier: 0.99 },
         { change: '0%', multiplier: 1.0 },
         { change: '+1%', multiplier: 1.01 },
         { change: '+2.5%', multiplier: 1.025 },
-        { change: '+5%', multiplier: 1.05 }
+        { change: '+5%', multiplier: 1.05 },
+        { change: '+10%', multiplier: 1.10 }
     ];
     
     const currentPrice = parseFloat(data.current_price || 0);
