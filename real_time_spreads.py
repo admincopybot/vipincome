@@ -198,17 +198,17 @@ class RealTimeSpreadDetector:
             'aggressive': {
                 'dte_min': 10,
                 'dte_max': 17,
-                'strike_filter': lambda strike, price: price * 0.75 <= strike <= price * 1.25  # Wide range for long/short combinations
+                'strike_filter': lambda strike, price: float(price) * 0.75 <= float(strike) <= float(price) * 1.25  # Wide range for long/short combinations
             },
             'balanced': {
                 'dte_min': 17,
                 'dte_max': 28,
-                'strike_filter': lambda strike, price: price * 0.70 <= strike <= price * 1.30  # Wide range for long/short combinations
+                'strike_filter': lambda strike, price: float(price) * 0.70 <= float(strike) <= float(price) * 1.30  # Wide range for long/short combinations
             },
             'conservative': {
                 'dte_min': 28,
                 'dte_max': 42,
-                'strike_filter': lambda strike, price: price * 0.65 <= strike <= price * 1.35  # Wide range for long/short combinations
+                'strike_filter': lambda strike, price: float(price) * 0.65 <= float(strike) <= float(price) * 1.35  # Wide range for long/short combinations
             }
         }
         
@@ -220,7 +220,7 @@ class RealTimeSpreadDetector:
         logger.info(f"🔍 DETAILED FILTERING for {strategy.upper()} strategy:")
         logger.info(f"   Current price: ${current_price}")
         logger.info(f"   DTE range: {criteria['dte_min']}-{criteria['dte_max']} days")
-        logger.info(f"   Strike range: ${current_price * (0.75 if strategy == 'aggressive' else 0.70 if strategy == 'balanced' else 0.65):.2f} - ${current_price * (1.25 if strategy == 'aggressive' else 1.30 if strategy == 'balanced' else 1.35):.2f}")
+        logger.info(f"   Strike range: ${float(current_price) * (0.75 if strategy == 'aggressive' else 0.70 if strategy == 'balanced' else 0.65):.2f} - ${float(current_price) * (1.25 if strategy == 'aggressive' else 1.30 if strategy == 'balanced' else 1.35):.2f}")
         logger.info(f"   Total contracts to check: {len(contracts)}")
         
         dte_passed = 0

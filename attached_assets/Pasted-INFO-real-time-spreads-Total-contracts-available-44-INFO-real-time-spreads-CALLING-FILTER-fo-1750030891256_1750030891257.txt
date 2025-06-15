@@ -1,0 +1,585 @@
+INFO:real_time_spreads:   Total contracts available: 44
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $49.30
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for FOX
+INFO:real_time_spreads:   Total contracts available: 44
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $49.30
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement FOX: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate DE for excluded CSCO
+INFO:real_time_spreads:Using real-time price $509.59 for DE spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for DE
+INFO:real_time_spreads:📥 Page 1: 816 contracts (Total: 816)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 816 call contracts for DE
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for DE
+INFO:real_time_spreads:Available contracts: 816
+INFO:real_time_spreads:Current price: $509.59
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for DE
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for DE
+INFO:real_time_spreads:   Total contracts available: 816
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for DE
+INFO:real_time_spreads:   Total contracts available: 816
+INFO:real_time_spreads:   Current price: $509.59
+INFO:real_time_spreads:   Total contracts available: 816
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $509.59
+INFO:real_time_spreads:   Current price: $509.59
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement DE: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate TRV for excluded CSCO
+INFO:real_time_spreads:Using real-time price $263.47 for TRV spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for TRV
+INFO:real_time_spreads:📥 Page 1: 177 contracts (Total: 177)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 177 call contracts for TRV
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for TRV
+INFO:real_time_spreads:Available contracts: 177
+INFO:real_time_spreads:Current price: $263.47
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for TRV
+INFO:real_time_spreads:   Total contracts available: 177
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $263.47
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for TRV
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:   Total contracts available: 177
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for TRV
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $263.47
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:   Total contracts available: 177
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $263.47
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement TRV: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate XYL for excluded CSCO
+INFO:real_time_spreads:Using real-time price $125.50 for XYL spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for XYL
+INFO:real_time_spreads:📥 Page 1: 141 contracts (Total: 141)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 141 call contracts for XYL
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for XYL
+INFO:real_time_spreads:Available contracts: 141
+INFO:real_time_spreads:Current price: $125.50
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for XYL
+INFO:real_time_spreads:   Total contracts available: 141
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $125.50
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for XYL
+INFO:real_time_spreads:   Total contracts available: 141
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $125.50
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for XYL
+INFO:real_time_spreads:   Total contracts available: 141
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $125.50
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement XYL: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate CHTR for excluded CSCO
+INFO:real_time_spreads:Using real-time price $388.72 for CHTR spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for CHTR
+INFO:real_time_spreads:📥 Page 1: 798 contracts (Total: 798)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 798 call contracts for CHTR
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for CHTR
+INFO:real_time_spreads:Available contracts: 798
+INFO:real_time_spreads:Current price: $388.72
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for CHTR
+INFO:real_time_spreads:   Total contracts available: 798
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $388.72
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for CHTR
+INFO:real_time_spreads:   Total contracts available: 798
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $388.72
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for CHTR
+INFO:real_time_spreads:   Total contracts available: 798
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $388.72
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement CHTR: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate EXPD for excluded CSCO
+INFO:real_time_spreads:Using real-time price $114.26 for EXPD spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for EXPD
+INFO:real_time_spreads:📥 Page 1: 94 contracts (Total: 94)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 94 call contracts for EXPD
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for EXPD
+INFO:real_time_spreads:Available contracts: 94
+INFO:real_time_spreads:Current price: $114.26
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for EXPD
+INFO:real_time_spreads:   Total contracts available: 94
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $114.26
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for EXPD
+INFO:real_time_spreads:   Total contracts available: 94
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $114.26
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for EXPD
+INFO:real_time_spreads:   Total contracts available: 94
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $114.26
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement EXPD: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate DRI for excluded CSCO
+INFO:real_time_spreads:Using real-time price $217.50 for DRI spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for DRI
+INFO:real_time_spreads:📥 Page 1: 387 contracts (Total: 387)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 387 call contracts for DRI
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for DRI
+INFO:real_time_spreads:Available contracts: 387
+INFO:real_time_spreads:Current price: $217.50
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for DRI
+INFO:real_time_spreads:   Total contracts available: 387
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $217.50
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for DRI
+INFO:real_time_spreads:   Total contracts available: 387
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $217.50
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for DRI
+INFO:real_time_spreads:   Total contracts available: 387
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $217.50
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement DRI: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate TT for excluded CSCO
+INFO:real_time_spreads:Using real-time price $421.39 for TT spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for TT
+INFO:real_time_spreads:📥 Page 1: 360 contracts (Total: 360)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 360 call contracts for TT
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for TT
+INFO:real_time_spreads:Available contracts: 360
+INFO:real_time_spreads:Current price: $421.39
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for TT
+INFO:real_time_spreads:   Total contracts available: 360
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $421.39
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for TT
+INFO:real_time_spreads:   Total contracts available: 360
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $421.39
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for TT
+INFO:real_time_spreads:   Total contracts available: 360
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $421.39
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement TT: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate NOW for excluded CSCO
+INFO:real_time_spreads:Using real-time price $988.66 for NOW spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for NOW
+INFO:real_time_spreads:📥 Page 1: 1000 contracts (Total: 1000)
+INFO:real_time_spreads:📥 Fetching contracts page 2 for NOW
+INFO:real_time_spreads:📥 Page 2: 669 contracts (Total: 1669)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 1669 call contracts for NOW
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for NOW
+INFO:real_time_spreads:Available contracts: 1669
+INFO:real_time_spreads:Current price: $988.66
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for NOW
+INFO:real_time_spreads:   Total contracts available: 1669
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $988.66
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for NOW
+INFO:real_time_spreads:   Total contracts available: 1669
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $988.66
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for NOW
+INFO:real_time_spreads:   Total contracts available: 1669
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $988.66
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement NOW: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate PWR for excluded CSCO
+INFO:real_time_spreads:Using real-time price $358.26 for PWR spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for PWR
+INFO:real_time_spreads:📥 Page 1: 455 contracts (Total: 455)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 455 call contracts for PWR
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for PWR
+INFO:real_time_spreads:Available contracts: 455
+INFO:real_time_spreads:Current price: $358.26
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for PWR
+INFO:real_time_spreads:   Total contracts available: 455
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $358.26
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for PWR
+INFO:real_time_spreads:   Total contracts available: 455
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $358.26
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for PWR
+INFO:real_time_spreads:   Total contracts available: 455
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $358.26
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement PWR: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate SYK for excluded CSCO
+INFO:real_time_spreads:Using real-time price $377.30 for SYK spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for SYK
+INFO:real_time_spreads:📥 Page 1: 350 contracts (Total: 350)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 350 call contracts for SYK
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for SYK
+INFO:real_time_spreads:Available contracts: 350
+INFO:real_time_spreads:Current price: $377.30
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for SYK
+INFO:real_time_spreads:   Total contracts available: 350
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for SYK
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for SYK
+INFO:real_time_spreads:   Total contracts available: 350
+INFO:real_time_spreads:   Current price: $377.30
+INFO:real_time_spreads:   Total contracts available: 350
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $377.30
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:   Current price: $377.30
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement SYK: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate ATO for excluded CSCO
+INFO:real_time_spreads:Using real-time price $152.99 for ATO spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for ATO
+INFO:real_time_spreads:📥 Page 1: 153 contracts (Total: 153)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 153 call contracts for ATO
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for ATO
+INFO:real_time_spreads:Available contracts: 153
+INFO:real_time_spreads:Current price: $152.99
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for ATO
+INFO:real_time_spreads:   Total contracts available: 153
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $152.99
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for ATO
+INFO:real_time_spreads:   Total contracts available: 153
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for ATO
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Total contracts available: 153
+INFO:real_time_spreads:   Current price: $152.99
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $152.99
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement ATO: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate MCK for excluded CSCO
+INFO:real_time_spreads:Using real-time price $728.20 for MCK spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for MCK
+INFO:real_time_spreads:📥 Page 1: 840 contracts (Total: 840)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 840 call contracts for MCK
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for MCK
+INFO:real_time_spreads:Available contracts: 840
+INFO:real_time_spreads:Current price: $728.20
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for MCK
+INFO:real_time_spreads:   Total contracts available: 840
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $728.20
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for MCK
+INFO:real_time_spreads:   Total contracts available: 840
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $728.20
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for MCK
+INFO:real_time_spreads:   Total contracts available: 840
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $728.20
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement MCK: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate NVDA for excluded CSCO
+INFO:real_time_spreads:Using real-time price $150.00 for NVDA spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for NVDA
+INFO:real_time_spreads:📥 Page 1: 1000 contracts (Total: 1000)
+INFO:real_time_spreads:📥 Fetching contracts page 2 for NVDA
+INFO:real_time_spreads:📥 Page 2: 1000 contracts (Total: 2000)
+INFO:real_time_spreads:📥 Fetching contracts page 3 for NVDA
+INFO:real_time_spreads:📥 Page 3: 176 contracts (Total: 2176)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 2176 call contracts for NVDA
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for NVDA
+INFO:real_time_spreads:Available contracts: 2176
+INFO:real_time_spreads:Current price: $150.00
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for NVDA
+INFO:real_time_spreads:   Total contracts available: 2176
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $150.00
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for NVDA
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for NVDA
+INFO:real_time_spreads:   Total contracts available: 2176
+INFO:real_time_spreads:   Total contracts available: 2176
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $150.00
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:   Current price: $150.00
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement NVDA: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate INTC for excluded CSCO
+INFO:real_time_spreads:Using real-time price $20.14 for INTC spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for INTC
+INFO:real_time_spreads:📥 Page 1: 495 contracts (Total: 495)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 495 call contracts for INTC
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for INTC
+INFO:real_time_spreads:Available contracts: 495
+INFO:real_time_spreads:Current price: $20.14
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for INTC
+INFO:real_time_spreads:   Total contracts available: 495
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $20.14
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for INTC
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for INTC
+INFO:real_time_spreads:   Total contracts available: 495
+INFO:real_time_spreads:   Total contracts available: 495
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $20.14
+INFO:real_time_spreads:   Current price: $20.14
+INFO:real_time_spreads:   DTE range: 28-42 days
+INFO:real_time_spreads:   DTE range: 17-28 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement INTC: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate PCG for excluded CSCO
+INFO:real_time_spreads:Using real-time price $13.64 for PCG spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for PCG
+INFO:real_time_spreads:📥 Page 1: 344 contracts (Total: 344)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 344 call contracts for PCG
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for PCG
+INFO:real_time_spreads:Available contracts: 344
+INFO:real_time_spreads:Current price: $13.64
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for PCG
+INFO:real_time_spreads:   Total contracts available: 344
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $13.64
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for PCG
+INFO:real_time_spreads:   Total contracts available: 344
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $13.64
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for PCG
+INFO:real_time_spreads:   Total contracts available: 344
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $13.64
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement PCG: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate AVGO for excluded CSCO
+INFO:real_time_spreads:Using real-time price $248.70 for AVGO spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for AVGO
+INFO:real_time_spreads:📥 Page 1: 1000 contracts (Total: 1000)
+INFO:real_time_spreads:📥 Fetching contracts page 2 for AVGO
+INFO:real_time_spreads:📥 Page 2: 346 contracts (Total: 1346)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 1346 call contracts for AVGO
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for AVGO
+INFO:real_time_spreads:Available contracts: 1346
+INFO:real_time_spreads:Current price: $248.70
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for AVGO
+INFO:real_time_spreads:   Total contracts available: 1346
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $248.70
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for AVGO
+INFO:real_time_spreads:   Total contracts available: 1346
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $248.70
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for AVGO
+INFO:real_time_spreads:   Total contracts available: 1346
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $248.70
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement AVGO: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate CMCSA for excluded CSCO
+INFO:real_time_spreads:Using real-time price $35.01 for CMCSA spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for CMCSA
+INFO:real_time_spreads:📥 Page 1: 337 contracts (Total: 337)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 337 call contracts for CMCSA
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for CMCSA
+INFO:real_time_spreads:Available contracts: 337
+INFO:real_time_spreads:Current price: $35.01
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for CMCSA
+INFO:real_time_spreads:   Total contracts available: 337
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $35.01
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for CMCSA
+INFO:real_time_spreads:   Total contracts available: 337
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for CMCSA
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:   Total contracts available: 337
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:   Current price: $35.01
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:   Current price: $35.01
+INFO:real_time_spreads:   DTE range: 28-42 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement CMCSA: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate XOM for excluded CSCO
+INFO:real_time_spreads:Using real-time price $112.12 for XOM spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for XOM
+INFO:real_time_spreads:📥 Page 1: 643 contracts (Total: 643)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 643 call contracts for XOM
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for XOM
+INFO:real_time_spreads:Available contracts: 643
+INFO:real_time_spreads:Current price: $112.12
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for XOM
+INFO:real_time_spreads:   Total contracts available: 643
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for XOM
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for XOM
+INFO:real_time_spreads:   Total contracts available: 643
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Current price: $112.12
+INFO:real_time_spreads:   DTE range: 28-42 days
+INFO:real_time_spreads:   Total contracts available: 643
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $112.12
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $112.12
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:   DTE range: 17-28 days
+ERROR:main:MANUAL TRIGGER: Error testing replacement XOM: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+INFO:main:MANUAL TRIGGER: Testing replacement candidate MSFT for excluded CSCO
+INFO:real_time_spreads:Using real-time price $474.96 for MSFT spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for MSFT
+INFO:real_time_spreads:📥 Page 1: 1000 contracts (Total: 1000)
+INFO:real_time_spreads:📥 Fetching contracts page 2 for MSFT
+[2025-06-15 23:28:00 +0000] [7493] [CRITICAL] WORKER TIMEOUT (pid:8239)
+[2025-06-15 23:28:00 +0000] [8239] [ERROR] Error handling request /trigger-quick-analysis
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 9510, in trigger_quick_analysis
+    candidate_spreads = get_real_time_spreads(candidate, candidate_price)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/real_time_spreads.py", line 655, in get_real_time_spreads
+    return detector.find_best_spreads(symbol, current_price)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/real_time_spreads.py", line 445, in find_best_spreads
+    all_contracts = self.get_all_contracts(symbol)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/real_time_spreads.py", line 154, in get_all_contracts
+    response = requests.get(f"{next_url}&apikey={self.polygon_api_key}")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests/adapters.py", line 667, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connectionpool.py", line 534, in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connection.py", line 516, in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/http/client.py", line 1395, in getresponse
+    response.begin()
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/http/client.py", line 325, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/http/client.py", line 286, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/socket.py", line 718, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/ssl.py", line 1314, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/clx0mcir7qw8zk36zbr4jra789g3knf6-python3-3.11.10/lib/python3.11/ssl.py", line 1166, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/pytho
