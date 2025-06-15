@@ -1417,14 +1417,6 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 margin-bottom: 30px;
             }
             
-            .main-grid-vertical {
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-                margin-bottom: 30px;
-                max-width: 100%;
-            }
-            
             .info-card {
                 background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
                 padding: 24px;
@@ -1723,74 +1715,38 @@ def create_step4_demo_data(symbol, strategy, current_price):
             
 
             
-            <div class="step4-cards-container">
-                <div class="step4-card">
-                    <div class="card-header-clean">
-                        <h3>Trade Construction</h3>
+            <div class="main-grid">
+                <div class="info-card">
+                    <h3>Trade Construction</h3>
+                    <div class="option-id">Buy the ${{ "%.0f"|format(option_data.strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</div>
+                    <div class="option-id">Sell the ${{ "%.0f"|format(option_data.short_strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</div>
+                    <div class="price">Net Debit: ${{ "%.2f"|format(option_data.option_price) }}</div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Option Details</h3>
+                    <div class="option-id">Long: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
+                    <div class="option-id">Short: {{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
+                    <div class="price">ROI: {{ "%.1f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</div>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Spread Details</h3>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Spread Cost:</strong> <span class="spread-cost">${{ "%.2f"|format(option_data.option_price) }}</span>
                     </div>
-                    <div class="card-content-clean">
-                        <div class="trade-item">
-                            <span class="trade-action buy">BUY</span>
-                            <span class="trade-details">${{ "%.0f"|format(option_data.strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</span>
-                        </div>
-                        <div class="trade-item">
-                            <span class="trade-action sell">SELL</span>
-                            <span class="trade-details">${{ "%.0f"|format(option_data.short_strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</span>
-                        </div>
-                        <div class="net-debit">
-                            <span class="label">Net Debit:</span>
-                            <span class="value">${{ "%.2f"|format(option_data.option_price) }}</span>
-                        </div>
-                        
-                        <div class="section-divider"></div>
-                        
-                        <div class="spread-details-section">
-                            <h4>Spread Details</h4>
-                            <div class="detail-row">
-                                <span class="detail-label">Spread Cost:</span>
-                                <span class="detail-value">${{ "%.2f"|format(option_data.option_price) }}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Max Value:</span>
-                                <span class="detail-value">${{ "%.2f"|format(option_data.max_profit + option_data.option_price) }}</span>
-                            </div>
-                        </div>
+                    <div>
+                        <strong>Max Value:</strong> <span class="max-value">${{ "%.2f"|format(option_data.max_profit + option_data.option_price) }}</span>
                     </div>
                 </div>
                 
-                <div class="step4-card">
-                    <div class="card-header-clean">
-                        <h3>Option Details</h3>
+                <div class="info-card">
+                    <h3>Trade Info</h3>
+                    <div style="margin-bottom: 10px;">
+                        <strong>ROI:</strong> <span class="roi-value">{{ "%.2f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</span>
                     </div>
-                    <div class="card-content-clean">
-                        <div class="option-contract">
-                            <div class="contract-type">LONG</div>
-                            <div class="contract-details">{{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.strike_price * 1000) }}</div>
-                            <div class="contract-price">${{ "%.2f"|format(option_data.strike_price) }}</div>
-                        </div>
-                        <div class="option-contract">
-                            <div class="contract-type">SHORT</div>
-                            <div class="contract-details">{{ symbol }}{{ option_data.expiration_date|replace('-', '') }}C{{ "%.0f"|format(option_data.short_strike_price * 1000) }}</div>
-                            <div class="contract-price">${{ "%.2f"|format(option_data.short_strike_price) }}</div>
-                        </div>
-                        <div class="spread-width">
-                            <span class="label">Spread Width:</span>
-                            <span class="value">${{ "%.1f"|format(option_data.short_strike_price - option_data.strike_price) }}</span>
-                        </div>
-                        
-                        <div class="section-divider"></div>
-                        
-                        <div class="trade-info-section">
-                            <h4>Trade Info</h4>
-                            <div class="detail-row highlight">
-                                <span class="detail-label">ROI:</span>
-                                <span class="detail-value roi-highlight">{{ "%.1f"|format((option_data.max_profit / option_data.option_price) * 100) }}%</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Breakeven:</span>
-                                <span class="detail-value">${{ "%.2f"|format(option_data.breakeven) }}</span>
-                            </div>
-                        </div>
+                    <div>
+                        <strong>Breakeven:</strong> <span class="breakeven-value">${{ "%.2f"|format(option_data.breakeven) }}</span>
                     </div>
                 </div>
             </div>
@@ -3063,7 +3019,7 @@ def step4(symbol, strategy, spread_id):
         .spread-title { color: #ffffff; font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .width-badge { background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
         
-        .trade-construction { display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; }
+        .trade-construction { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
         .trade-section { background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; transition: all 0.3s ease; }
         .trade-section:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }
         .section-header { color: #ffffff; font-weight: 700; margin-bottom: 12px; font-size: 16px; }
@@ -3193,75 +3149,28 @@ def step4(symbol, strategy, spread_id):
             <div class="spread-title">${{ scenario_long_strike|round(2) }} / ${{ scenario_short_strike|round(2) }}</div>
         </div>
         
-        <div class="step4-cards-container">
-            <div class="step4-card">
-                <div class="card-header-clean">
-                    <h3>Trade Construction</h3>
-                </div>
-                <div class="card-content-clean">
-                    <div class="trade-item">
-                        <span class="trade-action buy">BUY</span>
-                        <span class="trade-details">${{ scenario_long_strike|round(0) }} {{ formatted_expiration }} Call</span>
-                    </div>
-                    <div class="trade-item">
-                        <span class="trade-action sell">SELL</span>
-                        <span class="trade-details">${{ scenario_short_strike|round(0) }} {{ formatted_expiration }} Call</span>
-                    </div>
-                    <div class="net-debit">
-                        <span class="label">Net Debit:</span>
-                        <span class="value">${{ spread_cost|round(2) }}</span>
-                    </div>
-                    
-                    <div class="section-divider"></div>
-                    
-                    <div class="spread-details-section">
-                        <h4>Spread Details</h4>
-                        <div class="detail-row">
-                            <span class="detail-label">Spread Cost:</span>
-                            <span class="detail-value">${{ spread_cost|round(2) }}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Max Value:</span>
-                            <span class="detail-value">${{ max_profit|round(2) }}</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="trade-construction">
+            <div class="trade-section">
+                <div class="section-header">Trade Construction</div>
+                <div class="option-detail">Buy the ${{ scenario_long_strike|round(0) }} {{ formatted_expiration }} Call</div>
+                <div class="option-detail">Sell the ${{ scenario_short_strike|round(0) }} {{ formatted_expiration }} Call</div>
+                <div class="option-detail">Net Debit: ${{ spread_cost|round(2) }}</div>
             </div>
-            
-            <div class="step4-card">
-                <div class="card-header-clean">
-                    <h3>Option Details</h3>
-                </div>
-                <div class="card-content-clean">
-                    <div class="option-contract">
-                        <div class="contract-type">LONG</div>
-                        <div class="contract-details">{{ long_option_id }}</div>
-                        <div class="contract-price">${{ scenario_long_price|round(2) }}</div>
-                    </div>
-                    <div class="option-contract">
-                        <div class="contract-type">SHORT</div>
-                        <div class="contract-details">{{ short_option_id }}</div>
-                        <div class="contract-price">${{ scenario_short_price|round(2) }}</div>
-                    </div>
-                    <div class="spread-width">
-                        <span class="label">Spread Width:</span>
-                        <span class="value">${{ (scenario_short_strike - scenario_long_strike)|round(2) }}</span>
-                    </div>
-                    
-                    <div class="section-divider"></div>
-                    
-                    <div class="trade-info-section">
-                        <h4>Trade Info</h4>
-                        <div class="detail-row highlight">
-                            <span class="detail-label">ROI:</span>
-                            <span class="detail-value roi-highlight">{{ roi|round(1) }}%</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Breakeven:</span>
-                            <span class="detail-value">${{ breakeven|round(2) }}</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="trade-section">
+                <div class="section-header">Option Details</div>
+                <div class="option-detail">Long: {{ long_option_id }} @ ${{ scenario_long_price|round(2) }}</div>
+                <div class="option-detail">Short: {{ short_option_id }} @ ${{ scenario_short_price|round(2) }}</div>
+                <div class="option-detail">Spread Width: ${{ (scenario_short_strike - scenario_long_strike)|round(2) }}</div>
+            </div>
+            <div class="trade-section">
+                <div class="section-header">Spread Details</div>
+                <div class="option-detail">Spread Cost: ${{ spread_cost|round(2) }}</div>
+                <div class="option-detail">Max Value: ${{ max_profit|round(2) }}</div>
+            </div>
+            <div class="trade-section">
+                <div class="section-header">Trade Info</div>
+                <div class="option-detail">ROI: {{ roi|round(1) }}%</div>
+                <div class="option-detail">Breakeven: ${{ breakeven|round(2) }}</div>
             </div>
         </div>
         
@@ -3383,105 +3292,6 @@ def step4(symbol, strategy, spread_id):
         document.addEventListener('DOMContentLoaded', function() {
             calculateIncome();
         });
-    
-    // How to Use Video Popup Function
-    function showHowToUseVideo() {
-        const overlay = document.createElement("div");
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        const popup = document.createElement("div");
-        popup.style.cssText = `
-            background: #1a1f2e;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 90vw;
-            max-height: 90vh;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: popIn 0.4s ease;
-            border: 2px solid #3b82f6;
-        `;
-        
-        popup.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
-                <button id="closeVideoPopup" style="
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 24px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">×</button>
-            </div>
-            <video controls style="
-                width: 100%;
-                max-width: 800px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            ">
-                <source src="/static/how-to-use-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
-                Learn how to maximize your income potential with The Income Machine
-            </p>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        const style = document.createElement("style");
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes popIn {
-                from { transform: scale(0.8); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        if (!document.head.querySelector("style[data-video-popup]")) {
-            style.setAttribute("data-video-popup", "true");
-            document.head.appendChild(style);
-        }
-        
-        document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
-        overlay.addEventListener("click", function(e) {
-            if (e.target === overlay) closeVideoPopup();
-        });
-        
-        function closeVideoPopup() {
-            overlay.style.animation = "fadeOut 0.3s ease";
-            setTimeout(() => {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        }
-    }
     </script>
 </body>
 </html>"""
@@ -4092,206 +3902,6 @@ def pro_index():
         
         // Check market hours on page load
         setTimeout(checkMarketHours, 1000); // Slight delay for page load
-    
-    // How to Use Video Popup Function
-    function showHowToUseVideo() {
-        const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        const popup = document.createElement('div');
-        popup.style.cssText = `
-            background: #1a1f2e;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 90vw;
-            max-height: 90vh;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: popIn 0.4s ease;
-            border: 2px solid #3b82f6;
-        `;
-        
-        popup.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
-                <button id="closeVideoPopup" style="
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 24px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">×</button>
-            </div>
-            <video controls style="
-                width: 100%;
-                max-width: 800px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            ">
-                <source src="/static/how-to-use-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
-                Learn how to maximize your income potential with The Income Machine
-            </p>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        // Add animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes popIn {
-                from { transform: scale(0.8); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        if (!document.head.querySelector('style[data-video-popup]')) {
-            style.setAttribute('data-video-popup', 'true');
-            document.head.appendChild(style);
-        }
-        
-        // Close popup handlers
-        document.getElementById('closeVideoPopup').addEventListener('click', closeVideoPopup);
-        overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) closeVideoPopup();
-        });
-        
-        function closeVideoPopup() {
-            overlay.style.animation = 'fadeOut 0.3s ease';
-            setTimeout(() => {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        }
-    }
-    
-    // How to Use Video Popup Function
-    function showHowToUseVideo() {
-        const overlay = document.createElement("div");
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        const popup = document.createElement("div");
-        popup.style.cssText = `
-            background: #1a1f2e;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 90vw;
-            max-height: 90vh;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: popIn 0.4s ease;
-            border: 2px solid #3b82f6;
-        `;
-        
-        popup.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
-                <button id="closeVideoPopup" style="
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 24px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">×</button>
-            </div>
-            <video controls style="
-                width: 100%;
-                max-width: 800px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            ">
-                <source src="/static/how-to-use-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
-                Learn how to maximize your income potential with The Income Machine
-            </p>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        const style = document.createElement("style");
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes popIn {
-                from { transform: scale(0.8); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        if (!document.head.querySelector("style[data-video-popup]")) {
-            style.setAttribute("data-video-popup", "true");
-            document.head.appendChild(style);
-        }
-        
-        document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
-        overlay.addEventListener("click", function(e) {
-            if (e.target === overlay) closeVideoPopup();
-        });
-        
-        function closeVideoPopup() {
-            overlay.style.animation = "fadeOut 0.3s ease";
-            setTimeout(() => {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        }
-    }
     </script>
 </body>
 </html>
@@ -4833,105 +4443,6 @@ def vip_index():
         
         // Real-time status
         console.log("VIP Scoreboard loaded with instant search - {{ display_count }} tickers displayed");
-    
-    // How to Use Video Popup Function
-    function showHowToUseVideo() {
-        const overlay = document.createElement("div");
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        const popup = document.createElement("div");
-        popup.style.cssText = `
-            background: #1a1f2e;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 90vw;
-            max-height: 90vh;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: popIn 0.4s ease;
-            border: 2px solid #3b82f6;
-        `;
-        
-        popup.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
-                <button id="closeVideoPopup" style="
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 24px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">×</button>
-            </div>
-            <video controls style="
-                width: 100%;
-                max-width: 800px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            ">
-                <source src="/static/how-to-use-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
-                Learn how to maximize your income potential with The Income Machine
-            </p>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        const style = document.createElement("style");
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes popIn {
-                from { transform: scale(0.8); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        if (!document.head.querySelector("style[data-video-popup]")) {
-            style.setAttribute("data-video-popup", "true");
-            document.head.appendChild(style);
-        }
-        
-        document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
-        overlay.addEventListener("click", function(e) {
-            if (e.target === overlay) closeVideoPopup();
-        });
-        
-        function closeVideoPopup() {
-            overlay.style.animation = "fadeOut 0.3s ease";
-            setTimeout(() => {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        }
-    }
     </script>
 </body>
 </html>
@@ -5787,105 +5298,6 @@ def index():
         
         // Check market hours on page load
         setTimeout(checkMarketHours, 1000); // Slight delay for page load
-    
-    // How to Use Video Popup Function
-    function showHowToUseVideo() {
-        const overlay = document.createElement("div");
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        const popup = document.createElement("div");
-        popup.style.cssText = `
-            background: #1a1f2e;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 90vw;
-            max-height: 90vh;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: popIn 0.4s ease;
-            border: 2px solid #3b82f6;
-        `;
-        
-        popup.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
-                <button id="closeVideoPopup" style="
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 24px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">×</button>
-            </div>
-            <video controls style="
-                width: 100%;
-                max-width: 800px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            ">
-                <source src="/static/how-to-use-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
-                Learn how to maximize your income potential with The Income Machine
-            </p>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        const style = document.createElement("style");
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes popIn {
-                from { transform: scale(0.8); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        if (!document.head.querySelector("style[data-video-popup]")) {
-            style.setAttribute("data-video-popup", "true");
-            document.head.appendChild(style);
-        }
-        
-        document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
-        overlay.addEventListener("click", function(e) {
-            if (e.target === overlay) closeVideoPopup();
-        });
-        
-        function closeVideoPopup() {
-            overlay.style.animation = "fadeOut 0.3s ease";
-            setTimeout(() => {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        }
-    }
     </script>
 </body>
 </html>
@@ -6913,105 +6325,6 @@ def step2(symbol=None):
                 });
             }
         });
-    
-    // How to Use Video Popup Function
-    function showHowToUseVideo() {
-        const overlay = document.createElement("div");
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        const popup = document.createElement("div");
-        popup.style.cssText = `
-            background: #1a1f2e;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 90vw;
-            max-height: 90vh;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: popIn 0.4s ease;
-            border: 2px solid #3b82f6;
-        `;
-        
-        popup.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
-                <button id="closeVideoPopup" style="
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 24px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">×</button>
-            </div>
-            <video controls style="
-                width: 100%;
-                max-width: 800px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            ">
-                <source src="/static/how-to-use-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
-                Learn how to maximize your income potential with The Income Machine
-            </p>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        const style = document.createElement("style");
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes popIn {
-                from { transform: scale(0.8); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        if (!document.head.querySelector("style[data-video-popup]")) {
-            style.setAttribute("data-video-popup", "true");
-            document.head.appendChild(style);
-        }
-        
-        document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
-        overlay.addEventListener("click", function(e) {
-            if (e.target === overlay) closeVideoPopup();
-        });
-        
-        function closeVideoPopup() {
-            overlay.style.animation = "fadeOut 0.3s ease";
-            setTimeout(() => {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        }
-    }
     </script>
 </body>
 </html>
@@ -7896,11 +7209,11 @@ def step3(symbol=None):
             font-weight: 600;
         }
 
-        /* Two Main Cards Grid - Side by Side */
+        /* Four Main Cards Grid */
         .main-cards-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
             margin-bottom: 40px;
         }
 
@@ -7942,197 +7255,6 @@ def step3(symbol=None):
             color: #ffffff;
             font-size: 14px;
             font-weight: 600;
-        }
-
-        .card-subheader {
-            color: #60a5fa;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        /* Step 4 Clean Card Styling */
-        .step4-cards-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .step4-card {
-            background: rgba(30, 41, 59, 0.95);
-            border-radius: 16px;
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .card-header-clean {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            padding: 20px 25px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .card-header-clean h3 {
-            color: #ffffff;
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0;
-            text-align: center;
-        }
-
-        .card-content-clean {
-            padding: 25px;
-        }
-
-        .trade-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-        }
-
-        .trade-action {
-            font-size: 12px;
-            font-weight: 700;
-            padding: 6px 12px;
-            border-radius: 20px;
-            min-width: 50px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .trade-action.buy {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: #ffffff;
-        }
-
-        .trade-action.sell {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #ffffff;
-        }
-
-        .trade-details {
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 500;
-            flex: 1;
-        }
-
-        .net-debit, .spread-width {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .net-debit .label, .spread-width .label {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .net-debit .value, .spread-width .value {
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
-            margin: 25px 0;
-        }
-
-        .spread-details-section h4, .trade-info-section h4 {
-            color: #8b5cf6;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .detail-value {
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .roi-highlight {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: #ffffff;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 700;
-        }
-
-        .option-contract {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 12px;
-        }
-
-        .contract-type {
-            color: #8b5cf6;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .contract-details {
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            word-break: break-all;
-        }
-
-        .contract-price {
-            color: #10b981;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        @media (max-width: 768px) {
-            .step4-cards-container {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .card-header-clean {
-                padding: 15px 20px;
-            }
-            
-            .card-content-clean {
-                padding: 20px;
-            }
         }
 
         /* Trade Summary Section */
@@ -8884,105 +8006,6 @@ def hidden_csv_ui():
                 statusDiv.className = 'status ' + type;
                 statusDiv.style.display = 'block';
             }
-    
-    // How to Use Video Popup Function
-    function showHowToUseVideo() {
-        const overlay = document.createElement("div");
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        const popup = document.createElement("div");
-        popup.style.cssText = `
-            background: #1a1f2e;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 90vw;
-            max-height: 90vh;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: popIn 0.4s ease;
-            border: 2px solid #3b82f6;
-        `;
-        
-        popup.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
-                <button id="closeVideoPopup" style="
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 24px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">×</button>
-            </div>
-            <video controls style="
-                width: 100%;
-                max-width: 800px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            ">
-                <source src="/static/how-to-use-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
-                Learn how to maximize your income potential with The Income Machine
-            </p>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        const style = document.createElement("style");
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes popIn {
-                from { transform: scale(0.8); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        if (!document.head.querySelector("style[data-video-popup]")) {
-            style.setAttribute("data-video-popup", "true");
-            document.head.appendChild(style);
-        }
-        
-        document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
-        overlay.addEventListener("click", function(e) {
-            if (e.target === overlay) closeVideoPopup();
-        });
-        
-        function closeVideoPopup() {
-            overlay.style.animation = "fadeOut 0.3s ease";
-            setTimeout(() => {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        }
-    }
         </script>
     <script>
 function updateCountdown() {
@@ -9262,105 +8285,6 @@ def spread_diagnostics():
                     document.getElementById('diagnosticLog').textContent = 'Error: ' + error.message;
                 });
             });
-    
-    // How to Use Video Popup Function
-    function showHowToUseVideo() {
-        const overlay = document.createElement("div");
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        `;
-        
-        const popup = document.createElement("div");
-        popup.style.cssText = `
-            background: #1a1f2e;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 90vw;
-            max-height: 90vh;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            animation: popIn 0.4s ease;
-            border: 2px solid #3b82f6;
-        `;
-        
-        popup.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
-                <button id="closeVideoPopup" style="
-                    background: none;
-                    border: none;
-                    color: #94a3b8;
-                    font-size: 24px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">×</button>
-            </div>
-            <video controls style="
-                width: 100%;
-                max-width: 800px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            ">
-                <source src="/static/how-to-use-video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
-                Learn how to maximize your income potential with The Income Machine
-            </p>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        const style = document.createElement("style");
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes popIn {
-                from { transform: scale(0.8); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        if (!document.head.querySelector("style[data-video-popup]")) {
-            style.setAttribute("data-video-popup", "true");
-            document.head.appendChild(style);
-        }
-        
-        document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
-        overlay.addEventListener("click", function(e) {
-            if (e.target === overlay) closeVideoPopup();
-        });
-        
-        function closeVideoPopup() {
-            overlay.style.animation = "fadeOut 0.3s ease";
-            setTimeout(() => {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
-        }
-    }
         </script>
     </body>
     </html>
