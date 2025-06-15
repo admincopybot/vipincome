@@ -3390,6 +3390,102 @@ def step4(symbol, strategy, spread_id):
                 }, 300);
             }
         }
+        // How to Use Video Popup Function
+        function showHowToUseVideo() {
+            const overlay = document.createElement("div");
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const popup = document.createElement("div");
+            popup.style.cssText = `
+                background: #1a1f2e;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+                border: 2px solid #3b82f6;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                    <button id="closeVideoPopup" style="
+                        background: none;
+                        border: none;
+                        color: #94a3b8;
+                        font-size: 24px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                <video controls style="
+                    width: 100%;
+                    max-width: 800px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                ">
+                    <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                    Learn how to maximize your income potential with The Income Machine
+                </p>
+            `;
+            
+            const style = document.createElement("style");
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Close popup handlers
+            document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
+            overlay.addEventListener("click", function(e) {
+                if (e.target === overlay) closeVideoPopup();
+            });
+            
+            function closeVideoPopup() {
+                overlay.style.animation = "fadeOut 0.3s ease";
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            }
+        }
     </script>
 </body>
 </html>"""
@@ -4000,6 +4096,102 @@ def pro_index():
         
         // Check market hours on page load
         setTimeout(checkMarketHours, 1000); // Slight delay for page load
+        // How to Use Video Popup Function
+        function showHowToUseVideo() {
+            const overlay = document.createElement("div");
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const popup = document.createElement("div");
+            popup.style.cssText = `
+                background: #1a1f2e;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+                border: 2px solid #3b82f6;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                    <button id="closeVideoPopup" style="
+                        background: none;
+                        border: none;
+                        color: #94a3b8;
+                        font-size: 24px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                <video controls style="
+                    width: 100%;
+                    max-width: 800px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                ">
+                    <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                    Learn how to maximize your income potential with The Income Machine
+                </p>
+            `;
+            
+            const style = document.createElement("style");
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Close popup handlers
+            document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
+            overlay.addEventListener("click", function(e) {
+                if (e.target === overlay) closeVideoPopup();
+            });
+            
+            function closeVideoPopup() {
+                overlay.style.animation = "fadeOut 0.3s ease";
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            }
+        }
     </script>
 </body>
 </html>
@@ -4541,6 +4733,102 @@ def vip_index():
         
         // Real-time status
         console.log("VIP Scoreboard loaded with instant search - {{ display_count }} tickers displayed");
+        // How to Use Video Popup Function
+        function showHowToUseVideo() {
+            const overlay = document.createElement("div");
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const popup = document.createElement("div");
+            popup.style.cssText = `
+                background: #1a1f2e;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+                border: 2px solid #3b82f6;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                    <button id="closeVideoPopup" style="
+                        background: none;
+                        border: none;
+                        color: #94a3b8;
+                        font-size: 24px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                <video controls style="
+                    width: 100%;
+                    max-width: 800px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                ">
+                    <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                    Learn how to maximize your income potential with The Income Machine
+                </p>
+            `;
+            
+            const style = document.createElement("style");
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Close popup handlers
+            document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
+            overlay.addEventListener("click", function(e) {
+                if (e.target === overlay) closeVideoPopup();
+            });
+            
+            function closeVideoPopup() {
+                overlay.style.animation = "fadeOut 0.3s ease";
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            }
+        }
     </script>
 </body>
 </html>
@@ -5396,6 +5684,102 @@ def index():
         
         // Check market hours on page load
         setTimeout(checkMarketHours, 1000); // Slight delay for page load
+        // How to Use Video Popup Function
+        function showHowToUseVideo() {
+            const overlay = document.createElement("div");
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const popup = document.createElement("div");
+            popup.style.cssText = `
+                background: #1a1f2e;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+                border: 2px solid #3b82f6;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                    <button id="closeVideoPopup" style="
+                        background: none;
+                        border: none;
+                        color: #94a3b8;
+                        font-size: 24px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                <video controls style="
+                    width: 100%;
+                    max-width: 800px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                ">
+                    <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                    Learn how to maximize your income potential with The Income Machine
+                </p>
+            `;
+            
+            const style = document.createElement("style");
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Close popup handlers
+            document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
+            overlay.addEventListener("click", function(e) {
+                if (e.target === overlay) closeVideoPopup();
+            });
+            
+            function closeVideoPopup() {
+                overlay.style.animation = "fadeOut 0.3s ease";
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            }
+        }
     </script>
 </body>
 </html>
@@ -6423,6 +6807,102 @@ def step2(symbol=None):
                 });
             }
         });
+        // How to Use Video Popup Function
+        function showHowToUseVideo() {
+            const overlay = document.createElement("div");
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const popup = document.createElement("div");
+            popup.style.cssText = `
+                background: #1a1f2e;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+                border: 2px solid #3b82f6;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                    <button id="closeVideoPopup" style="
+                        background: none;
+                        border: none;
+                        color: #94a3b8;
+                        font-size: 24px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                <video controls style="
+                    width: 100%;
+                    max-width: 800px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                ">
+                    <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                    Learn how to maximize your income potential with The Income Machine
+                </p>
+            `;
+            
+            const style = document.createElement("style");
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Close popup handlers
+            document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
+            overlay.addEventListener("click", function(e) {
+                if (e.target === overlay) closeVideoPopup();
+            });
+            
+            function closeVideoPopup() {
+                overlay.style.animation = "fadeOut 0.3s ease";
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            }
+        }
     </script>
 </body>
 </html>
@@ -8106,7 +8586,103 @@ def hidden_csv_ui():
                 statusDiv.className = 'status ' + type;
                 statusDiv.style.display = 'block';
             }
-        </script>
+            // How to Use Video Popup Function
+        function showHowToUseVideo() {
+            const overlay = document.createElement("div");
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const popup = document.createElement("div");
+            popup.style.cssText = `
+                background: #1a1f2e;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+                border: 2px solid #3b82f6;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                    <button id="closeVideoPopup" style="
+                        background: none;
+                        border: none;
+                        color: #94a3b8;
+                        font-size: 24px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                <video controls style="
+                    width: 100%;
+                    max-width: 800px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                ">
+                    <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                    Learn how to maximize your income potential with The Income Machine
+                </p>
+            `;
+            
+            const style = document.createElement("style");
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Close popup handlers
+            document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
+            overlay.addEventListener("click", function(e) {
+                if (e.target === overlay) closeVideoPopup();
+            });
+            
+            function closeVideoPopup() {
+                overlay.style.animation = "fadeOut 0.3s ease";
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            }
+        }
+    </script>
     <script>
 function updateCountdown() {
     const endDate = new Date('June 20, 2025 23:59:59');
@@ -8385,7 +8961,103 @@ def spread_diagnostics():
                     document.getElementById('diagnosticLog').textContent = 'Error: ' + error.message;
                 });
             });
-        </script>
+            // How to Use Video Popup Function
+        function showHowToUseVideo() {
+            const overlay = document.createElement("div");
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const popup = document.createElement("div");
+            popup.style.cssText = `
+                background: #1a1f2e;
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                animation: popIn 0.4s ease;
+                border: 2px solid #3b82f6;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                    <button id="closeVideoPopup" style="
+                        background: none;
+                        border: none;
+                        color: #94a3b8;
+                        font-size: 24px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                <video controls style="
+                    width: 100%;
+                    max-width: 800px;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                ">
+                    <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                    Learn how to maximize your income potential with The Income Machine
+                </p>
+            `;
+            
+            const style = document.createElement("style");
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes popIn {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+            
+            // Close popup handlers
+            document.getElementById("closeVideoPopup").addEventListener("click", closeVideoPopup);
+            overlay.addEventListener("click", function(e) {
+                if (e.target === overlay) closeVideoPopup();
+            });
+            
+            function closeVideoPopup() {
+                overlay.style.animation = "fadeOut 0.3s ease";
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            }
+        }
+    </script>
     </body>
     </html>
     ''')
