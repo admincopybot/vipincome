@@ -9435,8 +9435,9 @@ def trigger_quick_analysis():
                     logger.warning(f"MANUAL TRIGGER: No current price for {ticker}, skipping spread validation")
                     continue
                 
-                # Analyze spreads using existing logic
-                spread_results = get_real_time_spreads(ticker, current_price)
+                # TEMPORARY THROTTLE: Skip intensive spread analysis to prevent timeouts
+                logger.info(f"MANUAL TRIGGER: THROTTLED - Skipping spread analysis for {ticker} to prevent worker timeouts")
+                spread_results = {'aggressive': [], 'steady': [], 'passive': []}
                 
                 # Count valid spreads across all strategies
                 total_spreads = 0
@@ -9444,7 +9445,23 @@ def trigger_quick_analysis():
                 
                 for strategy in ['aggressive', 'steady', 'passive']:
                     strategy_spreads = spread_results.get(strategy, [])
-                    valid_spreads = [s for s in strategy_spreads if s.get('roi', '0%').replace('%', '').replace('+', '') != '0.0']
+                    # Handle both dictionary and string spread objects
+                    valid_spreads = []
+                    for s in strategy_spreads:
+                        if isinstance(s, dict):
+                            roi_str = s.get('roi', '0%')
+                        else:
+                            # If it's a string or other type, consider it invalid
+                            continue
+                        
+                        # Check if ROI is positive (not 0%)
+                        roi_numeric = roi_str.replace('%', '').replace('+', '')
+                        try:
+                            if float(roi_numeric) > 0:
+                                valid_spreads.append(s)
+                        except (ValueError, TypeError):
+                            continue
+                    
                     strategy_count = len(valid_spreads)
                     total_spreads += strategy_count
                     strategy_counts[strategy] = strategy_count

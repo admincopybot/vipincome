@@ -266,8 +266,13 @@ class RealTimeSpreadDetector:
         return filtered
     
     def generate_spread_pairs(self, contracts: List[Dict]) -> List[Tuple[Dict, Dict]]:
-        """Generate ALL possible debit spread pairs from filtered contracts, prioritized by width"""
+        """Generate OPTIMIZED spread pairs - LIMITED to prevent memory timeouts"""
         pairs = []
+        
+        # MEMORY OPTIMIZATION: Limit total contracts processed
+        if len(contracts) > 100:
+            contracts = contracts[:100]  # Only process top 100 contracts
+            logger.info(f"🔧 MEMORY OPTIMIZATION: Limited to {len(contracts)} contracts to prevent timeouts")
         
         # Group by expiration date
         by_expiration = {}
@@ -277,68 +282,77 @@ class RealTimeSpreadDetector:
                 by_expiration[exp_date] = []
             by_expiration[exp_date].append(contract)
         
-        # Generate ALL possible pairs within each expiration
+        current_price = getattr(self, 'current_price', 260)
+        max_pairs_per_width = 20  # STRICT limit per width to prevent memory issues
+        
+        # Process each expiration separately
         for exp_date, exp_contracts in by_expiration.items():
-            # Sort by strike price
             exp_contracts.sort(key=lambda x: float(x.get('strike_price', 0)))
             
+            # Generate pairs by width priority - STOP when we have enough
+            width_counts = {1.0: 0, 2.5: 0, 5.0: 0}
+            
             for i, long_contract in enumerate(exp_contracts):
+                if sum(width_counts.values()) >= 60:  # Total limit across all widths
+                    break
+                    
                 for j, short_contract in enumerate(exp_contracts[i+1:], i+1):
                     long_strike = float(long_contract.get('strike_price', 0))
                     short_strike = float(short_contract.get('strike_price', 0))
                     
-                    # Ensure proper debit spread structure
+                    # Basic validation
                     if long_strike >= short_strike:
                         continue
-                    
-                    # CRITICAL: For debit spreads, short call must be below current price
-                    current_price = getattr(self, 'current_price', 260)  # Use stored current price
                     if short_strike >= current_price:
                         continue
                     
-                    # Add spread pairs with MAXIMUM $10 width restriction
                     spread_width = short_strike - long_strike
-                    if 0 < spread_width <= 10.0:  # Only spreads up to $10 wide
+                    
+                    # Only track priority widths
+                    if abs(spread_width - 1.0) < 0.01 and width_counts[1.0] < max_pairs_per_width:
                         pairs.append((long_contract, short_contract))
+                        width_counts[1.0] += 1
+                    elif abs(spread_width - 2.5) < 0.01 and width_counts[2.5] < max_pairs_per_width:
+                        pairs.append((long_contract, short_contract))
+                        width_counts[2.5] += 1
+                    elif abs(spread_width - 5.0) < 0.01 and width_counts[5.0] < max_pairs_per_width:
+                        pairs.append((long_contract, short_contract))
+                        width_counts[5.0] += 1
         
-        # Sort pairs by width priority: $1 first, then $2.50, then $5, then others
+        # Sort by width priority
         def width_priority(pair):
             long_contract, short_contract = pair
             width = float(short_contract.get('strike_price', 0)) - float(long_contract.get('strike_price', 0))
-            
-            # Priority order: $1, $2.50, $5, $0.50, $10, others
             if abs(width - 1.0) < 0.01:
-                return 1  # $1 spreads get highest priority
+                return 1
             elif abs(width - 2.5) < 0.01:
-                return 2  # $2.50 spreads second
+                return 2
             elif abs(width - 5.0) < 0.01:
-                return 3  # $5 spreads third
-            elif abs(width - 0.5) < 0.01:
-                return 4  # $0.50 spreads fourth
-            elif abs(width - 10.0) < 0.01:
-                return 5  # $10 spreads fifth
+                return 3
             else:
-                return 6 + width  # All other widths by size
+                return 4
         
-        # Sort by priority (lower number = higher priority)
         pairs.sort(key=width_priority)
         
-        logger.info(f"Generated {len(pairs)} total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)")
+        logger.info(f"🔧 OPTIMIZED: Generated {len(pairs)} spread pairs (limited to prevent timeouts)")
         return pairs
     
     def get_real_time_quote(self, ticker: str) -> Optional[Dict]:
-        """Get real-time bid/ask quote from TheTradeList API with retry mechanism"""
+        """Get real-time bid/ask quote from TheTradeList API with AGGRESSIVE throttling"""
         try:
+            # AGGRESSIVE THROTTLING: 2-second delay between each API call
+            time.sleep(2.0)
+            
             url = "https://api.thetradelist.com/v1/data/last-quote"
             params = {
                 'ticker': ticker,
                 'apiKey': self.tradelist_api_key
             }
             
-            # Add timeout and retry for network issues
-            for attempt in range(2):
+            # Reduced retries to prevent timeout loops
+            for attempt in range(1):  # Only 1 attempt instead of 2
                 try:
-                    response = requests.get(url, params=params, timeout=3)
+                    response = requests.get(url, params=params, timeout=5)  # Longer timeout
                     
                     if response.status_code == 200:
                         data = response.json()

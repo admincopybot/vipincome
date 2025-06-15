@@ -1,0 +1,693 @@
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00052000/O:CSCO250703C00053000, ROI: 110.5%, Cost: $0.48
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00052000: bid=$12.05, ask=$12.8
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00054000: bid=$9.7, ask=$10.75
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00051000/O:CSCO250711C00052000, ROI: 60.0%, Cost: $0.62
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00053000/O:CSCO250711C00054000, ROI: 8.1%, Cost: $0.93
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00052000: bid=$11.65, ask=$12.45
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00051000/O:CSCO250703C00052000, ROI: -7.0%, Cost: $1.07
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00054000: bid=$9.85, ask=$10.45
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00053000/O:CSCO250703C00054000, ROI: -29.8%, Cost: $1.43
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00056000: bid=$6.7, ask=$9.8
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00055000/O:CSCO250711C00056000, ROI: 8.1%, Cost: $0.93
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00055000: bid=$8.7, ask=$9.65
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00054000/O:CSCO250711C00055000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00055000: bid=$9.1, ask=$9.85
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00053000/O:CSCO250725C00055000, ROI: 6.7%, Cost: $1.88
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00057000: bid=$7.1, ask=$7.65
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00055000/O:CSCO250725C00057000, ROI: -4.8%, Cost: $2.10
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00052000: bid=$11.45, ask=$12.65
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00050000/O:CSCO250725C00052000, ROI: -3.6%, Cost: $2.07
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00054000: bid=$10.1, ask=$10.95
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00052000/O:CSCO250725C00054000, ROI: 31.1%, Cost: $1.53
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00056000: bid=$8.15, ask=$9.1
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00054000/O:CSCO250725C00056000, ROI: 5.3%, Cost: $1.90
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00055000: bid=$9.05, ask=$9.45
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00057000: bid=$7, ask=$7.75
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00056000: bid=$8.05, ask=$9.2
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00056000: bid=$6.7, ask=$9.8
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00057000: bid=$6.8, ask=$7.8
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00058000: bid=$6.15, ask=$7.05
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00058000: bid=$6.1, ask=$6.9
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00059000: bid=$5.2, ask=$6.1
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00059000: bid=$5.15, ask=$6.15
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00060000: bid=$3.65, ask=$4.85
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00056000: bid=$8.15, ask=$9.1
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00058000: bid=$6.25, ask=$7.2
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00057000: bid=$7.1, ask=$7.65
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00059000: bid=$5.2, ask=$5.7
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00060000: bid=$4.1, ask=$5.2
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00056000: bid=$8.05, ask=$9.2
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00055000/O:CSCO250703C00056000, ROI: 60.0%, Cost: $0.62
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00058000: bid=$6.1, ask=$6.9
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00057000/O:CSCO250703C00058000, ROI: 14.3%, Cost: $0.88
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00057000: bid=$7, ask=$7.75
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00056000/O:CSCO250703C00057000, ROI: -20.0%, Cost: $1.25
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00057000: bid=$6.8, ask=$7.8
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00058000: bid=$6.15, ask=$7.05
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00057000/O:CSCO250711C00058000, ROI: 42.9%, Cost: $0.70
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00056000/O:CSCO250711C00057000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00059000: bid=$5.15, ask=$6.15
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00058000/O:CSCO250711C00059000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00060000: bid=$4.2, ask=$5.1
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00059000/O:CSCO250703C00060000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00059000: bid=$5.2, ask=$6.1
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00058000/O:CSCO250703C00059000, ROI: 17.6%, Cost: $0.85
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00060000: bid=$3.65, ask=$4.85
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00059000/O:CSCO250711C00060000, ROI: -28.6%, Cost: $1.40
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00061000: bid=$3.2, ask=$3.9
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00060000/O:CSCO250711C00061000, ROI: 42.9%, Cost: $0.70
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00061000: bid=$3, ask=$4.35
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00059000/O:CSCO250725C00061000, ROI: 12.7%, Cost: $1.78
+INFO:real_time_spreads:   Found viable $2 wide spread: 12.7% ROI
+INFO:real_time_spreads:   New best $2 wide spread: 12.7% ROI
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00060000: bid=$4.1, ask=$5.2
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00058000/O:CSCO250725C00060000, ROI: -3.6%, Cost: $2.07
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00059000: bid=$5.2, ask=$5.7
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00057000/O:CSCO250725C00059000, ROI: 3.9%, Cost: $1.92
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00058000: bid=$6.25, ask=$7.2
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00056000/O:CSCO250725C00058000, ROI: 5.3%, Cost: $1.90
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00062000: bid=$2.42, ask=$3.85
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00060000/O:CSCO250725C00062000, ROI: 32.0%, Cost: $1.52
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00060000: bid=$4.2, ask=$5.1
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00061000: bid=$2.52, ask=$3.6
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00062000: bid=$2.18, ask=$2.94
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00062000: bid=$2.59, ask=$3.55
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00061000: bid=$3.2, ask=$3.9
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00063000: bid=$1.76, ask=$2.43
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00063000: bid=$1.51, ask=$2.67
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00061000: bid=$3, ask=$4.35
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00062000: bid=$2.42, ask=$3.85
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00061000: bid=$2.52, ask=$3.6
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00060000/O:CSCO250703C00061000, ROI: -37.1%, Cost: $1.59
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00062000: bid=$2.59, ask=$3.55
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00061000/O:CSCO250703C00062000, ROI: 0.0%, Cost: $-0.01
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00063000: bid=$1.76, ask=$2.43
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00062000/O:CSCO250711C00063000, ROI: 115.1%, Cost: $0.46
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00063000: bid=$1.51, ask=$2.67
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00062000/O:CSCO250703C00063000, ROI: 2.0%, Cost: $0.98
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00064000: bid=$1.2, ask=$2.26
+INFO:real_time_spreads:Quote retrieved for O:CSCO250711C00062000: bid=$2.18, ask=$2.94
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00063000/O:CSCO250711C00064000, ROI: 174.0%, Cost: $0.37
+INFO:real_time_spreads:Spread calculated: O:CSCO250711C00061000/O:CSCO250711C00062000, ROI: 1.0%, Cost: $0.99
+INFO:real_time_spreads:✅ FOUND optimal $1 wide balanced spread: 17.6% ROI - STOPPING search
+INFO:real_time_spreads:Selected best balanced $1.00 spread: 17.6% ROI, $1.00 width
+INFO:spread_storage:Stored session spread CSCO_balanced_1_1750031194: CSCO balanced ROI=17.6%
+INFO:real_time_spreads:Completed processing for balanced strategy: {'found': True, 'spread_id': 'CSCO_balanced_1_1750031194', 'roi': '17.6%', 'expiration': '2025-07-03', 'dte': 17, 'strike_price': 58.0, 'short_strike_price': 59.0, 'spread_cost': 0.8499999999999996, 'max_profit': 0.15000000000000036, 'spread_width': 1.0, 'contract_symbol': 'O:CSCO250703C00058000', 'short_contract_symbol': 'O:CSCO250703C00059000', 'management': 'Hold to expiration', 'strategy_title': 'Balanced Strategy'}
+INFO:real_time_spreads:Quote retrieved for O:CSCO250703C00064000: bid=$1.09, ask=$1.49
+INFO:real_time_spreads:Spread calculated: O:CSCO250703C00063000/O:CSCO250703C00064000, ROI: 25.0%, Cost: $0.80
+INFO:real_time_spreads:   Found viable $1 wide spread: 25.0% ROI
+INFO:real_time_spreads:   New best $1 wide spread: 25.0% ROI
+INFO:real_time_spreads:✅ FOUND optimal $1 wide aggressive spread: 25.0% ROI - STOPPING search
+INFO:real_time_spreads:Selected best aggressive $1.00 spread: 25.0% ROI, $1.00 width
+INFO:spread_storage:Stored session spread CSCO_aggressive_2_1750031194: CSCO aggressive ROI=25.0%
+INFO:real_time_spreads:Completed processing for aggressive strategy: {'found': True, 'spread_id': 'CSCO_aggressive_2_1750031194', 'roi': '25.0%', 'expiration': '2025-07-03', 'dte': 17, 'strike_price': 63.0, 'short_strike_price': 64.0, 'spread_cost': 0.7999999999999998, 'max_profit': 0.20000000000000018, 'spread_width': 1.0, 'contract_symbol': 'O:CSCO250703C00063000', 'short_contract_symbol': 'O:CSCO250703C00064000', 'management': 'Hold to expiration', 'strategy_title': 'Aggressive Strategy'}
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00063000: bid=$1.74, ask=$2.8
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00061000/O:CSCO250725C00063000, ROI: 42.3%, Cost: $1.40
+INFO:real_time_spreads:Quote retrieved for O:CSCO250725C00064000: bid=$1.44, ask=$2.42
+INFO:real_time_spreads:Spread calculated: O:CSCO250725C00062000/O:CSCO250725C00064000, ROI: 66.0%, Cost: $1.20
+INFO:real_time_spreads:✅ FOUND optimal $2 wide conservative spread: 12.7% ROI - STOPPING search
+INFO:real_time_spreads:Selected best conservative $2.00 spread: 12.7% ROI, $2.00 width
+INFO:spread_storage:Stored session spread CSCO_conservative_3_1750031194: CSCO conservative ROI=12.7%
+INFO:real_time_spreads:Completed processing for conservative strategy: {'found': True, 'spread_id': 'CSCO_conservative_3_1750031194', 'roi': '12.7%', 'expiration': '2025-07-25', 'dte': 39, 'strike_price': 59.0, 'short_strike_price': 61.0, 'spread_cost': 1.7750000000000004, 'max_profit': 0.22499999999999964, 'spread_width': 2.0, 'contract_symbol': 'O:CSCO250725C00059000', 'short_contract_symbol': 'O:CSCO250725C00061000', 'management': 'Hold to expiration', 'strategy_title': 'Conservative Strategy'}
+ERROR:main:MANUAL TRIGGER: Error validating spreads for CSCO: 'str' object has no attribute 'get'
+INFO:main:MANUAL TRIGGER: Validating options spreads for WMB
+INFO:real_time_spreads:Using real-time price $59.89 for WMB spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for WMB
+INFO:real_time_spreads:📥 Page 1: 323 contracts (Total: 323)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 323 call contracts for WMB
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for WMB
+INFO:real_time_spreads:Available contracts: 323
+INFO:real_time_spreads:Current price: $59.89
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for WMB
+INFO:real_time_spreads:   Total contracts available: 323
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:   Current price: $59.89
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:   Strike range: $44.92 - $74.86
+INFO:real_time_spreads:   Total contracts to check: 323
+INFO:real_time_spreads:   Contract 1: Strike=$20.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$20.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 2: Strike=$23.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$23.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 3: Strike=$25.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$25.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for WMB
+INFO:real_time_spreads:   Contract 4: Strike=$28.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for WMB
+INFO:real_time_spreads:   Total contracts available: 323
+INFO:real_time_spreads:   ❌ FAILED: Strike=$28.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 5: Strike=$30.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:   ❌ FAILED: Strike=$30.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Total contracts available: 323
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   ❌ FAILED: Strike=$33.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:   Current price: $59.89
+INFO:real_time_spreads:   ❌ FAILED: Strike=$35.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:   ❌ FAILED: Strike=$37.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Current price: $59.89
+INFO:real_time_spreads:   Strike range: $41.92 - $77.86
+INFO:real_time_spreads:   ❌ FAILED: Strike=$40.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   DTE range: 28-42 days
+INFO:real_time_spreads:   Total contracts to check: 323
+INFO:real_time_spreads:   ❌ FAILED: Strike=$42.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Strike range: $38.93 - $80.85
+INFO:real_time_spreads:   Contract 1: Strike=$20.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ✅ PASSED: Strike=$45.0, DTE=11
+INFO:real_time_spreads:   Total contracts to check: 323
+INFO:real_time_spreads:   ❌ FAILED: Strike=$20.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ✅ PASSED: Strike=$46.0, DTE=11
+INFO:real_time_spreads:   Contract 1: Strike=$20.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   Contract 2: Strike=$23.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ✅ PASSED: Strike=$47.0, DTE=11
+INFO:real_time_spreads:   ❌ FAILED: Strike=$20.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$23.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:🔍 FILTERING RESULTS for AGGRESSIVE:
+INFO:real_time_spreads:   Contract 2: Strike=$23.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$23.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   DTE passed: 66/323
+INFO:real_time_spreads:   Contract 3: Strike=$25.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   Contract 3: Strike=$25.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   Strike passed: 220/323
+INFO:real_time_spreads:   ❌ FAILED: Strike=$25.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$25.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Both passed: 58/323
+INFO:real_time_spreads:   Contract 4: Strike=$28.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   Contract 4: Strike=$28.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   Final filtered contracts: 58
+INFO:real_time_spreads:   ❌ FAILED: Strike=$28.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$28.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:🔍 FILTER COMPLETE for aggressive: 58 contracts
+INFO:real_time_spreads:   Contract 5: Strike=$30.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   Contract 5: Strike=$30.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:Generated 190 total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)
+INFO:real_time_spreads:🎯 Searching for $1 wide aggressive spreads...
+INFO:real_time_spreads:   ❌ FAILED: Strike=$30.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Found 28 pairs at $1 width
+INFO:real_time_spreads:   ❌ FAILED: Strike=$30.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$33.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$33.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$35.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$35.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$37.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$37.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$40.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$40.0, DTE=4 (DTE_OK:False, STRIKE_OK:True)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$42.0, DTE=4 (DTE_OK:False, STRIKE_OK:True)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$42.0, DTE=4 (DTE_OK:False, STRIKE_OK:True)
+INFO:real_time_spreads:   ✅ PASSED: Strike=$45.0, DTE=17
+INFO:real_time_spreads:   ✅ PASSED: Strike=$40.0, DTE=32
+INFO:real_time_spreads:   ✅ PASSED: Strike=$46.0, DTE=17
+INFO:real_time_spreads:   ✅ PASSED: Strike=$45.0, DTE=32
+INFO:real_time_spreads:   ✅ PASSED: Strike=$47.0, DTE=17
+INFO:real_time_spreads:   ✅ PASSED: Strike=$50.0, DTE=32
+INFO:real_time_spreads:🔍 FILTERING RESULTS for BALANCED:
+INFO:real_time_spreads:🔍 FILTERING RESULTS for CONSERVATIVE:
+INFO:real_time_spreads:   DTE passed: 64/323
+INFO:real_time_spreads:   DTE passed: 44/323
+INFO:real_time_spreads:   Strike passed: 239/323
+INFO:real_time_spreads:   Strike passed: 267/323
+INFO:real_time_spreads:   Both passed: 58/323
+INFO:real_time_spreads:   Both passed: 39/323
+INFO:real_time_spreads:   Final filtered contracts: 58
+INFO:real_time_spreads:   Final filtered contracts: 39
+INFO:real_time_spreads:🔍 FILTER COMPLETE for balanced: 58 contracts
+INFO:real_time_spreads:🔍 FILTER COMPLETE for conservative: 39 contracts
+INFO:real_time_spreads:Generated 168 total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)
+INFO:real_time_spreads:Generated 82 total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)
+INFO:real_time_spreads:🎯 Searching for $1 wide balanced spreads...
+INFO:real_time_spreads:🎯 Searching for $1 wide conservative spreads...
+INFO:real_time_spreads:   Found 25 pairs at $1 width
+INFO:real_time_spreads:   Found 11 pairs at $1 width
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00047000: bid=$10.8, ask=$14.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00046000: bid=$12.3, ask=$15.6
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00049000: bid=$9, ask=$12.6
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00048000: bid=$10.2, ask=$13.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00045000: bid=$12.8, ask=$16.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00048000: bid=$9.7, ask=$13.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00050000: bid=$8.1, ask=$12.1
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00048000: bid=$10, ask=$14
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00049000: bid=$9.1, ask=$12.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00047000: bid=$11.4, ask=$14.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00045000: bid=$12.8, ask=$16.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00046000: bid=$12.3, ask=$15.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00051000: bid=$7.1, ask=$11.1
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00052000: bid=$6.2, ask=$10.2
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00048000: bid=$9.7, ask=$13.7
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00047000/O:WMB250627C00048000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00047000: bid=$10.8, ask=$14.7
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00046000/O:WMB250627C00047000, ROI: -16.7%, Cost: $1.20
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00049000: bid=$9, ask=$12.6
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00048000/O:WMB250627C00049000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00048000/O:WMB250703C00049000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00048000: bid=$10.2, ask=$13.7
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00047000/O:WMB250703C00048000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00049000: bid=$9.1, ask=$12.9
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00048000/O:WMB250725C00049000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00047000: bid=$11.4, ask=$14.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00046000: bid=$12.3, ask=$15.6
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00046000/O:WMB250703C00047000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00045000/O:WMB250627C00046000, ROI: 25.0%, Cost: $0.80
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00050000: bid=$8.1, ask=$12.1
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00050000: bid=$7.7, ask=$11.8
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00049000/O:WMB250725C00050000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00049000/O:WMB250627C00050000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:   Found viable $1 wide spread: 11.1% ROI
+INFO:real_time_spreads:   New best $1 wide spread: 11.1% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00050000: bid=$7.9, ask=$11.7
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00049000/O:WMB250703C00050000, ROI: -9.1%, Cost: $1.10
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00046000: bid=$12.3, ask=$15.5
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00045000/O:WMB250703C00046000, ROI: 33.3%, Cost: $0.75
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00051000: bid=$7.1, ask=$11.1
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00050000/O:WMB250725C00051000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00053000: bid=$5.3, ask=$9.3
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00052000/O:WMB250725C00053000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:   Found viable $1 wide spread: 11.1% ROI
+INFO:real_time_spreads:   New best $1 wide spread: 11.1% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00052000: bid=$6.2, ask=$10.2
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00051000/O:WMB250725C00052000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:   Found viable $1 wide spread: 11.1% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00051000: bid=$6.8, ask=$10.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00052000: bid=$5.8, ask=$9.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00050000: bid=$7.9, ask=$11.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00050000: bid=$7.7, ask=$11.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00051000: bid=$7.2, ask=$10.6
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00054000: bid=$4.3, ask=$7.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00054000: bid=$4.7, ask=$8.3
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00053000: bid=$4.9, ask=$8.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00053000: bid=$4.8, ask=$8.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00052000: bid=$5.8, ask=$9
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00053000: bid=$5.3, ask=$9.3
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00054000: bid=$3.9, ask=$7.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00055000: bid=$3.5, ask=$7.4
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00057000: bid=$3.7, ask=$4.3
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00056000: bid=$4.5, ask=$5.3
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00052000: bid=$5.8, ask=$9.8
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00051000/O:WMB250627C00052000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00051000: bid=$7.2, ask=$10.6
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00050000/O:WMB250703C00051000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00053000: bid=$4.8, ask=$8.8
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00052000/O:WMB250627C00053000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00051000: bid=$6.8, ask=$10.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00052000: bid=$5.8, ask=$9
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00050000/O:WMB250627C00051000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00051000/O:WMB250703C00052000, ROI: -33.3%, Cost: $1.50
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00055000: bid=$3.5, ask=$7.4
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00054000/O:WMB250725C00055000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00054000: bid=$3.9, ask=$7.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00054000: bid=$4.3, ask=$7.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00053000/O:WMB250703C00054000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00053000/O:WMB250627C00054000, ROI: 42.9%, Cost: $0.70
+INFO:real_time_spreads:   Found viable $1 wide spread: 42.9% ROI
+INFO:real_time_spreads:   New best $1 wide spread: 42.9% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00054000: bid=$4.7, ask=$8.3
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00053000/O:WMB250725C00054000, ROI: 25.0%, Cost: $0.80
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00053000: bid=$4.9, ask=$8.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00052000/O:WMB250703C00053000, ROI: 100.0%, Cost: $0.50
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00055000: bid=$4.4, ask=$5.6
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00054000/O:WMB250627C00055000, ROI: -9.1%, Cost: $1.10
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00056000: bid=$4.5, ask=$5.3
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00055000/O:WMB250725C00056000, ROI: 81.8%, Cost: $0.55
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00055000: bid=$4.5, ask=$7
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00054000/O:WMB250703C00055000, ROI: 566.7%, Cost: $0.15
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00057000: bid=$3.7, ask=$4.3
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00056000/O:WMB250725C00057000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:   Found viable $1 wide spread: 11.1% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00058000: bid=$1.9, ask=$5.2
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00057000/O:WMB250725C00058000, ROI: 122.2%, Cost: $0.45
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00055000: bid=$4.4, ask=$5.6
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00055000: bid=$4.5, ask=$7
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00056000: bid=$2.15, ask=$6.2
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00056000: bid=$3.9, ask=$4.2
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00058000: bid=$2.45, ask=$2.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00057000: bid=$3, ask=$4.1
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00058000: bid=$1.9, ask=$5.2
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00057000: bid=$2.25, ask=$5.4
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00058000: bid=$2.3, ask=$2.55
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00045000: bid=$12.8, ask=$16.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00048000: bid=$9.8, ask=$13.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00056000: bid=$3.9, ask=$4.2
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00056000: bid=$2.15, ask=$6.2
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00055000/O:WMB250627C00056000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00055000/O:WMB250703C00056000, ROI: -36.5%, Cost: $1.58
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00057000: bid=$2.25, ask=$5.4
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00056000/O:WMB250703C00057000, ROI: 185.7%, Cost: $0.35
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00059000: bid=$1.8, ask=$2.2
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00057000: bid=$3, ask=$4.1
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00058000/O:WMB250703C00059000, ROI: 48.1%, Cost: $0.67
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00056000/O:WMB250627C00057000, ROI: 100.0%, Cost: $0.50
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00046000: bid=$12.3, ask=$15.5
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00045000/O:WMB250703C00046000, ROI: 33.3%, Cost: $0.75
+INFO:real_time_spreads:   Found viable $1 wide spread: 33.3% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00059000: bid=$1.65, ask=$1.95
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00058000/O:WMB250627C00059000, ROI: 60.0%, Cost: $0.62
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00058000: bid=$2.45, ask=$2.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250725C00059000: bid=$1.6, ask=$2.95
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00057000/O:WMB250703C00058000, ROI: -13.0%, Cost: $1.15
+INFO:real_time_spreads:Spread calculated: O:WMB250725C00058000/O:WMB250725C00059000, ROI: -21.6%, Cost: $1.27
+INFO:real_time_spreads:✅ FOUND optimal $1 wide conservative spread: 11.1% ROI - STOPPING search
+INFO:real_time_spreads:Selected best conservative $1.00 spread: 11.1% ROI, $1.00 width
+INFO:spread_storage:Stored session spread WMB_conservative_4_1750031196: WMB conservative ROI=11.1%
+INFO:real_time_spreads:Completed processing for conservative strategy: {'found': True, 'spread_id': 'WMB_conservative_4_1750031196', 'roi': '11.1%', 'expiration': '2025-07-25', 'dte': 39, 'strike_price': 52.0, 'short_strike_price': 53.0, 'spread_cost': 0.8999999999999986, 'max_profit': 0.10000000000000142, 'spread_width': 1.0, 'contract_symbol': 'O:WMB250725C00052000', 'short_contract_symbol': 'O:WMB250725C00053000', 'management': 'Hold to expiration', 'strategy_title': 'Conservative Strategy'}
+INFO:real_time_spreads:Quote retrieved for O:WMB250627C00058000: bid=$2.3, ask=$2.55
+INFO:real_time_spreads:Spread calculated: O:WMB250627C00057000/O:WMB250627C00058000, ROI: -11.1%, Cost: $1.12
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00048000/O:WMB250711C00049000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00046000: bid=$12.3, ask=$15.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00047000: bid=$11.4, ask=$14.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00048000: bid=$10.2, ask=$13.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00050000: bid=$7.9, ask=$11.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00052000: bid=$6.5, ask=$9.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00051000: bid=$6.9, ask=$10.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00050000: bid=$7.9, ask=$11.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00053000: bid=$5.5, ask=$8.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00050000: bid=$7.9, ask=$11.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00049000/O:WMB250711C00050000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00048000: bid=$10.2, ask=$13.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00047000: bid=$11.4, ask=$14.5
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00047000/O:WMB250703C00048000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00046000/O:WMB250703C00047000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00048000/O:WMB250703C00049000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00053000: bid=$5.5, ask=$8.8
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00052000/O:WMB250711C00053000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00051000: bid=$6.9, ask=$10.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00050000: bid=$7.9, ask=$11.7
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00050000/O:WMB250711C00051000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00049000/O:WMB250703C00050000, ROI: -9.1%, Cost: $1.10
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00052000: bid=$6.5, ask=$9.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00051000/O:WMB250711C00052000, ROI: 42.9%, Cost: $0.70
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00051000: bid=$7.2, ask=$10.6
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00050000/O:WMB250703C00051000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00054000: bid=$4.2, ask=$7.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00053000/O:WMB250711C00054000, ROI: -9.1%, Cost: $1.10
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00051000: bid=$7.2, ask=$10.6
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00052000: bid=$5.8, ask=$9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00054000: bid=$4.2, ask=$7.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00055000: bid=$5.1, ask=$5.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00053000: bid=$4.9, ask=$8.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00054000: bid=$3.9, ask=$7.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00057000: bid=$3.5, ask=$3.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00056000: bid=$4.2, ask=$4.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00055000: bid=$4.5, ask=$7
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00058000: bid=$2.7, ask=$3.1
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00053000: bid=$4.9, ask=$8.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00052000/O:WMB250703C00053000, ROI: 100.0%, Cost: $0.50
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00056000: bid=$4.2, ask=$4.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00055000/O:WMB250711C00056000, ROI: 33.3%, Cost: $0.75
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00052000: bid=$5.8, ask=$9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00051000/O:WMB250703C00052000, ROI: -33.3%, Cost: $1.50
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00055000: bid=$5.1, ask=$5.5
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00054000/O:WMB250711C00055000, ROI: 33.3%, Cost: $0.75
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00054000: bid=$3.9, ask=$7.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00053000/O:WMB250703C00054000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00055000: bid=$4.5, ask=$7
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00054000/O:WMB250703C00055000, ROI: 566.7%, Cost: $0.15
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00057000: bid=$3.5, ask=$3.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00058000: bid=$2.7, ask=$3.1
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00057000/O:WMB250711C00058000, ROI: 33.3%, Cost: $0.75
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00056000/O:WMB250711C00057000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00056000: bid=$2.15, ask=$6.2
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00055000/O:WMB250703C00056000, ROI: -36.5%, Cost: $1.58
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00059000: bid=$2.15, ask=$2.6
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00058000/O:WMB250711C00059000, ROI: 90.5%, Cost: $0.53
+INFO:real_time_spreads:   No viable $1 wide spreads found, trying next width...
+INFO:real_time_spreads:🎯 Searching for $2 wide balanced spreads...
+INFO:real_time_spreads:   Found 23 pairs at $2 width
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00056000: bid=$2.15, ask=$6.2
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00057000: bid=$2.25, ask=$5.4
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00058000: bid=$2.45, ask=$2.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00045000: bid=$12.8, ask=$16.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00047000: bid=$11.4, ask=$14.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00046000: bid=$12.3, ask=$15.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00048000: bid=$10.2, ask=$13.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00057000: bid=$2.25, ask=$5.4
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00056000/O:WMB250703C00057000, ROI: 185.7%, Cost: $0.35
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00058000: bid=$2.45, ask=$2.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00057000/O:WMB250703C00058000, ROI: -13.0%, Cost: $1.15
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00059000: bid=$1.8, ask=$2.2
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00058000/O:WMB250703C00059000, ROI: 48.1%, Cost: $0.67
+INFO:real_time_spreads:   Found viable $1 wide spread: 48.1% ROI
+INFO:real_time_spreads:   New best $1 wide spread: 48.1% ROI
+INFO:real_time_spreads:✅ FOUND optimal $1 wide aggressive spread: 48.1% ROI - STOPPING search
+INFO:real_time_spreads:Selected best aggressive $1.00 spread: 48.1% ROI, $1.00 width
+INFO:spread_storage:Stored session spread WMB_aggressive_5_1750031199: WMB aggressive ROI=48.1%
+INFO:real_time_spreads:Completed processing for aggressive strategy: {'found': True, 'spread_id': 'WMB_aggressive_5_1750031199', 'roi': '48.1%', 'expiration': '2025-07-03', 'dte': 17, 'strike_price': 58.0, 'short_strike_price': 59.0, 'spread_cost': 0.6749999999999998, 'max_profit': 0.3250000000000002, 'spread_width': 1.0, 'contract_symbol': 'O:WMB250703C00058000', 'short_contract_symbol': 'O:WMB250703C00059000', 'management': 'Hold to expiration', 'strategy_title': 'Aggressive Strategy'}
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00047000: bid=$11.4, ask=$14.5
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00045000/O:WMB250703C00047000, ROI: 17.6%, Cost: $1.70
+INFO:real_time_spreads:   Found viable $2 wide spread: 17.6% ROI
+INFO:real_time_spreads:   New best $2 wide spread: 17.6% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00047000/O:WMB250703C00049000, ROI: -2.4%, Cost: $2.05
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00050000: bid=$7.9, ask=$11.7
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00048000/O:WMB250703C00050000, ROI: -7.0%, Cost: $2.15
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00051000: bid=$7.2, ask=$10.6
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00048000: bid=$10.2, ask=$13.7
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00049000/O:WMB250703C00051000, ROI: 0.0%, Cost: $2.00
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00046000/O:WMB250703C00048000, ROI: 2.6%, Cost: $1.95
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00051000: bid=$7.2, ask=$10.6
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00050000: bid=$7.9, ask=$11.7
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00052000: bid=$5.8, ask=$9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00054000: bid=$3.9, ask=$7.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00053000: bid=$4.9, ask=$8.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00052000: bid=$5.8, ask=$9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00050000/O:WMB250703C00052000, ROI: -16.7%, Cost: $2.40
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00053000: bid=$4.9, ask=$8.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00051000/O:WMB250703C00053000, ROI: 0.0%, Cost: $2.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00054000: bid=$3.9, ask=$7.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00056000: bid=$2.15, ask=$6.2
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00052000/O:WMB250703C00054000, ROI: 33.3%, Cost: $1.50
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00054000/O:WMB250703C00056000, ROI: 15.9%, Cost: $1.73
+INFO:real_time_spreads:   Found viable $2 wide spread: 15.9% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00055000: bid=$4.5, ask=$7
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00053000/O:WMB250703C00055000, ROI: 73.9%, Cost: $1.15
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00055000: bid=$4.5, ask=$7
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00056000: bid=$2.15, ask=$6.2
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00057000: bid=$2.25, ask=$5.4
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00048000: bid=$9.8, ask=$13.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00049000: bid=$8.9, ask=$12.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00057000: bid=$2.25, ask=$5.4
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00055000/O:WMB250703C00057000, ROI: 3.9%, Cost: $1.92
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00059000: bid=$1.8, ask=$2.2
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00057000/O:WMB250703C00059000, ROI: 9.6%, Cost: $1.83
+INFO:real_time_spreads:Quote retrieved for O:WMB250703C00058000: bid=$2.45, ask=$2.9
+INFO:real_time_spreads:Spread calculated: O:WMB250703C00056000/O:WMB250703C00058000, ROI: 33.3%, Cost: $1.50
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00050000: bid=$7.9, ask=$11.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00048000/O:WMB250711C00050000, ROI: 5.3%, Cost: $1.90
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00051000: bid=$6.9, ask=$10.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00049000/O:WMB250711C00051000, ROI: 0.0%, Cost: $2.00
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00051000: bid=$6.9, ask=$10.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00050000: bid=$7.9, ask=$11.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00052000: bid=$6.5, ask=$9.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00053000: bid=$5.5, ask=$8.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00054000: bid=$4.2, ask=$7.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00052000: bid=$6.5, ask=$9.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00053000: bid=$5.5, ask=$8.8
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00050000/O:WMB250711C00052000, ROI: 17.6%, Cost: $1.70
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00051000/O:WMB250711C00053000, ROI: 14.3%, Cost: $1.75
+INFO:real_time_spreads:   Found viable $2 wide spread: 17.6% ROI
+INFO:real_time_spreads:   Found viable $2 wide spread: 14.3% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00055000: bid=$5.1, ask=$5.5
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00053000/O:WMB250711C00055000, ROI: 8.1%, Cost: $1.85
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00054000: bid=$4.2, ask=$7.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00052000/O:WMB250711C00054000, ROI: -7.0%, Cost: $2.15
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00056000: bid=$4.2, ask=$4.9
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00054000/O:WMB250711C00056000, ROI: 33.3%, Cost: $1.50
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00056000: bid=$4.2, ask=$4.9
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00055000: bid=$5.1, ask=$5.5
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00057000: bid=$3.5, ask=$3.8
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00058000: bid=$2.7, ask=$3.1
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00056000/O:WMB250711C00058000, ROI: 21.2%, Cost: $1.65
+INFO:real_time_spreads:   Found viable $2 wide spread: 21.2% ROI
+INFO:real_time_spreads:   New best $2 wide spread: 21.2% ROI
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00059000: bid=$2.15, ask=$2.6
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00057000/O:WMB250711C00059000, ROI: 56.9%, Cost: $1.27
+INFO:real_time_spreads:Quote retrieved for O:WMB250711C00057000: bid=$3.5, ask=$3.8
+INFO:real_time_spreads:Spread calculated: O:WMB250711C00055000/O:WMB250711C00057000, ROI: 21.2%, Cost: $1.65
+INFO:real_time_spreads:   Found viable $2 wide spread: 21.2% ROI
+INFO:real_time_spreads:   New best $2 wide spread: 21.2% ROI
+INFO:real_time_spreads:✅ FOUND optimal $2 wide balanced spread: 21.2% ROI - STOPPING search
+INFO:real_time_spreads:Selected best balanced $2.00 spread: 21.2% ROI, $2.00 width
+INFO:spread_storage:Stored session spread WMB_balanced_6_1750031202: WMB balanced ROI=21.2%
+INFO:real_time_spreads:Completed processing for balanced strategy: {'found': True, 'spread_id': 'WMB_balanced_6_1750031202', 'roi': '21.2%', 'expiration': '2025-07-11', 'dte': 25, 'strike_price': 55.0, 'short_strike_price': 57.0, 'spread_cost': 1.65, 'max_profit': 0.3500000000000001, 'spread_width': 2.0, 'contract_symbol': 'O:WMB250711C00055000', 'short_contract_symbol': 'O:WMB250711C00057000', 'management': 'Hold to expiration', 'strategy_title': 'Balanced Strategy'}
+ERROR:main:MANUAL TRIGGER: Error validating spreads for WMB: 'str' object has no attribute 'get'
+INFO:main:MANUAL TRIGGER: Validating options spreads for AIG
+INFO:real_time_spreads:Using real-time price $84.58 for AIG spread detection
+INFO:real_time_spreads:📥 Fetching contracts page 1 for AIG
+INFO:real_time_spreads:📥 Page 1: 482 contracts (Total: 482)
+INFO:real_time_spreads:📥 TOTAL CONTRACTS FETCHED: 482 call contracts for AIG
+INFO:real_time_spreads:Starting concurrent processing of all three strategies for AIG
+INFO:real_time_spreads:Available contracts: 482
+INFO:real_time_spreads:Current price: $84.576
+INFO:real_time_spreads:🚀 STARTING AGGRESSIVE STRATEGY for AIG
+INFO:real_time_spreads:🚀 STARTING BALANCED STRATEGY for AIG
+INFO:real_time_spreads:   Total contracts available: 482
+INFO:real_time_spreads:🔍 CALLING FILTER for aggressive strategy...
+INFO:real_time_spreads:   Total contracts available: 482
+INFO:real_time_spreads:🔍 CALLING FILTER for balanced strategy...
+INFO:real_time_spreads:🔍 DETAILED FILTERING for AGGRESSIVE strategy:
+INFO:real_time_spreads:🔍 DETAILED FILTERING for BALANCED strategy:
+INFO:real_time_spreads:   Current price: $84.576
+INFO:real_time_spreads:   Current price: $84.576
+INFO:real_time_spreads:   DTE range: 17-28 days
+INFO:real_time_spreads:   Strike range: $59.20 - $109.95
+INFO:real_time_spreads:   DTE range: 10-17 days
+INFO:real_time_spreads:   Strike range: $63.43 - $105.72
+INFO:real_time_spreads:   Total contracts to check: 482
+INFO:real_time_spreads:   Total contracts to check: 482
+INFO:real_time_spreads:🚀 STARTING CONSERVATIVE STRATEGY for AIG
+INFO:real_time_spreads:   Total contracts available: 482
+INFO:real_time_spreads:   Contract 1: Strike=$35.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:🔍 CALLING FILTER for conservative strategy...
+INFO:real_time_spreads:   ❌ FAILED: Strike=$35.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:🔍 DETAILED FILTERING for CONSERVATIVE strategy:
+INFO:real_time_spreads:   Contract 1: Strike=$35.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   Current price: $84.576
+INFO:real_time_spreads:   Contract 2: Strike=$37.5, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$37.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   DTE range: 28-42 days
+INFO:real_time_spreads:   Contract 3: Strike=$40.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$35.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Strike range: $54.97 - $114.18
+INFO:real_time_spreads:   ❌ FAILED: Strike=$40.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 2: Strike=$37.5, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   Total contracts to check: 482
+INFO:real_time_spreads:   Contract 4: Strike=$42.5, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$37.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 1: Strike=$35.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$35.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 3: Strike=$40.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$42.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 2: Strike=$37.5, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$40.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 5: Strike=$45.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$37.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 4: Strike=$42.5, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$45.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 3: Strike=$40.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$42.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$47.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$40.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 5: Strike=$45.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$50.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 4: Strike=$42.5, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$45.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$55.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$42.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$47.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$60.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   Contract 5: Strike=$45.0, DTE=4, Exp=2025-06-20
+INFO:real_time_spreads:   ❌ FAILED: Strike=$50.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$62.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$45.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$55.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$60.0, DTE=4 (DTE_OK:False, STRIKE_OK:True)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$47.5, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$62.5, DTE=4 (DTE_OK:False, STRIKE_OK:True)
+INFO:real_time_spreads:   ❌ FAILED: Strike=$50.0, DTE=4 (DTE_OK:False, STRIKE_OK:False)
+INFO:real_time_spreads:   ✅ PASSED: Strike=$60.0, DTE=17
+INFO:real_time_spreads:   ✅ PASSED: Strike=$65.0, DTE=11
+INFO:real_time_spreads:   ❌ FAILED: Strike=$55.0, DTE=4 (DTE_OK:False, STRIKE_OK:True)
+INFO:real_time_spreads:   ✅ PASSED: Strike=$65.0, DTE=17
+INFO:real_time_spreads:   ✅ PASSED: Strike=$70.0, DTE=11
+INFO:real_time_spreads:   ❌ FAILED: Strike=$60.0, DTE=4 (DTE_OK:False, STRIKE_OK:True)
+INFO:real_time_spreads:   ✅ PASSED: Strike=$70.0, DTE=17
+INFO:real_time_spreads:   ✅ PASSED: Strike=$71.0, DTE=11
+INFO:real_time_spreads:   ❌ FAILED: Strike=$62.5, DTE=4 (DTE_OK:False, STRIKE_OK:True)
+INFO:real_time_spreads:🔍 FILTERING RESULTS for BALANCED:
+INFO:real_time_spreads:🔍 FILTERING RESULTS for AGGRESSIVE:
+INFO:real_time_spreads:   ✅ PASSED: Strike=$55.0, DTE=32
+INFO:real_time_spreads:   DTE passed: 70/482
+INFO:real_time_spreads:   DTE passed: 70/482
+INFO:real_time_spreads:   ✅ PASSED: Strike=$60.0, DTE=32
+INFO:real_time_spreads:   Strike passed: 347/482
+INFO:real_time_spreads:   Strike passed: 326/482
+INFO:real_time_spreads:   ✅ PASSED: Strike=$65.0, DTE=32
+INFO:real_time_spreads:   Both passed: 64/482
+INFO:real_time_spreads:   Both passed: 62/482
+INFO:real_time_spreads:🔍 FILTERING RESULTS for CONSERVATIVE:
+INFO:real_time_spreads:   Final filtered contracts: 64
+INFO:real_time_spreads:   Final filtered contracts: 62
+INFO:real_time_spreads:   DTE passed: 57/482
+INFO:real_time_spreads:🔍 FILTER COMPLETE for balanced: 64 contracts
+INFO:real_time_spreads:🔍 FILTER COMPLETE for aggressive: 62 contracts
+INFO:real_time_spreads:   Strike passed: 374/482
+INFO:real_time_spreads:Generated 206 total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)
+INFO:real_time_spreads:Generated 202 total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)
+INFO:real_time_spreads:   Both passed: 48/482
+INFO:real_time_spreads:🎯 Searching for $1 wide balanced spreads...
+INFO:real_time_spreads:🎯 Searching for $1 wide aggressive spreads...
+INFO:real_time_spreads:   Final filtered contracts: 48
+INFO:real_time_spreads:   Found 28 pairs at $1 width
+INFO:real_time_spreads:   Found 28 pairs at $1 width
+INFO:real_time_spreads:🔍 FILTER COMPLETE for conservative: 48 contracts
+INFO:real_time_spreads:Generated 102 total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)
+INFO:real_time_spreads:🎯 Searching for $1 wide conservative spreads...
+INFO:real_time_spreads:   Found 11 pairs at $1 width
+[2025-06-15 23:46:43 +0000] [7493] [CRITICAL] WORKER TIMEOUT (pid:9241)
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00070000: bid=$12.7, ask=$16.8
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00073000: bid=$9.9, ask=$13.9
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00073000: bid=$9.8, ask=$13.7
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00073000: bid=$10.3, ask=$14.3
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00075000: bid=$8.4, ask=$12.4
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00071000: bid=$11.8, ask=$15.9
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00071000: bid=$11.7, ask=$15.7
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00077000: bid=$6.6, ask=$10.6
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00074000: bid=$8.9, ask=$13
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00070000: bid=$12.8, ask=$16.8
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00074000: bid=$8.8, ask=$12.7
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00072000: bid=$10.8, ask=$14.8
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00072000: bid=$10.7, ask=$14.7
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00074000: bid=$9.3, ask=$13.4
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00076000: bid=$7.5, ask=$11.4
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00074000: bid=$8.9, ask=$13
+INFO:real_time_spreads:Spread calculated: O:AIG250703C00073000/O:AIG250703C00074000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00071000: bid=$11.7, ask=$15.7
+INFO:real_time_spreads:Spread calculated: O:AIG250627C00070000/O:AIG250627C00071000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00072000: bid=$10.7, ask=$14.7
+INFO:real_time_spreads:Spread calculated: O:AIG250627C00071000/O:AIG250627C00072000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00073000: bid=$9.9, ask=$13.9
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00074000: bid=$9.3, ask=$13.4
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00072000: bid=$10.8, ask=$14.8
+INFO:real_time_spreads:Spread calculated: O:AIG250703C00072000/O:AIG250703C00073000, ROI: 11.1%, Cost: $0.90
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00074000: bid=$8.8, ask=$12.7
+INFO:real_time_spreads:Spread calculated: O:AIG250725C00073000/O:AIG250725C00074000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Spread calculated: O:AIG250703C00071000/O:AIG250703C00072000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Spread calculated: O:AIG250627C00073000/O:AIG250627C00074000, ROI: 0.0%, Cost: $1.00
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00076000: bid=$7.5, ask=$11.4
+INFO:real_time_spreads:Spread calculated: O:AIG250725C00075000/O:AIG250725C00076000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00075000: bid=$7.8, ask=$11.8
+INFO:real_time_spreads:Spread calculated: O:AIG250627C00074000/O:AIG250627C00075000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00075000: bid=$7.9, ask=$11.9
+INFO:real_time_spreads:Spread calculated: O:AIG250703C00074000/O:AIG250703C00075000, ROI: -4.8%, Cost: $1.05
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00078000: bid=$5.7, ask=$9.8
+INFO:real_time_spreads:Spread calculated: O:AIG250725C00077000/O:AIG250725C00078000, ROI: 17.6%, Cost: $0.85
+INFO:real_time_spreads:Quote retrieved for O:AIG250627C00073000: bid=$9.8, ask=$13.7
+INFO:real_time_spreads:Spread calculated: O:AIG250627C00072000/O:AIG250627C00073000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:AIG250703C00071000: bid=$11.8, ask=$15.9
+INFO:real_time_spreads:Spread calculated: O:AIG250703C00070000/O:AIG250703C00071000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00075000: bid=$8.4, ask=$12.4
+INFO:real_time_spreads:Spread calculated: O:AIG250725C00074000/O:AIG250725C00075000, ROI: 5.3%, Cost: $0.95
+INFO:real_time_spreads:Quote retrieved for O:AIG250725C00077000: bid=$6.6, ask=$10.6
+INFO:real_time_spreads:Spread calculated: O:AIG250725C00076000/O:AIG250725C00077000, ROI: 17.6%, Cost: $0.85
+[2025-06-15 23:46:44 +0000] [7493] [ERROR] Worker (pid:9241) was sent SIGKILL! Perhaps out of memory?
+[2025-06-15 23:46:44 +0000] [9337] [INFO] Booting worker with pid: 9337
+INFO:database_models:PostgreSQL database initialized with CSV format and trading volume support
+INFO:main:Started background criteria polling thread for top 3 tickers
+INFO:main:MANUAL TRIGGER: Starting immediate analysis of TOP 3 TICKERS ONLY
+INFO:main:MANUAL TRIGGER: Analyzing ONLY top 3 tickers: ['CSCO', 'WMB', 'AIG']
+INFO:main:MANUAL TRIGGER: Processing CSCO
+INFO:main:MANUAL TRIGGER: API response for CSCO: Status 200
+INFO:main:MANUAL TRIGGER: Received criteria for CSCO: {'criteria1': True, 'criteria2': True, 'criteria3': True, 'criteria4': False, 'criteria5': True}
+INFO:main:DIRECT UPDATE: No criteria changes for CSCO
+INFO:main:MANUAL TRIGGER: Processing WMB
+INFO:main:MANUAL TRIGGER: API response for WMB: Sta
