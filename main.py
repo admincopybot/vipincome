@@ -1417,6 +1417,14 @@ def create_step4_demo_data(symbol, strategy, current_price):
                 margin-bottom: 30px;
             }
             
+            .main-grid-vertical {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                margin-bottom: 30px;
+                max-width: 100%;
+            }
+            
             .info-card {
                 background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
                 padding: 24px;
@@ -1715,7 +1723,7 @@ def create_step4_demo_data(symbol, strategy, current_price):
             
 
             
-            <div class="main-grid">
+            <div class="main-grid-vertical">
                 <div class="info-card">
                     <h3>Trade Construction</h3>
                     <div class="option-id">Buy the ${{ "%.0f"|format(option_data.strike_price) }} {{ option_data.expiration_date[5:7] }}/{{ option_data.expiration_date[8:10] }} Call</div>
@@ -3019,7 +3027,7 @@ def step4(symbol, strategy, spread_id):
         .spread-title { color: #ffffff; font-size: 28px; font-weight: bold; background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .width-badge { background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
         
-        .trade-construction { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+        .trade-construction { display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; }
         .trade-section { background: linear-gradient(145deg, rgba(71, 85, 105, 0.4), rgba(51, 65, 85, 0.6)); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px; border-radius: 12px; transition: all 0.3s ease; }
         .trade-section:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }
         .section-header { color: #ffffff; font-weight: 700; margin-bottom: 12px; font-size: 16px; }
@@ -3902,6 +3910,107 @@ def pro_index():
         
         // Check market hours on page load
         setTimeout(checkMarketHours, 1000); // Slight delay for page load
+    
+    // How to Use Video Popup Function
+    function showHowToUseVideo() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        `;
+        
+        const popup = document.createElement('div');
+        popup.style.cssText = `
+            background: #1a1f2e;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 90vw;
+            max-height: 90vh;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            animation: popIn 0.4s ease;
+            border: 2px solid #3b82f6;
+        `;
+        
+        popup.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">How to Use The Income Machine</h3>
+                <button id="closeVideoPopup" style="
+                    background: none;
+                    border: none;
+                    color: #94a3b8;
+                    font-size: 24px;
+                    cursor: pointer;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">×</button>
+            </div>
+            <video controls style="
+                width: 100%;
+                max-width: 800px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            ">
+                <source src="/static/how-to-use-video.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <p style="color: #cbd5e1; margin-bottom: 20px; line-height: 1.6;">
+                Learn how to maximize your income potential with The Income Machine
+            </p>
+        `;
+        
+        overlay.appendChild(popup);
+        document.body.appendChild(overlay);
+        
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes popIn {
+                from { transform: scale(0.8); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        if (!document.head.querySelector('style[data-video-popup]')) {
+            style.setAttribute('data-video-popup', 'true');
+            document.head.appendChild(style);
+        }
+        
+        // Close popup handlers
+        document.getElementById('closeVideoPopup').addEventListener('click', closeVideoPopup);
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeVideoPopup();
+        });
+        
+        function closeVideoPopup() {
+            overlay.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                if (document.body.contains(overlay)) {
+                    document.body.removeChild(overlay);
+                }
+            }, 300);
+        }
+    }
     </script>
 </body>
 </html>
@@ -7209,10 +7318,10 @@ def step3(symbol=None):
             font-weight: 600;
         }
 
-        /* Four Main Cards Grid */
+        /* Four Main Cards Grid - Updated to Vertical Stack */
         .main-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: flex;
+            flex-direction: column;
             gap: 20px;
             margin-bottom: 40px;
         }
