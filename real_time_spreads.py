@@ -152,13 +152,17 @@ class RealTimeSpreadDetector:
             # Filter for call options only and add required fields
             call_contracts = []
             for contract in contracts:
-                if contract.get('option_type') == 'call':
+                # Log the first few contracts to debug structure
+                if len(call_contracts) < 3:
+                    logger.info(f"DEBUG Contract structure: {contract}")
+                
+                if contract.get('contract_type') == 'call':  # API uses 'contract_type' not 'option_type'
                     # Ensure contract has all required fields for spread calculation
                     processed_contract = {
                         'ticker': contract.get('ticker'),  # Option ticker symbol
                         'strike_price': contract.get('strike_price', 0),
                         'expiration_date': contract.get('expiration_date'),
-                        'option_type': contract.get('option_type'),
+                        'option_type': 'call',  # Standardize to 'option_type' for internal use
                         'underlying_ticker': contract.get('underlying_ticker', symbol),
                         'dte': self.calculate_dte(contract.get('expiration_date', ''))
                     }
