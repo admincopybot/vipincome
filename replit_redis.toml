@@ -1,0 +1,12 @@
+# Replit Redis Service Configuration
+# Add this to your .replit file for autoscale deployment
+
+[[services]]
+name = "redis"
+image = "redis:7-alpine"
+ports = [6379]
+env = {}
+
+[[services.mounts]]
+source = "./data/redis"
+target = "/data"
