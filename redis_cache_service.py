@@ -25,20 +25,48 @@ class RedisCacheService:
         self._initialize_redis()
         
     def _initialize_redis(self):
-        """Initialize Redis connection with fallback handling"""
-        try:
-            # Try to connect to Redis
-            redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
-            self.redis_client = redis.from_url(redis_url, decode_responses=True)
-            
-            # Test connection
-            self.redis_client.ping()
-            self.cache_enabled = True
-            logger.info("Redis cache service initialized successfully")
-            
-        except Exception as e:
-            logger.warning(f"Redis not available, falling back to direct API calls: {e}")
-            self.cache_enabled = False
+        """Initialize Redis connection with multiple fallback options for production"""
+        
+        # Priority order for Redis connections - external services first
+        redis_options = [
+            os.environ.get('REDIS_URL'),           # Primary external Redis
+            os.environ.get('REDISCLOUD_URL'),      # Redis Cloud service
+            os.environ.get('REDISTOGO_URL'),       # Redis To Go service  
+            os.environ.get('UPSTASH_REDIS_URL'),   # Upstash Redis
+            "redis://localhost:6379",              # Local fallback
+        ]
+        
+        # Remove None values
+        redis_options = [url for url in redis_options if url]
+        
+        for redis_url in redis_options:
+            try:
+                masked_url = redis_url.split('@')[-1] if '@' in redis_url else redis_url
+                logger.info(f"Attempting Redis connection to: {masked_url}")
+                
+                self.redis_client = redis.from_url(
+                    redis_url, 
+                    decode_responses=True,
+                    socket_connect_timeout=5,
+                    socket_timeout=5,
+                    retry_on_timeout=True
+                )
+                
+                # Test connection
+                self.redis_client.ping()
+                self.cache_enabled = True
+                logger.info(f"Redis cache service initialized successfully with: {masked_url}")
+                return  # Success - exit the loop
+                
+            except Exception as e:
+                logger.warning(f"Redis connection failed for {masked_url}: {e}")
+                continue
+        
+        # If we reach here, no Redis connection worked
+        logger.error("CRITICAL: No Redis available - application cannot handle 1000 concurrent users efficiently")
+        logger.error("Set REDIS_URL environment variable with external Redis service URL")
+        self.cache_enabled = False
+        self.redis_client = None
     
     def _generate_cache_key(self, endpoint: str, params: Dict[str, Any]) -> str:
         """Generate unique cache key for API endpoint and parameters"""
