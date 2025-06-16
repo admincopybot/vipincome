@@ -7245,12 +7245,12 @@ def step3(symbol=None):
             api_url = "https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread"
             
             payload = {
-                "symbol": symbol.upper(),
-                "analysis_type": "comprehensive_spreads"
+                "ticker": symbol.upper()
             }
             
-            print(f"📡 Calling external spread analysis API for {symbol}")
+            print(f"📡 Calling external spread analysis API for {symbol} with payload: {payload}")
             response = requests.post(api_url, json=payload, timeout=30)
+            print(f"📡 API Response Status: {response.status_code}")
             
             if response.status_code == 200:
                 api_data = response.json()
