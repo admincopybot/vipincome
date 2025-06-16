@@ -156,6 +156,7 @@ Changelog:
 - June 16, 2025: Added VIP upgrade prompt row to Pro version with three upgrade cards
 - June 16, 2025: Completed tiered progression: Free (blurred), Pro (clear + VIP prompts), VIP (unrestricted)
 - June 16, 2025: Fixed options contracts filter to show unprocessed tickers (0 contracts) and only hide 1-99 contracts
+- June 16, 2025: Updated Pro version upgrade button to link to https://sco.prosperitypub.com/1750083074481
 
 # User Preferences
 
