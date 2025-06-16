@@ -1,0 +1,111 @@
+2025-06-16 20:20:13.47
+922862f6
+User
+INFO:real_time_spreads:🔍 FETCHING PRICE for AVGO from TheTradeList API
+2025-06-16 20:20:13.47
+922862f6
+User
+INFO:real_time_spreads:📡 SNAPSHOT API CALL: URL=https://api.thetradelist.com/v1/data/snapshot-locale
+2025-06-16 20:20:13.47
+922862f6
+User
+INFO:real_time_spreads:📡 SNAPSHOT PARAMS: tickers=AVGO, (with comma)
+2025-06-16 20:20:13.47
+922862f6
+User
+INFO:real_time_spreads:📡 SNAPSHOT API KEY: Present
+2025-06-16 20:20:13.79
+922862f6
+User
+INFO:real_time_spreads:📡 SNAPSHOT RESPONSE: Status=200
+2025-06-16 20:20:13.79
+922862f6
+User
+INFO:real_time_spreads:📡 SNAPSHOT RESPONSE TEXT: {
+2025-06-16 20:20:13.79
+922862f6
+User
+"tickers": [
+2025-06-16 20:20:13.79
+922862f6
+User
+{
+2025-06-16 20:20:13.79
+922862f6
+User
+"ticker": "AVGO",
+2025-06-16 20:20:13.79
+922862f6
+User
+"todaysChangePerc": 1.3470044229996072,
+2025-06-16 20:20:13.79
+922862f6
+User
+"todaysChange": 3.3500000000000227,
+2025-06-16 20:20:13.79
+922862f6
+User
+"updated": 1750105200000000000,
+2025-06-16 20:20:13.79
+922862f6
+User
+"day": {
+2025-06-16 20:20:13.79
+922862f6
+User
+"o": 250.35,
+2025-06-16 20:20:13.79
+922862f6
+User
+"h": 255.037,
+2025-06-16 20:20:13.79
+922862f6
+User
+"l": 248.833,
+2025-06-16 20:20:13.79
+922862f6
+User
+"c": 252.1,
+2025-06-16 20:20:13.79
+922862f6
+User
+"v": 20217604,
+2025-06-16 20:20:13.79
+922862f6
+User
+"vw": 252.26199
+2025-06-16 20:20:13.79
+922862f6
+User
+},
+2025-06-16 20:20:13.79
+922862f6
+User
+"lastQuote": {
+2025-06-16 20:20:13.79
+922862f6
+User
+"P": 252.59,
+2025-06-16 20:20:13.79
+922862f6
+User
+"S": 1,
+2025-06-16 20:20:13.79
+922862f6
+User
+2025-06-16 20:20:13.79
+922862f6
+User
+INFO:real_time_spreads:📡 SNAPSHOT JSON DATA: {'tickers': [{'ticker': 'AVGO', 'todaysChangePerc': 1.3470044229996072, 'todaysChange': 3.3500000000000227, 'updated': 1750105200000000000, 'day': {'o': 250.35, 'h': 255.037, 'l': 248.833, 'c': 252.1, 'v': 20217604, 'vw': 252.26199}, 'lastQuote': {'P': 252.59, 'S': 1, 'p': 251.55, 's': 1, 't': 1750103999994430649}, 'lastTrade': {'i': '13207', 'p': 252.05, 's': 100, 't': 1750103998080946739, 'x': 15}, 'fmv': 251.12, 'min': {'av': 20217604, 't': 1750105140000, 'n': 28, 'o': 251, 'h': 251.15, 'l': 251, 'c': 251.15, 'v': 319, 'vw': 251.0855}, 'prevDay': {'o': 250.66, 'h': 254, 'l': 248.35, 'c': 248.7, 'v': 19028440, 'vw': 250.743}}], 'status': 'OK', 'request_id': '74e2fb45c315cb9ddd311b3593e1e4fd', 'count': 1}
+2025-06-16 20:20:13.79
+922862f6
+User
+INFO:real_time_spreads:📡 SNAPSHOT TICKERS: 1 found
+2025-06-16 20:20:13.79
+922862f6
+User
+INFO:real_time_spreads:📡 SNAPSHOT AVGO DATA: {'ticker': 'AVGO', 'todaysChangePerc': 1.3470044229996072, 'todaysChange': 3.3500000000000227, 'updated': 1750105200000000000, 'day': {'o': 250.35, 'h': 255.037, 'l': 248.833, 'c': 252.1, 'v': 20217604, 'vw': 252.26199}, 'lastQuote': {'P': 252.59, 'S': 1, 'p': 251.55, 's': 1, 't': 1750103999994430649}, 'lastTrade': {'i': '13207', 'p': 252.05, 's': 100, 't': 1750103998080946739, 'x': 15}, 'fmv': 251.12, 'min': {'av': 20217604, 't': 1750105140000, 'n': 28, 'o': 251, 'h': 251.15, 'l': 251, 'c': 251.15, 'v': 319, 'vw': 251.0855}, 'prevDay': {'o': 250.66, 'h': 254, 'l': 248.35, 'c': 248.7, 'v': 19028440, 'vw': 250.743}}
+2025-06-16 20:20:13.79
+922862f6
+User
+INFO:real_time_spreads:✅ TheTradeList FMV price for AVGO: $251.12

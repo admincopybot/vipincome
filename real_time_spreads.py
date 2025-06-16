@@ -24,9 +24,20 @@ class RealTimeSpreadDetector:
         self.tradelist_api_key = os.environ.get('TRADELIST_API_KEY')
     
     def get_real_time_stock_price(self, symbol: str) -> Optional[float]:
-        """Get real-time stock price using TheTradeList API - PRIMARY PRICING SOURCE"""
+        """Get real-time stock price using TheTradeList API with Redis caching"""
         try:
-            logger.info(f"🔍 FETCHING PRICE for {symbol} from TheTradeList API")
+            # Use Redis cached stock price function
+            from redis_cache_service import cache_service
+            
+            # Check cache first (30-second expiry)
+            cache_key = f"stock_price_snapshot:{symbol}"
+            cached_price = cache_service.get_cached_data(cache_key)
+            
+            if cached_price:
+                logger.info(f"Cache HIT: Using cached price for {symbol}: ${cached_price}")
+                return float(cached_price)
+            
+            logger.info(f"Cache MISS: Fetching fresh price for {symbol}")
             
             # First try snapshot endpoint for FMV (Fair Market Value)
             url = "https://api.thetradelist.com/v1/data/snapshot-locale"
@@ -35,96 +46,60 @@ class RealTimeSpreadDetector:
                 'apiKey': self.tradelist_api_key
             }
             
-            logger.info(f"📡 SNAPSHOT API CALL: URL={url}")
-            logger.info(f"📡 SNAPSHOT PARAMS: tickers={symbol}, (with comma)")
-            logger.info(f"📡 SNAPSHOT API KEY: {'Present' if self.tradelist_api_key else 'MISSING'}")
-            
             response = requests.get(url, params=params, timeout=3)
-            
-            logger.info(f"📡 SNAPSHOT RESPONSE: Status={response.status_code}")
-            logger.info(f"📡 SNAPSHOT RESPONSE TEXT: {response.text[:500]}")
             
             if response.status_code == 200:
                 try:
                     data = response.json()
-                    logger.info(f"📡 SNAPSHOT JSON DATA: {data}")
                     
                     if data.get('status') == 'OK' and data.get('tickers'):
                         tickers = data['tickers']
-                        logger.info(f"📡 SNAPSHOT TICKERS: {len(tickers)} found")
                         
                         # Find the ticker in the list
                         for ticker_data in tickers:
                             if ticker_data.get('ticker') == symbol:
-                                logger.info(f"📡 SNAPSHOT {symbol} DATA: {ticker_data}")
                                 fmv = ticker_data.get('fmv')
                                 if fmv and fmv > 0:
-                                    logger.info(f"✅ TheTradeList FMV price for {symbol}: ${fmv}")
+                                    # Cache the result for 30 seconds
+                                    cache_service.cache_data(cache_key, str(fmv), expiry_seconds=30)
+                                    logger.info(f"API SUCCESS: Cached FMV price for {symbol}: ${fmv}")
                                     return float(fmv)
-                                else:
-                                    logger.warning(f"❌ FMV for {symbol} is null or zero: {fmv}")
                                 break
-                        else:
-                            available_tickers = [t.get('ticker') for t in tickers]
-                            logger.warning(f"❌ {symbol} not found in snapshot tickers: {available_tickers}")
-                    else:
-                        logger.warning(f"❌ Snapshot API status not OK or no results: status={data.get('status')}, has_results={bool(data.get('results'))}")
                 except Exception as json_error:
-                    logger.error(f"❌ JSON parsing error for snapshot: {json_error}")
-            else:
-                logger.error(f"❌ Snapshot API HTTP error: {response.status_code} - {response.text}")
+                    logger.error(f"JSON parsing error for snapshot: {json_error}")
             
             # Fallback to trader scanner endpoint
-            logger.info(f"🔄 FALLBACK: Trying trader scanner for {symbol}")
             scanner_url = "https://api.thetradelist.com/v1/data/get_trader_scanner_data.php"
             scanner_params = {
                 'apiKey': self.tradelist_api_key,
                 'returntype': 'json'
             }
             
-            logger.info(f"📡 SCANNER API CALL: URL={scanner_url}")
-            logger.info(f"📡 SCANNER PARAMS: returntype=json")
-            
             scanner_response = requests.get(scanner_url, params=scanner_params, timeout=15)
-            
-            logger.info(f"📡 SCANNER RESPONSE: Status={scanner_response.status_code}")
             
             if scanner_response.status_code == 200:
                 try:
                     scanner_data = scanner_response.json()
-                    logger.info(f"📡 SCANNER DATA TYPE: {type(scanner_data)}")
-                    logger.info(f"📡 SCANNER DATA LENGTH: {len(scanner_data) if isinstance(scanner_data, list) else 'Not a list'}")
                     
                     # Find the specific ticker
                     if isinstance(scanner_data, list):
-                        found_symbols = []
                         for item in scanner_data:
-                            item_symbol = item.get('symbol')
-                            found_symbols.append(item_symbol)
-                            if item_symbol == symbol:
-                                logger.info(f"📡 FOUND {symbol} in scanner data: {item}")
+                            if item.get('symbol') == symbol:
                                 last_price = item.get('lastprice')
                                 if last_price and float(last_price) > 0:
-                                    logger.info(f"✅ TheTradeList scanner price for {symbol}: ${last_price}")
+                                    # Cache the result for 30 seconds
+                                    cache_service.cache_data(cache_key, last_price, expiry_seconds=30)
+                                    logger.info(f"API FALLBACK: Cached scanner price for {symbol}: ${last_price}")
                                     return float(last_price)
-                                else:
-                                    logger.warning(f"❌ Scanner lastprice for {symbol} is invalid: {last_price}")
-                        
-                        logger.warning(f"❌ {symbol} not found in scanner data. Available symbols: {found_symbols[:10]}...")
-                    else:
-                        logger.error(f"❌ Scanner data is not a list: {type(scanner_data)}")
                         
                 except Exception as json_error:
-                    logger.error(f"❌ JSON parsing error for scanner: {json_error}")
-                    logger.error(f"❌ Scanner response text: {scanner_response.text[:500]}")
-            else:
-                logger.error(f"❌ Scanner API HTTP error: {scanner_response.status_code} - {scanner_response.text}")
+                    logger.error(f"JSON parsing error for scanner: {json_error}")
                                 
-            logger.error(f"❌ FINAL RESULT: No valid price found for {symbol} from TheTradeList API")
+            logger.error(f"No valid price found for {symbol} from TheTradeList API")
             return None
             
         except Exception as e:
-            logger.error(f"❌ EXCEPTION in get_real_time_stock_price for {symbol}: {e}")
+            logger.error(f"Exception in get_real_time_stock_price for {symbol}: {e}")
             return None
         
     def calculate_dte(self, expiration_date: str) -> int:
