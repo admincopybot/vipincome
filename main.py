@@ -7254,9 +7254,69 @@ def step3(symbol=None):
             
             if response.status_code == 200:
                 api_data = response.json()
-                options_data = api_data.get('spread_data', {})
-                current_price = api_data.get('current_price', 0)
-                print(f"✅ External API returned spread data for {symbol}")
+                
+                # Transform external API response to match Step 3 display format
+                if api_data.get('success'):
+                    current_price = api_data.get('current_stock_price', 0)
+                    spread_details = api_data.get('spread_details', {})
+                    contracts = api_data.get('contracts', {})
+                    price_scenarios = api_data.get('price_scenarios', [])
+                    strategy_info = api_data.get('strategy_info', {})
+                    
+                    # Convert to internal format for Step 3 display
+                    options_data = {
+                        'aggressive': {
+                            'found': True,
+                            'dte': spread_details.get('days_to_expiration', 0),
+                            'roi': f"{spread_details.get('roi_percent', 0):.1f}%",
+                            'max_profit': f"${spread_details.get('max_profit', 0):.2f}",
+                            'spread_cost': f"${spread_details.get('spread_cost', 0):.2f}",
+                            'contract_symbol': contracts.get('long_contract', ''),
+                            'short_contract': contracts.get('short_contract', ''),
+                            'strike_price': spread_details.get('long_strike', 0),
+                            'short_strike_price': spread_details.get('short_strike', 0),
+                            'expiration': spread_details.get('expiration_date', ''),
+                            'management': strategy_info.get('description', 'Hold to expiration'),
+                            'description': 'External API spread analysis',
+                            'price_scenarios': price_scenarios,
+                            'breakeven_price': spread_details.get('breakeven_price', 0)
+                        },
+                        'steady': {
+                            'found': True,
+                            'dte': spread_details.get('days_to_expiration', 0),
+                            'roi': f"{spread_details.get('roi_percent', 0):.1f}%",
+                            'max_profit': f"${spread_details.get('max_profit', 0):.2f}",
+                            'spread_cost': f"${spread_details.get('spread_cost', 0):.2f}",
+                            'contract_symbol': contracts.get('long_contract', ''),
+                            'short_contract': contracts.get('short_contract', ''),
+                            'strike_price': spread_details.get('long_strike', 0),
+                            'short_strike_price': spread_details.get('short_strike', 0),
+                            'expiration': spread_details.get('expiration_date', ''),
+                            'management': strategy_info.get('description', 'Hold to expiration'),
+                            'description': 'External API spread analysis',
+                            'price_scenarios': price_scenarios,
+                            'breakeven_price': spread_details.get('breakeven_price', 0)
+                        },
+                        'passive': {
+                            'found': True,
+                            'dte': spread_details.get('days_to_expiration', 0),
+                            'roi': f"{spread_details.get('roi_percent', 0):.1f}%",
+                            'max_profit': f"${spread_details.get('max_profit', 0):.2f}",
+                            'spread_cost': f"${spread_details.get('spread_cost', 0):.2f}",
+                            'contract_symbol': contracts.get('long_contract', ''),
+                            'short_contract': contracts.get('short_contract', ''),
+                            'strike_price': spread_details.get('long_strike', 0),
+                            'short_strike_price': spread_details.get('short_strike', 0),
+                            'expiration': spread_details.get('expiration_date', ''),
+                            'management': strategy_info.get('description', 'Hold to expiration'),
+                            'description': 'External API spread analysis',
+                            'price_scenarios': price_scenarios,
+                            'breakeven_price': spread_details.get('breakeven_price', 0)
+                        }
+                    }
+                    print(f"✅ External API returned spread data for {symbol}: ROI={spread_details.get('roi_percent', 0):.1f}%, DTE={spread_details.get('days_to_expiration', 0)}")
+                else:
+                    return f"Error: External API returned unsuccessful response"
             else:
                 return f"Error: External API returned status {response.status_code}"
                 
@@ -8146,34 +8206,50 @@ def step3(symbol=None):
             overflow: hidden;
         }
 
+        .profit-matrix-section {
+            margin: 40px 0;
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .profit-matrix-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         .scenario-header {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 1px;
             background: #8b5cf6;
             color: #ffffff;
             font-weight: 600;
-            padding: 10px 0;
+            padding: 12px 0;
         }
 
         .scenario-header > div {
             text-align: center;
-            padding: 0 4px;
-            font-size: 11px;
+            padding: 0 8px;
+            font-size: 13px;
         }
 
         .scenario-row {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 1px;
-            padding: 8px 0;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .scenario-row > div {
             text-align: center;
-            padding: 0 4px;
-            font-size: 12px;
+            padding: 0 8px;
+            font-size: 13px;
             color: rgba(255, 255, 255, 0.9);
         }
 
@@ -8442,6 +8518,33 @@ def step3(symbol=None):
                     
                     <a href="/step4/{{ symbol }}/aggressive/{{ options_data.aggressive.spread_id }}" class="strategy-btn">View Trade Analysis</a>
                 </div>
+                
+                <!-- Profit Matrix Section -->
+                {% if options_data.aggressive.price_scenarios %}
+                <div class="profit-matrix-section">
+                    <h3 class="profit-matrix-title">Profit Matrix at Expiration</h3>
+                    <div class="scenarios-table">
+                        <div class="scenario-header">
+                            <div>Price Change</div>
+                            <div>Stock Price</div>
+                            <div>Spread Value</div>
+                            <div>Profit/Loss</div>
+                            <div>ROI %</div>
+                            <div>Outcome</div>
+                        </div>
+                        {% for scenario in options_data.aggressive.price_scenarios %}
+                        <div class="scenario-row {% if scenario.outcome == 'profit' %}win{% else %}loss{% endif %}">
+                            <div>{{ scenario.price_change_percent }}%</div>
+                            <div>${{ "%.2f"|format(scenario.future_stock_price) }}</div>
+                            <div>${{ "%.2f"|format(scenario.spread_value_at_expiration) }}</div>
+                            <div>${{ "%.2f"|format(scenario.profit_loss) }}</div>
+                            <div>{{ "%.1f"|format(scenario.roi_percent) }}%</div>
+                            <div>{{ scenario.outcome|title }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
             
             <div class="back-to-scoreboard">

@@ -1,0 +1,114 @@
+{
+  "success": true,
+  "ticker": "SPY",
+  "strategy": "balanced",
+  "timestamp": "2025-06-16T22:35:45.123456",
+  "current_stock_price": 587.45,
+  
+  "spread_details": {
+    "long_strike": 585.0,
+    "short_strike": 590.0,
+    "spread_width": 5.0,
+    "spread_cost": 3.25,
+    "max_profit": 1.75,
+    "max_loss": 3.25,
+    "breakeven_price": 588.25,
+    "roi_percent": 53.8,
+    "days_to_expiration": 12,
+    "expiration_date": "2025-06-27"
+  },
+  
+  "contracts": {
+    "long_contract": "O:SPY250627C00585000",
+    "short_contract": "O:SPY250627C00590000",
+    "long_price": 4.80,
+    "short_price": 1.55
+  },
+  
+  "price_scenarios": [
+    {
+      "price_change_percent": -10,
+      "future_stock_price": 528.71,
+      "spread_value_at_expiration": 0.0,
+      "profit_loss": -3.25,
+      "roi_percent": -100.0,
+      "outcome": "loss"
+    },
+    {
+      "price_change_percent": -5,
+      "future_stock_price": 558.08,
+      "spread_value_at_expiration": 0.0,
+      "profit_loss": -3.25,
+      "roi_percent": -100.0,
+      "outcome": "loss"
+    },
+    {
+      "price_change_percent": -2.5,
+      "future_stock_price": 572.76,
+      "spread_value_at_expiration": 0.0,
+      "profit_loss": -3.25,
+      "roi_percent": -100.0,
+      "outcome": "loss"
+    },
+    {
+      "price_change_percent": -1,
+      "future_stock_price": 581.57,
+      "spread_value_at_expiration": 0.0,
+      "profit_loss": -3.25,
+      "roi_percent": -100.0,
+      "outcome": "loss"
+    },
+    {
+      "price_change_percent": 0,
+      "future_stock_price": 587.45,
+      "spread_value_at_expiration": 2.45,
+      "profit_loss": -0.80,
+      "roi_percent": -24.6,
+      "outcome": "loss"
+    },
+    {
+      "price_change_percent": 1,
+      "future_stock_price": 593.32,
+      "spread_value_at_expiration": 5.0,
+      "profit_loss": 1.75,
+      "roi_percent": 53.8,
+      "outcome": "profit"
+    },
+    {
+      "price_change_percent": 2.5,
+      "future_stock_price": 602.14,
+      "spread_value_at_expiration": 5.0,
+      "profit_loss": 1.75,
+      "roi_percent": 53.8,
+      "outcome": "profit"
+    },
+    {
+      "price_change_percent": 5,
+      "future_stock_price": 616.82,
+      "spread_value_at_expiration": 5.0,
+      "profit_loss": 1.75,
+      "roi_percent": 53.8,
+      "outcome": "profit"
+    },
+    {
+      "price_change_percent": 10,
+      "future_stock_price": 646.20,
+      "spread_value_at_expiration": 5.0,
+      "profit_loss": 1.75,
+      "roi_percent": 53.8,
+      "outcome": "profit"
+    }
+  ],
+  
+  "strategy_info": {
+    "strategy_name": "Balanced",
+    "description": "Hold to expiration",
+    "risk_level": "Medium"
+  },
+  
+  "market_context": {
+    "analysis_time": "2025-06-16 22:35:45 UTC",
+    "data_source": "TheTradeList API",
+    "spread_id": "SPY_balanced_3_1750113345"
+  }
+}
