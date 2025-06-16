@@ -337,11 +337,12 @@ class RealTimeSpreadDetector:
         logger.info(f"🔧 OPTIMIZED: Generated {len(pairs)} spread pairs (limited to prevent timeouts)")
         return pairs
     
-    def get_real_time_quote(self, ticker: str) -> Optional[Dict]:
+    def get_real_time_quote(self, ticker: str, early_termination_mode: bool = False) -> Optional[Dict]:
         """Get real-time bid/ask quote from TheTradeList API with AGGRESSIVE throttling"""
         try:
-            # AGGRESSIVE THROTTLING: 2-second delay between each API call
-            time.sleep(2.0)
+            # AGGRESSIVE THROTTLING: 2-second delay for normal mode, 0.5 for early termination
+            delay = 0.5 if early_termination_mode else 2.0
+            time.sleep(delay)
             
             url = "https://api.thetradelist.com/v1/data/last-quote"
             params = {
@@ -390,8 +391,8 @@ class RealTimeSpreadDetector:
             if not long_ticker or not short_ticker:
                 return None
             
-            long_quote = self.get_real_time_quote(long_ticker)
-            short_quote = self.get_real_time_quote(short_ticker)
+            long_quote = self.get_real_time_quote(long_ticker, True)  # Early termination mode
+            short_quote = self.get_real_time_quote(short_ticker, True)  # Early termination mode
             
             if not long_quote or not short_quote:
                 return None
@@ -742,11 +743,11 @@ def get_real_time_spreads_with_early_termination(symbol: str, current_price: flo
                 }
                 continue
             
-            # Generate spread pairs with early termination limit
+            # Generate spread pairs with aggressive early termination limit
             spread_pairs = detector.generate_spread_pairs(filtered_contracts)
-            if len(spread_pairs) > max_spreads_per_strategy:
-                spread_pairs = spread_pairs[:max_spreads_per_strategy]
-                logger.info(f"EARLY TERMINATION {strategy.upper()}: Limited to {max_spreads_per_strategy} spread pairs")
+            if len(spread_pairs) > 5:  # Very aggressive limit for early termination
+                spread_pairs = spread_pairs[:5]
+                logger.info(f"EARLY TERMINATION {strategy.upper()}: Limited to 5 spread pairs")
             
             if not spread_pairs:
                 results[strategy] = {
@@ -762,16 +763,13 @@ def get_real_time_spreads_with_early_termination(symbol: str, current_price: flo
             for long_contract, short_contract in spread_pairs:
                 spreads_analyzed += 1
                 
-                # Very aggressive early termination limits
-                if spreads_analyzed > 15:
+                # Ultra-aggressive early termination limits
+                if spreads_analyzed > 3:
                     logger.info(f"EARLY TERMINATION: Hit analysis limit at {spreads_analyzed} spreads")
                     break
                 
-                # Use exact same spread calculation as Step 3 but with faster API calls
-                original_delay = detector.api_delay
-                detector.api_delay = 0.5  # Reduce delay for early termination
+                # Use exact same spread calculation as Step 3 with early termination mode
                 spread_data = detector.calculate_spread_metrics(long_contract, short_contract)
-                detector.api_delay = original_delay  # Restore original delay
                 if not spread_data:
                     continue
                 
