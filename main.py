@@ -51,8 +51,10 @@ qwIDAQAB
 def validate_jwt_token(token):
     """Validate JWT token using the One Click Trading public key"""
     try:
+        logger.info(f"Attempting to validate JWT token: {token[:50]}...")
         decoded = jwt.decode(token, JWT_PUBLIC_KEY, algorithms=['RS256'])
         logger.info(f"JWT validation successful for user: {decoded.get('sub', 'unknown')}")
+        logger.info(f"JWT payload: {decoded}")
         return {
             'valid': True,
             'user_id': decoded.get('sub'),
@@ -146,6 +148,37 @@ def logout():
     session.pop('jwt_token', None)
     session.pop('user_id', None)
     logger.info("User logged out - session cleared")
+    return redirect('/')
+
+@app.route('/test-jwt')
+def test_jwt():
+    """Test JWT token validation - for debugging purposes"""
+    token = request.args.get('token')
+    
+    if not token:
+        return jsonify({
+            'error': 'No token provided',
+            'usage': 'Add ?token=<your_jwt_token> to test JWT validation',
+            'demo_access': 'Use ?demo=vip for demo access'
+        })
+    
+    # Test JWT validation
+    result = validate_jwt_token(token)
+    
+    return jsonify({
+        'token_provided': token[:50] + '...' if len(token) > 50 else token,
+        'validation_result': result,
+        'session_data': {
+            'jwt_token': session.get('jwt_token', 'Not set'),
+            'user_id': session.get('user_id', 'Not set')
+        }
+    })
+
+@app.route('/demo')
+def demo_access():
+    """Demo access route for testing VIP functionality"""
+    session['demo_vip'] = True
+    logger.info("Demo VIP access granted")
     return redirect('/')
 
 # Global storage for Step 3 spread calculations to ensure Step 4 consistency
@@ -5129,7 +5162,27 @@ def vip_step4(symbol):
 @app.route('/')
 def index():
     """Main route - VIP-only access with JWT authentication"""
-    # Check JWT authentication first
+    # Check for JWT token in URL parameter first
+    token = request.args.get('token')
+    
+    if token:
+        # Validate JWT token
+        auth_result = validate_jwt_token(token)
+        if auth_result['valid']:
+            # Store valid token in session for future navigation
+            session['jwt_token'] = token
+            session['user_id'] = auth_result['user_id']
+            logger.info(f"VIP access granted to user: {auth_result['user_id']}")
+            # Redirect to clean URL without token parameter
+            return redirect('/')
+        else:
+            logger.warning(f"Invalid JWT token provided: {auth_result.get('error', 'Unknown error')}")
+            # Clear any existing session data
+            session.pop('jwt_token', None)
+            session.pop('user_id', None)
+            return show_access_screen()
+    
+    # Check existing session authentication
     if not check_vip_authentication():
         return show_access_screen()
     
