@@ -5022,8 +5022,8 @@ def vip_step2(symbol):
     except Exception as e:
         logger.warning(f"Could not update real-time price for VIP ticker {symbol}: {e}")
     
-    # Use existing step2 template but indicate VIP access
-    return step2(symbol)
+    # Use existing step2 template but with VIP-specific navigation
+    return step2(symbol, access_level='vip')
 
 @app.route('/vip/step3/<symbol>')
 def vip_step3(symbol):
@@ -5941,12 +5941,13 @@ def index():
 
 @app.route('/step2')
 @app.route('/step2/<symbol>')
-def step2(symbol=None):
+def step2(symbol=None, access_level=None):
     """Step 2: Detailed ticker analysis page"""
     if not symbol:
         return redirect('/')
     
-    # Check if this is Pro mode based on session authentication
+    # Check if this is VIP, Pro, or Free mode
+    is_vip = access_level == 'vip' or check_vip_authentication()
     is_pro = check_pro_authentication()
     
     # Check if user has access to this ticker
