@@ -156,6 +156,7 @@ Changelog:
 - June 16, 2025: Added VIP upgrade prompt row to Pro version with three upgrade cards
 - June 16, 2025: Completed tiered progression: Free (blurred), Pro (clear + VIP prompts), VIP (unrestricted)
 - June 16, 2025: Fixed options contracts filter to show unprocessed tickers (0 contracts) and only hide 1-99 contracts
+- June 16, 2025: Updated access control to allow Free and Pro users access to Step 2/3 for all top 10 tickers (not just top 3)
 
 # User Preferences
 
