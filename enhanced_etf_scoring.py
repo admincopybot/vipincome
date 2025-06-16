@@ -58,14 +58,14 @@ def fetch_daily_data(symbol, period='2y'):
             'apiKey': api_key
         }
         
+        from redis_cache_service import cache_service
+        
         logger.info(f"Fetching daily data for {symbol} from {from_date} to {to_date}")
-        response = requests.get(url, params=params, timeout=15)
+        data = cache_service.cached_api_call('daily_data', url, params)
         
-        if response.status_code != 200:
-            logger.error(f"Error fetching daily data for {symbol}: {response.text}")
+        if not data:
+            logger.error(f"Error fetching daily data for {symbol}")
             return pd.DataFrame()
-        
-        data = response.json()
         
         if 'results' not in data or not data['results']:
             logger.warning(f"No daily data found for {symbol}")
