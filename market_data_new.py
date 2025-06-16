@@ -3,7 +3,6 @@ import os
 import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
-import polygon_client  # Import our Polygon client for ETF scoring
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,39 +23,29 @@ ETF_SECTORS = {
 }
 
 class MarketDataService:
-    """Service to fetch and analyze market data for ETFs and options using Polygon.io for ETF scoring"""
+    """Service to fetch and analyze market data for ETFs using Yahoo Finance"""
     
     @staticmethod
     def get_etf_data(symbols):
         """
-        Fetch current data for a list of ETF symbols using Polygon.io for scoring
-        and Yahoo Finance as backup
+        Fetch current data for a list of ETF symbols using Yahoo Finance
         Returns a dictionary with ETF data including price, sector, and calculated score
         """
         result = {}
         
         for symbol in symbols:
             try:
-                # Use Polygon for the price and score calculation
-                polygon_service = polygon_client.PolygonDataService
-                price = polygon_service.get_etf_price(symbol)
+                # Use Yahoo Finance for data
+                ticker = yf.Ticker(symbol)
+                price = ticker.info.get('regularMarketPrice', 0)
                 
-                if price is None:
-                    # Fallback to Yahoo Finance if Polygon fails
-                    logger.error(f"Failed to get price for {symbol}")
-                    ticker = yf.Ticker(symbol)
-                    price = ticker.info.get('regularMarketPrice', 0)
-                    
-                    # Get historical data from Yahoo (last 6 months)
-                    end_date = datetime.now()
-                    start_date = end_date - timedelta(days=180)
-                    hist_data = ticker.history(start=start_date, end=end_date)
-                    
-                    # Calculate the technical score using our 5-factor model (1-5 scale)
-                    score, indicators = MarketDataService._calculate_etf_score(symbol, hist_data)
-                else:
-                    # Calculate score using Polygon data
-                    score, indicators = polygon_service.calculate_etf_score(symbol)
+                # Get historical data from Yahoo (last 6 months)
+                end_date = datetime.now()
+                start_date = end_date - timedelta(days=180)
+                hist_data = ticker.history(start=start_date, end=end_date)
+                
+                # Calculate the technical score using our 5-factor model (1-5 scale)
+                score, indicators = MarketDataService._calculate_etf_score(symbol, hist_data)
                 
                 # Add to results
                 result[symbol] = {
