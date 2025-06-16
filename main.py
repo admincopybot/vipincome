@@ -7237,42 +7237,30 @@ def step3(symbol=None):
     
     # Only perform fresh calculation if no valid cache
     if options_data is None:
-        # Get REAL current stock price from TheTradeList API (no CSV data)
+        # Call external spread analysis API instead of internal calculation
         try:
-            from tradelist_client import TradeListApiService
+            import requests
             
-            tradelist_api_key = os.environ.get('TRADELIST_API_KEY')
-            if not tradelist_api_key:
-                return f"Error: TheTradeList API key required for real-time price data"
+            # External API endpoint for spread analysis
+            api_url = "https://your-spread-analysis-api.com/analyze"  # Replace with actual URL
             
-            # Use the real-time spread detector's price function which handles the comma format correctly
-            from real_time_spreads import RealTimeSpreadDetector
-            detector = RealTimeSpreadDetector()
-            current_price = detector.get_real_time_stock_price(symbol)
+            payload = {
+                "symbol": symbol.upper(),
+                "analysis_type": "comprehensive_spreads"
+            }
             
-            if current_price and current_price > 0:
-                print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from TheTradeList API)")
+            print(f"📡 Calling external spread analysis API for {symbol}")
+            response = requests.post(api_url, json=payload, timeout=30)
+            
+            if response.status_code == 200:
+                api_data = response.json()
+                options_data = api_data.get('spread_data', {})
+                current_price = api_data.get('current_price', 0)
+                print(f"✅ External API returned spread data for {symbol}")
             else:
-                return f"Error: No price data available for {symbol} from TheTradeList API"
+                return f"Error: External API returned status {response.status_code}"
                 
-        except Exception as e:
-            print(f"✗ ERROR fetching real-time price: {e}")
-            return f"Error: Could not fetch real-time price for {symbol}"
-        
-        # Execute REAL-TIME spread detection pipeline using TheTradeList API
-        try:
-            print(f"🔍 INITIATING REAL-TIME SPREAD DETECTION PIPELINE...")
-            options_data = fetch_options_data(symbol, current_price)
-            print(f"✓ REAL-TIME SPREAD DETECTION COMPLETED for {symbol}")
-            
-            # Log authentic results
-            for strategy, data in options_data.items():
-                if data.get('found'):
-                    print(f"✓ {strategy.upper()}: ROI={data.get('roi')}, DTE={data.get('dte')}, Contract={data.get('contract_symbol')}")
-                else:
-                    print(f"✗ {strategy.upper()}: {data.get('error', 'No spread found')}")
-            
-            # Cache the successful results for 60 seconds
+            # Cache the successful results from external API for 60 seconds
             cache_data = {
                 'options_data': options_data,
                 'current_price': current_price
@@ -7282,8 +7270,8 @@ def step3(symbol=None):
             print(f"✓ CACHED SPREAD DATA for future back-navigation (60-second expiry)")
                     
         except Exception as e:
-            print(f"✗ CRITICAL ERROR in real-time spread detection: {e}")
-            # Fallback to pre-calculated authentic data for AVGO only
+            print(f"✗ ERROR calling external API: {e}")
+            return f"Error: Could not fetch spread data for {symbol} from external API"
             if symbol == 'AVGO':
                 print(f"⚠️ FALLBACK: Using pre-calculated authentic spread data for {symbol}")
                 options_data = {
