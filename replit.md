@@ -125,6 +125,12 @@ The application follows a database-first architecture with the following key com
 
 Changelog:
 - June 13, 2025: Initial setup
+- June 16, 2025: Transformed application to VIP-only access with JWT authentication from OneClick Trading
+- June 16, 2025: Removed all Free/Pro tier routes and functionality - now exclusively VIP
+- June 16, 2025: Added proper VIP branding with golden badge and exclusive messaging
+- June 16, 2025: JWT authentication validates RS256 tokens from OCT with proper user session management
+- June 16, 2025: Non-authenticated users see access screen directing them to OneClick Trading
+- June 16, 2025: VIP users get unlimited access to all tickers without contract quantity restrictions
 - June 13, 2025: Removed all "Logout" buttons from navigation across all versions
 - June 13, 2025: Updated "Trade Classes" link to external OneClick Trading platform
 - June 13, 2025: Fixed ETF sorting to maintain proper #1, #2, #3 order by score and volume

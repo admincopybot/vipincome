@@ -5946,15 +5946,7 @@ def vip_scoreboard():
                         </div>
                     </div>
                 </a>
-                
-                {% if loop.index > 3 %}
-                <div class="free-version-overlay">
-                    <div class="free-version-text">You're Currently Viewing the Regular Income Machine</div>
-                    <div class="upgrade-text">For MORE Income Opportunities, Upgrade to VIP</div>
-                </div>
-                {% endif %}
             </div>
-            {% endif %}
             {% endfor %}
         </div>
     </div>
