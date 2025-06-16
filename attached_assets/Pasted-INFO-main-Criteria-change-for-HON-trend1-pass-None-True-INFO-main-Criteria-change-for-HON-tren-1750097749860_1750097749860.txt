@@ -1,0 +1,55 @@
+INFO:main:Criteria change for HON: trend1_pass None -> True
+INFO:main:Criteria change for HON: trend2_pass None -> True
+INFO:main:Criteria change for HON: snapback_pass None -> True
+INFO:main:Criteria change for HON: momentum_pass None -> True
+INFO:main:Criteria change for HON: stabilizing_pass None -> True
+INFO:main:Updating HON criteria in database - new score: 5
+INFO:main:Polling criteria update for CTAS
+INFO:main:API response for CTAS: Status 200
+INFO:main:Received criteria update for CTAS: {'criteria1': True, 'criteria2': True, 'criteria3': True, 'criteria4': True, 'criteria5': True}
+INFO:main:Criteria change for CTAS: trend1_pass None -> True
+INFO:main:Criteria change for CTAS: trend2_pass None -> True
+INFO:main:Criteria change for CTAS: snapback_pass None -> True
+INFO:main:Criteria change for CTAS: momentum_pass None -> True
+INFO:main:Criteria change for CTAS: stabilizing_pass None -> True
+INFO:main:Updating CTAS criteria in database - new score: 5
+INFO:main:Polling criteria update for LIN
+INFO:main:API response for LIN: Status 200
+INFO:main:Received criteria update for LIN: {'criteria1': True, 'criteria2': True, 'criteria3': True, 'criteria4': True, 'criteria5': True}
+INFO:main:Criteria change for LIN: trend1_pass None -> True
+INFO:main:Criteria change for LIN: trend2_pass None -> True
+INFO:main:Criteria change for LIN: snapback_pass None -> True
+INFO:main:Criteria change for LIN: momentum_pass None -> True
+INFO:main:Criteria change for LIN: stabilizing_pass None -> True
+INFO:main:Updating LIN criteria in database - new score: 5
+INFO:main:Criteria changes detected - rankings may have updated
+INFO:main:Starting background criteria polling for top 3 tickers
+INFO:main:Polling top 3 tickers: ['HON', 'CTAS', 'LIN']
+INFO:main:Polling criteria update for HON
+INFO:main:API response for HON: Status 200
+INFO:main:Received criteria update for HON: {'criteria1': True, 'criteria2': True, 'criteria3': True, 'criteria4': True, 'criteria5': True}
+INFO:main:Criteria change for HON: trend1_pass None -> True
+INFO:main:Criteria change for HON: trend2_pass None -> True
+INFO:main:Criteria change for HON: snapback_pass None -> True
+INFO:main:Criteria change for HON: momentum_pass None -> True
+INFO:main:Criteria change for HON: stabilizing_pass None -> True
+INFO:main:Updating HON criteria in database - new score: 5
+INFO:main:Polling criteria update for CTAS
+INFO:main:API response for CTAS: Status 200
+INFO:main:Received criteria update for CTAS: {'criteria1': True, 'criteria2': True, 'criteria3': True, 'criteria4': True, 'criteria5': True}
+INFO:main:Criteria change for CTAS: trend1_pass None -> True
+INFO:main:Criteria change for CTAS: trend2_pass None -> True
+INFO:main:Criteria change for CTAS: snapback_pass None -> True
+INFO:main:Criteria change for CTAS: momentum_pass None -> True
+INFO:main:Criteria change for CTAS: stabilizing_pass None -> True
+INFO:main:Updating CTAS criteria in database - new score: 5
+INFO:main:Polling criteria update for LIN
+INFO:main:API response for LIN: Status 200
+INFO:main:Received criteria update for LIN: {'criteria1': True, 'criteria2': True, 'criteria3': True, 'criteria4': True, 'criteria5': True}
+INFO:main:Criteria change for LIN: trend1_pass None -> True
+INFO:main:Criteria change for LIN: trend2_pass None -> True
+INFO:main:Criteria change for LIN: snapback_pass None -> True
+INFO:main:Criteria change for LIN: momentum_pass None -> True
+INFO:main:Criteria change for LIN: stabilizing_pass None -> True
+INFO:main:Updating LIN criteria in database - new score: 5
+INFO:main:Criteria changes detected - rankings may have updated

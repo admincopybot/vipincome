@@ -20,9 +20,13 @@ from csv_data_loader import CsvDataLoader
 from real_time_spreads import get_real_time_spreads
 from spread_storage import SessionSpreadStorage
 from spread_diagnostics import SpreadDiagnostics, test_spread_calculation
+from robust_spread_pipeline import RobustSpreadPipeline
 
 # Initialize session storage for authentic spread data
 session_storage = SessionSpreadStorage()
+
+# Initialize spread analysis pipeline
+spread_pipeline = RobustSpreadPipeline()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -281,6 +285,9 @@ def background_criteria_polling():
                         logger.info("Criteria changes detected - rankings may have updated")
                         # Trigger a reload of the database cache
                         load_etf_data_from_database()
+                        
+                        # Trigger debit spread analysis for top 3 tickers
+                        trigger_spread_analysis(top_3_tickers)
                     
                     last_poll_time = current_time
                 else:
@@ -292,7 +299,53 @@ def background_criteria_polling():
             logger.error(f"Error in background polling: {str(e)}")
             time.sleep(60)  # Wait longer on error
 
-# Start background polling thread after function definitions
+def trigger_spread_analysis(tickers):
+    """Trigger debit spread analysis for given tickers and send to external API"""
+    def run_analysis():
+        try:
+            logger.info(f"Starting spread analysis for tickers: {tickers}")
+            
+            for ticker in tickers:
+                logger.info(f"Analyzing spreads for {ticker}")
+                
+                # Analyze spreads for this ticker
+                analysis = spread_pipeline.analyze_ticker_spreads(ticker)
+                
+                if 'error' in analysis:
+                    logger.error(f"Spread analysis failed for {ticker}: {analysis['error']}")
+                    continue
+                
+                # Send results for each strategy
+                strategies = ['aggressive', 'balanced', 'conservative']
+                
+                for strategy in strategies:
+                    best_spread = spread_pipeline.select_best_spread_by_strategy(analysis, strategy)
+                    
+                    if best_spread:
+                        payload = spread_pipeline.format_spread_data(ticker, best_spread, strategy)
+                        success = spread_pipeline.send_spread_results(payload)
+                        
+                        if success:
+                            logger.info(f"✓ Sent {ticker} {strategy} spread: ROI {best_spread.get('roi_percent', 0):.1f}%")
+                        else:
+                            logger.error(f"✗ Failed to send {ticker} {strategy} spread")
+                    else:
+                        logger.warning(f"No {strategy} spread found for {ticker}")
+                    
+                    time.sleep(1)  # Rate limiting
+                
+                logger.info(f"Completed spread analysis for {ticker}")
+                time.sleep(2)  # Delay between tickers
+            
+            logger.info("Spread analysis completed for all tickers")
+            
+        except Exception as e:
+            logger.error(f"Error in spread analysis: {e}")
+    
+    # Run analysis in background thread to avoid blocking main polling
+    analysis_thread = threading.Thread(target=run_analysis, daemon=True)
+    analysis_thread.start()
+
 def start_background_polling():
     """Start the background criteria polling thread"""
     global polling_thread
