@@ -28,11 +28,18 @@ def start_nodejs_server():
         nodejs_process = subprocess.Popen(
             ['node', 'main.js'],
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.PIPE,
             universal_newlines=True
         )
         
-        print("Node.js server started successfully")
+        # Wait a moment and check if process started
+        time.sleep(2)
+        
+        if nodejs_process.poll() is None:
+            print("Node.js server started successfully on port 5001")
+        else:
+            stdout, stderr = nodejs_process.communicate()
+            print(f"Node.js server failed to start: {stderr}")
         
     except Exception as e:
         print(f"Error starting Node.js server: {e}")
