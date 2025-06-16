@@ -14,7 +14,7 @@ import enhanced_etf_scoring  # Import for direct Polygon API testing
 from csv_data_loader import CsvDataLoader  # Import CSV data loader
 from gamma_rsi_calculator import GammaRSICalculator
 from database_models import ETFDatabase  # Import database models
-from emergency_performance_mode import emergency_cache, disable_api_calls, emergency_sleep, EMERGENCY_MODE
+from emergency_fixes import emergency_disable, minimal_cache, emergency_sleep, EMERGENCY_MODE
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -33,6 +33,7 @@ csv_loader = CsvDataLoader()
 # Initialize database
 etf_db = ETFDatabase()
 
+@minimal_cache(duration=1800)  # Cache for 30 minutes during high traffic
 def load_etf_data_from_database():
     """Load ETF data from database and update global etf_scores while keeping frontend exactly the same"""
     global etf_scores
@@ -337,16 +338,19 @@ def on_websocket_data_update(updates):
     except Exception as e:
         logger.error(f"Error processing WebSocket data update: {str(e)}")
 
-# EMERGENCY MODE: Disable background threads for high traffic performance
-if not EMERGENCY_MODE:
-    # Start background thread for market data updates
-    update_thread = threading.Thread(target=update_market_data_background, daemon=True)
-    update_thread.start()
-    
-    # Initialize WebSocket connection
-    initialize_websocket_client()
-else:
-    logger.info("EMERGENCY PERFORMANCE MODE: Disabled background threads and WebSocket")
+# HIGH TRAFFIC MODE: Disable background threads for performance
+try:
+    if not HIGH_TRAFFIC_MODE:
+        # Start background thread for market data updates
+        update_thread = threading.Thread(target=update_market_data_background, daemon=True)
+        update_thread.start()
+        
+        # Initialize WebSocket connection
+        initialize_websocket_client()
+    else:
+        logger.info("HIGH TRAFFIC MODE: Disabled background threads and WebSocket for performance")
+except Exception as e:
+    logger.warning(f"Background services disabled due to high traffic mode: {e}")
 
 # Force score restoration at startup - make sure ETF scores are properly initialized
 for symbol in etf_scores:
