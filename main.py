@@ -1754,7 +1754,6 @@ def create_step4_demo_data(symbol, strategy, current_price):
     </head>
     <body>
         <div class="top-banner">
-            🎯 Free access to The Income Machine ends July 21
         </div>
         
         <div class="header">
@@ -3227,7 +3226,6 @@ def step4(symbol, strategy, spread_id):
     </div>
     {% else %}
     <div class="top-banner">
-        🎯 Free access to The Income Machine ends July 21
     </div>
     
     <div class="header">
@@ -3237,7 +3235,6 @@ def step4(symbol, strategy, spread_id):
         <div class="nav-menu">
             <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-            <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="get-offer-btn" target="_blank">Upgrade</a>
         </div>
     </div>
     {% endif %}
@@ -5428,23 +5425,7 @@ def vip_scoreboard():
             line-height: 1.6;
         }
         
-        .top-banner {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
-            text-align: center;
-            padding: 12px;
-            font-size: 14px;
-            color: #ffffff;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .top-banner::before {
-            content: "👑";
-            font-size: 16px;
-        }
+
         
         .header {
             display: flex;
@@ -5927,7 +5908,6 @@ def vip_scoreboard():
 </head>
 <body>
     <div class="top-banner">
-        🎯 Free access to The Income Machine ends July 21
     </div>
     
     <div class="header">
@@ -5937,7 +5917,6 @@ def vip_scoreboard():
         <div class="nav-menu">
             <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-            <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="get-offer-btn" target="_blank">Upgrade</a>
         </div>
     </div>
     
@@ -6766,7 +6745,6 @@ def step2(symbol=None):
     </div>
     {% else %}
     <div class="top-banner">
-        🎯 Free access to The Income Machine ends July 21
     </div>
     
     <div class="header">
@@ -6776,7 +6754,6 @@ def step2(symbol=None):
         <div class="nav-menu">
             <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-            <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="get-offer-btn" target="_blank">Upgrade</a>
         </div>
     </div>
     {% endif %}
@@ -8315,7 +8292,6 @@ def step3(symbol=None):
         </div>
         {% else %}
         <div class="top-banner">
-            🎯 Free access to The Income Machine ends July 21
         </div>
         
         <div class="header">
@@ -8325,7 +8301,6 @@ def step3(symbol=None):
             <div class="nav-menu">
                 <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
                 <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-                <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="get-offer-btn" target="_blank">Upgrade</a>
             </div>
         </div>
         {% endif %}
