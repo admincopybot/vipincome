@@ -4008,6 +4008,39 @@ def pro_index():
             {% endif %}
             {% endfor %}
         </div>
+        
+        <!-- VIP Upgrade Prompt Row -->
+        <div style="margin-top: 60px; padding: 40px 20px; text-align: center;">
+            <h2 style="color: #ffffff; font-size: 28px; font-weight: 700; margin-bottom: 30px;">Want More Income Opportunities?</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto;">
+                <!-- VIP Upgrade Card 1 -->
+                <div style="background: linear-gradient(145deg, rgba(124, 58, 237, 0.15), rgba(168, 85, 247, 0.1)); border: 2px solid rgba(124, 58, 237, 0.3); border-radius: 16px; padding: 30px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+                    <div style="position: relative; z-index: 2;">
+                        <div style="color: rgba(255, 255, 255, 0.7); font-size: 14px; font-weight: 500; margin-bottom: 10px;">You're Currently Viewing the Regular Income Machine</div>
+                        <div style="color: #fbbf24; font-size: 18px; font-weight: 700; line-height: 1.4;">FOR MORE INCOME OPPORTUNITIES, UPGRADE TO VIP</div>
+                    </div>
+                </div>
+                
+                <!-- VIP Upgrade Card 2 -->
+                <div style="background: linear-gradient(145deg, rgba(124, 58, 237, 0.15), rgba(168, 85, 247, 0.1)); border: 2px solid rgba(124, 58, 237, 0.3); border-radius: 16px; padding: 30px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+                    <div style="position: relative; z-index: 2;">
+                        <div style="color: rgba(255, 255, 255, 0.7); font-size: 14px; font-weight: 500; margin-bottom: 10px;">You're Currently Viewing the Regular Income Machine</div>
+                        <div style="color: #fbbf24; font-size: 18px; font-weight: 700; line-height: 1.4;">FOR MORE INCOME OPPORTUNITIES, UPGRADE TO VIP</div>
+                    </div>
+                </div>
+                
+                <!-- VIP Upgrade Card 3 -->
+                <div style="background: linear-gradient(145deg, rgba(124, 58, 237, 0.15), rgba(168, 85, 247, 0.1)); border: 2px solid rgba(124, 58, 237, 0.3); border-radius: 16px; padding: 30px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+                    <div style="position: relative; z-index: 2;">
+                        <div style="color: rgba(255, 255, 255, 0.7); font-size: 14px; font-weight: 500; margin-bottom: 10px;">You're Currently Viewing the Regular Income Machine</div>
+                        <div style="color: #fbbf24; font-size: 18px; font-weight: 700; line-height: 1.4;">FOR MORE INCOME OPPORTUNITIES, UPGRADE TO VIP</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script>

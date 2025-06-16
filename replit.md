@@ -153,6 +153,8 @@ Changelog:
 - June 16, 2025: Added automatic database updates with trading-relevant options contracts counts
 - June 16, 2025: Completed authentic options data system filtering contracts expiring in 10-50 days only
 - June 16, 2025: Verified system working: ZS(323), VLO(272), MMM(239), NRG(217), AIG(195), WMB(171) contracts
+- June 16, 2025: Added VIP upgrade prompt row to Pro version with three upgrade cards
+- June 16, 2025: Completed tiered progression: Free (blurred), Pro (clear + VIP prompts), VIP (unrestricted)
 
 # User Preferences
 
