@@ -9334,7 +9334,7 @@ def polling_status():
         return jsonify({'error': f'Failed to get polling status: {str(e)}'}), 500
 
 @app.route('/trigger-quick-analysis', methods=['POST'])
-def trigger_quick_analysis_lightweight():
+def trigger_minimal_analysis():
     """Manual trigger endpoint to force immediate analysis of TOP 3 TICKERS ONLY"""
     global polling_stats, last_poll_time
     

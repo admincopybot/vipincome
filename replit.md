@@ -146,6 +146,10 @@ Changelog:
 - June 15, 2025: Optimized tutorial video file size from 85MB to 23MB for faster loading
 - June 15, 2025: Enhanced /trigger-quick-analysis endpoint with automatic options spread validation
 - June 15, 2025: Added auto-exclusion logic - tickers with <2 spreads automatically replaced with viable alternatives
+- June 16, 2025: Fixed Decimal/float type conversion errors in spread calculations preventing validation failures
+- June 16, 2025: Implemented aggressive throttling for POST trigger endpoint to prevent worker timeout crashes
+- June 16, 2025: Added memory optimization limits (100 contracts max, 60 spread pairs, 2-second API delays)
+- June 16, 2025: Created lightweight POST trigger that uses heuristic validation instead of intensive spread analysis
 
 # User Preferences
 
