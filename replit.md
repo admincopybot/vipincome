@@ -160,7 +160,9 @@ Changelog:
 - June 16, 2025: Created isolated debit spread API endpoint (spread_api_server.py) for standalone POST requests
 - June 16, 2025: API endpoint accepts ticker symbol and returns comprehensive spread analysis in JSON format
 - June 16, 2025: Built automated spread analysis pipeline that fetches top tickers and sends results to external API
-- June 16, 2025: Pipeline integrates with user's ticker endpoint and spreads-update endpoint using authentic Polygon data
+- June 16, 2025: Pipeline integrates with user's ticker endpoint and spreads-update endpoint using authentic TheTradeList API data
+- June 16, 2025: Updated spread analysis to use TheTradeList API exclusively with endpoint: api.thetradelist.com/v1/data/options-contracts
+- June 16, 2025: Integrated spread analysis directly into existing background polling system for automatic triggering
 
 # User Preferences
 
