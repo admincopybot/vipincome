@@ -70,8 +70,8 @@ class RobustSpreadPipeline:
             # Filter for calls with 7-50 DTE range
             valid_contracts = []
             for contract in contracts:
-                # Only process call options
-                if contract.get('option_type') != 'call':
+                # Only process call options (API uses 'contract_type' not 'option_type')
+                if contract.get('contract_type') != 'call':
                     continue
                     
                 exp_date = contract.get('expiration_date')

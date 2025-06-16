@@ -158,18 +158,18 @@ class RealTimeSpreadDetector:
         # Define strategy criteria - Allow wide strike ranges, let spread generation handle short call restriction
         strategy_criteria = {
             'aggressive': {
-                'dte_min': 10,
-                'dte_max': 17,
+                'dte_min': 1,
+                'dte_max': 15,
                 'strike_filter': lambda strike, price: price * 0.75 <= strike <= price * 1.25  # Wide range for long/short combinations
             },
             'balanced': {
-                'dte_min': 17,
-                'dte_max': 28,
+                'dte_min': 7,
+                'dte_max': 30,
                 'strike_filter': lambda strike, price: price * 0.70 <= strike <= price * 1.30  # Wide range for long/short combinations
             },
             'conservative': {
-                'dte_min': 28,
-                'dte_max': 42,
+                'dte_min': 15,
+                'dte_max': 50,
                 'strike_filter': lambda strike, price: price * 0.65 <= strike <= price * 1.35  # Wide range for long/short combinations
             }
         }
