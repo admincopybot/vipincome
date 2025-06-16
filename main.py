@@ -5988,7 +5988,7 @@ def step2(symbol=None, access_level=None):
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <title>{{ symbol }} Analysis - Income Machine</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -6168,45 +6168,7 @@ def step2(symbol=None, access_level=None):
             margin-top: 40px;
         }
         
-        .chart-panel {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #374151;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            grid-column: 1 / -1;
-            margin-bottom: 20px;
-        }
-        
-        .chart-container {
-            height: 400px;
-            position: relative;
-        }
-        
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .chart-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-        
-        .price-info {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        
-        .current-price {
-            font-size: 24px;
-            font-weight: 700;
-            color: white;
-        }
+
         
         .price-change {
             font-size: 16px;
@@ -6628,21 +6590,7 @@ def step2(symbol=None, access_level=None):
             </div>
         </div>
         
-        <!-- Price Chart Panel -->
-        <div class="chart-panel">
-            <div class="chart-header">
-                <div class="chart-title">{{ symbol }} - 30 Day Price Chart</div>
-                <div class="price-info">
-                    <div class="current-price" id="currentPrice">Loading...</div>
-                    <div class="price-change" id="priceChange">Loading...</div>
-                </div>
-            </div>
-            <div class="chart-container">
-                <div class="loading-spinner" id="loadingSpinner">Loading chart data...</div>
-                <div class="error-message" id="errorMessage" style="display: none;"></div>
-                <canvas id="priceChart" style="display: none;"></canvas>
-            </div>
-        </div>
+
         
         <div class="back-to-scoreboard">
             {% if is_pro %}
@@ -6655,127 +6603,8 @@ def step2(symbol=None, access_level=None):
     </div>
     
     <script>
-        let priceChart = null;
         
-        // Load chart data on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadChartData('{{ symbol }}');
-        });
-        
-        async function loadChartData(symbol) {
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const errorMessage = document.getElementById('errorMessage');
-            const chartCanvas = document.getElementById('priceChart');
-            const currentPrice = document.getElementById('currentPrice');
-            const priceChange = document.getElementById('priceChange');
-            
-            try {
-                const response = await fetch(`/api/chart_data/${symbol}`);
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.error || 'Failed to load chart data');
-                }
-                
-                // Hide loading spinner and show chart
-                loadingSpinner.style.display = 'none';
-                chartCanvas.style.display = 'block';
-                
-                // Update price info
-                currentPrice.textContent = `$${data.current_price.toFixed(2)}`;
-                
-                const changeText = `${data.price_change >= 0 ? '+' : ''}${data.price_change.toFixed(2)} (${data.price_change_pct.toFixed(2)}%)`;
-                priceChange.textContent = changeText;
-                priceChange.className = `price-change ${data.price_change >= 0 ? 'positive' : 'negative'}`;
-                
-                // Create chart
-                createPriceChart(data.chart_data);
-                
-            } catch (error) {
-                console.error('Error loading chart data:', error);
-                loadingSpinner.style.display = 'none';
-                errorMessage.style.display = 'flex';
-                errorMessage.textContent = `Unable to load chart data: ${error.message}`;
-            }
-        }
-        
-        function createPriceChart(chartData) {
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            
-            // Prepare data for Chart.js
-            const labels = chartData.map(item => item.date);
-            const prices = chartData.map(item => item.close);
-            
-            // Destroy existing chart if it exists
-            if (priceChart) {
-                priceChart.destroy();
-            }
-            
-            priceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Close Price',
-                        data: prices,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleColor: '#f1f5f9',
-                            bodyColor: '#e2e8f0',
-                            borderColor: '#374151',
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return `Price: $${context.parsed.y.toFixed(2)}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                color: '#374151',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                maxTicksLimit: 8
-                            }
-                        },
-                        y: {
-                            grid: {
-                                color: '#374151',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                callback: function(value) {
-                                    return '$' + value.toFixed(2);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
+
         
 
         
