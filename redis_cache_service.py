@@ -294,24 +294,25 @@ cache_service = RedisCacheService()
 
 # Convenience functions for specific API endpoints
 def get_stock_price_cached(ticker: str, api_key: str) -> Optional[float]:
-    """Get stock price with Redis caching"""
-    end_date = datetime.now().strftime('%Y-%m-%d')
-    start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
-    
-    url = "https://api.thetradelist.com/v1/data/range-data"
+    """Get real-time stock price using snapshot API with Redis caching"""
+    url = "https://api.thetradelist.com/v1/data/snapshot-locale"
     params = {
-        'ticker': ticker,
-        'range': '1/day',
-        'startdate': start_date,
-        'enddate': end_date,
-        'limit': 10,
-        'next_url': '',
+        'tickers': f"{ticker},",  # API requires comma after ticker
         'apiKey': api_key
     }
     
-    data = cache_service.cached_api_call('stock_price', url, params)
-    if data and data.get('results'):
-        return float(data['results'][-1]['c'])
+    data = cache_service.cached_api_call('stock_price_snapshot', url, params)
+    if data and data.get('status') == 'OK' and data.get('tickers'):
+        for ticker_data in data['tickers']:
+            if ticker_data.get('ticker') == ticker:
+                # Use FMV (Fair Market Value) for most accurate pricing
+                fmv = ticker_data.get('fmv')
+                if fmv and fmv > 0:
+                    return float(fmv)
+                # Fallback to last trade price
+                last_trade = ticker_data.get('lastTrade', {})
+                if last_trade.get('p'):
+                    return float(last_trade['p'])
     return None
 
 def get_options_contracts_cached(ticker: str, api_key: str) -> List[Dict]:
