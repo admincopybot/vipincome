@@ -7272,59 +7272,8 @@ def step3(symbol=None):
         except Exception as e:
             print(f"✗ ERROR calling external API: {e}")
             return f"Error: Could not fetch spread data for {symbol} from external API"
-            if symbol == 'AVGO':
-                print(f"⚠️ FALLBACK: Using pre-calculated authentic spread data for {symbol}")
-                options_data = {
-                'aggressive': {
-                    'found': True,
-                    'dte': 14,
-                    'roi': '47.3%',
-                    'max_profit': '$4.25',
-                    'spread_cost': '$1.75',
-                    'contract_symbol': 'O:AVGO250620C00045000',
-                    'short_contract': 'O:AVGO250620C00046000',
-                    'strike_price': 450,
-                    'short_strike_price': 460,
-                    'expiration': '2025-06-20',
-                    'management': 'Sell at 50% profit or 21 DTE',
-                    'description': 'Fallback authentic spread data'
-                },
-                'steady': {
-                    'found': True,
-                    'dte': 21,
-                    'roi': '23.1%',
-                    'max_profit': '$3.15',
-                    'spread_cost': '$1.85',
-                    'contract_symbol': 'O:AVGO250627C00260000',
-                    'short_contract': 'O:AVGO250627C00265000',
-                    'strike_price': 260,
-                    'short_strike_price': 265,
-                    'expiration': '2025-06-27',
-                    'management': 'Sell at 50% profit or 21 DTE',
-                    'description': 'Fallback authentic spread data'
-                },
-                'passive': {
-                    'found': True,
-                    'dte': 35,
-                    'roi': '12.8%',
-                    'max_profit': '$2.85',
-                    'spread_cost': '$2.15',
-                    'contract_symbol': 'O:AVGO250711C00265000',
-                    'short_contract': 'O:AVGO250711C00270000',
-                    'strike_price': 265,
-                    'short_strike_price': 270,
-                    'expiration': '2025-07-11',
-                    'management': 'Sell at 25% profit or 21 DTE',
-                    'description': 'Fallback authentic spread data'
-                }
-                }
-            else:
-                # No fallback for other symbols - require authentic API access
-                options_data = {
-                    'aggressive': {'found': False, 'error': f'Real-time detection failed: {str(e)}'},
-                    'steady': {'found': False, 'error': f'Real-time detection failed: {str(e)}'}, 
-                    'passive': {'found': False, 'error': f'Real-time detection failed: {str(e)}'}
-                }
+    
+    # Render Step 3 template with spread data from external API
     template = """
     <!DOCTYPE html>
     <html lang="en">
