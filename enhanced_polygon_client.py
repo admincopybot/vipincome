@@ -17,16 +17,30 @@ class EnhancedPolygonService:
     def get_etf_price(symbol):
         """Get the latest price for an ETF"""
         try:
-            # Using REST API directly for consistency
-            api_key = os.environ.get("POLYGON_API_KEY")
+            # Using TheTradeList range-data API for current price
+            api_key = os.environ.get("TRADELIST_API_KEY")
             if api_key and len(api_key) > 8:
-                logger.info(f"Using Polygon API key (masked): {api_key[:4]}...{api_key[-4:]}")
+                logger.info(f"Using TheTradeList API key (masked): {api_key[:4]}...{api_key[-4:]}")
             else:
-                logger.warning("Polygon API key not found or invalid format")
+                logger.warning("TheTradeList API key not found or invalid format")
                 return None
             
-            url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/prev?apiKey={api_key}"
-            response = requests.get(url, timeout=10)
+            # Get last 5 days to ensure we have recent data
+            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
+            
+            url = f"https://api.thetradelist.com/v1/data/range-data"
+            params = {
+                'ticker': symbol,
+                'range': '1/day',
+                'startdate': start_date,
+                'enddate': end_date,
+                'limit': 10,
+                'next_url': '',
+                'apiKey': api_key
+            }
+            
+            response = requests.get(url, params=params, timeout=10)
             
             if response.status_code != 200:
                 error_msg = response.text
@@ -34,9 +48,10 @@ class EnhancedPolygonService:
                 return None
             
             data = response.json()
-            if data.get('results'):
-                # Return the closing price from previous day
-                return data['results'][0]['c']
+            results = data.get('results', [])
+            if results:
+                # Return the most recent closing price
+                return results[-1]['c']
             else:
                 logger.warning(f"No price data found for {symbol}")
                 return None

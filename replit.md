@@ -163,6 +163,8 @@ Changelog:
 - June 16, 2025: Pipeline integrates with user's ticker endpoint and spreads-update endpoint using authentic TheTradeList API data
 - June 16, 2025: Updated spread analysis to use TheTradeList API exclusively with endpoint: api.thetradelist.com/v1/data/options-contracts
 - June 16, 2025: Integrated spread analysis directly into existing background polling system for automatic triggering
+- June 16, 2025: Completed full Polygon API migration - replaced all endpoints with TheTradeList API equivalents
+- June 16, 2025: Stock prices now use range-data API, options use contracts endpoint, historical data uses range-data API
 
 # User Preferences
 

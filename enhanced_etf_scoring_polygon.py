@@ -59,7 +59,7 @@ def fetch_daily_data(symbol, period='2y'):
             'apiKey': api_key
         }
         
-        response = requests.get(url, timeout=15)
+        response = requests.get(url, params=params, timeout=15)
         
         if response.status_code != 200:
             logger.error(f"Error fetching daily data for {symbol}: {response.text}")
