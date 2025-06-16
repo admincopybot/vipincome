@@ -2926,13 +2926,7 @@ def calculate_single_option_analysis(option_data, current_stock_price):
 def step4(symbol, strategy, spread_id):
     """Step 4: Detailed Options Trade Analysis using authentic spread data from Step 3"""
     
-    # Check if this is Pro mode based on session authentication
-    is_pro = check_pro_authentication()
-    
-    # Check if user has access to this ticker
-    if not check_ticker_access(symbol, "pro" if is_pro else "free"):
-        logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
-        return redirect('/')
+    # VIP-only access - no tier restrictions needed
     
     # Map strategy names for display
     strategy_display = {
@@ -3645,7 +3639,7 @@ def step4(symbol, strategy, spread_id):
         spread_width=scenario_short_strike - scenario_long_strike,
         breakeven=scenario_long_strike + spread_cost,
         scenarios=scenarios,
-        is_pro=is_pro
+        is_vip=True
     )
 
 @app.route('/pro')
@@ -7223,10 +7217,7 @@ def step3(symbol=None):
     if not symbol:
         return redirect('/')
     
-    # Check if user has access to this ticker
-    if not check_ticker_access(symbol, "pro" if is_pro else "free"):
-        logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
-        return redirect('/')
+    # VIP users have access to all tickers - no restrictions needed
     
     print(f"\n=== STEP 3 REAL-TIME SPREAD DETECTION FOR {symbol} ===")
     
@@ -8775,7 +8766,7 @@ console.log('Step 3 loaded for {{ symbol }}');
                                 current_price=current_price,
                                 cached_data=is_cached_data,
                                 cache_timestamp=cache_timestamp_str,
-                                is_pro=is_pro)
+                                is_vip=True)
 
 @app.route('/hidden-insert-csv')
 def hidden_csv_ui():
