@@ -297,16 +297,8 @@ def background_criteria_polling():
                         # Trigger a reload of the database cache
                         load_etf_data_from_database()
                         
-                        # OPTIMIZATION: Only trigger spread analysis once per hour to reduce API usage
-                        current_hour = current_time.hour
-                        last_spread_hour = getattr(background_criteria_polling, 'last_spread_hour', -1)
-                        
-                        if current_hour != last_spread_hour:
-                            logger.info("Triggering hourly spread analysis for efficiency")
-                            trigger_spread_analysis(top_3_tickers)
-                            background_criteria_polling.last_spread_hour = current_hour
-                        else:
-                            logger.info("Skipping spread analysis - already done this hour")
+                        # DISABLED: Automatic spread analysis - only trigger via POST requests
+                        logger.info("Criteria polling complete - spread analysis only via POST requests")
                     
                     last_poll_time = current_time
                 else:

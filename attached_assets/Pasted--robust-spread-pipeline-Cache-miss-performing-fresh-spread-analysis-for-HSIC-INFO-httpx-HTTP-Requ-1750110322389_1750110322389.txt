@@ -1,0 +1,473 @@
+:robust_spread_pipeline:Cache miss - performing fresh spread analysis for HSIC
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:stock_price:8ded1520
+INFO:redis_cache_service:Making API call to stock_price (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/range-data
+INFO:redis_cache_service:API Params: {'ticker': 'HSIC', 'range': '1/day', 'startdate': '2025-06-11', 'enddate': '2025-06-16', 'limit': 10, 'next_url': '', 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "ticker": "HSIC",
+    "queryCount": 4,
+    "resultsCount": 4,
+    "adjusted": true,
+    "results": [
+        {
+            "v": 845504,
+            "vw": 71.2289,
+            "o": 71.41,
+            "c": 71.14,
+            "h": 72.71,
+            "l": 70.73,
+            "t": 1749614400000,
+            "n": 17230
+        },
+        {
+            "v": 1189185,
+            "vw": 71.013,
+            "o": 70.59,
+            "c": 71.08,
+            "h": 71.34,
+            "l": 70.32,
+           
+INFO:redis_cache_service:API returned 4 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:stock_price:8ded1520 (expires in 30s)
+INFO:robust_spread_pipeline:Got price for HSIC: $70.76
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:options_contracts:77211be2
+INFO:redis_cache_service:Making API call to options_contracts (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/options-contracts
+INFO:redis_cache_service:API Params: {'underlying_ticker': 'HSIC', 'limit': 1000, 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "results": [
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "american",
+            "expiration_date": "2025-06-20",
+            "primary_exchange": "BATO",
+            "shares_per_contract": 100,
+            "strike_price": 35,
+            "ticker": "O:HSIC250620C00035000",
+            "underlying_ticker": "HSIC"
+        },
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "a
+INFO:redis_cache_service:API returned 124 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:options_contracts:77211be2 (expires in 30s)
+INFO:robust_spread_pipeline:Found 0 valid call options for HSIC
+ERROR:main:Spread analysis failed for HSIC: No valid options contracts found for HSIC
+INFO:main:Analyzing spreads for CEG
+INFO:robust_spread_pipeline:Analyzing spreads for CEG
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS: No cached spread analysis found for CEG
+INFO:robust_spread_pipeline:Cache miss - performing fresh spread analysis for CEG
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:stock_price:71ccad10
+INFO:redis_cache_service:Making API call to stock_price (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/range-data
+INFO:redis_cache_service:API Params: {'ticker': 'CEG', 'range': '1/day', 'startdate': '2025-06-11', 'enddate': '2025-06-16', 'limit': 10, 'next_url': '', 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "ticker": "CEG",
+    "queryCount": 4,
+    "resultsCount": 4,
+    "adjusted": true,
+    "results": [
+        {
+            "v": 2751423,
+            "vw": 292.8664,
+            "o": 296.83,
+            "c": 292.19,
+            "h": 298.47,
+            "l": 289.8,
+            "t": 1749614400000,
+            "n": 62983
+        },
+        {
+            "v": 2083974,
+            "vw": 298.9365,
+            "o": 290.11,
+            "c": 300.38,
+            "h": 301.32,
+            "l": 289.08,
+ 
+INFO:redis_cache_service:API returned 4 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:stock_price:71ccad10 (expires in 30s)
+INFO:robust_spread_pipeline:Got price for CEG: $308.01
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:options_contracts:fa7522be
+INFO:redis_cache_service:Making API call to options_contracts (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/options-contracts
+INFO:redis_cache_service:API Params: {'underlying_ticker': 'CEG', 'limit': 1000, 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "results": [
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "american",
+            "expiration_date": "2025-06-20",
+            "primary_exchange": "BATO",
+            "shares_per_contract": 100,
+            "strike_price": 85,
+            "ticker": "O:CEG250620C00085000",
+            "underlying_ticker": "CEG"
+        },
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "ame
+INFO:redis_cache_service:API returned 1000 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:options_contracts:fa7522be (expires in 30s)
+INFO:robust_spread_pipeline:Found 0 valid call options for CEG
+ERROR:main:Spread analysis failed for CEG: No valid options contracts found for CEG
+INFO:main:Analyzing spreads for AVGO
+INFO:robust_spread_pipeline:Analyzing spreads for AVGO
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS: No cached spread analysis found for AVGO
+INFO:robust_spread_pipeline:Cache miss - performing fresh spread analysis for AVGO
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:stock_price:d8aa86ab
+INFO:redis_cache_service:Making API call to stock_price (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/range-data
+INFO:redis_cache_service:API Params: {'ticker': 'AVGO', 'range': '1/day', 'startdate': '2025-06-11', 'enddate': '2025-06-16', 'limit': 10, 'next_url': '', 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "ticker": "AVGO",
+    "queryCount": 4,
+    "resultsCount": 4,
+    "adjusted": true,
+    "results": [
+        {
+            "v": 24598987,
+            "vw": 250.9014,
+            "o": 246.355,
+            "c": 252.91,
+            "h": 254.77,
+            "l": 243.8,
+            "t": 1749614400000,
+            "n": 377946
+        },
+        {
+            "v": 20410901,
+            "vw": 255.3662,
+            "o": 250.185,
+            "c": 256.07,
+            "h": 257.89,
+            "l": 249
+INFO:redis_cache_service:API returned 4 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:stock_price:d8aa86ab (expires in 30s)
+INFO:robust_spread_pipeline:Got price for AVGO: $252.10
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:options_contracts:5ad52947
+INFO:redis_cache_service:Making API call to options_contracts (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/options-contracts
+INFO:redis_cache_service:API Params: {'underlying_ticker': 'AVGO', 'limit': 1000, 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "results": [
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "american",
+            "expiration_date": "2025-06-20",
+            "primary_exchange": "BATO",
+            "shares_per_contract": 100,
+            "strike_price": 41,
+            "ticker": "O:AVGO250620C00041000",
+            "underlying_ticker": "AVGO"
+        },
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "a
+INFO:redis_cache_service:API returned 1000 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:options_contracts:5ad52947 (expires in 30s)
+INFO:robust_spread_pipeline:Found 0 valid call options for AVGO
+ERROR:main:Spread analysis failed for AVGO: No valid options contracts found for AVGO
+INFO:main:Spread analysis completed for all tickers
+[2025-06-16 20:57:06 +0000] [6680] [INFO] Worker reloading: /home/runner/workspace/robust_spread_pipeline.py modified
+[2025-06-16 20:57:06 +0000] [6680] [INFO] Worker exiting (pid: 6680)
+[2025-06-16 20:57:06 +0000] [6881] [INFO] Booting worker with pid: 6881
+INFO:database_models:PostgreSQL database initialized with CSV format and trading volume support
+INFO:main:Started background criteria polling thread for top 3 tickers
+[2025-06-16 20:57:32 +0000] [6881] [INFO] Worker reloading: /home/runner/workspace/real_time_spreads.py modified
+[2025-06-16 20:57:32 +0000] [6881] [INFO] Worker exiting (pid: 6881)
+[2025-06-16 20:57:32 +0000] [6979] [INFO] Booting worker with pid: 6979
+INFO:database_models:PostgreSQL database initialized with CSV format and trading volume support
+INFO:main:Started background criteria polling thread for top 3 tickers
+INFO:main:Starting background criteria polling for top 3 tickers
+INFO:main:Polling top 3 tickers: ['HSIC', 'CEG', 'AVGO']
+INFO:main:Polling criteria update for HSIC
+INFO:main:API response for HSIC: Status 200
+INFO:main:Received criteria update for HSIC: {'criteria1': True, 'criteria2': True, 'criteria3': True, 'criteria4': True, 'criteria5': True}
+INFO:main:Criteria change for HSIC: trend1_pass None -> True
+INFO:main:Criteria change for HSIC: trend2_pass None -> True
+INFO:main:Criteria change for HSIC: snapback_pass None -> True
+INFO:main:Criteria change for HSIC: momentum_pass None -> True
+INFO:main:Criteria change for HSIC: stabilizing_pass None -> True
+INFO:main:Updating HSIC criteria in database - new score: 5
+INFO:main:Polling criteria update for CEG
+INFO:main:API response for CEG: Status 200
+INFO:main:Received criteria update for CEG: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': True, 'criteria5': True}
+INFO:main:Criteria change for CEG: trend1_pass None -> True
+INFO:main:Criteria change for CEG: trend2_pass None -> True
+INFO:main:Criteria change for CEG: snapback_pass None -> False
+INFO:main:Criteria change for CEG: momentum_pass None -> True
+INFO:main:Criteria change for CEG: stabilizing_pass None -> True
+INFO:main:Updating CEG criteria in database - new score: 4
+INFO:main:Polling criteria update for AVGO
+INFO:main:API response for AVGO: Status 200
+INFO:main:Received criteria update for AVGO: {'criteria1': True, 'criteria2': True, 'criteria3': False, 'criteria4': True, 'criteria5': True}
+INFO:main:Criteria change for AVGO: trend1_pass None -> True
+INFO:main:Criteria change for AVGO: trend2_pass None -> True
+INFO:main:Criteria change for AVGO: snapback_pass None -> False
+INFO:main:Criteria change for AVGO: momentum_pass None -> True
+INFO:main:Criteria change for AVGO: stabilizing_pass None -> True
+INFO:main:Updating AVGO criteria in database - new score: 4
+INFO:main:Criteria changes detected - rankings may have updated
+INFO:main:Triggering hourly spread analysis for efficiency
+INFO:main:Starting spread analysis for tickers: ['HSIC', 'CEG', 'AVGO']
+INFO:main:Analyzing spreads for HSIC
+INFO:robust_spread_pipeline:Analyzing spreads for HSIC
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS: No cached spread analysis found for HSIC
+INFO:robust_spread_pipeline:Cache miss - performing fresh spread analysis for HSIC
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:stock_price:8ded1520
+INFO:redis_cache_service:Making API call to stock_price (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/range-data
+INFO:redis_cache_service:API Params: {'ticker': 'HSIC', 'range': '1/day', 'startdate': '2025-06-11', 'enddate': '2025-06-16', 'limit': 10, 'next_url': '', 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "ticker": "HSIC",
+    "queryCount": 4,
+    "resultsCount": 4,
+    "adjusted": true,
+    "results": [
+        {
+            "v": 845504,
+            "vw": 71.2289,
+            "o": 71.41,
+            "c": 71.14,
+            "h": 72.71,
+            "l": 70.73,
+            "t": 1749614400000,
+            "n": 17230
+        },
+        {
+            "v": 1189185,
+            "vw": 71.013,
+            "o": 70.59,
+            "c": 71.08,
+            "h": 71.34,
+            "l": 70.32,
+           
+INFO:redis_cache_service:API returned 4 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:stock_price:8ded1520 (expires in 30s)
+INFO:robust_spread_pipeline:Got price for HSIC: $70.76
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:options_contracts:77211be2
+INFO:redis_cache_service:Making API call to options_contracts (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/options-contracts
+INFO:redis_cache_service:API Params: {'underlying_ticker': 'HSIC', 'limit': 1000, 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "results": [
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "american",
+            "expiration_date": "2025-06-20",
+            "primary_exchange": "BATO",
+            "shares_per_contract": 100,
+            "strike_price": 35,
+            "ticker": "O:HSIC250620C00035000",
+            "underlying_ticker": "HSIC"
+        },
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "a
+INFO:redis_cache_service:API returned 124 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:options_contracts:77211be2 (expires in 30s)
+INFO:robust_spread_pipeline:Found 17 valid call options for HSIC
+ERROR:main:Spread analysis failed for HSIC: No profitable spreads found for HSIC
+INFO:main:Analyzing spreads for CEG
+INFO:robust_spread_pipeline:Analyzing spreads for CEG
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS: No cached spread analysis found for CEG
+INFO:robust_spread_pipeline:Cache miss - performing fresh spread analysis for CEG
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:stock_price:71ccad10
+INFO:redis_cache_service:Making API call to stock_price (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/range-data
+INFO:redis_cache_service:API Params: {'ticker': 'CEG', 'range': '1/day', 'startdate': '2025-06-11', 'enddate': '2025-06-16', 'limit': 10, 'next_url': '', 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "ticker": "CEG",
+    "queryCount": 4,
+    "resultsCount": 4,
+    "adjusted": true,
+    "results": [
+        {
+            "v": 2751423,
+            "vw": 292.8664,
+            "o": 296.83,
+            "c": 292.19,
+            "h": 298.47,
+            "l": 289.8,
+            "t": 1749614400000,
+            "n": 62983
+        },
+        {
+            "v": 2083974,
+            "vw": 298.9365,
+            "o": 290.11,
+            "c": 300.38,
+            "h": 301.32,
+            "l": 289.08,
+ 
+INFO:redis_cache_service:API returned 4 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:stock_price:71ccad10 (expires in 30s)
+INFO:robust_spread_pipeline:Got price for CEG: $308.01
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:options_contracts:fa7522be
+INFO:redis_cache_service:Making API call to options_contracts (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/options-contracts
+INFO:redis_cache_service:API Params: {'underlying_ticker': 'CEG', 'limit': 1000, 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "results": [
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "american",
+            "expiration_date": "2025-06-20",
+            "primary_exchange": "BATO",
+            "shares_per_contract": 100,
+            "strike_price": 85,
+            "ticker": "O:CEG250620C00085000",
+            "underlying_ticker": "CEG"
+        },
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "ame
+INFO:redis_cache_service:API returned 1000 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:options_contracts:fa7522be (expires in 30s)
+INFO:robust_spread_pipeline:Found 322 valid call options for CEG
+ERROR:main:Spread analysis failed for CEG: No profitable spreads found for CEG
+INFO:main:Analyzing spreads for AVGO
+INFO:robust_spread_pipeline:Analyzing spreads for AVGO
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS: No cached spread analysis found for AVGO
+INFO:robust_spread_pipeline:Cache miss - performing fresh spread analysis for AVGO
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:stock_price:d8aa86ab
+INFO:redis_cache_service:Making API call to stock_price (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/range-data
+INFO:redis_cache_service:API Params: {'ticker': 'AVGO', 'range': '1/day', 'startdate': '2025-06-11', 'enddate': '2025-06-16', 'limit': 10, 'next_url': '', 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "ticker": "AVGO",
+    "queryCount": 4,
+    "resultsCount": 4,
+    "adjusted": true,
+    "results": [
+        {
+            "v": 24598987,
+            "vw": 250.9014,
+            "o": 246.355,
+            "c": 252.91,
+            "h": 254.77,
+            "l": 243.8,
+            "t": 1749614400000,
+            "n": 377946
+        },
+        {
+            "v": 20410901,
+            "vw": 255.3662,
+            "o": 250.185,
+            "c": 256.07,
+            "h": 257.89,
+            "l": 249
+INFO:redis_cache_service:API returned 4 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:stock_price:d8aa86ab (expires in 30s)
+INFO:robust_spread_pipeline:Got price for AVGO: $252.10
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cache MISS for key: api:options_contracts:5ad52947
+INFO:redis_cache_service:Making API call to options_contracts (cache miss)
+INFO:redis_cache_service:API URL: https://api.thetradelist.com/v1/data/options-contracts
+INFO:redis_cache_service:API Params: {'underlying_ticker': 'AVGO', 'limit': 1000, 'apiKey': '5b4960fc-2cd5-4bda-bae1-e84c1db1f3f5'}
+INFO:redis_cache_service:API Response Status: 200
+INFO:redis_cache_service:API Response Text: {
+    "results": [
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "american",
+            "expiration_date": "2025-06-20",
+            "primary_exchange": "BATO",
+            "shares_per_contract": 100,
+            "strike_price": 41,
+            "ticker": "O:AVGO250620C00041000",
+            "underlying_ticker": "AVGO"
+        },
+        {
+            "cfi": "OCASPS",
+            "contract_type": "call",
+            "exercise_style": "a
+INFO:redis_cache_service:API returned 1000 results
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:Cached data for key: api:options_contracts:5ad52947 (expires in 30s)
+INFO:robust_spread_pipeline:Found 290 valid call options for AVGO
+ERROR:main:Spread analysis failed for AVGO: No profitable spreads found for AVGO
+INFO:main:Spread analysis completed for all tickers
+INFO:main:Starting background criteria polling for top 3 tickers
+INFO:main:Polling top 3 tickers: ['HSIC', 'CEG', 'AVGO']
+INFO:main:Skipping criteria update for HSIC - recently updated
+INFO:main:Skipping criteria update for CEG - recently updated
+INFO:main:Skipping criteria update for AVGO - recently updated
+WARNING:main:VIP access attempted without token
+INFO:main:JWT validation successful for user: 40a469a5-30b4-11f0-92f4-1a231cb3154e
+INFO:main:VIP access granted to user: 40a469a5-30b4-11f0-92f4-1a231cb3154e
+INFO:main:Redirecting to clean VIP URL after storing token in session
+INFO:main:JWT validation successful for user: 40a469a5-30b4-11f0-92f4-1a231cb3154e
+INFO:main:VIP access granted to user: 40a469a5-30b4-11f0-92f4-1a231cb3154e
+INFO:main:JWT validation successful for user: 40a469a5-30b4-11f0-92f4-1a231cb3154e
+INFO:main:VIP access granted to user: 40a469a5-30b4-11f0-92f4-1a231cb3154e
+[2025-06-16 21:35:55 +0000] [6979] [INFO] Worker reloading: /home/runner/workspace/redis_cache_service.py modified
+[2025-06-16 21:35:55 +0000] [6979] [INFO] Worker exiting (pid: 6979)
+[2025-06-16 21:35:55 +0000] [7309] [INFO] Booting worker with pid: 7309
+INFO:database_models:PostgreSQL database initialized with CSV format and trading volume support
+INFO:main:Started background criteria polling thread for top 3 tickers
+INFO:redis_cache_service:Configuring Upstash Redis connection
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:✅ Upstash Redis connection successful
+[2025-06-16 21:38:39 +0000] [7309] [INFO] Worker reloading: /home/runner/workspace/redis_cache_service.py modified
+[2025-06-16 21:38:39 +0000] [7309] [INFO] Worker exiting (pid: 7309)
+[2025-06-16 21:38:39 +0000] [7530] [INFO] Booting worker with pid: 7530
+INFO:database_models:PostgreSQL database initialized with CSV format and trading volume support
+INFO:main:Started background criteria polling thread for top 3 tickers
+INFO:redis_cache_service:Configuring Upstash Redis connection
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://integral-monkey-44503.upstash.io "HTTP/1.1 200 OK"
+INFO:redis_cache_service:✅ Upstash Redis connection successful
+INFO:main:JWT validation successful for user: 40a469a5-30b4-11f0-92f4-1a231cb3154e
+INFO:main:VIP access granted to user: 40a469a5-30b4-11f0-92f4-1a231cb3154e
