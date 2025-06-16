@@ -31,9 +31,10 @@ class RealTimeSpreadDetector:
             
             # Check cache first (30-second expiry)
             cache_key = f"stock_price_snapshot:{symbol}"
-            cached_price = cache_service.get_cached_data(cache_key)
+            cached_data = cache_service.get_cached_data(cache_key)
             
-            if cached_price:
+            if cached_data and cached_data.get('data', {}).get('price'):
+                cached_price = cached_data['data']['price']
                 logger.info(f"Cache HIT: Using cached price for {symbol}: ${cached_price}")
                 return float(cached_price)
             
@@ -61,7 +62,7 @@ class RealTimeSpreadDetector:
                                 fmv = ticker_data.get('fmv')
                                 if fmv and fmv > 0:
                                     # Cache the result for 30 seconds
-                                    cache_service.cache_data(cache_key, str(fmv), expiry_seconds=30)
+                                    cache_service.set_cached_data(cache_key, {'price': fmv})
                                     logger.info(f"API SUCCESS: Cached FMV price for {symbol}: ${fmv}")
                                     return float(fmv)
                                 break
@@ -88,7 +89,7 @@ class RealTimeSpreadDetector:
                                 last_price = item.get('lastprice')
                                 if last_price and float(last_price) > 0:
                                     # Cache the result for 30 seconds
-                                    cache_service.cache_data(cache_key, last_price, expiry_seconds=30)
+                                    cache_service.set_cached_data(cache_key, {'price': last_price})
                                     logger.info(f"API FALLBACK: Cached scanner price for {symbol}: ${last_price}")
                                     return float(last_price)
                         
