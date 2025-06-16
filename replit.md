@@ -181,6 +181,8 @@ Changelog:
 - June 16, 2025: Eliminated excessive API call logging with 30-second cache expiry for stock prices
 - June 16, 2025: Integrated spread analysis results caching (30-minute expiry) for instant retrieval
 - June 16, 2025: Completed comprehensive Redis caching architecture covering all API endpoints
+- June 16, 2025: Fixed VIP logo navigation - Income Machine logo now directs VIP users to VIP scoreboard (/vip)
+- June 16, 2025: Disabled automatic background spread analysis - now only triggers on explicit POST requests
 
 # User Preferences
 

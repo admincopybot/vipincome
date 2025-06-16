@@ -7063,7 +7063,7 @@ def step2(symbol=None, access_level=None):
 </html>
 """
     
-    return render_template_string(template, symbol=symbol, ticker_data=ticker_data, is_pro=is_pro)
+    return render_template_string(template, symbol=symbol, ticker_data=ticker_data, is_pro=is_pro, is_vip=is_vip)
 
 @app.route('/step3')
 @app.route('/step3/<symbol>')
