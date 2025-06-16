@@ -7258,51 +7258,26 @@ def step3(symbol=None):
                 # Transform external API response to match Step 3 display format
                 if api_data.get('success'):
                     current_price = api_data.get('current_stock_price', 0)
-                    spread_details = api_data.get('spread_details', {})
-                    contracts = api_data.get('contracts', {})
-                    price_scenarios = api_data.get('price_scenarios', [])
-                    strategy_info = api_data.get('strategy_info', {})
+                    strategies = api_data.get('strategies', {})
                     
                     # Convert to internal format for Step 3 display
-                    options_data = {
-                        'aggressive': {
+                    options_data = {}
+                    
+                    # Map aggressive strategy
+                    if 'aggressive' in strategies and strategies['aggressive'].get('found'):
+                        agg = strategies['aggressive']
+                        spread_details = agg.get('spread_details', {})
+                        contracts = agg.get('contracts', {})
+                        price_scenarios = agg.get('price_scenarios', [])
+                        strategy_info = agg.get('strategy_info', {})
+                        
+                        options_data['aggressive'] = {
                             'found': True,
                             'dte': spread_details.get('days_to_expiration', 0),
                             'roi': f"{spread_details.get('roi_percent', 0):.1f}%",
                             'max_profit': f"${spread_details.get('max_profit', 0):.2f}",
                             'spread_cost': f"${spread_details.get('spread_cost', 0):.2f}",
-                            'contract_symbol': contracts.get('long_contract', ''),
-                            'short_contract': contracts.get('short_contract', ''),
-                            'strike_price': spread_details.get('long_strike', 0),
-                            'short_strike_price': spread_details.get('short_strike', 0),
-                            'expiration': spread_details.get('expiration_date', ''),
-                            'management': strategy_info.get('description', 'Hold to expiration'),
-                            'description': 'External API spread analysis',
-                            'price_scenarios': price_scenarios,
-                            'breakeven_price': spread_details.get('breakeven_price', 0)
-                        },
-                        'steady': {
-                            'found': True,
-                            'dte': spread_details.get('days_to_expiration', 0),
-                            'roi': f"{spread_details.get('roi_percent', 0):.1f}%",
-                            'max_profit': f"${spread_details.get('max_profit', 0):.2f}",
-                            'spread_cost': f"${spread_details.get('spread_cost', 0):.2f}",
-                            'contract_symbol': contracts.get('long_contract', ''),
-                            'short_contract': contracts.get('short_contract', ''),
-                            'strike_price': spread_details.get('long_strike', 0),
-                            'short_strike_price': spread_details.get('short_strike', 0),
-                            'expiration': spread_details.get('expiration_date', ''),
-                            'management': strategy_info.get('description', 'Hold to expiration'),
-                            'description': 'External API spread analysis',
-                            'price_scenarios': price_scenarios,
-                            'breakeven_price': spread_details.get('breakeven_price', 0)
-                        },
-                        'passive': {
-                            'found': True,
-                            'dte': spread_details.get('days_to_expiration', 0),
-                            'roi': f"{spread_details.get('roi_percent', 0):.1f}%",
-                            'max_profit': f"${spread_details.get('max_profit', 0):.2f}",
-                            'spread_cost': f"${spread_details.get('spread_cost', 0):.2f}",
+                            'spread_width': spread_details.get('spread_width', 0),
                             'contract_symbol': contracts.get('long_contract', ''),
                             'short_contract': contracts.get('short_contract', ''),
                             'strike_price': spread_details.get('long_strike', 0),
@@ -7313,8 +7288,67 @@ def step3(symbol=None):
                             'price_scenarios': price_scenarios,
                             'breakeven_price': spread_details.get('breakeven_price', 0)
                         }
-                    }
-                    print(f"✅ External API returned spread data for {symbol}: ROI={spread_details.get('roi_percent', 0):.1f}%, DTE={spread_details.get('days_to_expiration', 0)}")
+                    else:
+                        options_data['aggressive'] = {'found': False, 'error': 'No aggressive strategy found'}
+                    
+                    # Map balanced strategy (steady)
+                    if 'balanced' in strategies and strategies['balanced'].get('found'):
+                        bal = strategies['balanced']
+                        spread_details = bal.get('spread_details', {})
+                        contracts = bal.get('contracts', {})
+                        price_scenarios = bal.get('price_scenarios', [])
+                        strategy_info = bal.get('strategy_info', {})
+                        
+                        options_data['steady'] = {
+                            'found': True,
+                            'dte': spread_details.get('days_to_expiration', 0),
+                            'roi': f"{spread_details.get('roi_percent', 0):.1f}%",
+                            'max_profit': f"${spread_details.get('max_profit', 0):.2f}",
+                            'spread_cost': f"${spread_details.get('spread_cost', 0):.2f}",
+                            'spread_width': spread_details.get('spread_width', 0),
+                            'contract_symbol': contracts.get('long_contract', ''),
+                            'short_contract': contracts.get('short_contract', ''),
+                            'strike_price': spread_details.get('long_strike', 0),
+                            'short_strike_price': spread_details.get('short_strike', 0),
+                            'expiration': spread_details.get('expiration_date', ''),
+                            'management': strategy_info.get('description', 'Hold to expiration'),
+                            'description': 'External API spread analysis',
+                            'price_scenarios': price_scenarios,
+                            'breakeven_price': spread_details.get('breakeven_price', 0)
+                        }
+                    else:
+                        options_data['steady'] = {'found': False, 'error': 'No balanced strategy found'}
+                    
+                    # Map conservative strategy (passive)
+                    if 'conservative' in strategies and strategies['conservative'].get('found'):
+                        con = strategies['conservative']
+                        spread_details = con.get('spread_details', {})
+                        contracts = con.get('contracts', {})
+                        price_scenarios = con.get('price_scenarios', [])
+                        strategy_info = con.get('strategy_info', {})
+                        
+                        options_data['passive'] = {
+                            'found': True,
+                            'dte': spread_details.get('days_to_expiration', 0),
+                            'roi': f"{spread_details.get('roi_percent', 0):.1f}%",
+                            'max_profit': f"${spread_details.get('max_profit', 0):.2f}",
+                            'spread_cost': f"${spread_details.get('spread_cost', 0):.2f}",
+                            'spread_width': spread_details.get('spread_width', 0),
+                            'contract_symbol': contracts.get('long_contract', ''),
+                            'short_contract': contracts.get('short_contract', ''),
+                            'strike_price': spread_details.get('long_strike', 0),
+                            'short_strike_price': spread_details.get('short_strike', 0),
+                            'expiration': spread_details.get('expiration_date', ''),
+                            'management': strategy_info.get('description', 'Hold to expiration'),
+                            'description': 'External API spread analysis',
+                            'price_scenarios': price_scenarios,
+                            'breakeven_price': spread_details.get('breakeven_price', 0)
+                        }
+                    else:
+                        options_data['passive'] = {'found': False, 'error': 'No conservative strategy found'}
+                    
+                    strategies_found = api_data.get('strategies_found', 0)
+                    print(f"✅ External API returned {strategies_found} strategies for {symbol}")
                 else:
                     return f"Error: External API returned unsuccessful response"
             else:

@@ -194,6 +194,12 @@ Changelog:
 - June 16, 2025: Fixed VIP logo navigation - Income Machine logo now directs VIP users to VIP scoreboard (/vip)
 - June 16, 2025: Disabled automatic background spread analysis - now only triggers on explicit POST requests
 - June 16, 2025: Completely removed chart data functionality from Step 2 pages - eliminated all chart API calls for optimal performance
+- June 16, 2025: Replaced Step 3 internal spread analysis with external API integration to separate spread analysis application
+- June 16, 2025: Updated Step 3 to call external endpoint: https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread
+- June 16, 2025: Fixed API payload format to match external service expectation: {"ticker": "SYMBOL"}
+- June 16, 2025: Updated response parsing to handle nested strategies structure (aggressive/balanced/conservative)
+- June 16, 2025: Added comprehensive profit matrix display with price scenarios from external API
+- June 16, 2025: Step 3 now fully powered by external spread analysis service with proper data mapping
 
 # User Preferences
 

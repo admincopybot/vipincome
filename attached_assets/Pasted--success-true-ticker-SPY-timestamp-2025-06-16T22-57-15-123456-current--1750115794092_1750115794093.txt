@@ -1,0 +1,213 @@
+{
+  "success": true,
+  "ticker": "SPY",
+  "timestamp": "2025-06-16T22:57:15.123456",
+  "current_stock_price": 589.45,
+  "strategies_found": 3,
+  "strategies_analyzed": 3,
+  "market_context": {
+    "analysis_time": "2025-06-16 22:57:15 UTC",
+    "data_source": "TheTradeList API",
+    "early_stopping_enabled": true,
+    "storage_type": "stateless"
+  },
+  "strategies": {
+    "aggressive": {
+      "found": true,
+      "spread_details": {
+        "long_strike": 599.0,
+        "short_strike": 600.0,
+        "spread_width": 1.0,
+        "spread_cost": 0.75,
+        "max_profit": 0.25,
+        "max_loss": 0.75,
+        "breakeven_price": 599.75,
+        "roi_percent": 34.2,
+        "days_to_expiration": 2,
+        "expiration_date": "2025-06-18"
+      },
+      "contracts": {
+        "long_contract": "O:SPY250618C00599000",
+        "short_contract": "O:SPY250618C00600000",
+        "long_price": 0,
+        "short_price": 0
+      },
+      "price_scenarios": [
+        {
+          "price_change_percent": -10,
+          "future_stock_price": 530.51,
+          "spread_value_at_expiration": 0.0,
+          "profit_loss": -0.75,
+          "roi_percent": -100.0,
+          "outcome": "loss"
+        },
+        {
+          "price_change_percent": -5,
+          "future_stock_price": 559.98,
+          "spread_value_at_expiration": 0.0,
+          "profit_loss": -0.75,
+          "roi_percent": -100.0,
+          "outcome": "loss"
+        },
+        {
+          "price_change_percent": 0,
+          "future_stock_price": 589.45,
+          "spread_value_at_expiration": 0.0,
+          "profit_loss": -0.75,
+          "roi_percent": -100.0,
+          "outcome": "loss"
+        },
+        {
+          "price_change_percent": 1,
+          "future_stock_price": 595.34,
+          "spread_value_at_expiration": 0.0,
+          "profit_loss": -0.75,
+          "roi_percent": -100.0,
+          "outcome": "loss"
+        },
+        {
+          "price_change_percent": 2.5,
+          "future_stock_price": 604.18,
+          "spread_value_at_expiration": 1.0,
+          "profit_loss": 0.25,
+          "roi_percent": 34.2,
+          "outcome": "profit"
+        },
+        {
+          "price_change_percent": 5,
+          "future_stock_price": 618.92,
+          "spread_value_at_expiration": 1.0,
+          "profit_loss": 0.25,
+          "roi_percent": 34.2,
+          "outcome": "profit"
+        },
+        {
+          "price_change_percent": 10,
+          "future_stock_price": 648.40,
+          "spread_value_at_expiration": 1.0,
+          "profit_loss": 0.25,
+          "roi_percent": 34.2,
+          "outcome": "profit"
+        }
+      ],
+      "strategy_info": {
+        "strategy_name": "Aggressive",
+        "description": "Hold to expiration",
+        "risk_level": "High"
+      },
+      "market_context": {
+        "analysis_type": "stateless"
+      }
+    },
+    "balanced": {
+      "found": true,
+      "spread_details": {
+        "long_strike": 585.0,
+        "short_strike": 590.0,
+        "spread_width": 5.0,
+        "spread_cost": 3.25,
+        "max_profit": 1.75,
+        "max_loss": 3.25,
+        "breakeven_price": 588.25,
+        "roi_percent": 25.8,
+        "days_to_expiration": 7,
+        "expiration_date": "2025-06-25"
+      },
+      "contracts": {
+        "long_contract": "O:SPY250625C00585000",
+        "short_contract": "O:SPY250625C00590000",
+        "long_price": 0,
+        "short_price": 0
+      },
+      "price_scenarios": [
+        {
+          "price_change_percent": -10,
+          "future_stock_price": 530.51,
+          "spread_value_at_expiration": 0.0,
+          "profit_loss": -3.25,
+          "roi_percent": -100.0,
+          "outcome": "loss"
+        },
+        {
+          "price_change_percent": 0,
+          "future_stock_price": 589.45,
+          "spread_value_at_expiration": 4.45,
+          "profit_loss": 1.20,
+          "roi_percent": 36.9,
+          "outcome": "profit"
+        },
+        {
+          "price_change_percent": 5,
+          "future_stock_price": 618.92,
+          "spread_value_at_expiration": 5.0,
+          "profit_loss": 1.75,
+          "roi_percent": 53.8,
+          "outcome": "profit"
+        }
+      ],
+      "strategy_info": {
+        "strategy_name": "Balanced",
+        "description": "Hold to expiration",
+        "risk_level": "Medium"
+      },
+      "market_context": {
+        "analysis_type": "stateless"
+      }
+    },
+    "conservative": {
+      "found": true,
+      "spread_details": {
+        "long_strike": 575.0,
+        "short_strike": 585.0,
+        "spread_width": 10.0,
+        "spread_cost": 6.50,
+        "max_profit": 3.50,
+        "max_loss": 6.50,
+        "breakeven_price": 581.50,
+        "roi_percent": 18.5,
+        "days_to_expiration": 14,
+        "expiration_date": "2025-07-02"
+      },
+      "contracts": {
+        "long_contract": "O:SPY250702C00575000",
+        "short_contract": "O:SPY250702C00585000",
+        "long_price": 0,
+        "short_price": 0
+      },
+      "price_scenarios": [
+        {
+          "price_change_percent": -10,
+          "future_stock_price": 530.51,
+          "spread_value_at_expiration": 0.0,
+          "profit_loss": -6.50,
+          "roi_percent": -100.0,
+          "outcome": "loss"
+        },
+        {
+          "price_change_percent": 0,
+          "future_stock_price": 589.45,
+          "spread_value_at_expiration": 10.0,
+          "profit_loss": 3.50,
+          "roi_percent": 53.8,
+          "outcome": "profit"
+        },
+        {
+          "price_change_percent": 5,
+          "future_stock_price": 618.92,
+          "spread_value_at_expiration": 10.0,
+          "profit_loss": 3.50,
+          "roi_percent": 53.8,
+          "outcome": "profit"
+        }
+      ],
+      "strategy_info": {
+        "strategy_name": "Conservative",
+        "description": "Hold to expiration", 
+        "risk_level": "Low"
+      },
+      "market_context": {
+        "analysis_type": "stateless"
+      }
+    }
+  }
+}
