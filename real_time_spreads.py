@@ -667,3 +667,86 @@ def get_real_time_spreads(symbol: str, current_price: Optional[float] = None) ->
     logger.info(f"Using real-time price ${current_price:.2f} for {symbol} spread detection")
     
     return detector.find_best_spreads(symbol, current_price)
+
+
+def get_real_time_spreads_with_early_termination(symbol: str, current_price: float) -> Dict:
+    """
+    POST TRIGGER ONLY: Early termination version that stops after finding 2 viable strategies
+    This function is ONLY used by the POST trigger endpoint to prevent worker timeouts
+    Normal Step 3 analysis uses get_real_time_spreads() which remains unchanged
+    """
+    logger.info(f"🚀 EARLY TERMINATION MODE: Starting analysis for {symbol}")
+    
+    detector = RealTimeSpreadDetector()
+    
+    # Get real-time stock price if not provided
+    if current_price is None:
+        current_price = detector.get_real_time_stock_price(symbol)
+        
+        if current_price is None:
+            logger.error(f"Failed to get real-time price for {symbol}")
+            return {
+                'aggressive': {'found': False, 'reason': 'Failed to get current stock price'},
+                'balanced': {'found': False, 'reason': 'Failed to get current stock price'},
+                'conservative': {'found': False, 'reason': 'Failed to get current stock price'}
+            }
+    
+    logger.info(f"Using real-time price ${current_price:.2f} for {symbol} early termination analysis")
+    
+    # Fetch contracts from TheTradeList API 
+    contracts = detector.fetch_options_contracts(symbol)
+    if not contracts:
+        logger.warning(f"No contracts found for {symbol}")
+        return {
+            'aggressive': {'found': False, 'reason': 'No options contracts available'},
+            'balanced': {'found': False, 'reason': 'No options contracts available'},  
+            'conservative': {'found': False, 'reason': 'No options contracts available'}
+        }
+    
+    # Store contracts for processing
+    detector.contracts = contracts
+    detector.current_price = current_price
+    
+    # EARLY TERMINATION LOGIC: Stop after finding 2 viable strategies
+    results = {}
+    strategies_found = 0
+    target_strategies = 2
+    
+    # Strategy order: aggressive first (usually fastest), then conservative, then balanced
+    strategy_order = ['aggressive', 'conservative', 'balanced']
+    
+    logger.info(f"🎯 TARGET: Will stop after finding {target_strategies} viable strategies")
+    
+    for strategy in strategy_order:
+        if strategies_found >= target_strategies:
+            logger.info(f"✅ EARLY TERMINATION: Found {strategies_found} strategies, stopping analysis")
+            break
+            
+        logger.info(f"🔍 Processing {strategy} strategy...")
+        try:
+            strategy_name, result = detector.find_best_spread(strategy)
+            results[strategy_name] = result
+            
+            if result.get('found', False):
+                strategies_found += 1
+                logger.info(f"✅ {strategy} strategy SUCCESS ({strategies_found}/{target_strategies})")
+            else:
+                logger.info(f"❌ {strategy} strategy failed")
+                
+        except Exception as e:
+            logger.error(f"Error processing {strategy}: {str(e)}")
+            results[strategy] = {
+                'found': False,
+                'error': str(e)
+            }
+    
+    # Fill in empty results for strategies we didn't process due to early termination
+    for strategy in strategy_order:
+        if strategy not in results:
+            results[strategy] = {
+                'found': False,
+                'reason': 'Skipped due to early termination'
+            }
+    
+    logger.info(f"📊 EARLY TERMINATION COMPLETE: {strategies_found} viable strategies found")
+    return results

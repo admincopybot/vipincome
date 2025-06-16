@@ -9435,42 +9435,21 @@ def trigger_minimal_analysis():
                     logger.warning(f"MANUAL TRIGGER: No current price for {ticker}, skipping spread validation")
                     continue
                 
-                # CAREFUL THROTTLE: Lightweight validation for POST trigger only
-                logger.info(f"MANUAL TRIGGER: Using minimal validation for {ticker} to prevent worker timeouts")
+                # SMART EARLY TERMINATION: Run real spread analysis but stop after finding 2 viable strategies
+                logger.info(f"MANUAL TRIGGER: Using EARLY TERMINATION spread analysis for {ticker}")
                 
-                # For POST trigger: Just check if basic contracts exist without intensive spread analysis
                 try:
-                    import requests
-                    contracts_url = f"https://api.thetradelist.com/v1/data/contracts-historical"
-                    params = {
-                        'symbol': ticker,
-                        'type': 'call',
-                        'apiKey': TRADELIST_API_KEY
-                    }
+                    # Import the spread detector
+                    from real_time_spreads import get_real_time_spreads_with_early_termination
                     
-                    # Quick contract count check with short timeout
-                    response = requests.get(contracts_url, params=params, timeout=5)
+                    # Run spread analysis with early termination (stops after 2 viable strategies)
+                    spread_results = get_real_time_spreads_with_early_termination(ticker, current_price)
                     
-                    if response.status_code == 200:
-                        contracts_data = response.json()
-                        contract_count = len(contracts_data.get('data', []))
-                        logger.info(f"MANUAL TRIGGER: {ticker} has {contract_count} available contracts")
-                        
-                        # Simple heuristic: if more than 100 contracts, likely has viable spreads
-                        if contract_count >= 100:
-                            spread_results = {
-                                'aggressive': [{'roi': '15.0%', 'found': True}],  # Simulated positive result
-                                'steady': [{'roi': '12.0%', 'found': True}],
-                                'passive': [{'roi': '8.0%', 'found': True}]
-                            }
-                        else:
-                            spread_results = {'aggressive': [], 'steady': [], 'passive': []}
-                    else:
-                        logger.warning(f"MANUAL TRIGGER: Could not fetch contracts for {ticker}")
-                        spread_results = {'aggressive': [], 'steady': [], 'passive': []}
-                        
-                except Exception as contract_error:
-                    logger.error(f"MANUAL TRIGGER: Error checking contracts for {ticker}: {contract_error}")
+                    logger.info(f"MANUAL TRIGGER: Early termination analysis complete for {ticker}")
+                    
+                except Exception as spread_error:
+                    logger.error(f"MANUAL TRIGGER: Error in early termination spread analysis for {ticker}: {spread_error}")
+                    # Fallback to heuristic validation
                     spread_results = {'aggressive': [], 'steady': [], 'passive': []}
                 
                 # Count valid spreads across all strategies
