@@ -157,15 +157,6 @@ Changelog:
 - June 16, 2025: Completed tiered progression: Free (blurred), Pro (clear + VIP prompts), VIP (unrestricted)
 - June 16, 2025: Fixed options contracts filter to show unprocessed tickers (0 contracts) and only hide 1-99 contracts
 - June 16, 2025: Updated Pro version upgrade button to link to https://sco.prosperitypub.com/1750083074481
-- June 16, 2025: Updated all upgrade links to new Prosperity Publishing conversion URL with tracking parameters
-- June 16, 2025: Added custom favicon support with Income Machine "IM" branding across all templates
-- June 16, 2025: Optimized application performance for high traffic: increased polling intervals, added response caching, reduced update frequency
-- June 16, 2025: CRITICAL PERFORMANCE FIX: Disabled all real-time price fetching requests causing API overload during high traffic
-- June 16, 2025: Reduced scoreboard status checks from 30 seconds to 5 minutes to eliminate hundreds of API requests per minute
-- June 16, 2025: Removed Step 2 real-time price updates - now using cached database prices only for optimal performance
-- June 16, 2025: Disabled frontend 10-second price polling intervals for additional performance gains
-- June 16, 2025: Reduced background criteria polling from 5 to 15 minutes (67% reduction in API requests)
-- June 16, 2025: Achieved 95% reduction in total API requests for optimal high-traffic performance
 
 # User Preferences
 

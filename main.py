@@ -165,7 +165,6 @@ csv_loader = CsvDataLoader()
 # Add response caching for high traffic performance
 response_cache = {}
 cache_expiry = 300  # 5 minutes cache
-cache_timestamps = {}
 
 # Background polling configuration
 CRITERIA_API_URL = "https://1-symbol-at-a-time-post-5-criteria-analysis-daiadigitalco.replit.app/analyze"
@@ -264,7 +263,7 @@ def background_criteria_polling():
             current_time = datetime.now()
             time_since_last_poll = (current_time - last_poll_time).total_seconds()
             
-            if time_since_last_poll >= 900:  # 15 minutes (reduced frequency)
+            if time_since_last_poll >= 300:  # 5 minutes
                 logger.info("Starting background criteria polling for top 3 tickers")
                 
                 # Get current top 3 tickers
@@ -287,7 +286,7 @@ def background_criteria_polling():
                 else:
                     logger.warning("Not enough tickers in database for polling")
             
-            time.sleep(300)  # Check every 5 minutes, poll every 15 minutes (reduced frequency)
+            time.sleep(60)  # Check every 60 seconds, poll every 5 minutes
             
         except Exception as e:
             logger.error(f"Error in background polling: {str(e)}")
@@ -302,10 +301,31 @@ def start_background_polling():
     logger.info("Started background criteria polling thread for top 3 tickers")
 
 def update_prices_with_tradelist():
-    """Update current prices using TheTradeList API for TOP 3 TICKERS ONLY - DISABLED FOR PERFORMANCE"""
-    # DISABLED: This function was causing excessive API load with high traffic
-    # Real-time prices are now updated only via background polling every 5 minutes
-    pass
+    """Update current prices using TheTradeList API for TOP 3 TICKERS ONLY while preserving all other database record details"""
+    global etf_scores
+    
+    try:
+        from real_time_spreads import RealTimeSpreadDetector
+        detector = RealTimeSpreadDetector()
+        
+        # Get top 3 tickers by score (etf_scores is already sorted by score DESC from database)
+        top_3_symbols = list(etf_scores.keys())[:3]
+        logger.info(f"Updating real-time prices for TOP 3 tickers only: {top_3_symbols}")
+        
+        # Update prices for only the top 3 symbols
+        for symbol in top_3_symbols:
+            try:
+                real_time_price = detector.get_real_time_stock_price(symbol)
+                if real_time_price and real_time_price > 0:
+                    etf_scores[symbol]['price'] = real_time_price
+                    logger.info(f"Updated TOP 3 ticker {symbol} price to ${real_time_price:.2f} from TheTradeList")
+                else:
+                    logger.warning(f"Could not get real-time price for TOP 3 ticker {symbol} from TheTradeList")
+            except Exception as e:
+                logger.warning(f"Price update failed for TOP 3 ticker {symbol}: {e}")
+                
+    except Exception as e:
+        logger.error(f"Error updating TOP 3 ticker prices with TheTradeList: {e}")
 
 def filter_etfs_by_options_contracts(etf_data, min_contracts=100):
     """Filter ETFs to only show those with minimum options contracts (for Free/Pro versions)
@@ -4060,8 +4080,8 @@ def pro_index():
             }
         }
         
-        // DISABLED: Price updates removed for performance optimization
-        // setInterval(updatePrices, 10000);
+        // Update prices every 10 seconds
+        setInterval(updatePrices, 10000);
         
         async function checkForUpdates() {
             try {
@@ -4079,7 +4099,7 @@ def pro_index():
         }
         
         // Check for updates every 5 seconds to catch CSV uploads
-        setInterval(checkForUpdates, 300000);
+        setInterval(checkForUpdates, 30000);
         checkForUpdates(); // Initial check
         
         // Check market hours and show popup if outside trading hours
@@ -4951,8 +4971,16 @@ def vip_step2(symbol):
         logger.warning(f"No data found for VIP ticker: {symbol}")
         return redirect('/vip')
     
-    # DISABLED: Real-time price fetching removed for performance optimization
-    # Using cached database prices only
+    # Update current price with real-time data if available
+    try:
+        from real_time_spreads import RealTimeSpreadDetector
+        detector = RealTimeSpreadDetector()
+        real_time_price = detector.get_real_time_stock_price(symbol)
+        if real_time_price and real_time_price > 0:
+            ticker_data['current_price'] = real_time_price
+            logger.info(f"VIP Step 2: Updated {symbol} current price to ${real_time_price:.2f} from TheTradeList")
+    except Exception as e:
+        logger.warning(f"Could not update real-time price for VIP ticker {symbol}: {e}")
     
     # Use existing step2 template but indicate VIP access
     return step2(symbol)
@@ -4989,7 +5017,7 @@ def vip_step3(symbol):
     try:
         from real_time_spreads import RealTimeSpreadDetector
         detector = RealTimeSpreadDetector()
-        current_price = None  # Disabled for performance
+        current_price = detector.get_real_time_stock_price(symbol)
         if not current_price or current_price <= 0:
             # Fallback to database price
             ticker_data = etf_db.get_ticker_details(symbol)
@@ -5058,7 +5086,7 @@ def vip_step4(symbol):
             # Fallback: regenerate data
             from real_time_spreads import RealTimeSpreadDetector
             detector = RealTimeSpreadDetector()
-            current_price = 100.0  # Disabled for performance
+            current_price = detector.get_real_time_stock_price(symbol) or 100.0
             spread_data = get_real_time_spreads(symbol, current_price)
         
         return step4(symbol, strategy, 'vip')
@@ -5666,7 +5694,7 @@ def index():
         }
         
         // Check for updates every 5 seconds to catch CSV uploads
-        setInterval(checkForUpdates, 300000);
+        setInterval(checkForUpdates, 30000);
         checkForUpdates(); // Initial check
         
         // Check market hours and show popup if outside trading hours
@@ -5900,7 +5928,7 @@ def step2(symbol=None):
     try:
         from real_time_spreads import RealTimeSpreadDetector
         detector = RealTimeSpreadDetector()
-        real_time_price = None  # Disabled for performance
+        real_time_price = detector.get_real_time_stock_price(symbol.upper())
         
         if real_time_price and real_time_price > 0:
             # Update ticker_data with real-time price
@@ -7039,7 +7067,7 @@ def step3(symbol=None):
             try:
                 from real_time_spreads import RealTimeSpreadDetector
                 detector = RealTimeSpreadDetector()
-                current_price = None  # Disabled for performance
+                current_price = detector.get_real_time_stock_price(symbol)
                 if not current_price or current_price <= 0:
                     current_price = cached_data.get('current_price', 0)
             except:
@@ -7070,7 +7098,7 @@ def step3(symbol=None):
             # Use the real-time spread detector's price function which handles the comma format correctly
             from real_time_spreads import RealTimeSpreadDetector
             detector = RealTimeSpreadDetector()
-            current_price = None  # Disabled for performance
+            current_price = detector.get_real_time_stock_price(symbol)
             
             if current_price and current_price > 0:
                 print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from TheTradeList API)")
