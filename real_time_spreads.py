@@ -198,17 +198,17 @@ class RealTimeSpreadDetector:
             'aggressive': {
                 'dte_min': 10,
                 'dte_max': 17,
-                'strike_filter': lambda strike, price: float(price) * 0.75 <= float(strike) <= float(price) * 1.25  # Wide range for long/short combinations
+                'strike_filter': lambda strike, price: price * 0.75 <= strike <= price * 1.25  # Wide range for long/short combinations
             },
             'balanced': {
                 'dte_min': 17,
                 'dte_max': 28,
-                'strike_filter': lambda strike, price: float(price) * 0.70 <= float(strike) <= float(price) * 1.30  # Wide range for long/short combinations
+                'strike_filter': lambda strike, price: price * 0.70 <= strike <= price * 1.30  # Wide range for long/short combinations
             },
             'conservative': {
                 'dte_min': 28,
                 'dte_max': 42,
-                'strike_filter': lambda strike, price: float(price) * 0.65 <= float(strike) <= float(price) * 1.35  # Wide range for long/short combinations
+                'strike_filter': lambda strike, price: price * 0.65 <= strike <= price * 1.35  # Wide range for long/short combinations
             }
         }
         
@@ -220,7 +220,7 @@ class RealTimeSpreadDetector:
         logger.info(f"🔍 DETAILED FILTERING for {strategy.upper()} strategy:")
         logger.info(f"   Current price: ${current_price}")
         logger.info(f"   DTE range: {criteria['dte_min']}-{criteria['dte_max']} days")
-        logger.info(f"   Strike range: ${float(current_price) * (0.75 if strategy == 'aggressive' else 0.70 if strategy == 'balanced' else 0.65):.2f} - ${float(current_price) * (1.25 if strategy == 'aggressive' else 1.30 if strategy == 'balanced' else 1.35):.2f}")
+        logger.info(f"   Strike range: ${current_price * (0.75 if strategy == 'aggressive' else 0.70 if strategy == 'balanced' else 0.65):.2f} - ${current_price * (1.25 if strategy == 'aggressive' else 1.30 if strategy == 'balanced' else 1.35):.2f}")
         logger.info(f"   Total contracts to check: {len(contracts)}")
         
         dte_passed = 0
@@ -266,13 +266,8 @@ class RealTimeSpreadDetector:
         return filtered
     
     def generate_spread_pairs(self, contracts: List[Dict]) -> List[Tuple[Dict, Dict]]:
-        """Generate OPTIMIZED spread pairs - LIMITED to prevent memory timeouts"""
+        """Generate ALL possible debit spread pairs from filtered contracts, prioritized by width"""
         pairs = []
-        
-        # MEMORY OPTIMIZATION: Limit total contracts processed
-        if len(contracts) > 100:
-            contracts = contracts[:100]  # Only process top 100 contracts
-            logger.info(f"🔧 MEMORY OPTIMIZATION: Limited to {len(contracts)} contracts to prevent timeouts")
         
         # Group by expiration date
         by_expiration = {}
@@ -282,78 +277,68 @@ class RealTimeSpreadDetector:
                 by_expiration[exp_date] = []
             by_expiration[exp_date].append(contract)
         
-        current_price = getattr(self, 'current_price', 260)
-        max_pairs_per_width = 20  # STRICT limit per width to prevent memory issues
-        
-        # Process each expiration separately
+        # Generate ALL possible pairs within each expiration
         for exp_date, exp_contracts in by_expiration.items():
+            # Sort by strike price
             exp_contracts.sort(key=lambda x: float(x.get('strike_price', 0)))
             
-            # Generate pairs by width priority - STOP when we have enough
-            width_counts = {1.0: 0, 2.5: 0, 5.0: 0}
-            
             for i, long_contract in enumerate(exp_contracts):
-                if sum(width_counts.values()) >= 60:  # Total limit across all widths
-                    break
-                    
                 for j, short_contract in enumerate(exp_contracts[i+1:], i+1):
                     long_strike = float(long_contract.get('strike_price', 0))
                     short_strike = float(short_contract.get('strike_price', 0))
                     
-                    # Basic validation
+                    # Ensure proper debit spread structure
                     if long_strike >= short_strike:
                         continue
+                    
+                    # CRITICAL: For debit spreads, short call must be below current price
+                    current_price = getattr(self, 'current_price', 260)  # Use stored current price
                     if short_strike >= current_price:
                         continue
                     
+                    # Add spread pairs with MAXIMUM $10 width restriction
                     spread_width = short_strike - long_strike
-                    
-                    # Only track priority widths
-                    if abs(spread_width - 1.0) < 0.01 and width_counts[1.0] < max_pairs_per_width:
+                    if 0 < spread_width <= 10.0:  # Only spreads up to $10 wide
                         pairs.append((long_contract, short_contract))
-                        width_counts[1.0] += 1
-                    elif abs(spread_width - 2.5) < 0.01 and width_counts[2.5] < max_pairs_per_width:
-                        pairs.append((long_contract, short_contract))
-                        width_counts[2.5] += 1
-                    elif abs(spread_width - 5.0) < 0.01 and width_counts[5.0] < max_pairs_per_width:
-                        pairs.append((long_contract, short_contract))
-                        width_counts[5.0] += 1
         
-        # Sort by width priority
+        # Sort pairs by width priority: $1 first, then $2.50, then $5, then others
         def width_priority(pair):
             long_contract, short_contract = pair
             width = float(short_contract.get('strike_price', 0)) - float(long_contract.get('strike_price', 0))
+            
+            # Priority order: $1, $2.50, $5, $0.50, $10, others
             if abs(width - 1.0) < 0.01:
-                return 1
+                return 1  # $1 spreads get highest priority
             elif abs(width - 2.5) < 0.01:
-                return 2
+                return 2  # $2.50 spreads second
             elif abs(width - 5.0) < 0.01:
-                return 3
+                return 3  # $5 spreads third
+            elif abs(width - 0.5) < 0.01:
+                return 4  # $0.50 spreads fourth
+            elif abs(width - 10.0) < 0.01:
+                return 5  # $10 spreads fifth
             else:
-                return 4
+                return 6 + width  # All other widths by size
         
+        # Sort by priority (lower number = higher priority)
         pairs.sort(key=width_priority)
         
-        logger.info(f"🔧 OPTIMIZED: Generated {len(pairs)} spread pairs (limited to prevent timeouts)")
+        logger.info(f"Generated {len(pairs)} total spread pairs (MAX $10 wide), prioritized by width ($1, $2.50, $5, etc.)")
         return pairs
     
-    def get_real_time_quote(self, ticker: str, early_termination_mode: bool = False) -> Optional[Dict]:
-        """Get real-time bid/ask quote from TheTradeList API with AGGRESSIVE throttling"""
+    def get_real_time_quote(self, ticker: str) -> Optional[Dict]:
+        """Get real-time bid/ask quote from TheTradeList API with retry mechanism"""
         try:
-            # AGGRESSIVE THROTTLING: 2-second delay for normal mode, 0.1 for early termination
-            delay = 0.1 if early_termination_mode else 2.0
-            time.sleep(delay)
-            
             url = "https://api.thetradelist.com/v1/data/last-quote"
             params = {
                 'ticker': ticker,
                 'apiKey': self.tradelist_api_key
             }
             
-            # Reduced retries to prevent timeout loops
-            for attempt in range(1):  # Only 1 attempt instead of 2
+            # Add timeout and retry for network issues
+            for attempt in range(2):
                 try:
-                    response = requests.get(url, params=params, timeout=5)  # Longer timeout
+                    response = requests.get(url, params=params, timeout=3)
                     
                     if response.status_code == 200:
                         data = response.json()
@@ -391,8 +376,8 @@ class RealTimeSpreadDetector:
             if not long_ticker or not short_ticker:
                 return None
             
-            long_quote = self.get_real_time_quote(long_ticker, True)  # Early termination mode with 0.5s delay
-            short_quote = self.get_real_time_quote(short_ticker, True)  # Early termination mode with 0.5s delay
+            long_quote = self.get_real_time_quote(long_ticker)
+            short_quote = self.get_real_time_quote(short_ticker)
             
             if not long_quote or not short_quote:
                 return None
@@ -668,157 +653,3 @@ def get_real_time_spreads(symbol: str, current_price: Optional[float] = None) ->
     logger.info(f"Using real-time price ${current_price:.2f} for {symbol} spread detection")
     
     return detector.find_best_spreads(symbol, current_price)
-
-
-def get_real_time_spreads_with_early_termination(symbol: str, current_price: float) -> Dict:
-    """
-    POST TRIGGER ONLY: Early termination version that stops after finding 2 viable strategies
-    This function is ONLY used by the POST trigger endpoint to prevent worker timeouts
-    Normal Step 3 analysis uses get_real_time_spreads() which remains unchanged
-    """
-    logger.info(f"🚀 EARLY TERMINATION MODE: Starting analysis for {symbol}")
-    
-    # Use the existing get_real_time_spreads function but with modified logic
-    detector = RealTimeSpreadDetector()
-    
-    # Get real-time stock price if not provided
-    if current_price is None:
-        current_price = detector.get_real_time_stock_price(symbol)
-        
-        if current_price is None:
-            logger.error(f"Failed to get real-time price for {symbol}")
-            return {
-                'aggressive': {'found': False, 'reason': 'Failed to get current stock price'},
-                'balanced': {'found': False, 'reason': 'Failed to get current stock price'},
-                'conservative': {'found': False, 'reason': 'Failed to get current stock price'}
-            }
-    
-    logger.info(f"Using real-time price ${current_price:.2f} for {symbol} early termination analysis")
-    
-    # Use EXACT Step 3 spread calculation logic with early termination controls
-    try:
-        # Get all contracts using the exact same method as Step 3
-        all_contracts = detector.get_all_contracts(symbol)
-        if not all_contracts:
-            logger.warning(f"EARLY TERMINATION: No contracts available for {symbol}")
-            return {
-                'aggressive': {'found': False, 'reason': 'No contracts available'},
-                'balanced': {'found': False, 'reason': 'No contracts available'},
-                'conservative': {'found': False, 'reason': 'No contracts available'}
-            }
-        
-        logger.info(f"EARLY TERMINATION: {symbol} has {len(all_contracts)} total contracts")
-        
-        # Use exact same strategy definitions as Step 3
-        strategies = ['aggressive', 'balanced', 'conservative']
-        roi_ranges = {
-            'aggressive': (25, 50),
-            'balanced': (12, 25),
-            'conservative': (8, 15)
-        }
-        
-        results = {}
-        spreads_analyzed = 0
-        max_spreads_per_strategy = 3  # Ultra-aggressive early termination limit
-        strategies_found = 0
-        max_strategies = 2  # Stop after finding 2 viable strategies
-        
-        # Only analyze first 2 strategies for ultra-fast early termination
-        strategies = strategies[:2]
-        
-        for strategy in strategies:
-            # Early termination if we found enough strategies
-            if strategies_found >= max_strategies:
-                logger.info(f"EARLY TERMINATION: Found {strategies_found} strategies, stopping analysis")
-                break
-            logger.info(f"EARLY TERMINATION {strategy.upper()}: Starting analysis")
-            
-            # Use exact same filtering logic as Step 3
-            filtered_contracts = detector.filter_contracts_by_strategy(
-                all_contracts, strategy, current_price
-            )
-            logger.info(f"EARLY TERMINATION {strategy.upper()}: {len(filtered_contracts)} contracts after filtering")
-            
-            if not filtered_contracts:
-                results[strategy] = {
-                    'found': False,
-                    'reason': f'No contracts match {strategy} criteria'
-                }
-                continue
-            
-            # Generate spread pairs with aggressive early termination limit
-            spread_pairs = detector.generate_spread_pairs(filtered_contracts)
-            if len(spread_pairs) > 5:  # Very aggressive limit for early termination
-                spread_pairs = spread_pairs[:5]
-                logger.info(f"EARLY TERMINATION {strategy.upper()}: Limited to 5 spread pairs")
-            
-            if not spread_pairs:
-                results[strategy] = {
-                    'found': False,
-                    'reason': 'No valid spread pairs generated'
-                }
-                continue
-            
-            # Analyze spreads using exact same logic as Step 3
-            valid_spreads = []
-            target_min_roi, target_max_roi = roi_ranges[strategy]
-            
-            for long_contract, short_contract in spread_pairs:
-                spreads_analyzed += 1
-                
-                # Ultra-aggressive early termination limits
-                if spreads_analyzed > 1:
-                    logger.info(f"EARLY TERMINATION: Hit analysis limit at {spreads_analyzed} spreads")
-                    break
-                
-                # Use exact same spread calculation as Step 3 with early termination mode
-                spread_data = detector.calculate_spread_metrics(long_contract, short_contract)
-                if not spread_data:
-                    continue
-                
-                roi = spread_data['roi']
-                
-                # Apply exact same ROI filtering as Step 3
-                if target_min_roi <= roi <= target_max_roi:
-                    valid_spreads.append(spread_data)
-                    logger.info(f"EARLY TERMINATION {strategy.upper()}: Found viable spread - ROI: {roi:.1f}%")
-                    
-                    # Early termination: found one viable spread for this strategy
-                    break
-            
-            # Store results in exact same format as Step 3
-            if valid_spreads:
-                best_spread = max(valid_spreads, key=lambda x: x['roi'])
-                results[strategy] = {
-                    'found': True,
-                    'roi': f"{best_spread['roi']:.1f}%",
-                    'spread_cost': best_spread['spread_cost'],
-                    'max_profit': best_spread['max_profit'],
-                    'long_strike': best_spread['long_strike'],
-                    'short_strike': best_spread['short_strike'],
-                    'expiration': best_spread['expiration'],
-                    'dte': best_spread['dte']
-                }
-                strategies_found += 1
-                logger.info(f"EARLY TERMINATION: Strategy {strategy} successful ({strategies_found}/{max_strategies})")
-            else:
-                results[strategy] = {
-                    'found': False,
-                    'reason': f'No spreads found in {target_min_roi}-{target_max_roi}% ROI range'
-                }
-            
-            # Early termination if analyzed too many spreads total
-            if spreads_analyzed > 30:
-                logger.info(f"EARLY TERMINATION: Hit global spread limit at {spreads_analyzed} spreads")
-                break
-        
-        logger.info(f"EARLY TERMINATION COMPLETE: Analyzed {spreads_analyzed} spreads for {symbol}")
-        return results
-        
-    except Exception as e:
-        logger.error(f"EARLY TERMINATION ERROR: {e}")
-        return {
-            'aggressive': {'found': False, 'error': str(e)},
-            'balanced': {'found': False, 'error': str(e)},
-            'conservative': {'found': False, 'error': str(e)}
-        }

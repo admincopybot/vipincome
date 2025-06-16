@@ -9334,7 +9334,7 @@ def polling_status():
         return jsonify({'error': f'Failed to get polling status: {str(e)}'}), 500
 
 @app.route('/trigger-quick-analysis', methods=['POST'])
-def trigger_minimal_analysis():
+def trigger_quick_analysis():
     """Manual trigger endpoint to force immediate analysis of TOP 3 TICKERS ONLY"""
     global polling_stats, last_poll_time
     
@@ -9362,42 +9362,51 @@ def trigger_minimal_analysis():
         polling_stats['total_polls'] += 1
         polling_stats['last_poll_status'] = 'Manual trigger in progress'
         
-        # LIGHTWEIGHT MODE: Skip all API calls and intensive operations for POST trigger
+        # Process ONLY the top 3 tickers with single API calls
         results = []
         changes_detected = False
-        valid_tickers = top_3_symbols  # All top 3 tickers are assumed valid
         
-        logger.info("MANUAL TRIGGER: Using LIGHTWEIGHT mode - skipping API calls to prevent timeouts")
-        
-        # Simply validate that top 3 tickers exist and have basic data - NO API CALLS
         for ticker in top_3_symbols:
-            logger.info(f"MANUAL TRIGGER: Fast-validating {ticker}")
+            logger.info(f"MANUAL TRIGGER: Processing {ticker}")
             
             try:
-                # Quick database check only - no external API calls
-                etf_data = load_etf_data_from_database()
-                ticker_found = False
-                if etf_data:  # Ensure etf_data is not None
-                    for etf in etf_data:
-                        if etf['symbol'] == ticker:
-                            ticker_found = True
-                            logger.info(f"MANUAL TRIGGER: {ticker} found in database with score {etf.get('total_score', 0)}")
-                            break
+                # Make SINGLE POST request to external API
+                response = requests.post(
+                    CRITERIA_API_URL,
+                    json={"ticker": ticker},
+                    headers={'Content-Type': 'application/json'},
+                    timeout=10
+                )
                 
-                if ticker_found:
-                    results.append({
-                        'symbol': ticker,
-                        'status': 'validated',
-                        'method': 'database_ranking'
-                    })
-                    polling_stats['successful_updates'] += 1
+                logger.info(f"MANUAL TRIGGER: API response for {ticker}: Status {response.status_code}")
+                
+                if response.status_code == 200:
+                    criteria_data = response.json()
+                    logger.info(f"MANUAL TRIGGER: Received criteria for {ticker}: {criteria_data}")
+                    
+                    # DIRECTLY update database WITHOUT calling update_ticker_criteria
+                    if update_ticker_criteria_direct(ticker, criteria_data):
+                        changes_detected = True
+                        polling_stats['successful_updates'] += 1
+                        results.append({
+                            'symbol': ticker,
+                            'status': 'updated',
+                            'criteria': criteria_data
+                        })
+                    else:
+                        results.append({
+                            'symbol': ticker,
+                            'status': 'no_changes',
+                            'criteria': criteria_data
+                        })
+                        
                 else:
-                    logger.warning(f"MANUAL TRIGGER: {ticker} not found in database")
+                    polling_stats['failed_updates'] += 1
                     results.append({
                         'symbol': ticker,
-                        'status': 'not_found'
+                        'status': 'api_error',
+                        'error': f"HTTP {response.status_code}"
                     })
-                    polling_stats['failed_updates'] += 1
                     
             except Exception as e:
                 logger.error(f"MANUAL TRIGGER: Error processing {ticker}: {str(e)}")
@@ -9407,152 +9416,6 @@ def trigger_minimal_analysis():
                     'status': 'error',
                     'error': str(e)
                 })
-        
-        # EARLY TERMINATION SPREAD ANALYSIS: Run real analysis but stop after finding 2 viable strategies
-        logger.info("MANUAL TRIGGER: Starting EARLY TERMINATION spread analysis")
-        
-        for ticker in top_3_symbols:
-            logger.info(f"MANUAL TRIGGER: Running early termination spread analysis for {ticker}")
-            
-            try:
-                # Get current price from global etf_scores (updated by background polling)
-                current_price = None
-                if ticker in etf_scores:
-                    current_price = etf_scores[ticker].get('price', None)
-                
-                # Fallback to database lookup if not in memory
-                if not current_price:
-                    etf_data = load_etf_data_from_database()
-                    if etf_data:
-                        for etf in etf_data:
-                            if etf['symbol'] == ticker:
-                                current_price = etf.get('current_price')
-                                break
-                
-                # Use reasonable default prices if still not found (for testing)
-                if not current_price:
-                    default_prices = {'CSCO': 52.0, 'WMB': 60.0, 'AIG': 85.0}
-                    current_price = default_prices.get(ticker, 50.0)
-                    logger.info(f"MANUAL TRIGGER: Using default price ${current_price} for {ticker}")
-                
-                if not current_price:
-                    logger.warning(f"MANUAL TRIGGER: No current price for {ticker}, skipping spread validation")
-                    # Update results with price error
-                    for result in results:
-                        if result['symbol'] == ticker:
-                            result['spreads_found'] = 0
-                            result['spread_validation'] = 'NO_PRICE'
-                            result['strategy_breakdown'] = {'aggressive': 0, 'steady': 0, 'passive': 0}
-                            break
-                    continue
-                
-                # Use early termination spread analysis
-                from real_time_spreads import get_real_time_spreads_with_early_termination
-                
-                # Set 30-second timeout for each ticker to prevent worker kills
-                import signal
-                def timeout_handler(signum, frame):
-                    raise TimeoutError("Early termination analysis timed out")
-                
-                signal.signal(signal.SIGALRM, timeout_handler)
-                signal.alarm(30)  # 30-second timeout per ticker
-                
-                try:
-                    # Run early termination analysis (stops after finding 2 strategies)
-                    spread_results = get_real_time_spreads_with_early_termination(ticker, current_price)
-                    
-                    # Count valid spreads across all strategies
-                    total_spreads = 0
-                    strategy_counts = {'aggressive': 0, 'steady': 0, 'passive': 0}
-                    
-                    for strategy in ['aggressive', 'balanced', 'conservative']:
-                        strategy_result = spread_results.get(strategy, {})
-                        if strategy_result.get('found', False):
-                            if strategy == 'balanced':
-                                strategy_counts['steady'] = 1
-                            else:
-                                strategy_counts[strategy] = 1
-                            total_spreads += 1
-                    
-                    logger.info(f"MANUAL TRIGGER: {ticker} early termination results - Total: {total_spreads}, Breakdown: {strategy_counts}")
-                    
-                    # Update results with real spread analysis
-                    for result in results:
-                        if result['symbol'] == ticker:
-                            result['spreads_found'] = total_spreads
-                            result['spread_validation'] = 'EARLY_TERMINATION'
-                            result['strategy_breakdown'] = strategy_counts
-                            if total_spreads >= 2:
-                                result['validation_result'] = 'PASSED'
-                            else:
-                                result['validation_result'] = 'FAILED'
-                            break
-                            
-                finally:
-                    signal.alarm(0)  # Cancel timeout
-                    
-            except TimeoutError:
-                logger.warning(f"MANUAL TRIGGER: Early termination analysis for {ticker} timed out after 30 seconds")
-                for result in results:
-                    if result['symbol'] == ticker:
-                        result['spreads_found'] = 0
-                        result['spread_validation'] = 'TIMEOUT'
-                        result['strategy_breakdown'] = {'aggressive': 0, 'steady': 0, 'passive': 0}
-                        break
-            except Exception as e:
-                logger.error(f"MANUAL TRIGGER: Error in early termination analysis for {ticker}: {str(e)}")
-                for result in results:
-                    if result['symbol'] == ticker:
-                        result['spreads_found'] = 0
-                        result['spread_validation'] = 'ERROR'
-                        result['strategy_breakdown'] = {'aggressive': 0, 'steady': 0, 'passive': 0}
-                        result['validation_error'] = str(e)
-                        break
-        
-        # Third phase: Auto-exclusion logic - replace failed tickers with next best candidates
-        excluded_tickers = []
-        replacement_tickers = []
-        
-        if len(valid_tickers) < 3:
-            logger.info(f"MANUAL TRIGGER: Only {len(valid_tickers)} tickers passed validation, finding replacements...")
-            
-            # Get next best candidates beyond top 3
-            remaining_candidates = [symbol for symbol, data in sorted_tickers[3:]]
-            
-            for failed_ticker in top_3_symbols:
-                if failed_ticker not in valid_tickers:
-                    excluded_tickers.append(failed_ticker)
-                    
-                    # Find replacement from remaining candidates
-                    for candidate in remaining_candidates:
-                        if candidate not in valid_tickers and candidate not in replacement_tickers:
-                            logger.info(f"MANUAL TRIGGER: Testing replacement candidate {candidate} for excluded {failed_ticker}")
-                            
-                            try:
-                                # Quick spread validation for candidate
-                                candidate_price = etf_scores.get(candidate, {}).get('price', 0)
-                                if candidate_price:
-                                    candidate_spreads = get_real_time_spreads(candidate, candidate_price)
-                                    candidate_total = sum(len([s for s in candidate_spreads.get(strategy, []) if s.get('roi', '0%').replace('%', '').replace('+', '') != '0.0']) for strategy in ['aggressive', 'steady', 'passive'])
-                                    
-                                    if candidate_total >= 2:
-                                        replacement_tickers.append(candidate)
-                                        valid_tickers.append(candidate)
-                                        logger.info(f"MANUAL TRIGGER: ✅ {candidate} added as replacement with {candidate_total} spreads")
-                                        
-                                        results.append({
-                                            'symbol': candidate,
-                                            'status': 'replacement_added',
-                                            'spreads_found': candidate_total,
-                                            'spread_validation': 'PASSED',
-                                            'replaced_ticker': failed_ticker
-                                        })
-                                        break
-                                    else:
-                                        logger.info(f"MANUAL TRIGGER: ❌ {candidate} rejected as replacement - only {candidate_total} spreads")
-                            except Exception as e:
-                                logger.error(f"MANUAL TRIGGER: Error testing replacement {candidate}: {str(e)}")
-                                continue
         
         # Update polling status
         if changes_detected:
@@ -9565,21 +9428,13 @@ def trigger_minimal_analysis():
         # Update last poll time
         last_poll_time = datetime.now()
         
-        logger.info(f"MANUAL TRIGGER: Completed analysis with spread validation - changes detected: {changes_detected}")
-        logger.info(f"MANUAL TRIGGER: Final valid tickers: {valid_tickers}")
-        logger.info(f"MANUAL TRIGGER: Excluded tickers: {excluded_tickers}")
-        logger.info(f"MANUAL TRIGGER: Replacement tickers: {replacement_tickers}")
+        logger.info(f"MANUAL TRIGGER: Completed analysis of TOP 3 ONLY - changes detected: {changes_detected}")
         
         return jsonify({
             'success': True,
             'changes_detected': changes_detected,
-            'original_top_3': top_3_symbols,
-            'final_valid_tickers': valid_tickers,
-            'excluded_tickers': excluded_tickers,
-            'replacement_tickers': replacement_tickers,
+            'processed_tickers': top_3_symbols,
             'results': results,
-            'spread_validation_enabled': True,
-            'minimum_spreads_required': 2,
             'timestamp': datetime.now().isoformat(),
             'api_url': CRITERIA_API_URL
         })
