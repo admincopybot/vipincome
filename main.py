@@ -4989,7 +4989,7 @@ def vip_step3(symbol):
     try:
         from real_time_spreads import RealTimeSpreadDetector
         detector = RealTimeSpreadDetector()
-        current_price = detector.get_real_time_stock_price(symbol)
+        current_price = None  # Disabled for performance
         if not current_price or current_price <= 0:
             # Fallback to database price
             ticker_data = etf_db.get_ticker_details(symbol)
@@ -5058,7 +5058,7 @@ def vip_step4(symbol):
             # Fallback: regenerate data
             from real_time_spreads import RealTimeSpreadDetector
             detector = RealTimeSpreadDetector()
-            current_price = detector.get_real_time_stock_price(symbol) or 100.0
+            current_price = 100.0  # Disabled for performance
             spread_data = get_real_time_spreads(symbol, current_price)
         
         return step4(symbol, strategy, 'vip')
@@ -5900,7 +5900,7 @@ def step2(symbol=None):
     try:
         from real_time_spreads import RealTimeSpreadDetector
         detector = RealTimeSpreadDetector()
-        real_time_price = detector.get_real_time_stock_price(symbol.upper())
+        real_time_price = None  # Disabled for performance
         
         if real_time_price and real_time_price > 0:
             # Update ticker_data with real-time price
@@ -7039,7 +7039,7 @@ def step3(symbol=None):
             try:
                 from real_time_spreads import RealTimeSpreadDetector
                 detector = RealTimeSpreadDetector()
-                current_price = detector.get_real_time_stock_price(symbol)
+                current_price = None  # Disabled for performance
                 if not current_price or current_price <= 0:
                     current_price = cached_data.get('current_price', 0)
             except:
@@ -7070,7 +7070,7 @@ def step3(symbol=None):
             # Use the real-time spread detector's price function which handles the comma format correctly
             from real_time_spreads import RealTimeSpreadDetector
             detector = RealTimeSpreadDetector()
-            current_price = detector.get_real_time_stock_price(symbol)
+            current_price = None  # Disabled for performance
             
             if current_price and current_price > 0:
                 print(f"✓ REAL-TIME PRICE: {symbol} = ${current_price:.2f} (from TheTradeList API)")

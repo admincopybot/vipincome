@@ -160,6 +160,9 @@ Changelog:
 - June 16, 2025: Updated all upgrade links to new Prosperity Publishing conversion URL with tracking parameters
 - June 16, 2025: Added custom favicon support with Income Machine "IM" branding across all templates
 - June 16, 2025: Optimized application performance for high traffic: increased polling intervals, added response caching, reduced update frequency
+- June 16, 2025: CRITICAL PERFORMANCE FIX: Disabled all real-time price fetching requests causing API overload during high traffic
+- June 16, 2025: Reduced scoreboard status checks from 30 seconds to 5 minutes to eliminate hundreds of API requests per minute
+- June 16, 2025: Removed Step 2 real-time price updates - now using cached database prices only for optimal performance
 
 # User Preferences
 
