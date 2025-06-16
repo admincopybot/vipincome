@@ -148,6 +148,10 @@ Changelog:
 - June 16, 2025: Corrected database with authentic options contracts data from user's CSV file
 - June 16, 2025: Implemented 100+ options contracts filter for Free and Pro versions (VIP unrestricted)
 - June 16, 2025: Verified comprehensive CSV parsing functionality for bulk analysis data integration
+- June 16, 2025: Built POST endpoint `/update_options_contracts` for authentic options data fetching
+- June 16, 2025: Created TheTradeList API integration to count contracts within 10-50 DTE range
+- June 16, 2025: Added automatic database updates with real options contracts availability
+- June 16, 2025: Implemented complete filtering system: Score → Options Contracts → Volume → Symbol
 
 # User Preferences
 

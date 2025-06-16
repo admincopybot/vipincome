@@ -42,25 +42,24 @@ class OptionsContractsUpdater:
     def fetch_options_contracts(self, symbol: str) -> int:
         """
         Fetch options contracts from TheTradeList API for a symbol
-        Returns count of contracts with 10-50 DTE
+        Returns count of current call options contracts
         """
         try:
             logger.info(f"🔍 Fetching options contracts for {symbol}")
             
-            # TheTradeList options contracts endpoint
-            url = f"{self.base_url}/data/options-contracts"
-            
-            headers = {
-                'Authorization': f'Bearer {self.api_key}',
-                'Content-Type': 'application/json'
-            }
+            # TheTradeList trader scanner endpoint (correct format from documentation)
+            url = f"{self.base_url}/data/get_trader_scanner_data.php"
             
             params = {
-                'underlying': symbol,
-                'include_expired': 'false'
+                'apiKey': self.api_key,
+                'returntype': 'json',
+                'totalpoints': 0,  # Get all results
+                'marketcap': 0,
+                'stockvol': 0,
+                'optionvol': 0
             }
             
-            response = requests.get(url, headers=headers, params=params, timeout=10)
+            response = requests.get(url, params=params, timeout=15)
             
             if response.status_code != 200:
                 logger.warning(f"❌ API error for {symbol}: Status {response.status_code}")
@@ -68,34 +67,30 @@ class OptionsContractsUpdater:
                 
             data = response.json()
             
-            if 'contracts' not in data:
-                logger.warning(f"❌ No contracts data for {symbol}")
+            # Find the specific symbol in the results
+            if not isinstance(data, list):
+                logger.warning(f"❌ Unexpected data format for {symbol}")
                 return 0
             
-            contracts = data['contracts']
-            today = datetime.now().date()
-            valid_count = 0
-            
-            # Count contracts with 10-50 DTE
-            for contract in contracts:
-                try:
-                    exp_date_str = contract.get('expiration_date', '')
-                    if not exp_date_str:
-                        continue
-                        
-                    # Parse expiration date (assuming YYYY-MM-DD format)
-                    exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d').date()
-                    dte = (exp_date - today).days
+            # Search for our symbol in the results
+            for item in data:
+                if item.get('symbol') == symbol:
+                    # Get current number of call options (this is the actual contracts count)
+                    contracts_count = item.get('current_number_of_call_options', 0)
                     
-                    # Count contracts within 10-50 DTE range
-                    if 10 <= dte <= 50:
-                        valid_count += 1
-                        
-                except (ValueError, KeyError) as e:
-                    continue
+                    # Convert to integer if it's a string
+                    if isinstance(contracts_count, str):
+                        try:
+                            contracts_count = int(float(contracts_count))
+                        except ValueError:
+                            contracts_count = 0
+                    
+                    logger.info(f"✅ {symbol}: Found {contracts_count} call options contracts")
+                    return contracts_count
             
-            logger.info(f"✅ {symbol}: Found {valid_count} contracts (10-50 DTE)")
-            return valid_count
+            # Symbol not found in scanner results
+            logger.warning(f"❌ {symbol} not found in trader scanner results")
+            return 0
             
         except requests.exceptions.Timeout:
             logger.error(f"⏰ Timeout fetching options for {symbol}")
