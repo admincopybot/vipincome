@@ -114,33 +114,16 @@ def get_top_3_tickers():
         logger.error(f"Error getting top 3 tickers: {e}")
         return ['D', 'FOX', 'PFE']  # Current fallback based on live data
 
-def get_top_10_tickers():
-    """Get the current top 10 tickers from the database"""
-    try:
-        all_etfs = etf_db.get_all_etfs()
-        if not all_etfs:
-            return ['D', 'FOX', 'PFE', 'XLF', 'XLV', 'XLI', 'XLP', 'XLY', 'XLE', 'XLB']
-        
-        # Extract top 10 symbols from dictionary (already sorted by score)
-        top_10 = list(all_etfs.keys())[:10]
-        logger.info(f"Current top 10 tickers: {top_10}")
-        return top_10
-    except Exception as e:
-        logger.error(f"Error getting top 10 tickers: {e}")
-        return ['D', 'FOX', 'PFE', 'XLF', 'XLV', 'XLI', 'XLP', 'XLY', 'XLE', 'XLB']
-
 def check_ticker_access(symbol, access_level='free'):
     """Check if user has access to this ticker based on their subscription level"""
     if access_level == 'vip':
         return True  # VIP users can access all tickers
     elif access_level == 'pro':
-        # Pro users can access top 10 tickers
-        top_10 = get_top_10_tickers()
-        return symbol.upper() in [t.upper() for t in top_10]
+        return True  # Pro users can access all tickers  
     else:
-        # Free users can access top 10 tickers (same as Pro for Step 2/3 access)
-        top_10 = get_top_10_tickers()
-        return symbol.upper() in [t.upper() for t in top_10]
+        # Free users can only access top 3 tickers
+        top_3 = get_top_3_tickers()
+        return symbol.upper() in [t.upper() for t in top_3]
 
 def get_user_access_level():
     """Determine user's access level based on session and URL"""
