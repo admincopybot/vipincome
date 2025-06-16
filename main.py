@@ -338,9 +338,9 @@ def on_websocket_data_update(updates):
     except Exception as e:
         logger.error(f"Error processing WebSocket data update: {str(e)}")
 
-# HIGH TRAFFIC MODE: Disable background threads for performance
+# EMERGENCY MODE: Disable background threads for performance
 try:
-    if not HIGH_TRAFFIC_MODE:
+    if not EMERGENCY_MODE:
         # Start background thread for market data updates
         update_thread = threading.Thread(target=update_market_data_background, daemon=True)
         update_thread.start()
@@ -348,9 +348,9 @@ try:
         # Initialize WebSocket connection
         initialize_websocket_client()
     else:
-        logger.info("HIGH TRAFFIC MODE: Disabled background threads and WebSocket for performance")
+        logger.info("EMERGENCY MODE: Disabled background threads and WebSocket for performance")
 except Exception as e:
-    logger.warning(f"Background services disabled due to high traffic mode: {e}")
+    logger.warning(f"Background services disabled due to emergency mode: {e}")
 
 # Force score restoration at startup - make sure ETF scores are properly initialized
 for symbol in etf_scores:
