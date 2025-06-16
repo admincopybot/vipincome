@@ -162,6 +162,10 @@ last_csv_update = datetime.now()
 etf_db = ETFDatabase()
 csv_loader = CsvDataLoader()
 
+# Add response caching for high traffic performance
+response_cache = {}
+cache_expiry = 300  # 5 minutes cache
+
 # Background polling configuration
 CRITERIA_API_URL = "https://1-symbol-at-a-time-post-5-criteria-analysis-daiadigitalco.replit.app/analyze"
 polling_active = True
@@ -259,7 +263,7 @@ def background_criteria_polling():
             current_time = datetime.now()
             time_since_last_poll = (current_time - last_poll_time).total_seconds()
             
-            if time_since_last_poll >= 120:  # 2 minutes
+            if time_since_last_poll >= 300:  # 5 minutes
                 logger.info("Starting background criteria polling for top 3 tickers")
                 
                 # Get current top 3 tickers
@@ -282,7 +286,7 @@ def background_criteria_polling():
                 else:
                     logger.warning("Not enough tickers in database for polling")
             
-            time.sleep(30)  # Check every 30 seconds, poll every 2 minutes
+            time.sleep(60)  # Check every 60 seconds, poll every 5 minutes
             
         except Exception as e:
             logger.error(f"Error in background polling: {str(e)}")
@@ -4095,7 +4099,7 @@ def pro_index():
         }
         
         // Check for updates every 5 seconds to catch CSV uploads
-        setInterval(checkForUpdates, 5000);
+        setInterval(checkForUpdates, 30000);
         checkForUpdates(); // Initial check
         
         // Check market hours and show popup if outside trading hours
@@ -5690,7 +5694,7 @@ def index():
         }
         
         // Check for updates every 5 seconds to catch CSV uploads
-        setInterval(checkForUpdates, 5000);
+        setInterval(checkForUpdates, 30000);
         checkForUpdates(); // Initial check
         
         // Check market hours and show popup if outside trading hours
