@@ -1,0 +1,48 @@
+2025-06-16 16:30:59.66
+a2650ffb
+User
+INFO:real_time_spreads:📡 SNAPSHOT JSON DATA: {'tickers': [{'ticker': 'LIN', 'todaysChangePerc': 0.2553757672003085, 'todaysChange': 1.1899999999999977, 'updated': 1750091400000000000, 'day': {'o': 466.81, 'h': 469.465, 'l': 466.496, 'c': 467.62, 'v': 539553, 'vw': 468.0265}, 'lastQuote': {'P': 469.21, 'S': 1, 'p': 466.84, 's': 1, 't': 1750089858429339710}, 'lastTrade': {'i': '942', 'p': 467.17, 's': 100, 't': 1750089972415485142, 'x': 15}, 'fmv': 467.576, 'min': {'av': 539553, 't': 1750091340000, 'n': 20, 'o': 467.617, 'h': 467.62, 'l': 467.617, 'c': 467.62, 'v': 350, 'vw': 467.61997}, 'prevDay': {'o': 470.64, 'h': 472.89, 'l': 465.13, 'c': 465.98, 'v': 1415831, 'vw': 468.0599}}], 'status': 'OK', 'request_id': '2585e132c4d1b06649478406dc004138', 'count': 1}
+2025-06-16 16:30:59.66
+a2650ffb
+User
+INFO:real_time_spreads:📡 SNAPSHOT TICKERS: 1 found
+2025-06-16 16:30:59.66
+a2650ffb
+User
+INFO:real_time_spreads:📡 SNAPSHOT LIN DATA: {'ticker': 'LIN', 'todaysChangePerc': 0.2553757672003085, 'todaysChange': 1.1899999999999977, 'updated': 1750091400000000000, 'day': {'o': 466.81, 'h': 469.465, 'l': 466.496, 'c': 467.62, 'v': 539553, 'vw': 468.0265}, 'lastQuote': {'P': 469.21, 'S': 1, 'p': 466.84, 's': 1, 't': 1750089858429339710}, 'lastTrade': {'i': '942', 'p': 467.17, 's': 100, 't': 1750089972415485142, 'x': 15}, 'fmv': 467.576, 'min': {'av': 539553, 't': 1750091340000, 'n': 20, 'o': 467.617, 'h': 467.62, 'l': 467.617, 'c': 467.62, 'v': 350, 'vw': 467.61997}, 'prevDay': {'o': 470.64, 'h': 472.89, 'l': 465.13, 'c': 465.98, 'v': 1415831, 'vw': 468.0599}}
+2025-06-16 16:30:59.66
+a2650ffb
+User
+INFO:real_time_spreads:✅ TheTradeList FMV price for LIN: $467.576
+2025-06-16 16:30:59.66
+a2650ffb
+User
+INFO:main:Updated TOP 3 ticker LIN price to $467.58 from TheTradeList
+2025-06-16 16:31:00.25
+a2650ffb
+User
+INFO:main:JWT validation successful for user: f86fac88-2b75-42b5-9a19-304c1f3d327b
+2025-06-16 16:30:59.94
+a2650ffb
+User
+INFO:real_time_spreads:🔍 FETCHING PRICE for HON from TheTradeList API
+2025-06-16 16:30:59.94
+a2650ffb
+User
+INFO:real_time_spreads:📡 SNAPSHOT API CALL: URL=https://api.thetradelist.com/v1/data/snapshot-locale
+2025-06-16 16:30:59.94
+a2650ffb
+User
+INFO:real_time_spreads:📡 SNAPSHOT PARAMS: tickers=HON, (with comma)
+2025-06-16 16:30:59.94
+a2650ffb
+User
+INFO:real_time_spreads:📡 SNAPSHOT API KEY: Present
+2025-06-16 16:31:00.20
+a2650ffb
+User
+INFO:real_time_spreads:📡 SNAPSHOT RESPONSE: Status=200
+2025-06-16 16:31:00.20
+a2650ffb
+User
+INFO:real_time_spreads:📡 SNAPSHOT RESPONSE TEXT: {
