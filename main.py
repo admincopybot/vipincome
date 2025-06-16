@@ -3649,7 +3649,9 @@ def step4(symbol, strategy, spread_id):
     )
 
 @app.route('/pro')
-def pro_index():
+def pro_redirect():
+    """Redirect old Pro route to main VIP interface"""
+    return redirect('/')
     # Check for JWT token in URL (for initial login) or session (for navigation)
     token = request.args.get('token') or session.get('jwt_token')
     
@@ -4374,7 +4376,9 @@ def pro_index():
     return render_template_string(template, etf_scores=top_3_filtered_scores, last_update_text=last_update_text)
 
 @app.route('/vip')
-def vip_index():
+def vip_redirect():
+    """Redirect old VIP route to main interface"""
+    return redirect('/')
     """VIP Scoreboard with full database access and search functionality"""
     # Check for JWT token in URL (for initial login) or session (for navigation)
     token = request.args.get('token') or session.get('jwt_token')
@@ -5404,7 +5408,7 @@ def vip_scoreboard():
     except:
         last_update_text = "Last updated recently"
     
-    # VIP Scoreboard Template
+    # VIP-Only Scoreboard Template
     template = """
 <!DOCTYPE html>
 <html lang="en">
@@ -5413,7 +5417,7 @@ def vip_scoreboard():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <title>Income Machine VIP - Step 1: Scoreboard</title>
+    <title>Income Machine VIP - ETF Scoreboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
