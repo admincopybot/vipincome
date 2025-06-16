@@ -3612,6 +3612,9 @@ def pro_index():
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
+    # STRICT FILTER: Only show tickers with 100+ options contracts for PRO version
+    display_etf_scores = filter_etfs_by_options_contracts(etf_scores, min_contracts=100)
+    
     # Calculate minutes since last update
     try:
         last_update = etf_db.get_last_update_time()
@@ -4252,10 +4255,10 @@ def pro_index():
 </html>
 """
     
-    # Limit Pro version to top 3 tickers only (matching free version)
-    top_3_etf_scores = dict(list(etf_scores.items())[:3]) if etf_scores else {}
+    # Limit Pro version to top 3 tickers only (matching free version) with 100+ options filter
+    top_3_filtered_scores = dict(list(display_etf_scores.items())[:3]) if display_etf_scores else {}
     
-    return render_template_string(template, etf_scores=top_3_etf_scores, last_update_text=last_update_text)
+    return render_template_string(template, etf_scores=top_3_filtered_scores, last_update_text=last_update_text)
 
 @app.route('/vip')
 def vip_index():
@@ -5060,6 +5063,9 @@ def index():
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
+    # STRICT FILTER: Only show tickers with 100+ options contracts for FREE version
+    display_etf_scores = filter_etfs_by_options_contracts(etf_scores, min_contracts=100)
+    
     # Calculate minutes since last update
     try:
         last_update = etf_db.get_last_update_time()
@@ -5840,7 +5846,7 @@ def index():
 </html>
 """
     
-    return render_template_string(template, etf_scores=etf_scores, last_update_text=last_update_text)
+    return render_template_string(template, etf_scores=display_etf_scores, last_update_text=last_update_text)
 
 @app.route('/step2')
 @app.route('/step2/<symbol>')
