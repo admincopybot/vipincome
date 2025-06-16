@@ -324,11 +324,17 @@ def update_prices_with_tradelist():
         logger.error(f"Error updating TOP 3 ticker prices with TheTradeList: {e}")
 
 def filter_etfs_by_options_contracts(etf_data, min_contracts=100):
-    """Filter ETFs to only show those with minimum options contracts (for Free/Pro versions)"""
+    """Filter ETFs to only show those with minimum options contracts (for Free/Pro versions)
+    
+    IMPORTANT: 0 contracts means unprocessed, so we show those too
+    Only hide tickers with 1-99 contracts (insufficient liquidity)
+    """
     filtered_data = {}
     for symbol, data in etf_data.items():
         options_contracts = data.get('options_contracts_10_42_dte', 0)
-        if options_contracts >= min_contracts:
+        # Show if: unprocessed (0) OR has sufficient contracts (>=100)
+        # Hide only: 1-99 contracts (insufficient liquidity)
+        if options_contracts == 0 or options_contracts >= min_contracts:
             filtered_data[symbol] = data
     return filtered_data
 

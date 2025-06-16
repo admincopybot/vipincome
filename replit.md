@@ -155,6 +155,7 @@ Changelog:
 - June 16, 2025: Verified system working: ZS(323), VLO(272), MMM(239), NRG(217), AIG(195), WMB(171) contracts
 - June 16, 2025: Added VIP upgrade prompt row to Pro version with three upgrade cards
 - June 16, 2025: Completed tiered progression: Free (blurred), Pro (clear + VIP prompts), VIP (unrestricted)
+- June 16, 2025: Fixed options contracts filter to show unprocessed tickers (0 contracts) and only hide 1-99 contracts
 
 # User Preferences
 
