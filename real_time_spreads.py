@@ -694,68 +694,124 @@ def get_real_time_spreads_with_early_termination(symbol: str, current_price: flo
     
     logger.info(f"Using real-time price ${current_price:.2f} for {symbol} early termination analysis")
     
-    # Try to use the existing system but with simplified validation
+    # Use EXACT Step 3 spread calculation logic with early termination controls
     try:
-        # Use simplified heuristic approach for POST trigger to prevent timeouts
-        results = {
-            'aggressive': {'found': False, 'reason': 'Early termination validation'},
-            'balanced': {'found': False, 'reason': 'Early termination validation'},
-            'conservative': {'found': False, 'reason': 'Early termination validation'}
+        # Get all contracts using the exact same method as Step 3
+        all_contracts = detector.get_all_contracts(symbol)
+        if not all_contracts:
+            logger.warning(f"EARLY TERMINATION: No contracts available for {symbol}")
+            return {
+                'aggressive': {'found': False, 'reason': 'No contracts available'},
+                'balanced': {'found': False, 'reason': 'No contracts available'},
+                'conservative': {'found': False, 'reason': 'No contracts available'}
+            }
+        
+        logger.info(f"EARLY TERMINATION: {symbol} has {len(all_contracts)} total contracts")
+        
+        # Use exact same strategy definitions as Step 3
+        strategies = ['aggressive', 'balanced', 'conservative']
+        roi_ranges = {
+            'aggressive': (25, 50),
+            'balanced': (12, 25),
+            'conservative': (8, 15)
         }
         
-        # Quick contract availability check using correct TheTradeList API endpoint
-        import requests
-        contracts_url = "https://api.thetradelist.com/v1/data/options-spreads"
-        params = {
-            'symbol': symbol,
-            'strategy': 'Steady',  # Use steady strategy for quick validation
-            'apiKey': os.environ.get('TRADELIST_API_KEY')
-        }
+        results = {}
+        spreads_analyzed = 0
+        max_spreads_per_strategy = 10  # Aggressive early termination limit
+        strategies_found = 0
+        max_strategies = 2  # Stop after finding 2 viable strategies
         
-        # Quick check with timeout
-        try:
-            logger.info(f"EARLY TERMINATION: Fetching contracts for {symbol} from TheTradeList API")
-            logger.info(f"EARLY TERMINATION: URL: {contracts_url}")
-            logger.info(f"EARLY TERMINATION: Params: {params}")
+        for strategy in strategies:
+            # Early termination if we found enough strategies
+            if strategies_found >= max_strategies:
+                logger.info(f"EARLY TERMINATION: Found {strategies_found} strategies, stopping analysis")
+                break
+            logger.info(f"EARLY TERMINATION {strategy.upper()}: Starting analysis")
             
-            response = requests.get(contracts_url, params=params, timeout=10)
-            logger.info(f"EARLY TERMINATION: API Response Status: {response.status_code}")
+            # Use exact same filtering logic as Step 3
+            filtered_contracts = detector.filter_contracts_by_strategy(
+                all_contracts, strategy, current_price
+            )
+            logger.info(f"EARLY TERMINATION {strategy.upper()}: {len(filtered_contracts)} contracts after filtering")
             
-            if response.status_code == 200:
-                contracts_data = response.json()
+            if not filtered_contracts:
+                results[strategy] = {
+                    'found': False,
+                    'reason': f'No contracts match {strategy} criteria'
+                }
+                continue
+            
+            # Generate spread pairs with early termination limit
+            spread_pairs = detector.generate_spread_pairs(filtered_contracts)
+            if len(spread_pairs) > max_spreads_per_strategy:
+                spread_pairs = spread_pairs[:max_spreads_per_strategy]
+                logger.info(f"EARLY TERMINATION {strategy.upper()}: Limited to {max_spreads_per_strategy} spread pairs")
+            
+            if not spread_pairs:
+                results[strategy] = {
+                    'found': False,
+                    'reason': 'No valid spread pairs generated'
+                }
+                continue
+            
+            # Analyze spreads using exact same logic as Step 3
+            valid_spreads = []
+            target_min_roi, target_max_roi = roi_ranges[strategy]
+            
+            for long_contract, short_contract in spread_pairs:
+                spreads_analyzed += 1
                 
-                # Handle both list and dict response formats
-                if isinstance(contracts_data, list):
-                    contract_count = len(contracts_data)
-                    logger.info(f"EARLY TERMINATION: {symbol} has {contract_count} available contracts (list format)")
-                elif isinstance(contracts_data, dict):
-                    contract_count = len(contracts_data.get('data', []))
-                    logger.info(f"EARLY TERMINATION: {symbol} has {contract_count} available contracts (dict format)")
-                else:
-                    contract_count = 0
-                    logger.warning(f"EARLY TERMINATION: Unexpected data format for {symbol}: {type(contracts_data)}")
+                # Very aggressive early termination limits
+                if spreads_analyzed > 15:
+                    logger.info(f"EARLY TERMINATION: Hit analysis limit at {spreads_analyzed} spreads")
+                    break
                 
-                # Simple heuristic: if more than 10 contracts, assume viable spreads exist
-                if contract_count >= 10:
-                    strategies_found = 0
-                    for strategy in ['aggressive', 'conservative']:  # Only check 2 strategies for early termination
-                        if strategies_found >= 2:
-                            break
-                        results[strategy] = {'found': True, 'roi': f'{15 - strategies_found * 2}.0%'}
-                        strategies_found += 1
-                        logger.info(f"✅ HEURISTIC: {strategy} marked as viable ({strategies_found}/2)")
-                        
-                    logger.info(f"📊 EARLY TERMINATION COMPLETE: {strategies_found} strategies validated via heuristic")
-                else:
-                    logger.info(f"📊 EARLY TERMINATION: Insufficient contracts ({contract_count}) for {symbol}")
+                # Use exact same spread calculation as Step 3 but with faster API calls
+                original_delay = detector.api_delay
+                detector.api_delay = 0.5  # Reduce delay for early termination
+                spread_data = detector.calculate_spread_metrics(long_contract, short_contract)
+                detector.api_delay = original_delay  # Restore original delay
+                if not spread_data:
+                    continue
+                
+                roi = spread_data['roi']
+                
+                # Apply exact same ROI filtering as Step 3
+                if target_min_roi <= roi <= target_max_roi:
+                    valid_spreads.append(spread_data)
+                    logger.info(f"EARLY TERMINATION {strategy.upper()}: Found viable spread - ROI: {roi:.1f}%")
+                    
+                    # Early termination: found one viable spread for this strategy
+                    break
+            
+            # Store results in exact same format as Step 3
+            if valid_spreads:
+                best_spread = max(valid_spreads, key=lambda x: x['roi'])
+                results[strategy] = {
+                    'found': True,
+                    'roi': f"{best_spread['roi']:.1f}%",
+                    'spread_cost': best_spread['spread_cost'],
+                    'max_profit': best_spread['max_profit'],
+                    'long_strike': best_spread['long_strike'],
+                    'short_strike': best_spread['short_strike'],
+                    'expiration': best_spread['expiration'],
+                    'dte': best_spread['dte']
+                }
+                strategies_found += 1
+                logger.info(f"EARLY TERMINATION: Strategy {strategy} successful ({strategies_found}/{max_strategies})")
             else:
-                logger.warning(f"EARLY TERMINATION: API returned status {response.status_code} for {symbol}")
-                logger.warning(f"EARLY TERMINATION: Response text: {response.text[:200]}")
-        except requests.exceptions.Timeout:
-            logger.warning(f"EARLY TERMINATION: API timeout for {symbol}")
-        except Exception as api_error:
-            logger.warning(f"EARLY TERMINATION: API error for {symbol}: {api_error}")
+                results[strategy] = {
+                    'found': False,
+                    'reason': f'No spreads found in {target_min_roi}-{target_max_roi}% ROI range'
+                }
             
+            # Early termination if analyzed too many spreads total
+            if spreads_analyzed > 30:
+                logger.info(f"EARLY TERMINATION: Hit global spread limit at {spreads_analyzed} spreads")
+                break
+        
+        logger.info(f"EARLY TERMINATION COMPLETE: Analyzed {spreads_analyzed} spreads for {symbol}")
         return results
         
     except Exception as e:
