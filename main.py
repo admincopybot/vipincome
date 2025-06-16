@@ -302,31 +302,10 @@ def start_background_polling():
     logger.info("Started background criteria polling thread for top 3 tickers")
 
 def update_prices_with_tradelist():
-    """Update current prices using TheTradeList API for TOP 3 TICKERS ONLY while preserving all other database record details"""
-    global etf_scores
-    
-    try:
-        from real_time_spreads import RealTimeSpreadDetector
-        detector = RealTimeSpreadDetector()
-        
-        # Get top 3 tickers by score (etf_scores is already sorted by score DESC from database)
-        top_3_symbols = list(etf_scores.keys())[:3]
-        logger.info(f"Updating real-time prices for TOP 3 tickers only: {top_3_symbols}")
-        
-        # Update prices for only the top 3 symbols
-        for symbol in top_3_symbols:
-            try:
-                real_time_price = detector.get_real_time_stock_price(symbol)
-                if real_time_price and real_time_price > 0:
-                    etf_scores[symbol]['price'] = real_time_price
-                    logger.info(f"Updated TOP 3 ticker {symbol} price to ${real_time_price:.2f} from TheTradeList")
-                else:
-                    logger.warning(f"Could not get real-time price for TOP 3 ticker {symbol} from TheTradeList")
-            except Exception as e:
-                logger.warning(f"Price update failed for TOP 3 ticker {symbol}: {e}")
-                
-    except Exception as e:
-        logger.error(f"Error updating TOP 3 ticker prices with TheTradeList: {e}")
+    """Update current prices using TheTradeList API for TOP 3 TICKERS ONLY - DISABLED FOR PERFORMANCE"""
+    # DISABLED: This function was causing excessive API load with high traffic
+    # Real-time prices are now updated only via background polling every 5 minutes
+    pass
 
 def filter_etfs_by_options_contracts(etf_data, min_contracts=100):
     """Filter ETFs to only show those with minimum options contracts (for Free/Pro versions)
@@ -4100,7 +4079,7 @@ def pro_index():
         }
         
         // Check for updates every 5 seconds to catch CSV uploads
-        setInterval(checkForUpdates, 30000);
+        setInterval(checkForUpdates, 300000);
         checkForUpdates(); // Initial check
         
         // Check market hours and show popup if outside trading hours
@@ -5695,7 +5674,7 @@ def index():
         }
         
         // Check for updates every 5 seconds to catch CSV uploads
-        setInterval(checkForUpdates, 30000);
+        setInterval(checkForUpdates, 300000);
         checkForUpdates(); // Initial check
         
         // Check market hours and show popup if outside trading hours
