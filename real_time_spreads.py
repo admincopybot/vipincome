@@ -340,8 +340,8 @@ class RealTimeSpreadDetector:
     def get_real_time_quote(self, ticker: str, early_termination_mode: bool = False) -> Optional[Dict]:
         """Get real-time bid/ask quote from TheTradeList API with AGGRESSIVE throttling"""
         try:
-            # AGGRESSIVE THROTTLING: 2-second delay for normal mode, 0.5 for early termination
-            delay = 0.5 if early_termination_mode else 2.0
+            # AGGRESSIVE THROTTLING: 2-second delay for normal mode, 0.1 for early termination
+            delay = 0.1 if early_termination_mode else 2.0
             time.sleep(delay)
             
             url = "https://api.thetradelist.com/v1/data/last-quote"
@@ -391,8 +391,8 @@ class RealTimeSpreadDetector:
             if not long_ticker or not short_ticker:
                 return None
             
-            long_quote = self.get_real_time_quote(long_ticker, True)  # Early termination mode
-            short_quote = self.get_real_time_quote(short_ticker, True)  # Early termination mode
+            long_quote = self.get_real_time_quote(long_ticker, True)  # Early termination mode with 0.5s delay
+            short_quote = self.get_real_time_quote(short_ticker, True)  # Early termination mode with 0.5s delay
             
             if not long_quote or not short_quote:
                 return None
@@ -719,9 +719,12 @@ def get_real_time_spreads_with_early_termination(symbol: str, current_price: flo
         
         results = {}
         spreads_analyzed = 0
-        max_spreads_per_strategy = 10  # Aggressive early termination limit
+        max_spreads_per_strategy = 3  # Ultra-aggressive early termination limit
         strategies_found = 0
         max_strategies = 2  # Stop after finding 2 viable strategies
+        
+        # Only analyze first 2 strategies for ultra-fast early termination
+        strategies = strategies[:2]
         
         for strategy in strategies:
             # Early termination if we found enough strategies
@@ -764,7 +767,7 @@ def get_real_time_spreads_with_early_termination(symbol: str, current_price: flo
                 spreads_analyzed += 1
                 
                 # Ultra-aggressive early termination limits
-                if spreads_analyzed > 3:
+                if spreads_analyzed > 1:
                     logger.info(f"EARLY TERMINATION: Hit analysis limit at {spreads_analyzed} spreads")
                     break
                 
