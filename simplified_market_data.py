@@ -190,29 +190,29 @@ class SimplifiedMarketDataService:
             
             try:
                 # Get the ETF score and indicators from the enhanced TheTradeList API service
-                polygon_score, polygon_price, polygon_indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
+                tradelist_score, tradelist_price, tradelist_indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
                 logger.info(f"Successfully calculated indicators for {ticker} using TheTradeList API")
                 
                 # Always use TheTradeList indicators for frontend display
-                indicators = polygon_indicators
+                indicators = tradelist_indicators
                 
                 # CRITICAL FIX: Always use TheTradeList score to match the indicator count
                 # This ensures that the score displayed matches the actual passing indicators
-                score = polygon_score
+                score = tradelist_score
                 logger.info(f"Using TheTradeList score for {ticker}: {score}/5 (based on actual indicator calculations)")
                 
                 # Use TheTradeList price if available
-                if polygon_price > 0:
-                    current_price = polygon_price
+                if tradelist_price > 0:
+                    current_price = tradelist_price
                     logger.info(f"Using TheTradeList price for {ticker}: ${current_price}")
                 else:
                     current_price = 0.0
                 
             except Exception as calc_error:
-                logger.warning(f"Error in Polygon API ETF calculation for {ticker}: {str(calc_error)}")
+                logger.warning(f"Error in TheTradeList API ETF calculation for {ticker}: {str(calc_error)}")
                 
-                # Create a default set of indicators if Polygon fails
-                polygon_indicators = {
+                # Create a default set of indicators if TheTradeList fails
+                tradelist_indicators = {
                     'trend1': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'},
                     'trend2': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'},
                     'snapback': {'pass': False, 'current': 0, 'threshold': 0, 'description': 'API error'},

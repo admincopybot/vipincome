@@ -49,7 +49,7 @@ class DebitSpreadCalculator:
                     if data.get('results'):
                         return float(data['results'][0]['c'])
             except Exception as e:
-                logger.warning(f"Polygon API failed for {symbol}: {e}")
+                logger.warning(f"TheTradeList API failed for {symbol}: {e}")
         
         return None
     
