@@ -41,56 +41,65 @@ class OptionsContractsUpdater:
     
     def fetch_options_contracts(self, symbol: str) -> int:
         """
-        Fetch options contracts from TheTradeList API for a symbol
-        Returns count of current call options contracts
+        Fetch options contracts from Polygon API for a symbol
+        Returns count of contracts expiring in 10-50 days only
         """
         try:
-            logger.info(f"🔍 Fetching options contracts for {symbol}")
+            logger.info(f"🔍 Fetching options contracts for {symbol} (10-50 DTE)")
             
-            # TheTradeList trader scanner endpoint (correct format from documentation)
-            url = f"{self.base_url}/data/get_trader_scanner_data.php"
+            # Use Polygon API for precise options contract data with expiration filtering
+            polygon_api_key = os.environ.get('POLYGON_API_KEY')
+            if not polygon_api_key:
+                logger.warning(f"❌ POLYGON_API_KEY not found, skipping {symbol}")
+                return 0
+            
+            # Polygon options contracts endpoint
+            url = f"https://api.polygon.io/v3/reference/options/contracts"
             
             params = {
-                'apiKey': self.api_key,
-                'returntype': 'json',
-                'totalpoints': 0,  # Get all results
-                'marketcap': 0,
-                'stockvol': 0,
-                'optionvol': 0
+                'underlying_ticker': symbol,
+                'contract_type': 'call',
+                'expired': 'false',
+                'limit': 1000,
+                'apikey': polygon_api_key
             }
             
             response = requests.get(url, params=params, timeout=15)
             
             if response.status_code != 200:
-                logger.warning(f"❌ API error for {symbol}: Status {response.status_code}")
+                logger.warning(f"❌ Polygon API error for {symbol}: Status {response.status_code}")
                 return 0
                 
             data = response.json()
             
-            # Find the specific symbol in the results
-            if not isinstance(data, list):
-                logger.warning(f"❌ Unexpected data format for {symbol}")
+            if 'results' not in data:
+                logger.warning(f"❌ No results for {symbol}")
                 return 0
             
-            # Search for our symbol in the results
-            for item in data:
-                if item.get('symbol') == symbol:
-                    # Get current number of call options (this is the actual contracts count)
-                    contracts_count = item.get('current_number_of_call_options', 0)
-                    
-                    # Convert to integer if it's a string
-                    if isinstance(contracts_count, str):
-                        try:
-                            contracts_count = int(float(contracts_count))
-                        except ValueError:
-                            contracts_count = 0
-                    
-                    logger.info(f"✅ {symbol}: Found {contracts_count} call options contracts")
-                    return contracts_count
+            contracts = data['results']
+            today = datetime.now().date()
+            valid_count = 0
             
-            # Symbol not found in scanner results
-            logger.warning(f"❌ {symbol} not found in trader scanner results")
-            return 0
+            # Count contracts expiring in 10-50 days
+            for contract in contracts:
+                try:
+                    exp_date_str = contract.get('expiration_date', '')
+                    if not exp_date_str:
+                        continue
+                        
+                    # Parse expiration date (YYYY-MM-DD format)
+                    exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d').date()
+                    dte = (exp_date - today).days
+                    
+                    # Count only contracts within 10-50 DTE range
+                    if 10 <= dte <= 50:
+                        valid_count += 1
+                        
+                except (ValueError, KeyError) as e:
+                    continue
+            
+            logger.info(f"✅ {symbol}: Found {valid_count} contracts (10-50 DTE)")
+            return valid_count
             
         except requests.exceptions.Timeout:
             logger.error(f"⏰ Timeout fetching options for {symbol}")
