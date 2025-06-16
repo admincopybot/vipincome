@@ -7242,7 +7242,7 @@ def step3(symbol=None):
             import requests
             
             # External API endpoint for spread analysis
-            api_url = "https://your-spread-analysis-api.com/analyze"  # Replace with actual URL
+            api_url = "https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread"
             
             payload = {
                 "symbol": symbol.upper(),
