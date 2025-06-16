@@ -5633,6 +5633,18 @@ def vip_scoreboard():
             margin: 0 auto;
         }
         
+        .vip-badge {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: #000000;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-left: 10px;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
         .dashboard-title {
             font-size: 42px;
             font-weight: 800;
@@ -5907,16 +5919,15 @@ def vip_scoreboard():
     </div>
     
     <div class="main-content">
-        <h1 class="dashboard-title">Top Trade Opportunities</h1>
-        <p class="dashboard-subtitle">High-probability income opportunities that match our criteria.</p>
+        <h1 class="dashboard-title">VIP Trade Opportunities <span class="vip-badge">VIP ACCESS</span></h1>
+        <p class="dashboard-subtitle">Premium income opportunities with unlimited access to all tickers.</p>
         <p class="update-info">{{ last_update_text }}</p>
         
         <div class="etf-grid">
             {% set sorted_etfs = etf_scores.items() | list %}
             {% for symbol, etf in sorted_etfs %}
-            {% if loop.index <= 9 %}
             <div class="etf-card-wrapper">
-                <a href="/step2/{{ symbol }}" class="etf-card{% if loop.index > 3 %} blurred{% endif %}">
+                <a href="/step2/{{ symbol }}" class="etf-card">
                     <div class="card-content">
                         <div class="ticker-symbol">{{ symbol }}</div>
                         <div class="current-price">${{ "%.2f"|format(etf.price) }}</div>
