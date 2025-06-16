@@ -7200,16 +7200,16 @@ def step3(symbol=None):
     
     # Template will be defined after data processing
     
-    # Check for cached spread data first (60-second cache)
+    # Check for cached spread data first (3-minute cache)
     from datetime import datetime, timedelta
     cache_key = f"step3_data_{symbol}"
     cached_data = session.get(cache_key)
     cache_timestamp = session.get(f"{cache_key}_timestamp")
     
-    # Use cache if data exists and is less than 60 seconds old
+    # Use cache if data exists and is less than 3 minutes old
     if cached_data and cache_timestamp:
         cache_age = datetime.now() - datetime.fromisoformat(cache_timestamp)
-        if cache_age < timedelta(seconds=60):
+        if cache_age < timedelta(seconds=180):
             print(f"✓ USING CACHED SPREAD DATA (age: {cache_age.total_seconds():.0f} seconds)")
             print(f"✓ CACHE HIT: Skipping expensive spread detection for back-navigation")
             
@@ -7354,14 +7354,14 @@ def step3(symbol=None):
             else:
                 return f"Error: External API returned status {response.status_code}"
                 
-            # Cache the successful results from external API for 60 seconds
+            # Cache the successful results from external API for 3 minutes
             cache_data = {
                 'options_data': options_data,
                 'current_price': current_price
             }
             session[cache_key] = cache_data
             session[f"{cache_key}_timestamp"] = datetime.now().isoformat()
-            print(f"✓ CACHED SPREAD DATA for future back-navigation (60-second expiry)")
+            print(f"✓ CACHED SPREAD DATA for future back-navigation (3-minute expiry)")
                     
         except Exception as e:
             print(f"✗ ERROR calling external API: {e}")

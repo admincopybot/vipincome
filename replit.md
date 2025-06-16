@@ -200,6 +200,7 @@ Changelog:
 - June 16, 2025: Updated response parsing to handle nested strategies structure (aggressive/balanced/conservative)
 - June 16, 2025: Added comprehensive profit matrix display with price scenarios from external API
 - June 16, 2025: Step 3 now fully powered by external spread analysis service with proper data mapping
+- June 16, 2025: Updated spread data cache duration from 60 seconds to 3 minutes for improved performance
 
 # User Preferences
 
