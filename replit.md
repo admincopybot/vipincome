@@ -157,6 +157,9 @@ Changelog:
 - June 16, 2025: Completed tiered progression: Free (blurred), Pro (clear + VIP prompts), VIP (unrestricted)
 - June 16, 2025: Fixed options contracts filter to show unprocessed tickers (0 contracts) and only hide 1-99 contracts
 - June 16, 2025: Updated Pro version upgrade button to link to https://sco.prosperitypub.com/1750083074481
+- June 16, 2025: Updated all upgrade links to new Prosperity Publishing conversion URL with tracking parameters
+- June 16, 2025: Added custom favicon support with Income Machine "IM" branding across all templates
+- June 16, 2025: Optimized application performance for high traffic: increased polling intervals, added response caching, reduced update frequency
 
 # User Preferences
 

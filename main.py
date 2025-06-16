@@ -165,6 +165,7 @@ csv_loader = CsvDataLoader()
 # Add response caching for high traffic performance
 response_cache = {}
 cache_expiry = 300  # 5 minutes cache
+cache_timestamps = {}
 
 # Background polling configuration
 CRITERIA_API_URL = "https://1-symbol-at-a-time-post-5-criteria-analysis-daiadigitalco.replit.app/analyze"
