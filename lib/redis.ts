@@ -1,78 +1,46 @@
-import Redis from 'redis';
+import { Redis } from '@upstash/redis';
 
-class RedisCache {
-  private client: any;
-  private connected: boolean = false;
+let redis: Redis | null = null;
 
-  constructor() {
-    if (process.env.REDIS_URL) {
-      this.client = Redis.createClient({
-        url: process.env.REDIS_URL
-      });
-      
-      this.client.on('error', (err: any) => {
-        console.error('Redis Client Error', err);
-        this.connected = false;
-      });
-
-      this.client.on('connect', () => {
-        this.connected = true;
-      });
-
-      this.connect();
-    }
+export function getRedisClient(): Redis {
+  if (!redis) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
   }
+  return redis;
+}
 
-  async connect() {
-    if (!this.client) return;
-    try {
-      await this.client.connect();
-    } catch (error) {
-      console.error('Failed to connect to Redis:', error);
-    }
-  }
-
-  async get(key: string): Promise<any> {
-    if (!this.connected || !this.client) return null;
-    
-    try {
-      const result = await this.client.get(key);
-      return result ? JSON.parse(result) : null;
-    } catch (error) {
-      console.error('Redis GET error:', error);
-      return null;
-    }
-  }
-
-  async set(key: string, value: any, expireInSeconds: number = 180): Promise<boolean> {
-    if (!this.connected || !this.client) return false;
-    
-    try {
-      await this.client.setEx(key, expireInSeconds, JSON.stringify(value));
-      return true;
-    } catch (error) {
-      console.error('Redis SET error:', error);
-      return false;
-    }
-  }
-
-  async exists(key: string): Promise<boolean> {
-    if (!this.connected || !this.client) return false;
-    
-    try {
-      const result = await this.client.exists(key);
-      return result === 1;
-    } catch (error) {
-      console.error('Redis EXISTS error:', error);
-      return false;
-    }
-  }
-
-  async close() {
-    if (this.client && this.connected) {
-      await this.client.quit();
-    }
+export async function getCachedData<T>(key: string): Promise<T | null> {
+  try {
+    const client = getRedisClient();
+    const data = await client.get(key);
+    return data as T | null;
+  } catch (error) {
+    console.error(`Redis GET error for key ${key}:`, error);
+    return null;
   }
 }
 
-export default new RedisCache();
+export async function setCachedData<T>(
+  key: string, 
+  data: T, 
+  expirationSeconds: number = 180
+): Promise<void> {
+  try {
+    const client = getRedisClient();
+    await client.setex(key, expirationSeconds, JSON.stringify(data));
+  } catch (error) {
+    console.error(`Redis SET error for key ${key}:`, error);
+  }
+}
+
+export async function deleteCachedData(key: string): Promise<void> {
+  try {
+    const client = getRedisClient();
+    await client.del(key);
+  } catch (error) {
+    console.error(`Redis DELETE error for key ${key}:`, error);
+  }
+}
