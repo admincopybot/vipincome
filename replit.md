@@ -4,18 +4,20 @@ This is an Income Machine ETF Analyzer application built with Flask that provide
 
 # System Architecture
 
-The application follows a database-first architecture with the following key components:
+The application follows a hybrid architecture with optimized frontend performance:
 
 ## Backend Architecture
-- **Flask Web Application**: Main application server handling HTTP requests and rendering
+- **Flask Web Application**: Legacy backend for data processing and background tasks
 - **Database Layer**: PostgreSQL database for persistent ETF scoring data storage
 - **Data Services**: Multiple data fetching services with fallback mechanisms
 - **CSV Data Processing**: Bulk ETF calculation system with CSV export/import capabilities
 
 ## Frontend Architecture
-- **Server-Side Rendering**: HTML templates with embedded JavaScript for interactivity
-- **Real-time Updates**: JavaScript-based polling for price updates (scores remain static)
-- **Responsive Design**: CSS styling for modern web interface
+- **Next.js TypeScript Application**: Modern SPA frontend with optimized performance
+- **API-First Design**: RESTful API endpoints for data access with JWT authentication
+- **Redis Caching**: 3-minute cache for spread analysis, 30-second cache for price data
+- **External API Integration**: Dedicated spread analysis service for Steps 3&4
+- **Single Page Application**: No page reloads, smooth user experience
 
 # Key Components
 
@@ -201,6 +203,13 @@ Changelog:
 - June 16, 2025: Added comprehensive profit matrix display with price scenarios from external API
 - June 16, 2025: Step 3 now fully powered by external spread analysis service with proper data mapping
 - June 16, 2025: Updated spread data cache duration from 60 seconds to 3 minutes for improved performance
+- June 16, 2025: Completed Next.js TypeScript frontend transformation for optimized performance
+- June 16, 2025: Implemented API-first architecture: database-only for Pages 1&2, external API for Steps 3&4
+- June 16, 2025: Created TypeScript interfaces for all data structures with proper type safety
+- June 16, 2025: Built comprehensive Redis caching layer with 3-minute TTL for spread analysis
+- June 16, 2025: Integrated JWT authentication system with RS256 public key validation
+- June 16, 2025: Eliminated page reloads with single-page application architecture
+- June 16, 2025: Maintained VIP-only access with purple theme and golden badges throughout new frontend
 
 # User Preferences
 
