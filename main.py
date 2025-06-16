@@ -3214,7 +3214,7 @@ def step4(symbol, strategy, spread_id):
     </style>
 </head>
 <body>
-    {% if is_pro %}
+    {% if true %}
     <div class="header">
         <div class="logo">
             <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
@@ -3244,7 +3244,7 @@ def step4(symbol, strategy, spread_id):
     
     <div class="steps-nav">
         <div class="steps-container">
-            <a href="{% if is_pro %}/pro{% else %}/{% endif %}" class="step completed">
+            <a href="{% if true %}/pro{% else %}/{% endif %}" class="step completed">
                 <div class="step-number">1</div>
                 <span>Scoreboard</span>
             </a>
@@ -6753,7 +6753,7 @@ def step2(symbol=None):
     </style>
 </head>
 <body>
-    {% if is_pro %}
+    {% if true %}
     <div class="header">
         <div class="logo">
             <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
@@ -6783,7 +6783,7 @@ def step2(symbol=None):
     
     <div class="steps-nav">
         <div class="steps-container">
-            <a href="{% if is_pro %}/pro{% else %}/{% endif %}" class="step completed">
+            <a href="{% if true %}/pro{% else %}/{% endif %}" class="step completed">
                 <div class="step-number">1</div>
                 <span>Scoreboard</span>
             </a>
@@ -6886,7 +6886,7 @@ def step2(symbol=None):
                     Data is automatically refreshed every 15 minutes during market hours.
                 </div>
                 <div class="strategy-button-container">
-                    {% if is_pro %}
+                    {% if true %}
                     <a href="/step3/{{ symbol }}?pro=true" class="choose-strategy-btn">Choose Income Strategy →</a>
                     {% else %}
                     <a href="/step3/{{ symbol }}" class="choose-strategy-btn">Choose Income Strategy →</a>
@@ -6900,7 +6900,7 @@ def step2(symbol=None):
 
         
         <div class="back-to-scoreboard">
-            {% if is_pro %}
+            {% if true %}
             <a href="/pro" class="back-scoreboard-btn">← Back to Pro Scoreboard</a>
             {% else %}
             <a href="/" class="back-scoreboard-btn">← Back to Scoreboard</a>
@@ -8302,7 +8302,7 @@ def step3(symbol=None):
         </style>
     </head>
     <body>
-        {% if is_pro %}
+        {% if true %}
         <div class="header">
             <div class="logo">
                 <a href="/pro"><img src="/static/incomemachine_logo.png" alt="Income Machine" class="header-logo"></a>
@@ -8332,7 +8332,7 @@ def step3(symbol=None):
         
         <div class="steps-nav">
             <div class="steps-container">
-                <a href="{% if is_pro %}/pro{% else %}/{% endif %}" class="step completed">
+                <a href="{% if true %}/pro{% else %}/{% endif %}" class="step completed">
                     <div class="step-number">1</div>
                     <span>Scoreboard</span>
                 </a>
