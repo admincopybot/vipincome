@@ -93,10 +93,19 @@ class RobustSpreadPipeline:
         return []
     
     def analyze_ticker_spreads(self, ticker: str) -> Dict:
-        """Analyze debit spreads for a single ticker using TheTradeList API"""
+        """Analyze debit spreads for a single ticker with Redis caching"""
         logger.info(f"Analyzing spreads for {ticker}")
         
+        # Check for cached spread analysis first
+        cached_analysis = cache_service.get_cached_spread_analysis(ticker)
+        if cached_analysis:
+            logger.info(f"Using cached spread analysis for {ticker}")
+            return cached_analysis.get('results', {})
+        
         try:
+            # Cache miss - perform fresh analysis
+            logger.info(f"Cache miss - performing fresh spread analysis for {ticker}")
+            
             # Get current stock price
             current_price = self.get_stock_price(ticker)
             if not current_price:
@@ -115,6 +124,10 @@ class RobustSpreadPipeline:
             
             # Categorize by strategy
             result = self.categorize_spreads(ticker, current_price, all_spreads)
+            
+            # Cache the results for 30 minutes
+            cache_service.cache_spread_analysis(ticker, result, expiry_seconds=1800)
+            
             return result
             
         except Exception as e:

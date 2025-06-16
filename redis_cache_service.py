@@ -227,6 +227,67 @@ class RedisCacheService:
             }
         except Exception as e:
             return {'enabled': False, 'error': str(e)}
+    
+    def cache_spread_analysis(self, ticker: str, spread_results: Dict, expiry_seconds: int = 1800) -> bool:
+        """Cache complete spread analysis results for a ticker (30 minutes default)"""
+        if not self.cache_enabled:
+            return False
+            
+        try:
+            cache_key = f"spread_analysis:{ticker}:{datetime.now().strftime('%Y%m%d_%H')}"
+            
+            cache_data = {
+                'ticker': ticker,
+                'timestamp': datetime.now().isoformat(),
+                'results': spread_results,
+                'total_strategies': len(spread_results.get('strategies', {})),
+                'current_price': spread_results.get('current_price'),
+                'expires_at': (datetime.now() + timedelta(seconds=expiry_seconds)).isoformat(),
+                'data_source': 'TheTradeList_API'
+            }
+            
+            serialized_data = json.dumps(cache_data, default=str)
+            self.redis_client.setex(cache_key, expiry_seconds, serialized_data)
+            
+            index_key = f"spread_index:{ticker}"
+            self.redis_client.setex(index_key, expiry_seconds, cache_key)
+            
+            logger.info(f"Cached spread analysis for {ticker} - {len(spread_results.get('strategies', {}))} strategies")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to cache spread analysis for {ticker}: {e}")
+            return False
+    
+    def get_cached_spread_analysis(self, ticker: str) -> Optional[Dict]:
+        """Retrieve cached spread analysis results for a ticker"""
+        if not self.cache_enabled:
+            return None
+            
+        try:
+            index_key = f"spread_index:{ticker}"
+            cache_key = self.redis_client.get(index_key)
+            
+            if cache_key:
+                cached_data = self.redis_client.get(cache_key)
+                if cached_data:
+                    data = json.loads(cached_data)
+                    cached_time = datetime.fromisoformat(data.get('timestamp'))
+                    age_minutes = (datetime.now() - cached_time).total_seconds() / 60
+                    
+                    if age_minutes <= 30:
+                        logger.info(f"Cache HIT: Retrieved spread analysis for {ticker} (age: {age_minutes:.1f} min)")
+                        return data
+                    else:
+                        logger.info(f"Cache EXPIRED: Spread analysis for {ticker} is {age_minutes:.1f} minutes old")
+                        return None
+            
+            logger.info(f"Cache MISS: No cached spread analysis found for {ticker}")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Failed to retrieve cached spread analysis for {ticker}: {e}")
+            return None
 
 # Global cache service instance
 cache_service = RedisCacheService()
