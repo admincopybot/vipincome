@@ -4951,16 +4951,8 @@ def vip_step2(symbol):
         logger.warning(f"No data found for VIP ticker: {symbol}")
         return redirect('/vip')
     
-    # Update current price with real-time data if available
-    try:
-        from real_time_spreads import RealTimeSpreadDetector
-        detector = RealTimeSpreadDetector()
-        real_time_price = detector.get_real_time_stock_price(symbol)
-        if real_time_price and real_time_price > 0:
-            ticker_data['current_price'] = real_time_price
-            logger.info(f"VIP Step 2: Updated {symbol} current price to ${real_time_price:.2f} from TheTradeList")
-    except Exception as e:
-        logger.warning(f"Could not update real-time price for VIP ticker {symbol}: {e}")
+    # DISABLED: Real-time price fetching removed for performance optimization
+    # Using cached database prices only
     
     # Use existing step2 template but indicate VIP access
     return step2(symbol)
