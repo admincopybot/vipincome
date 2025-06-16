@@ -3169,7 +3169,7 @@ def step4(symbol, strategy, spread_id):
         <div class="nav-menu">
             <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-            <a href="https://sco.prosperitypub.com/1750083074481" class="get-offer-btn" target="_blank">Upgrade</a>
+            <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="get-offer-btn" target="_blank">Upgrade</a>
         </div>
     </div>
     {% endif %}
@@ -3953,7 +3953,7 @@ def pro_index():
             <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
 
-            <a href="https://sco.prosperitypub.com/1750083074481" class="upgrade-vip-btn" target="_blank">Upgrade</a>
+            <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="upgrade-vip-btn" target="_blank">Upgrade</a>
         </div>
     </div>
     
@@ -5586,7 +5586,7 @@ def index():
         <div class="nav-menu">
             <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-            <a href="https://sco.prosperitypub.com/1750083074481" class="get-offer-btn" target="_blank">Upgrade</a>
+            <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="get-offer-btn" target="_blank">Upgrade</a>
         </div>
     </div>
     
@@ -6452,7 +6452,7 @@ def step2(symbol=None):
         <div class="nav-menu">
             <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-            <a href="https://sco.prosperitypub.com/1750083074481" class="get-offer-btn" target="_blank">Upgrade</a>
+            <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="get-offer-btn" target="_blank">Upgrade</a>
         </div>
     </div>
     {% endif %}
@@ -8134,7 +8134,7 @@ def step3(symbol=None):
             <div class="nav-menu">
                 <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
                 <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-                <a href="https://sco.prosperitypub.com/1750083074481" class="get-offer-btn" target="_blank">Upgrade</a>
+                <a href="https://go.prosperitypub.com/nt-inc-of-263318307?af=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_medium=WAS&utm_content=NTT_NT_WAS_NON_INC_INCLAU_NON_20250613_0000&utm_campaign=1749759736491euwhc&utm_source=NTT&utm_term=NON" class="get-offer-btn" target="_blank">Upgrade</a>
             </div>
         </div>
         {% endif %}
