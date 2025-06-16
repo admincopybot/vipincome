@@ -145,9 +145,7 @@ def get_user_access_level():
     
     return 'free'
 
-def check_vip_authentication():
-    """Check if user is authenticated for VIP access - same JWT validation as Pro for now"""
-    return check_pro_authentication()
+
 
 @app.route('/logout')
 def logout():
@@ -5137,13 +5135,205 @@ def vip_step4(symbol):
 
 @app.route('/')
 def index():
+    """Main route - VIP-only access with JWT authentication"""
+    # Check JWT authentication first
+    if not check_vip_authentication():
+        return show_access_screen()
+    
+    # User is authenticated - show VIP scoreboard
+    return vip_scoreboard()
+
+def show_access_screen():
+    """Display access screen for non-authenticated users"""
+    template = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <title>Income Machine VIP - Access Required</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.6;
+        }
+        
+        .access-container {
+            max-width: 500px;
+            text-align: center;
+            padding: 40px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 30px;
+        }
+        
+        .vip-badge {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: #000000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .access-message {
+            font-size: 18px;
+            color: #cbd5e1;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+        
+        .oct-info {
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .oct-info h3 {
+            color: #60a5fa;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .oct-info p {
+            color: #94a3b8;
+            font-size: 16px;
+        }
+        
+        .features-list {
+            text-align: left;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #e2e8f0;
+        }
+        
+        .feature-check {
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .support-note {
+            background: rgba(168,85,247,0.1);
+            border: 1px solid rgba(168,85,247,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 14px;
+            color: #c4b5fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="access-container">
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiB2aWV3Qm94PSIwIDAgMTIwIDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiByeD0iMTAiIGZpbGw9IiMxZTI5M2IiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgemlsbD0iIzYwYTVmYSI+CjxyZWN0IHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgcng9IjQiIGZpbGw9IiM2MGE1ZmEiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSI2MCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzFhMWYyZSI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSIyMCIgcng9IjIiIGZpbGw9IiMxYTFmMmUiLz4KPHN2ZyB4PSI0IiB5PSI0IiB3aWR0aD0iNTIiIGhlaWdodD0iMTIiIGZpbGw9IiM2MGE1ZmEiPgo8dGV4dCB4PSIyNiIgeT0iOCIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMWExZjJlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5JTkNPTUUgTUFDSElORTwvdGV4dD4KPC9zdmc+Cjwvc3ZnPgo8L3N2Zz4KPHN2Zz4KPHN2Zz4KPC9zdmc+" alt="Income Machine Logo" class="logo">
+        
+        <div class="vip-badge">VIP ACCESS REQUIRED</div>
+        
+        <h1>Income Machine VIP</h1>
+        
+        <p class="access-message">
+            Enter directly from <strong>OneClick Trading (OCT)</strong> to access Income Machine VIP
+        </p>
+        
+        <div class="oct-info">
+            <h3>OneClick Trading Platform</h3>
+            <p>Access Income Machine VIP through your authenticated OCT dashboard for premium ETF analysis and options strategies.</p>
+        </div>
+        
+        <div class="features-list">
+            <div class="feature-item">
+                <div class="feature-check">✓</div>
+                Unrestricted access to all 292+ ETF tickers
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">✓</div>
+                Real-time options spread detection
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">✓</div>
+                Advanced profit scenario analysis
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">✓</div>
+                Premium technical scoring algorithms
+            </div>
+            <div class="feature-item">
+                <div class="feature-check">✓</div>
+                No contract quantity restrictions
+            </div>
+        </div>
+        
+        <div class="support-note">
+            <strong>Need Help?</strong><br>
+            Contact your OCT support team for VIP access assistance.
+        </div>
+    </div>
+</body>
+</html>
+    """
+    return render_template_string(template)
+
+def vip_scoreboard():
+    """VIP scoreboard with full access to all tickers"""
     # CRITICAL: Force fresh data reload every time to catch CSV updates
     global etf_scores, last_csv_update
     
     # Check if we need to force refresh based on database timestamp
     db_update_time = etf_db.get_last_update_time()
     if db_update_time and db_update_time > last_csv_update:
-        logger.info(f"SCOREBOARD: Detected fresh database update, forcing complete refresh")
+        logger.info(f"VIP SCOREBOARD: Detected fresh database update, forcing complete refresh")
         etf_scores = {}  # Clear cached data
         last_csv_update = db_update_time
     
@@ -5152,8 +5342,8 @@ def index():
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
-    # STRICT FILTER: Only show tickers with 100+ options contracts (10-50 DTE)
-    display_etf_scores = filter_etfs_by_options_contracts(etf_scores, min_contracts=100)
+    # VIP ACCESS: Show ALL tickers without filtering
+    display_etf_scores = etf_scores
     
     # Calculate minutes since last update
     try:
@@ -5168,7 +5358,7 @@ def index():
     except:
         last_update_text = "Last updated recently"
     
-    # Create template with consistent navigation structure
+    # VIP Scoreboard Template
     template = """
 <!DOCTYPE html>
 <html lang="en">
