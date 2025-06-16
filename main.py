@@ -5408,7 +5408,7 @@ def vip_scoreboard():
     except:
         last_update_text = "Last updated recently"
     
-    # VIP-Only Scoreboard Template
+    # VIP-Only Scoreboard Template with Purple Theme
     template = """
 <!DOCTYPE html>
 <html lang="en">
@@ -5417,8 +5417,8 @@ def vip_scoreboard():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <title>Income Machine VIP - ETF Scoreboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Income Machine VIP - Top Trade Opportunities</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -5428,18 +5428,28 @@ def vip_scoreboard():
         
         body {
             font-family: 'Inter', sans-serif;
-            background: #1a1f2e;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             color: #ffffff;
             min-height: 100vh;
             line-height: 1.6;
         }
         
         .top-banner {
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
             text-align: center;
-            padding: 8px;
+            padding: 12px;
             font-size: 14px;
             color: #ffffff;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .top-banner::before {
+            content: "👑";
+            font-size: 16px;
         }
         
         .header {
@@ -5919,9 +5929,13 @@ def vip_scoreboard():
     </div>
     
     <div class="main-content">
-        <h1 class="dashboard-title">VIP Trade Opportunities <span class="vip-badge">VIP ACCESS</span></h1>
-        <p class="dashboard-subtitle">Premium income opportunities with unlimited access to all tickers.</p>
+        <h1 class="dashboard-title">Top Trade Opportunities</h1>
+        <p class="dashboard-subtitle">Complete access to ALL tickers with instant search</p>
         <p class="update-info">{{ last_update_text }}</p>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Start typing to search instantly (e.g., AA, SQ, QQQ)..." />
+        </div>
         
         <div class="etf-grid">
             {% set sorted_etfs = etf_scores.items() | list %}
