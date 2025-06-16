@@ -109,17 +109,29 @@ class RedisCacheService:
         # Cache miss - make actual API call
         try:
             logger.info(f"Making API call to {endpoint} (cache miss)")
+            logger.info(f"API URL: {url}")
+            logger.info(f"API Params: {params}")
+            
             response = requests.get(url, params=params, timeout=timeout)
+            
+            logger.info(f"API Response Status: {response.status_code}")
+            logger.info(f"API Response Text: {response.text[:500]}")
             
             if response.status_code == 200:
                 data = response.json()
+                
+                # Log results count for debugging
+                if 'results' in data:
+                    logger.info(f"API returned {len(data['results'])} results")
+                else:
+                    logger.info(f"API response keys: {list(data.keys())}")
                 
                 # Cache the successful response
                 self.set_cached_data(cache_key, data)
                 
                 return data
             else:
-                logger.error(f"API call failed: {endpoint}, Status: {response.status_code}")
+                logger.error(f"API call failed: {endpoint}, Status: {response.status_code}, Response: {response.text}")
                 return None
                 
         except Exception as e:
