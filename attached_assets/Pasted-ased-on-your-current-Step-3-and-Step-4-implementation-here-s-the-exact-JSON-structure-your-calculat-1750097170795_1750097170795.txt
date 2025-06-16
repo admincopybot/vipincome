@@ -1,0 +1,85 @@
+ased on your current Step 3 and Step 4 implementation, here's the exact JSON structure your calculator app should POST back for each ticker and strategy:
+
+Expected JSON Structure
+For each ticker (HON, CTAS, LIN) and each strategy (aggressive, steady, conservative), your calculator app should POST:
+
+{
+  "symbol": "HON",
+  "strategy_type": "aggressive",
+  "spread_data": {
+    "long_strike": 290,
+    "short_strike": 295,
+    "long_option_symbol": "O:HON250718C00290000",
+    "short_option_symbol": "O:HON250718C00295000", 
+    "cost": 2.45,
+    "max_profit": 2.55,
+    "roi": 104.1,
+    "expiration_date": "2025-07-18",
+    "dte": 32,
+    "long_price": 12.45,
+    "short_price": 10.00,
+    "current_stock_price": 287.50,
+    "breakeven": 292.45,
+    "profit_scenarios": [
+      {
+        "stock_price": 258.75,
+        "price_change": -10.0,
+        "profit_loss": -245,
+        "status": "loss"
+      },
+      {
+        "stock_price": 273.13,
+        "price_change": -5.0,
+        "profit_loss": -245,
+        "status": "loss"
+      },
+      {
+        "stock_price": 280.31,
+        "price_change": -2.5,
+        "profit_loss": -245,
+        "status": "loss"
+      },
+      {
+        "stock_price": 284.63,
+        "price_change": -1.0,
+        "profit_loss": -245,
+        "status": "loss"
+      },
+      {
+        "stock_price": 287.50,
+        "price_change": 0.0,
+        "profit_loss": -245,
+        "status": "loss"
+      },
+      {
+        "stock_price": 290.38,
+        "price_change": 1.0,
+        "profit_loss": 43,
+        "status": "profit"
+      },
+      {
+        "stock_price": 294.69,
+        "price_change": 2.5,
+        "profit_loss": 224,
+        "status": "profit"
+      },
+      {
+        "stock_price": 301.88,
+        "price_change": 5.0,
+        "profit_loss": 255,
+        "status": "profit"
+      },
+      {
+        "stock_price": 316.25,
+        "price_change": 10.0,
+        "profit_loss": 255,
+        "status": "profit"
+      }
+    ],
+    "trade_construction": {
+      "buy_description": "Buy the $290 July 18 Call",
+      "sell_description": "Sell the $295 July 18 Call",
+      "strategy_name": "Bull Call Spread"
+    }
+  }
+}

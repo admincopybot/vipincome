@@ -226,6 +226,7 @@ class RobustSpreadPipeline:
         for i, long_opt in enumerate(options_chain):
             long_strike = long_opt['strike']
             long_price = long_opt['last_price']
+            long_ticker = long_opt['ticker']
             
             if long_price <= 0:
                 continue
@@ -234,6 +235,7 @@ class RobustSpreadPipeline:
             for short_opt in options_chain[i+1:]:
                 short_strike = short_opt['strike']
                 short_price = short_opt['last_price']
+                short_ticker = short_opt['ticker']
                 
                 if abs(short_strike - long_strike - 1.0) < 0.01 and short_price > 0:
                     # Calculate spread metrics
@@ -247,11 +249,16 @@ class RobustSpreadPipeline:
                     if roi >= 5:  # Minimum 5% ROI
                         dte = (datetime.strptime(exp_date, '%Y-%m-%d') - datetime.now()).days
                         
+                        # Generate trade construction descriptions
+                        exp_display = datetime.strptime(exp_date, '%Y-%m-%d').strftime('%B %d')
+                        
                         spread_data = {
                             'long_strike': long_strike,
                             'short_strike': short_strike,
-                            'long_price': long_price,
-                            'short_price': short_price,
+                            'long_option_symbol': long_ticker,
+                            'short_option_symbol': short_ticker,
+                            'long_price': round(long_price, 2),
+                            'short_price': round(short_price, 2),
                             'spread_cost': round(spread_cost, 2),
                             'max_profit': round(max_profit, 2),
                             'max_loss': round(spread_cost, 2),
@@ -259,11 +266,17 @@ class RobustSpreadPipeline:
                             'breakeven': round(long_strike + spread_cost, 2),
                             'expiration_date': exp_date,
                             'days_to_expiration': dte,
-                            'distance_otm_percent': round(((long_strike - current_price) / current_price) * 100, 1)
+                            'distance_otm_percent': round(((long_strike - current_price) / current_price) * 100, 1),
+                            'current_stock_price': round(current_price, 2),
+                            'trade_construction': {
+                                'buy_description': f"Buy the ${long_strike:.0f} {exp_display} Call",
+                                'sell_description': f"Sell the ${short_strike:.0f} {exp_display} Call",
+                                'strategy_name': "Bull Call Spread"
+                            }
                         }
                         
                         # Add price scenarios
-                        spread_data['price_scenarios'] = self.calculate_scenarios(
+                        spread_data['profit_scenarios'] = self.calculate_scenarios(
                             current_price, long_strike, short_strike, spread_cost
                         )
                         
@@ -274,7 +287,7 @@ class RobustSpreadPipeline:
     
     def calculate_scenarios(self, current_price: float, long_strike: float, 
                           short_strike: float, spread_cost: float) -> List[Dict]:
-        """Calculate profit/loss scenarios"""
+        """Calculate profit/loss scenarios in the exact format expected"""
         scenarios = []
         percentages = [-10, -5, -2.5, -1, 0, 1, 2.5, 5, 10]
         
@@ -286,16 +299,14 @@ class RobustSpreadPipeline:
             short_value = max(0, future_price - short_strike)
             spread_value = long_value - short_value
             
-            profit_loss = spread_value - spread_cost
-            scenario_roi = (profit_loss / spread_cost) * 100 if spread_cost > 0 else 0
+            # Convert to per-contract profit/loss (multiply by 100 for contract size)
+            profit_loss_per_contract = (spread_value - spread_cost) * 100
             
             scenarios.append({
-                'price_change_percent': pct,
-                'future_price': round(future_price, 2),
-                'spread_value': round(spread_value, 2),
-                'profit_loss': round(profit_loss, 2),
-                'roi_percent': round(scenario_roi, 1),
-                'outcome': 'profit' if profit_loss > 0 else 'loss' if profit_loss < 0 else 'breakeven'
+                'stock_price': round(future_price, 2),
+                'price_change': pct,
+                'profit_loss': round(profit_loss_per_contract),
+                'status': 'profit' if profit_loss_per_contract > 0 else 'loss'
             })
         
         return scenarios
@@ -339,25 +350,33 @@ class RobustSpreadPipeline:
         return None
     
     def format_spread_data(self, ticker: str, spread: Dict, strategy: str) -> Dict:
-        """Format spread data for the API payload"""
+        """Format spread data for the API payload in exact expected structure"""
+        # Map strategy names to match expected format
+        strategy_mapping = {
+            'aggressive': 'aggressive',
+            'balanced': 'steady',
+            'conservative': 'conservative'
+        }
+        
         return {
             "symbol": ticker,
-            "strategy_type": strategy,
+            "strategy_type": strategy_mapping.get(strategy, strategy),
             "spread_data": {
                 "long_strike": spread.get('long_strike'),
                 "short_strike": spread.get('short_strike'),
-                "long_price": spread.get('long_price'),
-                "short_price": spread.get('short_price'),
+                "long_option_symbol": spread.get('long_option_symbol'),
+                "short_option_symbol": spread.get('short_option_symbol'),
                 "cost": spread.get('spread_cost'),
                 "max_profit": spread.get('max_profit'),
-                "max_loss": spread.get('max_loss'),
                 "roi": spread.get('roi_percent'),
-                "breakeven": spread.get('breakeven'),
                 "expiration_date": spread.get('expiration_date'),
                 "dte": spread.get('days_to_expiration'),
-                "distance_otm_percent": spread.get('distance_otm_percent'),
-                "price_scenarios": spread.get('price_scenarios', []),
-                "analysis_timestamp": datetime.now().isoformat()
+                "long_price": spread.get('long_price'),
+                "short_price": spread.get('short_price'),
+                "current_stock_price": spread.get('current_stock_price'),
+                "breakeven": spread.get('breakeven'),
+                "profit_scenarios": spread.get('profit_scenarios', []),
+                "trade_construction": spread.get('trade_construction', {})
             }
         }
     
