@@ -3612,8 +3612,8 @@ def pro_index():
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
-    # STRICT FILTER: Only show tickers with 100+ options contracts for PRO version
-    display_etf_scores = filter_etfs_by_options_contracts(etf_scores, min_contracts=100)
+    # NO FILTER: Show all tickers regardless of options contracts (per user request)
+    display_etf_scores = etf_scores
     
     # Calculate minutes since last update
     try:
@@ -5063,8 +5063,8 @@ def index():
     # Synchronize scores before displaying
     synchronize_etf_scores()
     
-    # STRICT FILTER: Only show tickers with 100+ options contracts for FREE version
-    display_etf_scores = filter_etfs_by_options_contracts(etf_scores, min_contracts=100)
+    # NO FILTER: Show all tickers regardless of options contracts (per user request)
+    display_etf_scores = etf_scores
     
     # Calculate minutes since last update
     try:
