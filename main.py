@@ -5644,8 +5644,8 @@ def vip_scoreboard():
         }
         
         .vip-badge {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: #000000;
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: #ffffff;
             padding: 4px 12px;
             border-radius: 15px;
             font-weight: bold;
@@ -5655,11 +5655,54 @@ def vip_scoreboard():
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
+        .vip-badge-header {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 30px auto 40px;
+            position: relative;
+        }
+        
+        .search-container input {
+            width: 100%;
+            padding: 16px 24px;
+            background: rgba(124, 58, 237, 0.1);
+            border: 2px solid rgba(124, 58, 237, 0.3);
+            border-radius: 30px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .search-container input:focus {
+            border-color: #7c3aed;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+        
+        .search-container input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
         .dashboard-title {
             font-size: 42px;
             font-weight: 800;
             margin-bottom: 15px;
-            color: #ffffff;
+            color: #a855f7;
+            text-align: center;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .dashboard-subtitle {
@@ -5967,6 +6010,26 @@ def vip_scoreboard():
 
     <script>
         console.log('Starting real-time ETF price updates...');
+        
+        // VIP SEARCH FUNCTIONALITY
+        const searchInput = document.getElementById('searchInput');
+        const etfCards = document.querySelectorAll('.etf-card-wrapper');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            
+            etfCards.forEach(card => {
+                const symbol = card.querySelector('.ticker-symbol').textContent.toLowerCase();
+                const shouldShow = symbol.includes(searchTerm);
+                
+                if (shouldShow) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.3s ease';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
         
         // AUTOMATIC SCOREBOARD UPDATES - Poll for CSV uploads
         let lastUpdateTime = null;
