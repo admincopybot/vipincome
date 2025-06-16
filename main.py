@@ -323,6 +323,15 @@ def update_prices_with_tradelist():
     except Exception as e:
         logger.error(f"Error updating TOP 3 ticker prices with TheTradeList: {e}")
 
+def filter_etfs_by_options_contracts(etf_data, min_contracts=100):
+    """Filter ETFs to only show those with minimum options contracts (for Free/Pro versions)"""
+    filtered_data = {}
+    for symbol, data in etf_data.items():
+        options_contracts = data.get('options_contracts_10_42_dte', 0)
+        if options_contracts >= min_contracts:
+            filtered_data[symbol] = data
+    return filtered_data
+
 def load_etf_data_from_database():
     """Load ETF data from database with AUTOMATIC RANKING by score + trading volume tiebreaker"""
     global etf_scores
