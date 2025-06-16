@@ -259,7 +259,7 @@ def update_ticker_criteria(ticker):
         return False
 
 def background_criteria_polling():
-    """Background thread function to poll top 3 tickers every 2 minutes"""
+    """Background thread function to poll top 3 tickers - OPTIMIZED for efficiency"""
     global polling_active, last_poll_time
     
     while polling_active:
@@ -267,7 +267,8 @@ def background_criteria_polling():
             current_time = datetime.now()
             time_since_last_poll = (current_time - last_poll_time).total_seconds()
             
-            if time_since_last_poll >= 300:  # 5 minutes
+            # OPTIMIZATION: Reduced from 5 minutes to 15 minutes for production efficiency
+            if time_since_last_poll >= 900:  # 15 minutes instead of 5
                 logger.info("Starting background criteria polling for top 3 tickers")
                 
                 # Get current top 3 tickers
@@ -286,8 +287,16 @@ def background_criteria_polling():
                         # Trigger a reload of the database cache
                         load_etf_data_from_database()
                         
-                        # Trigger debit spread analysis for top 3 tickers
-                        trigger_spread_analysis(top_3_tickers)
+                        # OPTIMIZATION: Only trigger spread analysis once per hour to reduce API usage
+                        current_hour = current_time.hour
+                        last_spread_hour = getattr(background_criteria_polling, 'last_spread_hour', -1)
+                        
+                        if current_hour != last_spread_hour:
+                            logger.info("Triggering hourly spread analysis for efficiency")
+                            trigger_spread_analysis(top_3_tickers)
+                            background_criteria_polling.last_spread_hour = current_hour
+                        else:
+                            logger.info("Skipping spread analysis - already done this hour")
                     
                     last_poll_time = current_time
                 else:
