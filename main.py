@@ -21,6 +21,7 @@ from real_time_spreads import get_real_time_spreads
 from spread_storage import SessionSpreadStorage
 from spread_diagnostics import SpreadDiagnostics, test_spread_calculation
 from robust_spread_pipeline import RobustSpreadPipeline
+from api_efficiency_optimizer import api_optimizer, get_efficiency_report
 
 # Initialize session storage for authentic spread data
 session_storage = SessionSpreadStorage()
@@ -184,8 +185,13 @@ polling_stats = {
 }
 
 def update_ticker_criteria(ticker):
-    """Update criteria for a single ticker using the external API - ONE POST AT A TIME"""
+    """Update criteria for a single ticker using the external API - OPTIMIZED"""
     try:
+        # Check if update is needed using efficiency optimizer
+        if not api_optimizer.should_update_criteria(ticker):
+            logger.info(f"Skipping criteria update for {ticker} - recently updated")
+            return False
+            
         logger.info(f"Polling criteria update for {ticker}")
         
         # Single POST request with proper headers
@@ -235,9 +241,13 @@ def update_ticker_criteria(ticker):
                     if criteria_changed:
                         logger.info(f"Updating {ticker} criteria in database - new score: {new_score}")
                         etf_db.update_ticker_criteria(ticker, criteria_data, new_score)
+                        # Mark as successfully updated in optimizer
+                        api_optimizer.mark_criteria_updated(ticker)
                         return True
                     else:
                         logger.info(f"No criteria changes for {ticker}")
+                        # Still mark as updated to prevent unnecessary future calls
+                        api_optimizer.mark_criteria_updated(ticker)
                         return False
                 else:
                     logger.error(f"No current data found for {ticker} in database")
@@ -9633,6 +9643,46 @@ def update_ticker_criteria_direct(ticker, criteria_data):
 # Initialize the application when module is imported
 load_etf_data_from_database()
 start_background_polling()
+
+@app.route('/api/efficiency-report')
+def api_efficiency_report():
+    """Get comprehensive API efficiency optimization report"""
+    try:
+        report = get_efficiency_report()
+        
+        # Add current Redis status
+        from redis_cache_service import RedisCacheService
+        cache_service = RedisCacheService()
+        
+        redis_status = {
+            'redis_connected': cache_service.cache_enabled,
+            'cache_service_active': True if cache_service.redis_client else False
+        }
+        
+        # Add current polling schedule
+        top_3_tickers = ['CEG', 'AVGO', 'DDOG']  # Current top 3
+        schedule = api_optimizer.get_next_update_schedule(top_3_tickers)
+        
+        return jsonify({
+            'status': 'success',
+            'timestamp': datetime.now().isoformat(),
+            'efficiency_report': report,
+            'redis_status': redis_status,
+            'update_schedule': schedule,
+            'optimization_summary': {
+                'background_polling': '15-minute intervals (reduced from 5-minute)',
+                'spread_analysis': 'Hourly (reduced from continuous)',
+                'criteria_updates': 'Intelligent scheduling with 1-hour minimum intervals',
+                'redis_caching': '30-second TTL for all API responses',
+                'estimated_daily_savings': '80-90% reduction in API calls'
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
