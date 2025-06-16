@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class RobustSpreadPipeline:
     def __init__(self):
-        self.polygon_key = os.environ.get("POLYGON_API_KEY")
+        self.tradelist_key = os.environ.get("TRADELIST_API_KEY")
         self.tickers_endpoint = "https://001e4434-2e2e-4e25-b65b-8b894c786e9d-00-26sv8d7lbk7i3.worf.replit.dev/api/top-tickers"
         self.spreads_endpoint = "https://001e4434-2e2e-4e25-b65b-8b894c786e9d-00-26sv8d7lbk7i3.worf.replit.dev/api/spreads-update"
         
@@ -39,46 +39,44 @@ class RobustSpreadPipeline:
             return None
     
     def get_stock_price(self, ticker: str) -> Optional[float]:
-        """Get current stock price from Polygon API"""
-        if not self.polygon_key:
-            logger.error("Polygon API key not configured")
+        """Get current stock price from TheTradeList API"""
+        if not self.tradelist_key:
+            logger.error("TheTradeList API key not configured")
             return None
             
         try:
-            url = f"https://api.polygon.io/v2/aggs/ticker/{ticker}/prev"
-            response = requests.get(url, params={"apikey": self.polygon_key}, timeout=10)
+            url = f"https://api.thetradelist.com/v1/data/quote"
+            params = {
+                "symbol": ticker,
+                "apiKey": self.tradelist_key
+            }
+            response = requests.get(url, params=params, timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                if data.get('results'):
-                    price = float(data['results'][0]['c'])
+                if data.get('price'):
+                    price = float(data['price'])
                     logger.info(f"Got price for {ticker}: ${price:.2f}")
                     return price
             else:
-                logger.error(f"Polygon price API failed for {ticker}: {response.status_code}")
+                logger.error(f"TheTradeList price API failed for {ticker}: {response.status_code}")
                 
         except Exception as e:
             logger.error(f"Error fetching price for {ticker}: {e}")
             
         return None
     
-    def get_options_expirations(self, ticker: str) -> List[str]:
-        """Get valid expiration dates from Polygon API"""
-        if not self.polygon_key:
+    def get_options_contracts(self, ticker: str) -> List[Dict]:
+        """Get all options contracts from TheTradeList API using the exact endpoint specified"""
+        if not self.tradelist_key:
             return []
             
         try:
-            # Get expirations in next 60 days
-            end_date = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d')
-            
-            url = f"https://api.polygon.io/v3/reference/options/contracts"
+            url = f"https://api.thetradelist.com/v1/data/options-contracts"
             params = {
                 "underlying_ticker": ticker,
-                "contract_type": "call",
-                "expiration_date.gte": datetime.now().strftime('%Y-%m-%d'),
-                "expiration_date.lte": end_date,
                 "limit": 1000,
-                "apikey": self.polygon_key
+                "apiKey": self.tradelist_key
             }
             
             response = requests.get(url, params=params, timeout=15)
@@ -87,99 +85,33 @@ class RobustSpreadPipeline:
                 data = response.json()
                 contracts = data.get('results', [])
                 
-                # Extract unique expiration dates
-                expirations = set()
+                # Filter for calls with 7-50 DTE range
+                valid_contracts = []
                 for contract in contracts:
+                    # Only process call options
+                    if contract.get('option_type') != 'call':
+                        continue
+                        
                     exp_date = contract.get('expiration_date')
                     if exp_date:
-                        expirations.add(exp_date)
+                        try:
+                            exp_dt = datetime.strptime(exp_date, '%Y-%m-%d')
+                            dte = (exp_dt - datetime.now()).days
+                            if 7 <= dte <= 50:
+                                valid_contracts.append(contract)
+                        except:
+                            continue
                 
-                # Filter for 7-50 DTE range
-                valid_exps = []
-                for exp_date in expirations:
-                    try:
-                        exp_dt = datetime.strptime(exp_date, '%Y-%m-%d')
-                        dte = (exp_dt - datetime.now()).days
-                        if 7 <= dte <= 50:
-                            valid_exps.append(exp_date)
-                    except:
-                        continue
-                
-                logger.info(f"Found {len(valid_exps)} valid expirations for {ticker}")
-                return sorted(valid_exps)
+                logger.info(f"Found {len(valid_contracts)} valid call options for {ticker}")
+                return valid_contracts
                 
         except Exception as e:
-            logger.error(f"Error fetching expirations for {ticker}: {e}")
+            logger.error(f"Error fetching options contracts for {ticker}: {e}")
             
         return []
-    
-    def get_options_chain(self, ticker: str, exp_date: str) -> List[Dict]:
-        """Get options chain for specific expiration from Polygon API"""
-        if not self.polygon_key:
-            return []
-            
-        try:
-            url = f"https://api.polygon.io/v3/reference/options/contracts"
-            params = {
-                "underlying_ticker": ticker,
-                "contract_type": "call",
-                "expiration_date": exp_date,
-                "limit": 1000,
-                "apikey": self.polygon_key
-            }
-            
-            response = requests.get(url, params=params, timeout=15)
-            
-            if response.status_code == 200:
-                data = response.json()
-                contracts = data.get('results', [])
-                
-                # Get current prices for options
-                options_with_prices = []
-                for contract in contracts:
-                    try:
-                        option_ticker = contract.get('ticker')
-                        strike = float(contract.get('strike_price', 0))
-                        
-                        # Get current option price
-                        price_data = self.get_option_price(option_ticker)
-                        if price_data and price_data > 0:
-                            options_with_prices.append({
-                                'ticker': option_ticker,
-                                'strike': strike,
-                                'last_price': price_data,
-                                'expiration_date': exp_date,
-                                'option_type': 'call'
-                            })
-                    except:
-                        continue
-                
-                logger.info(f"Retrieved {len(options_with_prices)} priced options for {ticker} {exp_date}")
-                return options_with_prices
-                
-        except Exception as e:
-            logger.error(f"Error fetching options chain for {ticker} {exp_date}: {e}")
-            
-        return []
-    
-    def get_option_price(self, option_ticker: str) -> Optional[float]:
-        """Get current option price from Polygon API"""
-        try:
-            url = f"https://api.polygon.io/v2/aggs/ticker/{option_ticker}/prev"
-            response = requests.get(url, params={"apikey": self.polygon_key}, timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('results'):
-                    return float(data['results'][0]['c'])
-                    
-        except Exception as e:
-            logger.debug(f"Error fetching option price for {option_ticker}: {e}")
-            
-        return None
     
     def analyze_ticker_spreads(self, ticker: str) -> Dict:
-        """Analyze debit spreads for a single ticker using Polygon API"""
+        """Analyze debit spreads for a single ticker using TheTradeList API"""
         logger.info(f"Analyzing spreads for {ticker}")
         
         try:
@@ -188,22 +120,13 @@ class RobustSpreadPipeline:
             if not current_price:
                 return {'error': f'Unable to fetch price for {ticker}'}
             
-            # Get valid expirations
-            expirations = self.get_options_expirations(ticker)
-            if not expirations:
-                return {'error': f'No valid expirations found for {ticker}'}
+            # Get all options contracts
+            contracts = self.get_options_contracts(ticker)
+            if not contracts:
+                return {'error': f'No valid options contracts found for {ticker}'}
             
-            # Analyze spreads across expirations
-            all_spreads = []
-            
-            for exp_date in expirations[:3]:  # Check first 3 expirations
-                options_chain = self.get_options_chain(ticker, exp_date)
-                if not options_chain:
-                    continue
-                
-                # Find $1-wide spreads
-                spreads = self.find_dollar_wide_spreads(options_chain, current_price, exp_date)
-                all_spreads.extend(spreads)
+            # Analyze spreads
+            all_spreads = self.find_dollar_wide_spreads(contracts, current_price)
             
             if not all_spreads:
                 return {'error': f'No profitable spreads found for {ticker}'}
@@ -216,28 +139,33 @@ class RobustSpreadPipeline:
             logger.error(f"Error analyzing {ticker}: {e}")
             return {'error': str(e)}
     
-    def find_dollar_wide_spreads(self, options_chain: List[Dict], current_price: float, exp_date: str) -> List[Dict]:
-        """Find $1-wide debit spreads from options chain"""
+    def find_dollar_wide_spreads(self, contracts: List[Dict], current_price: float) -> List[Dict]:
+        """Find $1-wide debit spreads from TheTradeList options contracts"""
         spreads = []
         
-        # Sort options by strike
-        options_chain.sort(key=lambda x: x['strike'])
+        # Sort contracts by strike price
+        contracts.sort(key=lambda x: float(x.get('strike_price', 0)))
         
-        for i, long_opt in enumerate(options_chain):
-            long_strike = long_opt['strike']
-            long_price = long_opt['last_price']
-            long_ticker = long_opt['ticker']
+        for i, long_contract in enumerate(contracts):
+            long_strike = float(long_contract.get('strike_price', 0))
+            long_price = float(long_contract.get('last_price', 0))
+            long_symbol = long_contract.get('ticker', '')
+            exp_date = long_contract.get('expiration_date', '')
             
-            if long_price <= 0:
+            if long_price <= 0 or not exp_date:
                 continue
             
             # Look for short option $1 higher
-            for short_opt in options_chain[i+1:]:
-                short_strike = short_opt['strike']
-                short_price = short_opt['last_price']
-                short_ticker = short_opt['ticker']
+            for short_contract in contracts[i+1:]:
+                short_strike = float(short_contract.get('strike_price', 0))
+                short_price = float(short_contract.get('last_price', 0))
+                short_symbol = short_contract.get('ticker', '')
                 
-                if abs(short_strike - long_strike - 1.0) < 0.01 and short_price > 0:
+                # Must be same expiration and $1 spread
+                if (short_contract.get('expiration_date') == exp_date and 
+                    abs(short_strike - long_strike - 1.0) < 0.01 and 
+                    short_price > 0):
+                    
                     # Calculate spread metrics
                     spread_cost = long_price - short_price
                     if spread_cost <= 0:
@@ -247,40 +175,41 @@ class RobustSpreadPipeline:
                     roi = (max_profit / spread_cost) * 100
                     
                     if roi >= 5:  # Minimum 5% ROI
-                        dte = (datetime.strptime(exp_date, '%Y-%m-%d') - datetime.now()).days
-                        
-                        # Generate trade construction descriptions
-                        exp_display = datetime.strptime(exp_date, '%Y-%m-%d').strftime('%B %d')
-                        
-                        spread_data = {
-                            'long_strike': long_strike,
-                            'short_strike': short_strike,
-                            'long_option_symbol': long_ticker,
-                            'short_option_symbol': short_ticker,
-                            'long_price': round(long_price, 2),
-                            'short_price': round(short_price, 2),
-                            'spread_cost': round(spread_cost, 2),
-                            'max_profit': round(max_profit, 2),
-                            'max_loss': round(spread_cost, 2),
-                            'roi_percent': round(roi, 1),
-                            'breakeven': round(long_strike + spread_cost, 2),
-                            'expiration_date': exp_date,
-                            'days_to_expiration': dte,
-                            'distance_otm_percent': round(((long_strike - current_price) / current_price) * 100, 1),
-                            'current_stock_price': round(current_price, 2),
-                            'trade_construction': {
-                                'buy_description': f"Buy the ${long_strike:.0f} {exp_display} Call",
-                                'sell_description': f"Sell the ${short_strike:.0f} {exp_display} Call",
-                                'strategy_name': "Bull Call Spread"
+                        try:
+                            dte = (datetime.strptime(exp_date, '%Y-%m-%d') - datetime.now()).days
+                            exp_display = datetime.strptime(exp_date, '%Y-%m-%d').strftime('%B %d')
+                            
+                            spread_data = {
+                                'long_strike': long_strike,
+                                'short_strike': short_strike,
+                                'long_option_symbol': long_symbol,
+                                'short_option_symbol': short_symbol,
+                                'long_price': round(long_price, 2),
+                                'short_price': round(short_price, 2),
+                                'spread_cost': round(spread_cost, 2),
+                                'max_profit': round(max_profit, 2),
+                                'max_loss': round(spread_cost, 2),
+                                'roi_percent': round(roi, 1),
+                                'breakeven': round(long_strike + spread_cost, 2),
+                                'expiration_date': exp_date,
+                                'days_to_expiration': dte,
+                                'distance_otm_percent': round(((long_strike - current_price) / current_price) * 100, 1),
+                                'current_stock_price': round(current_price, 2),
+                                'trade_construction': {
+                                    'buy_description': f"Buy the ${long_strike:.0f} {exp_display} Call",
+                                    'sell_description': f"Sell the ${short_strike:.0f} {exp_display} Call",
+                                    'strategy_name': "Bull Call Spread"
+                                }
                             }
-                        }
-                        
-                        # Add price scenarios
-                        spread_data['profit_scenarios'] = self.calculate_scenarios(
-                            current_price, long_strike, short_strike, spread_cost
-                        )
-                        
-                        spreads.append(spread_data)
+                            
+                            # Add price scenarios
+                            spread_data['profit_scenarios'] = self.calculate_scenarios(
+                                current_price, long_strike, short_strike, spread_cost
+                            )
+                            
+                            spreads.append(spread_data)
+                        except Exception:
+                            continue
                     break
         
         return spreads
