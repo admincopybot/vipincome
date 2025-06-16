@@ -1,10 +1,1 @@
-{
-  "/_app": "pages/_app.js",
-  "/api/analyze/[symbol]": "pages/api/analyze/[symbol].js",
-  "/api/ticker/[symbol]": "pages/api/ticker/[symbol].js",
-  "/api/tickers": "pages/api/tickers.js",
-  "/_error": "pages/_error.js",
-  "/": "pages/index.js",
-  "/ticker/[symbol]": "pages/ticker/[symbol].js",
-  "/_document": "pages/_document.js"
-}
+{}
