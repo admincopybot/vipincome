@@ -703,38 +703,58 @@ def get_real_time_spreads_with_early_termination(symbol: str, current_price: flo
             'conservative': {'found': False, 'reason': 'Early termination validation'}
         }
         
-        # Quick contract availability check
+        # Quick contract availability check using correct TheTradeList API endpoint
         import requests
-        contracts_url = "https://api.thetradelist.com/v1/data/contracts-historical"
+        contracts_url = "https://api.thetradelist.com/v1/data/options-spreads"
         params = {
             'symbol': symbol,
-            'type': 'call',
+            'strategy': 'Steady',  # Use steady strategy for quick validation
             'apiKey': os.environ.get('TRADELIST_API_KEY')
         }
         
         # Quick check with timeout
-        response = requests.get(contracts_url, params=params, timeout=10)
-        
-        if response.status_code == 200:
-            contracts_data = response.json()
-            contract_count = len(contracts_data.get('data', []))
-            logger.info(f"EARLY TERMINATION: {symbol} has {contract_count} available contracts")
+        try:
+            logger.info(f"EARLY TERMINATION: Fetching contracts for {symbol} from TheTradeList API")
+            logger.info(f"EARLY TERMINATION: URL: {contracts_url}")
+            logger.info(f"EARLY TERMINATION: Params: {params}")
             
-            # Simple heuristic: if more than 50 contracts, assume viable spreads exist
-            if contract_count >= 50:
-                strategies_found = 0
-                for strategy in ['aggressive', 'conservative']:  # Only check 2 strategies for early termination
-                    if strategies_found >= 2:
-                        break
-                    results[strategy] = {'found': True, 'roi': f'{15 - strategies_found * 2}.0%'}
-                    strategies_found += 1
-                    logger.info(f"✅ HEURISTIC: {strategy} marked as viable ({strategies_found}/2)")
-                    
-                logger.info(f"📊 EARLY TERMINATION COMPLETE: {strategies_found} strategies validated via heuristic")
+            response = requests.get(contracts_url, params=params, timeout=10)
+            logger.info(f"EARLY TERMINATION: API Response Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                contracts_data = response.json()
+                
+                # Handle both list and dict response formats
+                if isinstance(contracts_data, list):
+                    contract_count = len(contracts_data)
+                    logger.info(f"EARLY TERMINATION: {symbol} has {contract_count} available contracts (list format)")
+                elif isinstance(contracts_data, dict):
+                    contract_count = len(contracts_data.get('data', []))
+                    logger.info(f"EARLY TERMINATION: {symbol} has {contract_count} available contracts (dict format)")
+                else:
+                    contract_count = 0
+                    logger.warning(f"EARLY TERMINATION: Unexpected data format for {symbol}: {type(contracts_data)}")
+                
+                # Simple heuristic: if more than 10 contracts, assume viable spreads exist
+                if contract_count >= 10:
+                    strategies_found = 0
+                    for strategy in ['aggressive', 'conservative']:  # Only check 2 strategies for early termination
+                        if strategies_found >= 2:
+                            break
+                        results[strategy] = {'found': True, 'roi': f'{15 - strategies_found * 2}.0%'}
+                        strategies_found += 1
+                        logger.info(f"✅ HEURISTIC: {strategy} marked as viable ({strategies_found}/2)")
+                        
+                    logger.info(f"📊 EARLY TERMINATION COMPLETE: {strategies_found} strategies validated via heuristic")
+                else:
+                    logger.info(f"📊 EARLY TERMINATION: Insufficient contracts ({contract_count}) for {symbol}")
             else:
-                logger.info(f"📊 EARLY TERMINATION: Insufficient contracts ({contract_count}) for {symbol}")
-        else:
-            logger.warning(f"EARLY TERMINATION: Could not fetch contracts for {symbol}")
+                logger.warning(f"EARLY TERMINATION: API returned status {response.status_code} for {symbol}")
+                logger.warning(f"EARLY TERMINATION: Response text: {response.text[:200]}")
+        except requests.exceptions.Timeout:
+            logger.warning(f"EARLY TERMINATION: API timeout for {symbol}")
+        except Exception as api_error:
+            logger.warning(f"EARLY TERMINATION: API error for {symbol}: {api_error}")
             
         return results
         
