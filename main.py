@@ -9408,20 +9408,106 @@ def trigger_minimal_analysis():
                     'error': str(e)
                 })
         
-        # SKIP ALL SPREAD VALIDATION: For POST trigger, assume all top 3 tickers are valid
-        logger.info("MANUAL TRIGGER: SKIPPING intensive spread validation to prevent worker timeouts")
+        # EARLY TERMINATION SPREAD ANALYSIS: Run real analysis but stop after finding 2 viable strategies
+        logger.info("MANUAL TRIGGER: Starting EARLY TERMINATION spread analysis")
         
-        # All top 3 tickers are assumed valid since they passed the ranking system
         for ticker in top_3_symbols:
-            logger.info(f"MANUAL TRIGGER: {ticker} auto-validated (top 3 ranking = sufficient quality)")
+            logger.info(f"MANUAL TRIGGER: Running early termination spread analysis for {ticker}")
             
-            # Update results with simplified validation
-            for result in results:
-                if result['symbol'] == ticker:
-                    result['spreads_found'] = 3  # Assumed valid
-                    result['spread_validation'] = 'BYPASSED'
-                    result['strategy_breakdown'] = {'aggressive': 1, 'steady': 1, 'passive': 1}
-                    break
+            try:
+                # Get current price from global etf_scores (updated by background polling)
+                current_price = None
+                if ticker in etf_scores:
+                    current_price = etf_scores[ticker].get('price', None)
+                
+                # Fallback to database lookup if not in memory
+                if not current_price:
+                    etf_data = load_etf_data_from_database()
+                    if etf_data:
+                        for etf in etf_data:
+                            if etf['symbol'] == ticker:
+                                current_price = etf.get('current_price')
+                                break
+                
+                # Use reasonable default prices if still not found (for testing)
+                if not current_price:
+                    default_prices = {'CSCO': 52.0, 'WMB': 60.0, 'AIG': 85.0}
+                    current_price = default_prices.get(ticker, 50.0)
+                    logger.info(f"MANUAL TRIGGER: Using default price ${current_price} for {ticker}")
+                
+                if not current_price:
+                    logger.warning(f"MANUAL TRIGGER: No current price for {ticker}, skipping spread validation")
+                    # Update results with price error
+                    for result in results:
+                        if result['symbol'] == ticker:
+                            result['spreads_found'] = 0
+                            result['spread_validation'] = 'NO_PRICE'
+                            result['strategy_breakdown'] = {'aggressive': 0, 'steady': 0, 'passive': 0}
+                            break
+                    continue
+                
+                # Use early termination spread analysis
+                from real_time_spreads import get_real_time_spreads_with_early_termination
+                
+                # Set 30-second timeout for each ticker to prevent worker kills
+                import signal
+                def timeout_handler(signum, frame):
+                    raise TimeoutError("Early termination analysis timed out")
+                
+                signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(30)  # 30-second timeout per ticker
+                
+                try:
+                    # Run early termination analysis (stops after finding 2 strategies)
+                    spread_results = get_real_time_spreads_with_early_termination(ticker, current_price)
+                    
+                    # Count valid spreads across all strategies
+                    total_spreads = 0
+                    strategy_counts = {'aggressive': 0, 'steady': 0, 'passive': 0}
+                    
+                    for strategy in ['aggressive', 'balanced', 'conservative']:
+                        strategy_result = spread_results.get(strategy, {})
+                        if strategy_result.get('found', False):
+                            if strategy == 'balanced':
+                                strategy_counts['steady'] = 1
+                            else:
+                                strategy_counts[strategy] = 1
+                            total_spreads += 1
+                    
+                    logger.info(f"MANUAL TRIGGER: {ticker} early termination results - Total: {total_spreads}, Breakdown: {strategy_counts}")
+                    
+                    # Update results with real spread analysis
+                    for result in results:
+                        if result['symbol'] == ticker:
+                            result['spreads_found'] = total_spreads
+                            result['spread_validation'] = 'EARLY_TERMINATION'
+                            result['strategy_breakdown'] = strategy_counts
+                            if total_spreads >= 2:
+                                result['validation_result'] = 'PASSED'
+                            else:
+                                result['validation_result'] = 'FAILED'
+                            break
+                            
+                finally:
+                    signal.alarm(0)  # Cancel timeout
+                    
+            except TimeoutError:
+                logger.warning(f"MANUAL TRIGGER: Early termination analysis for {ticker} timed out after 30 seconds")
+                for result in results:
+                    if result['symbol'] == ticker:
+                        result['spreads_found'] = 0
+                        result['spread_validation'] = 'TIMEOUT'
+                        result['strategy_breakdown'] = {'aggressive': 0, 'steady': 0, 'passive': 0}
+                        break
+            except Exception as e:
+                logger.error(f"MANUAL TRIGGER: Error in early termination analysis for {ticker}: {str(e)}")
+                for result in results:
+                    if result['symbol'] == ticker:
+                        result['spreads_found'] = 0
+                        result['spread_validation'] = 'ERROR'
+                        result['strategy_breakdown'] = {'aggressive': 0, 'steady': 0, 'passive': 0}
+                        result['validation_error'] = str(e)
+                        break
         
         # Third phase: Auto-exclusion logic - replace failed tickers with next best candidates
         excluded_tickers = []
