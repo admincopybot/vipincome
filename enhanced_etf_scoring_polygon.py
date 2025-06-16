@@ -27,9 +27,9 @@ def fetch_daily_data(symbol, period='2y'):
         pandas.DataFrame: DataFrame with OHLCV data at daily timeframe
     """
     try:
-        api_key = os.environ.get("POLYGON_API_KEY")
+        api_key = os.environ.get("TRADELIST_API_KEY")
         if not api_key:
-            logger.error("No Polygon API key found in environment variables")
+            logger.error("No TheTradeList API key found in environment variables")
             return pd.DataFrame()
         
         # Calculate from_date based on period
@@ -47,8 +47,17 @@ def fetch_daily_data(symbol, period='2y'):
         from_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
         to_date = datetime.now().strftime('%Y-%m-%d')
         
-        # Use the /v2/aggs/ticker/{stocksTicker}/range endpoint for historical data
-        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/day/{from_date}/{to_date}?apiKey={api_key}"
+        # Use TheTradeList range-data endpoint for historical data
+        url = f"https://api.thetradelist.com/v1/data/range-data"
+        params = {
+            'ticker': symbol,
+            'range': '1/day',
+            'startdate': from_date,
+            'enddate': to_date,
+            'limit': 5000,
+            'next_url': '',
+            'apiKey': api_key
+        }
         
         response = requests.get(url, timeout=15)
         

@@ -189,22 +189,22 @@ class SimplifiedMarketDataService:
             polygon_indicators = {}
             
             try:
-                # Get the ETF score and indicators from the enhanced Polygon API service
+                # Get the ETF score and indicators from the enhanced TheTradeList API service
                 polygon_score, polygon_price, polygon_indicators = SimplifiedMarketDataService._etf_scoring_service.get_etf_score(ticker, force_refresh)
-                logger.info(f"Successfully calculated indicators for {ticker} using Polygon API")
+                logger.info(f"Successfully calculated indicators for {ticker} using TheTradeList API")
                 
-                # Always use Polygon indicators for frontend display
+                # Always use TheTradeList indicators for frontend display
                 indicators = polygon_indicators
                 
-                # CRITICAL FIX: Always use Polygon score to match the indicator count
+                # CRITICAL FIX: Always use TheTradeList score to match the indicator count
                 # This ensures that the score displayed matches the actual passing indicators
                 score = polygon_score
-                logger.info(f"Using Polygon score for {ticker}: {score}/5 (based on actual indicator calculations)")
+                logger.info(f"Using TheTradeList score for {ticker}: {score}/5 (based on actual indicator calculations)")
                 
-                # Use Polygon price if available
+                # Use TheTradeList price if available
                 if polygon_price > 0:
                     current_price = polygon_price
-                    logger.info(f"Using Polygon price for {ticker}: ${current_price}")
+                    logger.info(f"Using TheTradeList price for {ticker}: ${current_price}")
                 else:
                     current_price = 0.0
                 

@@ -9282,7 +9282,7 @@ def api_test_spread_calculation():
 
 @app.route('/api/chart_data/<symbol>')
 def api_chart_data(symbol):
-    """API endpoint to get chart data for a specific symbol using Polygon API
+    """API endpoint to get chart data for a specific symbol using TheTradeList range-data API
     
     Returns:
         JSON: Chart data with timestamps and prices
@@ -9292,22 +9292,31 @@ def api_chart_data(symbol):
         from datetime import datetime, timedelta
         import requests
         
-        api_key = os.environ.get('POLYGON_API_KEY')
+        api_key = os.environ.get('TRADELIST_API_KEY')
         if not api_key:
-            return jsonify({'error': 'POLYGON_API_KEY not configured'}), 500
+            return jsonify({'error': 'TRADELIST_API_KEY not configured'}), 500
         
         # Get 30 days of data
         end_date = datetime.now()
         start_date = end_date - timedelta(days=30)
         
-        url = f'https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/day/{start_date.strftime("%Y-%m-%d")}/{end_date.strftime("%Y-%m-%d")}'
+        url = f'https://api.thetradelist.com/v1/data/range-data'
+        params = {
+            'ticker': symbol,
+            'range': '1/day',
+            'startdate': start_date.strftime('%Y-%m-%d'),
+            'enddate': end_date.strftime('%Y-%m-%d'),
+            'limit': 5000,
+            'next_url': '',
+            'apiKey': api_key
+        }
         
-        response = requests.get(url, params={'apikey': api_key})
+        response = requests.get(url, params=params)
         
         if response.status_code == 200:
             data = response.json()
             
-            if data.get('status') == 'OK' and data.get('results'):
+            if data.get('results'):
                 chart_data = []
                 for result in data['results']:
                     # Convert timestamp to date string

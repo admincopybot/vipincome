@@ -45,21 +45,34 @@ class RobustSpreadPipeline:
             return None
             
         try:
-            url = f"https://api.thetradelist.com/v1/data/quote"
+            # Get current date and yesterday's date for range
+            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')  # Get last 5 days to ensure we have data
+            
+            url = f"https://api.thetradelist.com/v1/data/range-data"
             params = {
-                "symbol": ticker,
+                "ticker": ticker,
+                "range": "1/day",
+                "startdate": start_date,
+                "enddate": end_date,
+                "limit": 10,
+                "next_url": "",
                 "apiKey": self.tradelist_key
             }
-            response = requests.get(url, params=params, timeout=10)
+            
+            response = requests.get(url, params=params, timeout=15)
             
             if response.status_code == 200:
                 data = response.json()
-                if data.get('price'):
-                    price = float(data['price'])
-                    logger.info(f"Got price for {ticker}: ${price:.2f}")
-                    return price
+                results = data.get('results', [])
+                if results:
+                    # Get the most recent price (last item in results)
+                    latest_data = results[-1]
+                    current_price = float(latest_data.get('c', 0))  # 'c' is close price
+                    logger.info(f"TheTradeList current price for {ticker}: {current_price}")
+                    return current_price
             else:
-                logger.error(f"TheTradeList price API failed for {ticker}: {response.status_code}")
+                logger.error(f"TheTradeList range-data API failed for {ticker}: {response.status_code}")
                 
         except Exception as e:
             logger.error(f"Error fetching price for {ticker}: {e}")
