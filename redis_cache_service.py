@@ -294,25 +294,25 @@ cache_service = RedisCacheService()
 
 # Convenience functions for specific API endpoints
 def get_stock_price_cached(ticker: str, api_key: str) -> Optional[float]:
-    """Get real-time stock price using snapshot API with Redis caching"""
-    url = "https://api.thetradelist.com/v1/data/snapshot-locale"
+    """Get current stock price using ticker-range API with current date"""
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    
+    url = "https://api.thetradelist.com/v1/data/ticker-range"
     params = {
-        'tickers': f"{ticker},",  # API requires comma after ticker
+        'ticker': ticker,
+        'startdate': current_date,
+        'enddate': current_date,
         'apiKey': api_key
     }
     
-    data = cache_service.cached_api_call('stock_price_snapshot', url, params)
-    if data and data.get('status') == 'OK' and data.get('tickers'):
-        for ticker_data in data['tickers']:
-            if ticker_data.get('ticker') == ticker:
-                # Use FMV (Fair Market Value) for most accurate pricing
-                fmv = ticker_data.get('fmv')
-                if fmv and fmv > 0:
-                    return float(fmv)
-                # Fallback to last trade price
-                last_trade = ticker_data.get('lastTrade', {})
-                if last_trade.get('p'):
-                    return float(last_trade['p'])
+    data = cache_service.cached_api_call('stock_price_current', url, params)
+    if data and data.get('results') and len(data['results']) > 0:
+        # Get the most recent result (current day)
+        latest_result = data['results'][-1]
+        # Use close price as current price
+        close_price = latest_result.get('c')
+        if close_price and close_price > 0:
+            return float(close_price)
     return None
 
 def get_options_contracts_cached(ticker: str, api_key: str) -> List[Dict]:
