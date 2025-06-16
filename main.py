@@ -8764,6 +8764,49 @@ document.addEventListener("DOMContentLoaded", updateCountdown);
     </html>
     '''
 
+@app.route('/update_options_contracts', methods=['POST'])
+def update_options_contracts():
+    """POST endpoint to fetch and update authentic options contracts for top 10 tickers"""
+    try:
+        from options_contracts_updater import OptionsContractsUpdater
+        
+        logger.info("🚀 Starting authentic options contracts update")
+        
+        updater = OptionsContractsUpdater()
+        result = updater.update_options_contracts()
+        
+        if result['success']:
+            # Clear cache and reload data
+            global last_csv_update, etf_scores
+            last_csv_update = datetime.now()
+            etf_scores = {}
+            
+            # Reload fresh data from database
+            load_etf_data_from_database()
+            
+            logger.info(f"✅ Options contracts updated for {result['updated_count']} tickers")
+            
+            return jsonify({
+                'success': True,
+                'message': f"Successfully updated options contracts for {result['updated_count']} tickers",
+                'updated_count': result['updated_count'],
+                'total_tickers': result['total_tickers'],
+                'contracts': result['contracts'],
+                'timestamp': result['timestamp']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Unknown error')
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"❌ Options contracts update failed: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
     """CSV upload endpoint that updates the database with ETF scoring data from uploaded CSV

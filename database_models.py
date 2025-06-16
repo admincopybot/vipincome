@@ -273,6 +273,27 @@ class ETFDatabase:
             logger.error(f"Error retrieving ETF data: {str(e)}")
             return {}
     
+    def update_options_contracts(self, symbol: str, contracts_count: int):
+        """Update options contracts count for a specific symbol"""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                UPDATE etf_scores 
+                SET options_contracts_10_42_dte = %s 
+                WHERE symbol = %s
+            ''', (contracts_count, symbol))
+            
+            conn.commit()
+            conn.close()
+            
+            logger.info(f"Updated {symbol} options contracts to {contracts_count}")
+            
+        except Exception as e:
+            logger.error(f"Error updating options contracts for {symbol}: {str(e)}")
+            raise
+    
     def search_etfs(self, search_term='', limit=None):
         """Search ETFs by symbol with optional limit - optimized for VIP tier"""
         try:
