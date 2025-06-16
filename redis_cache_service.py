@@ -25,18 +25,39 @@ class RedisCacheService:
         self._initialize_redis()
         
     def _initialize_redis(self):
-        """Initialize Redis connection with multiple fallback options for production"""
+        """Initialize Redis connection with Upstash support"""
         
-        # Priority order for Redis connections - external services first
+        # Check for Upstash Redis first (recommended for production)
+        upstash_url = os.environ.get('UPSTASH_REDIS_REST_URL')
+        upstash_token = os.environ.get('UPSTASH_REDIS_REST_TOKEN')
+        
+        if upstash_url and upstash_token:
+            try:
+                logger.info("Configuring Upstash Redis connection")
+                # Use upstash-redis library for REST API
+                from upstash_redis import Redis as UpstashRedis
+                self.redis_client = UpstashRedis(url=upstash_url, token=upstash_token)
+                
+                # Test connection
+                self.redis_client.set('connection_test', 'success', ex=10)
+                if self.redis_client.get('connection_test') == 'success':
+                    self.cache_enabled = True
+                    logger.info("✅ Upstash Redis connection successful")
+                    return
+                    
+            except ImportError:
+                logger.warning("upstash-redis library not found, falling back to standard Redis")
+            except Exception as e:
+                logger.warning(f"Upstash Redis connection failed: {e}")
+        
+        # Fallback to standard Redis connections
         redis_options = [
-            os.environ.get('REDIS_URL'),           # Primary external Redis
-            os.environ.get('REDISCLOUD_URL'),      # Redis Cloud service
-            os.environ.get('REDISTOGO_URL'),       # Redis To Go service  
-            os.environ.get('UPSTASH_REDIS_URL'),   # Upstash Redis
+            os.environ.get('REDIS_URL'),           # Standard Redis URL
+            os.environ.get('REDISCLOUD_URL'),      # Redis Cloud
+            os.environ.get('REDISTOGO_URL'),       # Redis To Go
             "redis://localhost:6379",              # Local fallback
         ]
         
-        # Remove None values
         redis_options = [url for url in redis_options if url]
         
         for redis_url in redis_options:
@@ -44,10 +65,19 @@ class RedisCacheService:
                 masked_url = redis_url.split('@')[-1] if '@' in redis_url else redis_url
                 logger.info(f"Attempting Redis connection to: {masked_url}")
                 
-                self.redis_client = redis.from_url(
-                    redis_url, 
-                    decode_responses=True,
-                    socket_connect_timeout=5,
+                # Handle TLS connections for external services
+                if redis_url.startswith('rediss://'):
+                    self.redis_client = redis.from_url(
+                        redis_url, 
+                        decode_responses=True,
+                        socket_connect_timeout=5,
+                        ssl_cert_reqs=None  # Allow self-signed certificates
+                    )
+                else:
+                    self.redis_client = redis.from_url(
+                        redis_url, 
+                        decode_responses=True,
+                        socket_connect_timeout=5,
                     socket_timeout=5,
                     retry_on_timeout=True
                 )
