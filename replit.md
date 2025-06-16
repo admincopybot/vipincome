@@ -144,6 +144,8 @@ Changelog:
 - June 15, 2025: Renamed "Stock Price Scenarios" section to "Profit Matrix" for clearer user understanding
 - June 15, 2025: Fixed "How to Use" video popup functionality across all versions (Free, Pro, VIP)
 - June 15, 2025: Optimized tutorial video file size from 85MB to 23MB for faster loading
+- June 16, 2025: Fixed VIP/Pro ranking to strictly follow Score → Options Contracts → Volume → Symbol hierarchy
+- June 16, 2025: Corrected database with authentic options contracts data from user's CSV file
 
 # User Preferences
 
