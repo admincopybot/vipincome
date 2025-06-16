@@ -137,33 +137,35 @@ class RealTimeSpreadDetector:
             return 0
     
     def get_all_contracts(self, symbol: str) -> List[Dict]:
-        """Fetch ALL option contracts for a symbol from TheTradeList API"""
+        """Fetch ALL option contracts for a symbol from TheTradeList API using Redis cache"""
         try:
             if not self.tradelist_api_key:
                 logger.error("TheTradeList API key not configured")
                 return []
-                
-            url = "https://api.thetradelist.com/v1/data/options-contracts"
-            params = {
-                'ticker': symbol,
-                'apiKey': self.tradelist_api_key
-            }
             
-            logger.info(f"📥 Fetching contracts for {symbol} from TheTradeList API")
-            response = requests.get(url, params=params, timeout=10)
+            # Use cached function from redis_cache_service
+            from redis_cache_service import get_options_contracts_cached
             
-            if response.status_code == 200:
-                data = response.json()
-                contracts = data.get('results', [])
-                
-                # Filter for call options only
-                call_contracts = [c for c in contracts if c.get('option_type') == 'call']
-                
-                logger.info(f"📥 TOTAL CONTRACTS FETCHED: {len(call_contracts)} call contracts for {symbol}")
-                return call_contracts
-            else:
-                logger.error(f"TheTradeList API error: {response.status_code}")
-                return []
+            logger.info(f"📥 Fetching contracts for {symbol} from TheTradeList API (with Redis cache)")
+            contracts = get_options_contracts_cached(symbol, self.tradelist_api_key)
+            
+            # Filter for call options only and add required fields
+            call_contracts = []
+            for contract in contracts:
+                if contract.get('option_type') == 'call':
+                    # Ensure contract has all required fields for spread calculation
+                    processed_contract = {
+                        'ticker': contract.get('ticker'),  # Option ticker symbol
+                        'strike_price': contract.get('strike_price', 0),
+                        'expiration_date': contract.get('expiration_date'),
+                        'option_type': contract.get('option_type'),
+                        'underlying_ticker': contract.get('underlying_ticker', symbol),
+                        'dte': self.calculate_dte(contract.get('expiration_date', ''))
+                    }
+                    call_contracts.append(processed_contract)
+            
+            logger.info(f"📥 TOTAL CONTRACTS FETCHED: {len(call_contracts)} call contracts for {symbol}")
+            return call_contracts
                 
         except Exception as e:
             logger.error(f"Error fetching contracts: {e}")
