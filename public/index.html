@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Machine - VIP Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #581c87 50%, #1e293b 100%);
+            min-height: 100vh;
+        }
+        .vip-badge {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            color: black;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+        .ticker-card {
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        .ticker-card:hover {
+            border-color: rgba(147, 51, 234, 0.4);
+            background: rgba(51, 65, 85, 0.9);
+        }
+        .score-badge {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 1.125rem;
+        }
+        .loading-spinner {
+            border: 3px solid rgba(147, 51, 234, 0.3);
+            border-top: 3px solid #9333ea;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="bg-slate-800/50 border-b border-purple-500/30 backdrop-blur-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-3xl font-bold text-white">Income Machine</h1>
+                    <div class="vip-badge">VIP</div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="https://oneclick.trading/" target="_blank" 
+                       class="text-purple-400 hover:text-purple-300 transition-colors">
+                        Trade Classes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="container mx-auto px-6 py-6">
+        <div class="max-w-md mx-auto">
+            <input type="text" id="searchInput" placeholder="Search tickers..." 
+                   class="w-full px-4 py-3 bg-slate-700 text-white rounded-lg border border-purple-500/30 focus:border-purple-400 focus:outline-none">
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 pb-12">
+        <div class="text-center mb-8">
+            <h2 class="text-4xl font-bold text-white mb-4">Top Trade Opportunities</h2>
+            <p class="text-gray-300 text-lg">Unlimited access to all premium opportunities</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="flex justify-center items-center py-12">
+            <div class="loading-spinner"></div>
+            <span class="ml-4 text-white">Loading opportunities...</span>
+        </div>
+
+        <!-- Tickers Grid -->
+        <div id="tickersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" style="display: none;">
+            <!-- Ticker cards will be inserted here -->
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="text-center py-12" style="display: none;">
+            <div class="text-gray-400 text-lg">No tickers found matching your search</div>
+        </div>
+    </div>
+
+    <script>
+        let allTickers = [];
+        let jwtToken = null;
+
+        // Check for JWT token from OneClick Trading
+        function getJWTFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('token') || localStorage.getItem('jwt_token');
+        }
+
+        // Display access screen for non-authenticated users
+        function showAccessScreen() {
+            document.body.innerHTML = `
+                <div class="min-h-screen flex items-center justify-center">
+                    <div class="max-w-md mx-auto text-center p-8">
+                        <div class="bg-slate-800/80 rounded-xl p-8 border border-purple-500/30">
+                            <h1 class="text-3xl font-bold text-white mb-4">Income Machine</h1>
+                            <div class="vip-badge mb-6">VIP ACCESS REQUIRED</div>
+                            <p class="text-gray-300 mb-6">This application requires VIP access through OneClick Trading.</p>
+                            <a href="https://oneclick.trading/" target="_blank" 
+                               class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                                Get VIP Access
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load tickers data
+        async function loadTickers() {
+            try {
+                const response = await axios.get('/api/tickers', {
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`
+                    }
+                });
+                
+                allTickers = response.data;
+                displayTickers(allTickers);
+            } catch (error) {
+                console.error('Failed to load tickers:', error);
+                if (error.response?.status === 401) {
+                    showAccessScreen();
+                }
+            }
+        }
+
+        // Display tickers in grid
+        function displayTickers(tickers) {
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('tickersGrid');
+            const noResults = document.getElementById('noResults');
+
+            loading.style.display = 'none';
+            
+            if (tickers.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            grid.style.display = 'grid';
+            
+            grid.innerHTML = tickers.map((ticker, index) => `
+                <div class="ticker-card cursor-pointer" onclick="openTicker('${ticker.symbol}')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-2xl font-bold text-white">#${index + 1}</span>
+                                <h3 class="text-xl font-bold text-white">${ticker.symbol}</h3>
+                            </div>
+                            <div class="text-green-400 text-2xl font-bold">$${ticker.current_price.toFixed(2)}</div>
+                        </div>
+                        <div class="score-badge">${ticker.score}/5</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-5 gap-2 mb-4">
+                        ${renderCriteria(ticker)}
+                    </div>
+                    
+                    <div class="flex justify-between text-sm text-gray-400">
+                        <span>Volume: ${ticker.trading_volume.toLocaleString()}</span>
+                        <span>Options: ${ticker.options_contracts_10_42_dte === 0 ? 'Processing...' : ticker.options_contracts_10_42_dte.toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render criteria indicators
+        function renderCriteria(ticker) {
+            const criteria = [
+                ticker.trend1_pass,
+                ticker.trend2_pass,
+                ticker.snapback_pass,
+                ticker.momentum_pass,
+                ticker.stabilizing_pass
+            ];
+            
+            return criteria.map(pass => `
+                <div class="w-8 h-8 rounded-full flex items-center justify-center ${
+                    pass ? 'bg-green-500' : 'bg-red-500'
+                }">
+                    <span class="text-white text-xs font-bold">${pass ? '✓' : '✗'}</span>
+                </div>
+            `).join('');
+        }
+
+        // Open ticker details
+        function openTicker(symbol) {
+            window.location.href = `/ticker/${symbol}?token=${jwtToken}`;
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredTickers = allTickers.filter(ticker =>
+                    ticker.symbol.toLowerCase().includes(searchTerm)
+                );
+                displayTickers(filteredTickers);
+            });
+        }
+
+        // Initialize application
+        function init() {
+            jwtToken = getJWTFromURL();
+            
+            if (!jwtToken) {
+                showAccessScreen();
+                return;
+            }
+            
+            // Store token for future use
+            if (jwtToken) {
+                localStorage.setItem('jwt_token', jwtToken);
+            }
+            
+            setupSearch();
+            loadTickers();
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
