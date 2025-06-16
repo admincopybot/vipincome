@@ -187,7 +187,7 @@ def fetch_hourly_data(symbol, period='7d'):
 
 def fetch_four_hour_data(symbol, period='28d'):
     """
-    Fetch 4-hour price data for the given symbol using Polygon API.
+    Fetch 4-hour price data for the given symbol using TheTradeList API.
     Used for RSI calculation to match TradingView's 4-hour RSI.
     
     Args:
@@ -198,9 +198,9 @@ def fetch_four_hour_data(symbol, period='28d'):
         pandas.DataFrame: DataFrame with OHLCV data at 4-hour timeframe
     """
     try:
-        api_key = os.environ.get("POLYGON_API_KEY")
+        api_key = os.environ.get("TRADELIST_API_KEY")
         if not api_key:
-            logger.error("No Polygon API key found in environment variables")
+            logger.error("No TheTradeList API key found in environment variables")
             return pd.DataFrame()
         
         # Calculate from_date based on period
@@ -216,12 +216,15 @@ def fetch_four_hour_data(symbol, period='28d'):
         from_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
         to_date = datetime.now().strftime('%Y-%m-%d')
         
-        # Request 4-hour bars - use multiplier=4 with timespan="hour"
-        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/4/hour/{from_date}/{to_date}"
+        # Request 4-hour bars using TheTradeList API
+        url = f"https://api.thetradelist.com/v1/data/range-data"
         params = {
-            'adjusted': 'true',
-            'sort': 'asc',
+            'ticker': symbol,
+            'range': '4/hour',
+            'startdate': from_date,
+            'enddate': to_date,
             'limit': 5000,
+            'next_url': '',
             'apiKey': api_key
         }
         
@@ -371,7 +374,7 @@ def calculate_atr(df, window):
 
 def get_current_price(symbol):
     """
-    Get the current price for a symbol using Polygon API's previous close endpoint.
+    Get the current price for a symbol using TheTradeList API's range-data endpoint.
     
     Args:
         symbol (str): The ETF symbol
@@ -380,14 +383,23 @@ def get_current_price(symbol):
         float: The current price, or None if not available
     """
     try:
-        api_key = os.environ.get("POLYGON_API_KEY")
+        api_key = os.environ.get("TRADELIST_API_KEY")
         if not api_key:
-            logger.error("No Polygon API key found in environment variables")
+            logger.error("No TheTradeList API key found in environment variables")
             return None
         
-        # Use the previous close endpoint which is available on free tier
-        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/prev"
+        # Use the range-data endpoint to get latest price
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
+        
+        url = f"https://api.thetradelist.com/v1/data/range-data"
         params = {
+            'ticker': symbol,
+            'range': '1/day',
+            'startdate': start_date,
+            'enddate': end_date,
+            'limit': 10,
+            'next_url': '',
             'apiKey': api_key
         }
         
@@ -401,8 +413,8 @@ def get_current_price(symbol):
         data = response.json()
         
         if 'results' in data and data['results']:
-            # Return the closing price from previous day
-            return data['results'][0]['c']
+            # Return the most recent closing price
+            return data['results'][-1]['c']
         else:
             logger.warning(f"No current price data found for {symbol}")
             return None

@@ -226,12 +226,12 @@ class DatabaseManager:
             logger.error(f"Failed to create tables: {e}")
             raise
 
-class PolygonApiClient:
-    """Handles all Polygon.io API interactions with rate limiting and error handling"""
+class TheTradeListApiClient:
+    """Handles all TheTradeList API interactions with rate limiting and error handling"""
     
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.base_url = "https://api.polygon.io"
+        self.base_url = "https://api.thetradelist.com/v1/data"
         self.session = requests.Session()
         self.rate_limit_delay = 0.1  # 100ms between requests for free tier
         self.last_request_time = 0
