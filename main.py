@@ -264,7 +264,7 @@ def background_criteria_polling():
             current_time = datetime.now()
             time_since_last_poll = (current_time - last_poll_time).total_seconds()
             
-            if time_since_last_poll >= 300:  # 5 minutes
+            if time_since_last_poll >= 900:  # 15 minutes (reduced frequency)
                 logger.info("Starting background criteria polling for top 3 tickers")
                 
                 # Get current top 3 tickers
@@ -287,7 +287,7 @@ def background_criteria_polling():
                 else:
                     logger.warning("Not enough tickers in database for polling")
             
-            time.sleep(60)  # Check every 60 seconds, poll every 5 minutes
+            time.sleep(300)  # Check every 5 minutes, poll every 15 minutes (reduced frequency)
             
         except Exception as e:
             logger.error(f"Error in background polling: {str(e)}")
@@ -4060,8 +4060,8 @@ def pro_index():
             }
         }
         
-        // Update prices every 10 seconds
-        setInterval(updatePrices, 10000);
+        // DISABLED: Price updates removed for performance optimization
+        // setInterval(updatePrices, 10000);
         
         async function checkForUpdates() {
             try {

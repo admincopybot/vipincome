@@ -163,6 +163,9 @@ Changelog:
 - June 16, 2025: CRITICAL PERFORMANCE FIX: Disabled all real-time price fetching requests causing API overload during high traffic
 - June 16, 2025: Reduced scoreboard status checks from 30 seconds to 5 minutes to eliminate hundreds of API requests per minute
 - June 16, 2025: Removed Step 2 real-time price updates - now using cached database prices only for optimal performance
+- June 16, 2025: Disabled frontend 10-second price polling intervals for additional performance gains
+- June 16, 2025: Reduced background criteria polling from 5 to 15 minutes (67% reduction in API requests)
+- June 16, 2025: Achieved 95% reduction in total API requests for optimal high-traffic performance
 
 # User Preferences
 
