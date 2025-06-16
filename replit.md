@@ -157,6 +157,8 @@ Changelog:
 - June 16, 2025: Completed tiered progression: Free (blurred), Pro (clear + VIP prompts), VIP (unrestricted)
 - June 16, 2025: Fixed options contracts filter to show unprocessed tickers (0 contracts) and only hide 1-99 contracts
 - June 16, 2025: Updated Pro version upgrade button to link to https://sco.prosperitypub.com/1750083074481
+- June 16, 2025: Created isolated debit spread API endpoint (spread_api_server.py) for standalone POST requests
+- June 16, 2025: API endpoint accepts ticker symbol and returns comprehensive spread analysis in JSON format
 
 # User Preferences
 
