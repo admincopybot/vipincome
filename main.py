@@ -5586,7 +5586,7 @@ def index():
         <div class="nav-menu">
             <a href="#" class="nav-item" onclick="showHowToUseVideo()">How to Use</a>
             <a href="https://app.oneclicktrading.com/product/e1b62c76-7ddd-4190-8441-de9f5f2abe48/categories/01f85b2e-fe73-44a1-bd2e-8078c6348a8b" class="nav-item" target="_blank">Trade Classes</a>
-            <a href="#" class="get-offer-btn">Upgrade</a>
+            <a href="https://sco.prosperitypub.com/1750083074481" class="get-offer-btn" target="_blank">Upgrade</a>
         </div>
     </div>
     
