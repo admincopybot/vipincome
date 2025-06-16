@@ -119,16 +119,9 @@ def get_top_3_tickers():
         logger.error(f"Error getting top 3 tickers: {e}")
         return ['D', 'FOX', 'PFE']  # Current fallback based on live data
 
-def check_ticker_access(symbol, access_level='free'):
-    """Check if user has access to this ticker based on their subscription level"""
-    if access_level == 'vip':
-        return True  # VIP users can access all tickers
-    elif access_level == 'pro':
-        return True  # Pro users can access all tickers  
-    else:
-        # Free users can only access top 3 tickers
-        top_3 = get_top_3_tickers()
-        return symbol.upper() in [t.upper() for t in top_3]
+def check_ticker_access(symbol):
+    """VIP users have access to all tickers"""
+    return True  # VIP-only application - all authenticated users have full access
 
 def get_user_access_level():
     """Determine user's access level based on session and URL"""
@@ -5367,7 +5360,7 @@ def vip_scoreboard():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <title>Income Machine - Step 1: Scoreboard</title>
+    <title>Income Machine VIP - Step 1: Scoreboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -6131,26 +6124,19 @@ def vip_scoreboard():
 
 @app.route('/step2')
 @app.route('/step2/<symbol>')
-def step2(symbol=None, access_level=None):
-    """Step 2: Detailed ticker analysis page"""
+def step2(symbol=None):
+    """Step 2: VIP-only detailed ticker analysis page"""
+    # Check JWT authentication for VIP access
+    if not check_vip_authentication():
+        return show_access_screen()
+    
     if not symbol:
-        return redirect('/')
-    
-    # Check if this is VIP, Pro, or Free mode
-    is_vip = access_level == 'vip' or check_vip_authentication()
-    is_pro = check_pro_authentication()
-    
-    # Check if user has access to this ticker
-    if not check_ticker_access(symbol, "pro" if is_pro else "free"):
-        logger.warning(f"Free user attempted to access {symbol} which is not in top 3")
         return redirect('/')
     
     # Get detailed data for the symbol from database
     ticker_data = etf_db.get_ticker_details(symbol.upper())
     
     if not ticker_data:
-        if is_pro:
-            return redirect('/pro')
         return redirect('/')
     
     # Get real-time current price from TheTradeList API
@@ -7082,15 +7068,16 @@ def step2(symbol=None, access_level=None):
 </html>
 """
     
-    return render_template_string(template, symbol=symbol, ticker_data=ticker_data, is_pro=is_pro, is_vip=is_vip)
+    return render_template_string(template, symbol=symbol, ticker_data=ticker_data)
 
 @app.route('/step3')
 @app.route('/step3/<symbol>')
 def step3(symbol=None):
-    """Step 3: Income Strategy Selection - AUTHENTIC DATA ONLY with intelligent caching"""
+    """Step 3: VIP-only Income Strategy Selection with authentic data"""
     
-    # Check if this is Pro mode based on session authentication
-    is_pro = check_pro_authentication()
+    # Check JWT authentication for VIP access
+    if not check_vip_authentication():
+        return show_access_screen()
     
     # Get symbol from URL parameter or query string
     if not symbol:
