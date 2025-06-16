@@ -146,6 +146,8 @@ Changelog:
 - June 15, 2025: Optimized tutorial video file size from 85MB to 23MB for faster loading
 - June 16, 2025: Fixed VIP/Pro ranking to strictly follow Score → Options Contracts → Volume → Symbol hierarchy
 - June 16, 2025: Corrected database with authentic options contracts data from user's CSV file
+- June 16, 2025: Implemented 100+ options contracts filter for Free and Pro versions (VIP unrestricted)
+- June 16, 2025: Verified comprehensive CSV parsing functionality for bulk analysis data integration
 
 # User Preferences
 
