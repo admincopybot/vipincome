@@ -247,6 +247,7 @@ Changelog:
 - June 17, 2025: Fixed failover detection to trigger when endpoint returns HTML startup page instead of JSON data
 - June 17, 2025: Added comprehensive logging and improved timeout handling for Step 3 failover system
 - June 17, 2025: Fixed Flask proxy timeout (increased to 45s for spread analysis) to allow Node.js failover system to execute properly
+- June 17, 2025: Fixed Step 2 ticker flash issue - eliminated brief display of previous ticker (MRK) before new ticker data loads
 
 # User Preferences
 

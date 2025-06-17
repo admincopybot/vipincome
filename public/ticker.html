@@ -636,6 +636,10 @@
         async function loadTickerData() {
             try {
                 const symbol = getSymbolFromURL();
+                
+                // Clear previous ticker data to prevent flash of old content
+                clearTickerDisplay();
+                
                 const response = await axios.get(`/api/ticker/${symbol}`, {
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`
@@ -650,6 +654,20 @@
                     window.location.href = '/';
                 }
             }
+        }
+
+        // Clear ticker display to prevent flash of old content
+        function clearTickerDisplay() {
+            // Clear all ticker-related elements
+            document.getElementById('stockAnalysisTitle').textContent = 'Loading...';
+            document.getElementById('stockSymbol').textContent = '...';
+            document.getElementById('stockPrice').textContent = '...';
+            document.getElementById('stockScore').textContent = '.../5';
+            document.getElementById('incomeScore').textContent = '.../5';
+            document.getElementById('incomeSymbol').textContent = '...';
+            
+            // Reset progress bar
+            document.getElementById('scoreProgress').style.width = '0%';
         }
 
         // Display ticker data
