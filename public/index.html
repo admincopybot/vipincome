@@ -212,7 +212,7 @@
                                     <button onclick="openTicker('${ticker.symbol}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors mb-6">
                                         Choose Opportunity
                                     </button>
-                                    <div class="text-sm text-gray-400 mb-3">${ticker.score || 0}/5 Criteria Met</div>
+                                    <div class="text-sm text-gray-400 mb-3">${calculateCriteriaCount(ticker)}/5 Criteria Met</div>
                                     <div class="flex justify-center gap-2">
                                         ${renderCriteria(ticker)}
                                     </div>
@@ -225,6 +225,21 @@
                     grid.innerHTML = '<div class="text-red-400 text-center">Error displaying tickers</div>';
                 }
             }
+        }
+
+        // Calculate actual criteria count from database values
+        function calculateCriteriaCount(ticker) {
+            if (!ticker) return 0;
+            
+            const criteria = [
+                ticker.trend1_pass,
+                ticker.trend2_pass,
+                ticker.snapback_pass,
+                ticker.momentum_pass,
+                ticker.stabilizing_pass
+            ];
+            
+            return criteria.filter(pass => pass === true || pass === 't' || pass === 'true').length;
         }
 
         // Render criteria indicators
