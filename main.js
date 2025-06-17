@@ -87,12 +87,25 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
     
     let params = [];
     
+    // Filter to only show tickers with at least one true criteria
+    let whereClause = ` WHERE (trend1_pass = 't' OR trend2_pass = 't' OR snapback_pass = 't' OR momentum_pass = 't' OR stabilizing_pass = 't')`;
+    
     if (search) {
-      query += ` WHERE symbol ILIKE $1`;
+      whereClause += ` AND symbol ILIKE $1`;
       params.push(`%${search.toUpperCase()}%`);
     }
     
-    query += ` ORDER BY score DESC, options_contracts_10_42_dte DESC, trading_volume DESC, symbol ASC`;
+    query += whereClause;
+    
+    query += ` ORDER BY 
+      (CASE WHEN trend1_pass THEN 1 ELSE 0 END + 
+       CASE WHEN trend2_pass THEN 1 ELSE 0 END + 
+       CASE WHEN snapback_pass THEN 1 ELSE 0 END + 
+       CASE WHEN momentum_pass THEN 1 ELSE 0 END + 
+       CASE WHEN stabilizing_pass THEN 1 ELSE 0 END) DESC, 
+      options_contracts_10_42_dte DESC, 
+      trading_volume DESC, 
+      symbol ASC`;
     
     if (limit) {
       const limitIndex = params.length + 1;
