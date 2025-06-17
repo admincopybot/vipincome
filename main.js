@@ -72,6 +72,20 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
   try {
     const { search, limit } = req.query;
     
+    // Create cache key based on search and limit parameters
+    const cacheKey = `scoreboard:${search || 'all'}:${limit || 'unlimited'}`;
+    
+    // Try to get data from Redis cache first (60 second TTL)
+    try {
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        console.log(`Loaded ${cachedData.length} tickers from cache`);
+        return res.json(cachedData);
+      }
+    } catch (redisError) {
+      console.log('Redis cache miss or error, fetching from database');
+    }
+    
     let query = `
       SELECT 
         symbol, current_price, total_score as score,
@@ -109,7 +123,7 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
     }
     
     const result = await pool.query(query, params);
-    console.log(`Loaded ${result.rows.length} tickers`);
+    console.log(`Loaded ${result.rows.length} tickers from database`);
     
     // Convert PostgreSQL boolean strings to actual booleans
     const processedRows = result.rows.map(row => ({
@@ -120,6 +134,14 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
       momentum_pass: row.momentum_pass === 't' || row.momentum_pass === true,
       stabilizing_pass: row.stabilizing_pass === 't' || row.stabilizing_pass === true
     }));
+    
+    // Cache the processed data for 60 seconds
+    try {
+      await redis.setex(cacheKey, 60, JSON.stringify(processedRows));
+      console.log(`Cached scoreboard data for 60 seconds`);
+    } catch (redisError) {
+      console.log('Failed to cache data in Redis:', redisError.message);
+    }
     
     res.json(processedRows);
   } catch (error) {
