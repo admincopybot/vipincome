@@ -809,8 +809,11 @@
         function selectStrategy(strategy) {
             selectedStrategy = strategy;
             
+            // Enable Step 4 navigation
+            enableStep4Navigation();
+            
             // Navigate to Step 4 and show the selected strategy details
-            showStep(4);
+            switchTab('step4');
             
             // Update strategy name for Step 4 display
             const strategyName = strategy === 'conservative' ? 'Conservative' : 
