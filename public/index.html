@@ -184,40 +184,53 @@
 
         // Display tickers in grid
         function displayTickers(tickers) {
+            console.log('Displaying tickers:', tickers.length);
             const loading = document.getElementById('loading');
             const grid = document.getElementById('tickersGrid');
             const noResults = document.getElementById('noResults');
 
-            loading.style.display = 'none';
+            if (loading) loading.style.display = 'none';
             
-            if (tickers.length === 0) {
-                grid.style.display = 'none';
-                noResults.style.display = 'block';
+            if (!tickers || tickers.length === 0) {
+                if (grid) grid.style.display = 'none';
+                if (noResults) noResults.style.display = 'block';
                 return;
             }
 
-            noResults.style.display = 'none';
-            grid.style.display = 'grid';
-            
-            grid.innerHTML = tickers.map((ticker, index) => `
-                <div class="bg-slate-800/50 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400 transition-colors">
-                    <div class="text-center">
-                        <h3 class="text-2xl font-bold text-white mb-4">${ticker.symbol}</h3>
-                        <div class="text-green-400 text-3xl font-bold mb-6">$${ticker.current_price.toFixed(2)}</div>
-                        <button onclick="openTicker('${ticker.symbol}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors mb-6">
-                            Choose Opportunity
-                        </button>
-                        <div class="text-sm text-gray-400 mb-3">${ticker.score}/5 Criteria Met</div>
-                        <div class="flex justify-center gap-2">
-                            ${renderCriteria(ticker)}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            if (noResults) noResults.style.display = 'none';
+            if (grid) {
+                grid.style.display = 'grid';
+                
+                try {
+                    grid.innerHTML = tickers.map((ticker) => {
+                        const price = parseFloat(ticker.current_price) || 0;
+                        return `
+                            <div class="bg-slate-800/50 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400 transition-colors">
+                                <div class="text-center">
+                                    <h3 class="text-2xl font-bold text-white mb-4">${ticker.symbol || 'N/A'}</h3>
+                                    <div class="text-green-400 text-3xl font-bold mb-6">$${price.toFixed(2)}</div>
+                                    <button onclick="openTicker('${ticker.symbol}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors mb-6">
+                                        Choose Opportunity
+                                    </button>
+                                    <div class="text-sm text-gray-400 mb-3">${ticker.score || 0}/5 Criteria Met</div>
+                                    <div class="flex justify-center gap-2">
+                                        ${renderCriteria(ticker)}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (error) {
+                    console.error('Error rendering ticker cards:', error);
+                    grid.innerHTML = '<div class="text-red-400 text-center">Error displaying tickers</div>';
+                }
+            }
         }
 
         // Render criteria indicators
         function renderCriteria(ticker) {
+            if (!ticker) return '';
+            
             const criteria = [
                 ticker.trend1_pass,
                 ticker.trend2_pass,
@@ -226,9 +239,10 @@
                 ticker.stabilizing_pass
             ];
             
-            return criteria.map(pass => `
-                <span class="text-2xl ${pass ? 'text-green-400' : 'text-red-400'}">${pass ? '✓' : '✗'}</span>
-            `).join(' ');
+            return criteria.map(pass => {
+                const isPass = pass === true || pass === 't' || pass === 'true';
+                return `<span class="text-2xl ${isPass ? 'text-green-400' : 'text-red-400'}">${isPass ? '✓' : '✗'}</span>`;
+            }).join(' ');
         }
 
         // Open ticker details
