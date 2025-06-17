@@ -807,12 +807,16 @@
                 console.error('Error type:', error.name);
                 console.error('Error message:', error.message);
                 
-                let errorMessage = 'Options analysis not available right now';
+                let errorMessage = 'No Spreads Found';
                 let errorDetails = '';
                 
-                if (error.response?.status === 400 && error.response?.data?.error) {
+                // Check if market is currently closed
+                const marketClosed = !isMarketOpen();
+                
+                if (marketClosed) {
+                    errorDetails = 'The market is currently closed. Income opportunities are only available during market hours (9:30 AM - 4:00 PM ET, weekdays).';
+                } else if (error.response?.status === 400 && error.response?.data?.error) {
                     // Handle specific API errors from the external service
-                    errorMessage = 'Sorry, we can\'t analyze this stock right now';
                     errorDetails = 'This stock might not have enough trading activity or current pricing data to create income strategies.';
                 } else if (error.code === 'ERR_NETWORK') {
                     errorMessage = 'Connection problem';
@@ -821,8 +825,11 @@
                     errorMessage = 'Taking longer than usual';
                     errorDetails = 'The analysis is taking more time than expected. Please try again.';
                 } else if (error.response) {
-                    errorMessage = 'Something went wrong';
-                    errorDetails = 'We\'re experiencing a temporary issue with our analysis system.';
+                    if (marketClosed) {
+                        errorDetails = 'The market is currently closed. Income opportunities are only available during market hours (9:30 AM - 4:00 PM ET, weekdays).';
+                    } else {
+                        errorDetails = 'No suitable income opportunities found for this stock at the current time.';
+                    }
                 }
                 
                 document.getElementById('strategiesLoading').style.display = 'none';
