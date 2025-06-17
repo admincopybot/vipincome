@@ -287,8 +287,8 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
   // Primary and fallback endpoints
   const endpoints = [
     'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
-    'https://income-machine-spread-check-fallback-daiadigitalco.replit.app/api/analyze_debit_spread',
-    'https://income-machine-spread-check-try-3-daiadigitalco.replit.app/api/analyze_debit_spread'
+    'https://income-machine-spread-check-try-2-real-daiadigitalco.replit.app/api/analyze_debit_spread',
+    'https://income-machine-spread-check-try-3-real-daiadigitalco.replit.app/api/analyze_debit_spread'
   ];
   
   let lastError = null;
