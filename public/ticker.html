@@ -675,7 +675,6 @@
             if (spreadData) return;
             
             document.getElementById('strategiesLoading').style.display = 'flex';
-            document.getElementById('tradeDetailsLoading').style.display = 'flex';
             
             try {
                 const symbol = getSymbolFromURL();
@@ -720,8 +719,6 @@
                 }
                 
                 document.getElementById('strategiesLoading').innerHTML = 
-                    `<div class="text-center text-gray-400">${errorMessage}</div>`;
-                document.getElementById('tradeDetailsLoading').innerHTML = 
                     `<div class="text-center text-gray-400">${errorMessage}</div>`;
             }
         }
