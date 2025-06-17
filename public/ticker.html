@@ -576,6 +576,8 @@
             
             try {
                 const symbol = getSymbolFromURL();
+                console.log(`Requesting spread analysis for ticker: ${symbol}`);
+                
                 const response = await axios.post('https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread', {
                     ticker: symbol
                 }, {
@@ -585,20 +587,38 @@
                     timeout: 30000
                 });
                 
+                console.log('Spread analysis response:', response);
+                
                 if (response.status === 200 && response.data.success) {
                     spreadData = response.data;
+                    console.log('Successfully loaded spread data:', spreadData);
                     displayStrategies();
                     displayTradeDetails();
                     
                     // Enable Step 3 navigation now that spread data is loaded
                     enableStep3Navigation();
+                } else {
+                    console.error('API returned non-success response:', response.data);
+                    throw new Error('API returned non-success response');
                 }
             } catch (error) {
-                console.error('Failed to load spread data:', error);
+                console.error('Failed to load spread data - detailed error:', error);
+                console.error('Error type:', error.name);
+                console.error('Error message:', error.message);
+                
+                let errorMessage = 'Failed to load spread analysis';
+                if (error.code === 'ERR_NETWORK') {
+                    errorMessage = 'Network error - unable to connect to spread analysis service';
+                } else if (error.code === 'ECONNABORTED') {
+                    errorMessage = 'Request timeout - spread analysis service taking too long';
+                } else if (error.response) {
+                    errorMessage = `Server error: ${error.response.status} - ${error.response.statusText}`;
+                }
+                
                 document.getElementById('strategiesLoading').innerHTML = 
-                    '<div class="text-center text-gray-400">Failed to load spread analysis</div>';
+                    `<div class="text-center text-gray-400">${errorMessage}</div>`;
                 document.getElementById('tradeDetailsLoading').innerHTML = 
-                    '<div class="text-center text-gray-400">Failed to load trade details</div>';
+                    `<div class="text-center text-gray-400">${errorMessage}</div>`;
             }
         }
 
