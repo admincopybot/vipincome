@@ -250,25 +250,35 @@ app.post('/api/analyze/:symbol', validateJWT, async (req, res) => {
 // Load balancing configuration for spread analysis APIs
 const SPREAD_APIS = [
   'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app',
-  'https://income-machine-spread-check-2-daiadigitalco.replit.app'
+  'https://income-machine-spread-check-2-daiadigitalco.replit.app',
+  'https://income-machine-vip-spread-check-1-daiadigitalco.replit.app'
 ];
 
 // Check API status and select best endpoint
 async function selectBestSpreadAPI() {
-  const statusPromises = SPREAD_APIS.map(async (apiUrl) => {
+  console.log('🔍 LOAD BALANCER: Checking status of all spread analysis APIs...');
+  
+  const statusPromises = SPREAD_APIS.map(async (apiUrl, index) => {
     try {
+      console.log(`   📡 Checking API ${index + 1}: ${apiUrl}/api/status`);
       const statusResponse = await axios.get(`${apiUrl}/api/status`, { timeout: 5000 });
       const status = statusResponse.data.status || 0;
-      console.log(`API ${apiUrl} status: ${status} concurrent requests`);
-      return { apiUrl, status, available: true };
+      console.log(`   ✅ API ${index + 1} response: ${status} concurrent requests`);
+      return { apiUrl, status, available: true, index: index + 1 };
     } catch (error) {
-      console.log(`Failed to check status for ${apiUrl}:`, error.message);
-      return { apiUrl, status: 999, available: false }; // High status for unavailable APIs
+      console.log(`   ❌ API ${index + 1} failed: ${error.message}`);
+      return { apiUrl, status: 999, available: false, index: index + 1 }; // High status for unavailable APIs
     }
   });
   
   // Wait for all status checks to complete
   const apiStatuses = await Promise.all(statusPromises);
+  
+  console.log('📊 LOAD BALANCER: Status check results:');
+  apiStatuses.forEach(api => {
+    const statusText = api.available ? `${api.status} requests` : 'UNAVAILABLE';
+    console.log(`   API ${api.index}: ${statusText}`);
+  });
   
   // Sort by status (lowest first), prioritizing available APIs
   apiStatuses.sort((a, b) => {
@@ -278,7 +288,8 @@ async function selectBestSpreadAPI() {
   });
   
   const selectedAPI = apiStatuses[0];
-  console.log(`Selected API: ${selectedAPI.apiUrl} (status: ${selectedAPI.status})`);
+  console.log(`🎯 LOAD BALANCER: Selected API ${selectedAPI.index} with ${selectedAPI.status} concurrent requests`);
+  console.log(`   Using endpoint: ${selectedAPI.apiUrl}`);
   
   return selectedAPI.apiUrl;
 }
