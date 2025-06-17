@@ -40,21 +40,30 @@ QIDAQAB
 
 // JWT validation middleware
 const validateJWT = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  // Check for token in Authorization header or URL parameter
+  let token = null;
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else if (req.query.token) {
+    token = req.query.token;
   }
   
-  const token = authHeader.substring(7);
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized - No token provided' });
+  }
   
   try {
+    console.log('Attempting JWT validation with token length:', token.length);
     const decoded = jwt.verify(token, PUBLIC_KEY, { algorithms: ['RS256'] });
     req.user = decoded;
+    console.log('JWT validation successful for user:', decoded.sub);
     next();
   } catch (error) {
     console.log('JWT validation failed:', error.message);
-    return res.status(401).json({ error: 'Invalid token' });
+    console.log('Token preview:', token.substring(0, 50) + '...');
+    return res.status(401).json({ error: 'Invalid token', details: error.message });
   }
 };
 
