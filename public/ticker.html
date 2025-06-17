@@ -860,6 +860,22 @@
             
             document.getElementById('loadingMessage').textContent = messages[stepNumber] || 'Analyzing options...';
         }
+        
+        function startProgressPolling(symbol) {
+            return setInterval(async () => {
+                try {
+                    const response = await axios.get(`/api/progress/${symbol}`);
+                    if (response.data && response.data.step) {
+                        updateProgressStep(response.data.step);
+                        if (response.data.message) {
+                            document.getElementById('loadingMessage').textContent = response.data.message;
+                        }
+                    }
+                } catch (error) {
+                    // Silently continue - progress polling is optional
+                }
+            }, 500); // Poll every 500ms for smooth updates
+        }
 
         // Load spread data
         async function loadSpreadData() {
@@ -872,6 +888,9 @@
                 const symbol = getSymbolFromURL();
                 console.log(`Requesting spread analysis for ticker: ${symbol}`);
                 
+                // Start progress polling
+                const progressInterval = startProgressPolling(symbol);
+                
                 // Use our proxy endpoint to avoid CORS issues
                 const response = await axios.post('/api/analyze_debit_spread', {
                     ticker: symbol
@@ -881,6 +900,9 @@
                     },
                     timeout: 30000
                 });
+                
+                // Stop progress polling
+                clearInterval(progressInterval);
                 
                 console.log('Spread analysis response:', response);
                 
@@ -920,6 +942,11 @@
                     throw new Error('API request failed');
                 }
             } catch (error) {
+                // Stop progress polling on error
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                }
+                
                 console.error('Failed to load spread data - detailed error:', error);
                 console.error('Error type:', error.name);
                 console.error('Error message:', error.message);
