@@ -578,11 +578,13 @@
                 const symbol = getSymbolFromURL();
                 console.log(`Requesting spread analysis for ticker: ${symbol}`);
                 
-                const response = await axios.post('https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread', {
+                // Use our proxy endpoint to avoid CORS issues
+                const response = await axios.post('/api/analyze_spread', {
                     ticker: symbol
                 }, {
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getJWTToken()}`
                     },
                     timeout: 30000
                 });

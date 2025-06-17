@@ -247,6 +247,66 @@ app.post('/api/analyze/:symbol', validateJWT, async (req, res) => {
   }
 });
 
+// Proxy endpoint for spread analysis to handle CORS
+app.post('/api/analyze_spread', validateJWT, async (req, res) => {
+  try {
+    const { ticker } = req.body;
+    if (!ticker) {
+      return res.status(400).json({ error: 'Ticker is required' });
+    }
+    
+    const cacheKey = `spread_analysis:${ticker.toUpperCase()}`;
+    
+    // Check Redis cache first (3-minute TTL)
+    try {
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        console.log(`Cache HIT for spread analysis: ${ticker}`);
+        return res.json(cachedData);
+      }
+    } catch (cacheError) {
+      console.log('Cache miss or error:', cacheError.message);
+    }
+    
+    console.log(`Fetching fresh spread analysis for ${ticker}...`);
+    
+    // Call external spread analysis API
+    const response = await axios.post(
+      'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
+      { ticker: ticker.toUpperCase() },
+      {
+        timeout: 30000,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+    
+    if (response.status === 200 && response.data.success) {
+      // Cache for 3 minutes (180 seconds)
+      try {
+        await redis.setex(cacheKey, 180, JSON.stringify(response.data));
+        console.log(`Cached spread analysis for ${ticker} (3 min TTL)`);
+      } catch (cacheError) {
+        console.log('Cache set error:', cacheError.message);
+      }
+      
+      res.json(response.data);
+    } else {
+      res.status(500).json({ 
+        error: 'Failed to analyze spreads',
+        details: response.data 
+      });
+    }
+  } catch (error) {
+    console.error('Spread analysis error:', error);
+    
+    if (error.code === 'ECONNABORTED') {
+      return res.status(408).json({ error: 'Request timeout' });
+    }
+    
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
 // Serve the main application
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
