@@ -266,7 +266,7 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
       const cachedData = await redis.get(cacheKey);
       if (cachedData) {
         console.log(`Cache HIT for spread analysis: ${ticker}`);
-        return res.json(cachedData);
+        return res.json(JSON.parse(cachedData));
       }
     } catch (cacheError) {
       console.log('Cache miss or error:', cacheError.message);
