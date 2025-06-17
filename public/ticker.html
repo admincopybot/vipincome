@@ -628,49 +628,76 @@
             document.getElementById('strategiesLoading').style.display = 'none';
             document.getElementById('strategiesGrid').style.display = 'grid';
             
-            const strategies = ['aggressive', 'balanced', 'conservative'];
+            const symbol = getSymbolFromURL();
+            const strategies = [
+                { key: 'conservative', title: 'Passive Income', subtitle: `${symbol} Passive Income Strategy` },
+                { key: 'balanced', title: 'Steady Income', subtitle: `${symbol} Steady Income Strategy` },
+                { key: 'aggressive', title: 'Aggressive Income', subtitle: `${symbol} Aggressive Income Strategy` }
+            ];
+            
             const grid = document.getElementById('strategiesGrid');
             
-            grid.innerHTML = strategies.map(strategy => {
-                const strategyData = spreadData.strategies[strategy];
-                const displayName = strategy === 'conservative' ? 'conservative' : strategy;
+            grid.innerHTML = strategies.map(({ key, title, subtitle }) => {
+                const strategyData = spreadData.strategies[key];
                 
                 if (!strategyData?.found) {
                     return `
                         <div class="strategy-card">
-                            <h3 class="text-xl font-bold text-white mb-4 capitalize">${displayName}</h3>
-                            <div class="text-gray-400">No ${displayName} strategy available</div>
+                            <h3 class="text-xl font-bold text-white mb-4">${title}</h3>
+                            <div class="text-gray-400">No ${title.toLowerCase()} strategy available</div>
                         </div>
                     `;
                 }
                 
-                const details = strategyData.spread_details;
+                // Extract data from strategy response
+                const details = strategyData.spread_details || {};
+                const dte = details.days_to_expiration ? details.days_to_expiration + 1 : 'N/A';
+                const targetROI = details.roi_percent ? `${details.roi_percent.toFixed(1)}%` : 'N/A';
+                const strikePrice = details.long_strike ? `$${details.long_strike.toFixed(2)}` : 'N/A';
+                const tradeWidth = details.spread_width ? `$${details.spread_width.toFixed(2)}` : '$5.00';
+                const expiration = details.expiration_date || 'N/A';
+                const contractId = strategyData.contracts?.long_contract || 'N/A';
+                
                 return `
-                    <div class="strategy-card ${selectedStrategy === strategy ? 'selected' : ''}" 
-                         onclick="selectStrategy('${strategy}')">
-                        <h3 class="text-xl font-bold text-white mb-4 capitalize">${displayName}</h3>
-                        <div class="space-y-2">
+                    <div class="strategy-card ${selectedStrategy === key ? 'selected' : ''}" 
+                         onclick="selectStrategy('${key}')">
+                        <h3 class="text-xl font-bold text-white mb-1">${title}</h3>
+                        <p class="text-stone-400 text-sm mb-6">${subtitle}</p>
+                        
+                        <div class="space-y-4">
                             <div class="flex justify-between">
-                                <span class="text-gray-400">DTE:</span>
-                                <span class="text-white font-semibold">${details.days_to_expiration + 1} days</span>
+                                <span class="text-stone-400">DTE:</span>
+                                <span class="text-white font-semibold">${dte} days</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-400">ROI:</span>
-                                <span class="text-green-400 font-semibold">${details.roi_percent.toFixed(1)}%</span>
+                                <span class="text-stone-400">Target ROI:</span>
+                                <span class="text-white font-semibold">${targetROI}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-400">Max Profit:</span>
-                                <span class="text-white font-semibold">$${details.max_profit.toFixed(2)}</span>
+                                <span class="text-stone-400">Strike Price:</span>
+                                <span class="text-white font-semibold">${strikePrice}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-400">Spread Cost:</span>
-                                <span class="text-white font-semibold">$${details.spread_cost.toFixed(2)}</span>
+                                <span class="text-stone-400">Trade Width:</span>
+                                <span class="text-white font-semibold">${tradeWidth}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-400">Strikes:</span>
-                                <span class="text-white font-semibold">$${details.long_strike} / $${details.short_strike}</span>
+                                <span class="text-stone-400">Expiration:</span>
+                                <span class="text-white font-semibold">${expiration}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-stone-400">Contract ID:</span>
+                                <span class="text-white font-semibold text-xs">${contractId}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-stone-400">Management:</span>
+                                <span class="text-white font-semibold">Hold to expiration</span>
                             </div>
                         </div>
+                        
+                        <button class="w-full mt-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 px-4 rounded-lg transition-all duration-200 font-semibold">
+                            Select ${title.split(' ')[0]} Strategy
+                        </button>
                     </div>
                 `;
             }).join('');
