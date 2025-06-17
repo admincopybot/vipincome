@@ -110,7 +110,18 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
     
     const result = await pool.query(query, params);
     console.log(`Loaded ${result.rows.length} tickers`);
-    res.json(result.rows);
+    
+    // Convert PostgreSQL boolean strings to actual booleans
+    const processedRows = result.rows.map(row => ({
+      ...row,
+      trend1_pass: row.trend1_pass === 't' || row.trend1_pass === true,
+      trend2_pass: row.trend2_pass === 't' || row.trend2_pass === true,
+      snapback_pass: row.snapback_pass === 't' || row.snapback_pass === true,
+      momentum_pass: row.momentum_pass === 't' || row.momentum_pass === true,
+      stabilizing_pass: row.stabilizing_pass === 't' || row.stabilizing_pass === true
+    }));
+    
+    res.json(processedRows);
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -141,8 +152,18 @@ app.get('/api/ticker/:symbol', validateJWT, async (req, res) => {
       return res.status(404).json({ error: 'Ticker not found' });
     }
     
+    // Convert PostgreSQL boolean strings to actual booleans
+    const ticker = {
+      ...result.rows[0],
+      trend1_pass: result.rows[0].trend1_pass === 't' || result.rows[0].trend1_pass === true,
+      trend2_pass: result.rows[0].trend2_pass === 't' || result.rows[0].trend2_pass === true,
+      snapback_pass: result.rows[0].snapback_pass === 't' || result.rows[0].snapback_pass === true,
+      momentum_pass: result.rows[0].momentum_pass === 't' || result.rows[0].momentum_pass === true,
+      stabilizing_pass: result.rows[0].stabilizing_pass === 't' || result.rows[0].stabilizing_pass === true
+    };
+    
     console.log(`Loaded ticker details for ${symbol}`);
-    res.json(result.rows[0]);
+    res.json(ticker);
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ error: 'Internal server error' });

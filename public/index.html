@@ -239,7 +239,7 @@
                 ticker.stabilizing_pass
             ];
             
-            return criteria.filter(pass => pass === true || pass === 't' || pass === 'true').length;
+            return criteria.filter(pass => pass === true || pass === 't' || pass === 'true' || pass === 1).length;
         }
 
         // Render criteria indicators
@@ -255,7 +255,7 @@
             ];
             
             return criteria.map(pass => {
-                const isPass = pass === true || pass === 't' || pass === 'true';
+                const isPass = pass === true || pass === 't' || pass === 'true' || pass === 1;
                 return `<span class="text-2xl ${isPass ? 'text-green-400' : 'text-red-400'}">${isPass ? '✓' : '✗'}</span>`;
             }).join(' ');
         }
