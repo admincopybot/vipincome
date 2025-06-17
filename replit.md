@@ -239,7 +239,7 @@ Changelog:
 - June 17, 2025: Updated error messages to show "No Spreads Found" with market hours context when market is closed (9:30 AM - 4:00 PM ET)
 - June 17, 2025: Fixed favicon display for custom domain https://incomemachine.vip with explicit server routes and proper file placement
 - June 17, 2025: Implemented comprehensive data integrity verification - all Step 3 spreads now guaranteed to be authentic JSON from external endpoint with detailed logging
-- June 17, 2025: Backend now caches both successful and failed spread analysis responses for 3-minute TTL to improve performance
+- June 17, 2025: Removed ALL caching from spread analysis - Step 3 now makes fresh real-time API calls to external endpoint on every request
 
 # User Preferences
 

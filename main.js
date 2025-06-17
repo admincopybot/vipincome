@@ -268,22 +268,9 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
       return res.status(400).json({ error: 'Ticker is required' });
     }
     
-    const cacheKey = `spread_analysis:${ticker.toUpperCase()}`;
+    console.log(`Making FRESH spread analysis API call for ${ticker} - NO CACHING`);
     
-    // Check Redis cache first (3-minute TTL)
-    try {
-      const cachedData = await redis.get(cacheKey);
-      if (cachedData) {
-        console.log(`Cache HIT for spread analysis: ${ticker}`);
-        return res.json(JSON.parse(cachedData));
-      }
-    } catch (cacheError) {
-      console.log('Cache miss or error:', cacheError.message);
-    }
-    
-    console.log(`Fetching fresh spread analysis for ${ticker}...`);
-    
-    // Call external spread analysis API
+    // Call external spread analysis API directly - NO CACHE LOOKUP OR STORAGE
     const response = await axios.post(
       'https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
       { ticker: ticker.toUpperCase() },
@@ -294,15 +281,8 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     );
     
     if (response.status === 200) {
-      // Cache both success and failure responses for 3 minutes (180 seconds)
-      try {
-        await redis.setex(cacheKey, 180, JSON.stringify(response.data));
-        console.log(`Cached spread analysis for ${ticker} (3 min TTL)`);
-      } catch (cacheError) {
-        console.log('Cache set error:', cacheError.message);
-      }
-      
-      // Return the response data regardless of success/failure - let frontend handle it
+      console.log(`Fresh spread analysis completed for ${ticker} - returning real-time data`);
+      // Return response data directly without any caching
       res.json(response.data);
     } else {
       res.status(500).json({ 
