@@ -971,7 +971,7 @@
             // Create header row
             let headerRow = `
                 <thead>
-                    <tr class="bg-purple-700">
+                    <tr class="bg-gradient-to-r from-stone-600 to-stone-700">
                         <th class="p-2 text-white text-xs">CHANGE</th>
             `;
             
@@ -981,10 +981,10 @@
             headerRow += `</tr></thead>`;
             
             // Create data rows
-            let stockPriceRow = '<tr><td class="p-2 bg-purple-600 text-white text-xs font-bold">STOCK PRICE</td>';
-            let roiRow = '<tr><td class="p-2 bg-purple-600 text-white text-xs font-bold">ROI %</td>';
-            let profitRow = '<tr><td class="p-2 bg-purple-600 text-white text-xs font-bold">PROFIT</td>';
-            let outcomeRow = '<tr><td class="p-2 bg-purple-600 text-white text-xs font-bold">OUTCOME</td>';
+            let stockPriceRow = '<tr><td class="p-2 bg-gradient-to-r from-stone-500 to-stone-600 text-white text-xs font-bold">STOCK PRICE</td>';
+            let roiRow = '<tr><td class="p-2 bg-gradient-to-r from-stone-500 to-stone-600 text-white text-xs font-bold">ROI %</td>';
+            let profitRow = '<tr><td class="p-2 bg-gradient-to-r from-stone-500 to-stone-600 text-white text-xs font-bold">PROFIT</td>';
+            let outcomeRow = '<tr><td class="p-2 bg-gradient-to-r from-stone-500 to-stone-600 text-white text-xs font-bold">OUTCOME</td>';
             
             scenarios.forEach(scenario => {
                 const bgColor = scenario.outcome === 'profit' ? 'bg-green-600' : 'bg-red-600';
