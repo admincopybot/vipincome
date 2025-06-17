@@ -270,26 +270,48 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     
     console.log(`Making FRESH spread analysis API call for ${ticker} - NO CACHING`);
     
-    // Call external spread analysis API directly - NO CACHE LOOKUP OR STORAGE
-    const response = await axios.post(
+    // Primary and fallback endpoints
+    const endpoints = [
       'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
-      { ticker: ticker.toUpperCase() },
-      {
-        timeout: 30000,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+      'https://income-machine-spread-check-fallback-daiadigitalco.replit.app/api/analyze_debit_spread'
+    ];
     
-    if (response.status === 200) {
-      console.log(`Fresh spread analysis completed for ${ticker} - returning real-time data`);
-      // Return response data directly without any caching
-      res.json(response.data);
-    } else {
-      res.status(500).json({ 
-        error: 'Failed to analyze spreads',
-        details: response.data 
-      });
+    let lastError = null;
+    
+    // Try primary endpoint first, then fallback
+    for (let i = 0; i < endpoints.length; i++) {
+      try {
+        console.log(`Trying endpoint ${i + 1}/${endpoints.length}: ${endpoints[i]}`);
+        
+        const response = await axios.post(
+          endpoints[i],
+          { ticker: ticker.toUpperCase() },
+          {
+            timeout: 20000, // Reduced timeout to fail faster
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+        
+        if (response.status === 200) {
+          console.log(`Fresh spread analysis completed for ${ticker} from endpoint ${i + 1} - returning real-time data`);
+          // Return response data directly without any caching
+          return res.json(response.data);
+        }
+      } catch (error) {
+        console.log(`Endpoint ${i + 1} failed:`, error.message);
+        lastError = error;
+        
+        // Continue to next endpoint if this one failed
+        if (i < endpoints.length - 1) {
+          console.log(`Trying fallback endpoint...`);
+          continue;
+        }
+      }
     }
+    
+    // All endpoints failed
+    console.error('All spread analysis endpoints failed');
+    throw lastError;
   } catch (error) {
     console.error('Spread analysis error:', error);
     
