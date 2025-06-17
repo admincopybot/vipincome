@@ -233,8 +233,10 @@ Changelog:
 - June 17, 2025: Removed problematic HSIC ticker from database to prevent external API pricing errors
 - June 17, 2025: Added favicon to both HTML pages using generated-icon.png for consistent branding
 - June 17, 2025: Removed "Last updated X minutes ago" text from dashboard for cleaner interface
-- June 17, 2025: Updated Step 3 spread analysis to call new endpoint: https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/analyze_debit_spread
+- June 17, 2025: Updated Step 3 spread analysis to call endpoint: https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread
 - June 17, 2025: Added market hours popup that automatically displays when market is closed (outside 9:30 AM - 4:00 PM ET weekdays)
+- June 17, 2025: Enhanced error handling for "no spreads found" responses - displays detailed strategy-specific error messages with retry functionality
+- June 17, 2025: Backend now caches both successful and failed spread analysis responses for 3-minute TTL to improve performance
 
 # User Preferences
 

@@ -276,7 +276,7 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     
     // Call external spread analysis API
     const response = await axios.post(
-      'https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/analyze_debit_spread',
+      'https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
       { ticker: ticker.toUpperCase() },
       {
         timeout: 30000,
@@ -284,8 +284,8 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
       }
     );
     
-    if (response.status === 200 && response.data.success) {
-      // Cache for 3 minutes (180 seconds)
+    if (response.status === 200) {
+      // Cache both success and failure responses for 3 minutes (180 seconds)
       try {
         await redis.setex(cacheKey, 180, JSON.stringify(response.data));
         console.log(`Cached spread analysis for ${ticker} (3 min TTL)`);
@@ -293,6 +293,7 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
         console.log('Cache set error:', cacheError.message);
       }
       
+      // Return the response data regardless of success/failure - let frontend handle it
       res.json(response.data);
     } else {
       res.status(500).json({ 

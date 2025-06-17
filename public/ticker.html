@@ -709,6 +709,50 @@
             `).join('');
         }
 
+        // Handle "no spreads found" response
+        function handleNoSpreadsFound(data) {
+            document.getElementById('strategiesLoading').style.display = 'none';
+            document.getElementById('strategiesGrid').style.display = 'block';
+            
+            // Build detailed error message
+            let errorMessage = 'No Income Opportunities Found';
+            let errorDetails = `No suitable debit spreads were found for ${data.ticker || 'this stock'}`;
+            
+            if (data.current_stock_price) {
+                errorDetails += ` at the current price of $${data.current_stock_price}`;
+            }
+            
+            let strategiesInfo = '';
+            if (data.strategies) {
+                const strategies = Object.entries(data.strategies);
+                strategiesInfo = strategies.map(([strategyName, strategyData]) => {
+                    const displayName = strategyName === 'conservative' ? 'Conservative' : 
+                                      strategyName === 'balanced' ? 'Balanced' : 'Aggressive';
+                    return `<div class="text-stone-400 text-sm mb-1">• ${displayName}: ${strategyData.error}</div>`;
+                }).join('');
+            }
+            
+            document.getElementById('strategiesGrid').innerHTML = `
+                <div class="col-span-3 text-center py-12">
+                    <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-8 rounded-lg border border-stone-600">
+                        <div class="text-2xl text-stone-300 mb-4">${errorMessage}</div>
+                        <div class="text-stone-400 mb-6">${errorDetails}</div>
+                        ${strategiesInfo ? `<div class="mb-6 text-left max-w-md mx-auto">${strategiesInfo}</div>` : ''}
+                        <div class="text-stone-500 text-sm mb-6">
+                            This can happen when the market is closed or when there aren't enough option contracts with suitable pricing for income generation.
+                        </div>
+                        <button onclick="retrySpreadAnalysis()" 
+                                class="bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-bold py-3 px-6 rounded-lg transition-all duration-300">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Still enable Step 3 navigation so users can see the "no spreads" message
+            enableStep3Navigation();
+        }
+
         // Retry spread analysis
         function retrySpreadAnalysis() {
             spreadData = null; // Clear any cached data
@@ -737,17 +781,26 @@
                 
                 console.log('Spread analysis response:', response);
                 
-                if (response.status === 200 && response.data.success) {
-                    spreadData = response.data;
-                    console.log('Successfully loaded spread data:', spreadData);
-                    displayStrategies();
-                    displayTradeDetails();
+                if (response.status === 200) {
+                    console.log('Spread analysis response:', response.data);
                     
-                    // Enable Step 3 navigation now that spread data is loaded
-                    enableStep3Navigation();
+                    if (response.data.success) {
+                        // Successful spread analysis with data
+                        spreadData = response.data;
+                        console.log('Successfully loaded spread data:', spreadData);
+                        displayStrategies();
+                        displayTradeDetails();
+                        
+                        // Enable Step 3 navigation now that spread data is loaded
+                        enableStep3Navigation();
+                    } else {
+                        // Handle "no spreads found" response
+                        console.log('No suitable spreads found:', response.data);
+                        handleNoSpreadsFound(response.data);
+                    }
                 } else {
-                    console.error('API returned non-success response:', response.data);
-                    throw new Error('API returned non-success response');
+                    console.error('API returned non-200 status:', response.status);
+                    throw new Error('API request failed');
                 }
             } catch (error) {
                 console.error('Failed to load spread data - detailed error:', error);
