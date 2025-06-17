@@ -321,44 +321,58 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     
     console.log(`Fetching fresh spread analysis for ${ticker}...`);
     
-    // Select the best available API endpoint based on current load
-    const selectedAPI = await selectBestSpreadAPI();
-    console.log(`Using API endpoint: ${selectedAPI}`);
+    // Try each API endpoint in sequence until one succeeds
+    let lastError = null;
     
-    // Call external spread analysis API
-    console.log(`🚀 Making POST request to: ${selectedAPI}/api/analyze_debit_spread`);
-    console.log(`📦 Request payload: ${JSON.stringify({ ticker: ticker.toUpperCase() })}`);
-    
-    const response = await axios.post(
-      `${selectedAPI}/api/analyze_debit_spread`,
-      { ticker: ticker.toUpperCase() },
-      {
-        timeout: 30000,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-    
-    console.log(`✅ Response status: ${response.status}`);
-    console.log(`📊 Response data keys: ${Object.keys(response.data || {}).join(', ')}`);
-    
-    if (response.status === 200 && response.data.success) {
-      // Cache for 3 minutes (180 seconds)
-      try {
-        await redis.setex(cacheKey, 180, JSON.stringify(response.data));
-        console.log(`Cached spread analysis for ${ticker} (3 min TTL)`);
-      } catch (cacheError) {
-        console.log('Cache set error:', cacheError.message);
-      }
+    for (let attempt = 0; attempt < SPREAD_APIS.length; attempt++) {
+      const apiUrl = SPREAD_APIS[attempt];
       
-      res.json(response.data);
-    } else {
-      console.log(`❌ API response not successful. Status: ${response.status}, Success: ${response.data?.success}`);
-      console.log(`❌ Full response data:`, JSON.stringify(response.data, null, 2));
-      res.status(500).json({ 
-        error: 'Failed to analyze spreads',
-        details: response.data 
-      });
+      try {
+        console.log(`🚀 Attempt ${attempt + 1}: Making POST request to: ${apiUrl}/api/analyze_debit_spread`);
+        console.log(`📦 Request payload: ${JSON.stringify({ ticker: ticker.toUpperCase() })}`);
+        
+        const response = await axios.post(
+          `${apiUrl}/api/analyze_debit_spread`,
+          { ticker: ticker.toUpperCase() },
+          {
+            timeout: 20000, // Reduced timeout for faster failover
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+        
+        console.log(`✅ Response status: ${response.status}`);
+        console.log(`📊 Response data keys: ${Object.keys(response.data || {}).join(', ')}`);
+        
+        if (response.status === 200 && response.data.success) {
+          // Cache for 3 minutes (180 seconds)
+          try {
+            await redis.setex(cacheKey, 180, JSON.stringify(response.data));
+            console.log(`Cached spread analysis for ${ticker} (3 min TTL)`);
+          } catch (cacheError) {
+            console.log('Cache set error:', cacheError.message);
+          }
+          
+          return res.json(response.data);
+        } else {
+          console.log(`❌ API ${attempt + 1} response not successful. Status: ${response.status}`);
+          lastError = { message: 'API returned unsuccessful response', response: response.data };
+        }
+        
+      } catch (error) {
+        console.log(`❌ API ${attempt + 1} failed: ${error.message}`);
+        lastError = error;
+        
+        // Continue to next API unless this was the last one
+        if (attempt < SPREAD_APIS.length - 1) {
+          console.log(`⏭️ Trying next API endpoint...`);
+          continue;
+        }
+      }
     }
+    
+    // If we get here, all APIs failed
+    console.log(`❌ All ${SPREAD_APIS.length} API endpoints failed`);
+    throw lastError || new Error('All spread analysis APIs unavailable');
   } catch (error) {
     console.error('❌ Spread analysis error details:');
     console.error('Error message:', error.message);
