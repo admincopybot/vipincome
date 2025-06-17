@@ -137,7 +137,18 @@
         // Check for JWT token from OneClick Trading
         function getJWTFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('token') || localStorage.getItem('jwt_token');
+            const token = urlParams.get('token') || localStorage.getItem('jwt_token');
+            
+            // If we have a token from URL, store it for session persistence
+            if (urlParams.get('token')) {
+                localStorage.setItem('jwt_token', urlParams.get('token'));
+                // Clean URL by removing token parameter for security
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('token');
+                window.history.replaceState({}, document.title, newUrl.pathname);
+            }
+            
+            return token;
         }
 
         // Display access screen for non-authenticated users

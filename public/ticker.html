@@ -331,7 +331,23 @@
 
         function getJWTToken() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('token') || localStorage.getItem('jwt_token');
+            const token = urlParams.get('token') || localStorage.getItem('jwt_token');
+            
+            // If we have a token from URL, store it for session persistence
+            if (urlParams.get('token')) {
+                localStorage.setItem('jwt_token', urlParams.get('token'));
+            }
+            
+            return token;
+        }
+
+        // Alias for compatibility
+        function getJWTFromURL() {
+            return getJWTToken();
+        }
+
+        function getSymbolFromURL() {
+            return window.location.pathname.split('/').pop();
         }
 
         // Navigation functions
@@ -718,6 +734,11 @@
             if (!jwtToken) {
                 window.location.href = '/';
                 return;
+            }
+            
+            // Store token in localStorage for session persistence
+            if (jwtToken) {
+                localStorage.setItem('jwt_token', jwtToken);
             }
             
             loadTickerData();
