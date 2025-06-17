@@ -969,13 +969,6 @@
             
             table.innerHTML = headerRow + `<tbody>${stockPriceRow}${roiRow}${profitRow}${outcomeRow}</tbody>`;
         }
-                </div>
-            `;
-            
-            // Copy profit matrix to Step 4
-            document.getElementById('step4ProfitMatrix').innerHTML = document.getElementById('profitMatrix').innerHTML;
-            document.getElementById('step4ProfitMatrix').style.display = 'block';
-        }
 
         // Update step progress indicators with access control
         function updateStepProgress(currentStep) {
