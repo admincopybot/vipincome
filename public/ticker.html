@@ -139,22 +139,7 @@
         </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="bg-slate-800/30 border-b border-purple-500/20">
-        <div class="container mx-auto px-6">
-            <div class="flex gap-8">
-                <button class="tab-button active" onclick="switchTab('step2')" id="tab-step2">
-                    Step 2: Analysis
-                </button>
-                <button class="tab-button" onclick="switchTab('step3')" id="tab-step3">
-                    Step 3: Strategies
-                </button>
-                <button class="tab-button" onclick="switchTab('step4')" id="tab-step4">
-                    Step 4: Trade Details
-                </button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Content -->
     <div class="container mx-auto px-6 py-8">
@@ -704,14 +689,8 @@
                 content.style.display = 'none';
             });
             
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab-button').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected content and activate tab
-            document.getElementById(tabName).style.display = 'block';
-            document.getElementById('tab-' + tabName).classList.add('active');
+            // Show selected content
+            document.getElementById('content-' + tabName).style.display = 'block';
             
             // Update step progress
             updateStepProgress(tabName);
