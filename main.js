@@ -47,8 +47,8 @@ crCucCyTMeYqwyGl14zN0rArFi6eFXDn+JWTs3Qf04F8LQn7TiwxKV9KRgPHYFtG
 qwIDAQAB
 -----END PUBLIC KEY-----`;
 
-// JWT validation middleware
-const validateJWT = (req, res, next) => {
+// JWT validation middleware with Redis caching
+const validateJWT = async (req, res, next) => {
   // Check for token in Authorization header or URL parameter
   let token = null;
   
@@ -63,11 +63,36 @@ const validateJWT = (req, res, next) => {
     return res.status(401).json({ error: 'Unauthorized - No token provided' });
   }
   
+  // Create cache key from token hash to avoid storing full token
+  const tokenHash = require('crypto').createHash('sha256').update(token).digest('hex').substring(0, 16);
+  const cacheKey = `jwt_validation:${tokenHash}`;
+  
+  // Try Redis cache first (10 minutes TTL)
+  try {
+    const cachedUserStr = await redis.get(cacheKey);
+    if (cachedUserStr) {
+      const cachedUser = JSON.parse(cachedUserStr);
+      req.user = cachedUser;
+      console.log('JWT validation from cache for user:', cachedUser.sub);
+      return next();
+    }
+  } catch (redisError) {
+    // Continue with normal validation if cache fails
+  }
+  
   try {
     console.log('Attempting JWT validation with token length:', token.length);
     const decoded = jwt.verify(token, PUBLIC_KEY, { algorithms: ['RS256'] });
     req.user = decoded;
     console.log('JWT validation successful for user:', decoded.sub);
+    
+    // Cache the decoded user for 10 minutes
+    try {
+      await redis.setex(cacheKey, 600, JSON.stringify(decoded));
+    } catch (redisError) {
+      console.log('Failed to cache JWT validation:', redisError.message);
+    }
+    
     next();
   } catch (error) {
     console.log('JWT validation failed:', error.message);
@@ -81,15 +106,30 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
   try {
     const { search, limit } = req.query;
     
-    // Create cache key based on search and limit parameters
-    const cacheKey = `scoreboard:${search || 'all'}:${limit || 'unlimited'}`;
+    // Use a single cache key for all scoreboard data
+    const cacheKey = 'scoreboard_data';
     
     // Try to get data from Redis cache first (60 second TTL)
     try {
-      const cachedData = await redis.get(cacheKey);
-      if (cachedData) {
+      const cachedDataStr = await redis.get(cacheKey);
+      if (cachedDataStr) {
+        const cachedData = JSON.parse(cachedDataStr);
         console.log(`Loaded ${cachedData.length} tickers from cache`);
-        return res.json(cachedData);
+        
+        // Apply search and limit filters to cached data
+        let filteredData = cachedData;
+        
+        if (search) {
+          filteredData = cachedData.filter(ticker => 
+            ticker.symbol.toUpperCase().includes(search.toUpperCase())
+          );
+        }
+        
+        if (limit) {
+          filteredData = filteredData.slice(0, parseInt(limit, 10));
+        }
+        
+        return res.json(filteredData);
       }
     } catch (redisError) {
       console.log('Redis cache miss or error, fetching from database');
@@ -140,12 +180,14 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
       stabilizing_pass: row.stabilizing_pass === 't' || row.stabilizing_pass === true
     }));
     
-    // Cache the processed data for 60 seconds
-    try {
-      await redis.setex(cacheKey, 60, JSON.stringify(processedRows));
-      console.log(`Cached scoreboard data for 60 seconds`);
-    } catch (redisError) {
-      console.log('Failed to cache data in Redis:', redisError.message);
+    // Cache the processed data for 60 seconds (only cache full dataset)
+    if (!search && !limit) {
+      try {
+        await redis.setex(cacheKey, 60, JSON.stringify(processedRows));
+        console.log(`Cached scoreboard data for 60 seconds`);
+      } catch (redisError) {
+        console.log('Failed to cache data in Redis:', redisError.message);
+      }
     }
     
     res.json(processedRows);
@@ -158,6 +200,19 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
 app.get('/api/ticker/:symbol', validateJWT, async (req, res) => {
   try {
     const { symbol } = req.params;
+    const cacheKey = `ticker_details:${symbol.toUpperCase()}`;
+    
+    // Try Redis cache first (5 minutes TTL)
+    try {
+      const cachedDataStr = await redis.get(cacheKey);
+      if (cachedDataStr) {
+        const cachedData = JSON.parse(cachedDataStr);
+        console.log(`Loaded ticker details for ${symbol} from cache`);
+        return res.json(cachedData);
+      }
+    } catch (redisError) {
+      console.log('Redis cache miss for ticker details, fetching from database');
+    }
     
     const query = `
       SELECT 
@@ -189,7 +244,15 @@ app.get('/api/ticker/:symbol', validateJWT, async (req, res) => {
       stabilizing_pass: result.rows[0].stabilizing_pass === 't' || result.rows[0].stabilizing_pass === true
     };
     
-    console.log(`Loaded ticker details for ${symbol}`);
+    // Cache for 5 minutes
+    try {
+      await redis.setex(cacheKey, 300, JSON.stringify(ticker));
+      console.log(`Cached ticker details for ${symbol} for 5 minutes`);
+    } catch (redisError) {
+      console.log('Failed to cache ticker details:', redisError.message);
+    }
+    
+    console.log(`Loaded ticker details for ${symbol} from database`);
     res.json(ticker);
   } catch (error) {
     console.error('Database error:', error);
