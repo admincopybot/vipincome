@@ -272,7 +272,7 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     
     // Call external spread analysis API directly - NO CACHE LOOKUP OR STORAGE
     const response = await axios.post(
-      'https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
+      'https://income-machine-options-calculation-daiadigitalco.replit.app/api/analyze_debit_spread',
       { ticker: ticker.toUpperCase() },
       {
         timeout: 30000,
