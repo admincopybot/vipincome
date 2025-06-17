@@ -248,10 +248,15 @@ app.post('/api/analyze/:symbol', validateJWT, async (req, res) => {
 });
 
 // Proxy endpoint for spread analysis to handle CORS
-app.post('/api/analyze_spread', validateJWT, async (req, res) => {
+app.post('/api/analyze_spread', async (req, res) => {
+  console.log('POST /api/analyze_spread called');
+  console.log('Request body:', req.body);
+  console.log('Request headers:', req.headers);
+  
   try {
     const { ticker } = req.body;
     if (!ticker) {
+      console.log('Missing ticker in request body');
       return res.status(400).json({ error: 'Ticker is required' });
     }
     
@@ -314,6 +319,12 @@ app.get('/', (req, res) => {
 
 app.get('/ticker/:symbol', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'ticker.html'));
+});
+
+// Test endpoint to verify POST routing
+app.post('/api/test', (req, res) => {
+  console.log('POST /api/test called successfully');
+  res.json({ success: true, message: 'POST routing works', body: req.body });
 });
 
 // Health check endpoint
