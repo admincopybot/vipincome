@@ -83,16 +83,57 @@
         <div class="container mx-auto px-6 py-4">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <button onclick="goBack()" class="text-purple-400 hover:text-purple-300 transition-colors">
-                        ← Back to Dashboard
-                    </button>
-                    <img src="/incomemachine_horizontallogo.png" alt="Income Machine" class="h-12">
-                    <h1 id="tickerSymbol" class="text-3xl font-bold text-white"></h1>
-                    <div class="vip-badge">VIP</div>
+                    <img src="/incomemachine_horizontallogo.png" alt="Income Machine" class="h-12 cursor-pointer" onclick="goBack()">
                 </div>
-                <div class="text-right">
-                    <div id="currentPrice" class="text-2xl font-bold text-green-400"></div>
-                    <div id="tickerScore" class="text-gray-400"></div>
+                <div class="flex items-center gap-6">
+                    <a href="https://oneclick.trading/" target="_blank" 
+                       class="text-gray-300 hover:text-white transition-colors">
+                        How to Use
+                    </a>
+                    <a href="https://oneclick.trading/" target="_blank" 
+                       class="text-gray-300 hover:text-white transition-colors">
+                        Trade Classes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step Progress Navigation -->
+    <div class="bg-slate-800/30 border-b border-purple-500/20 step-progress">
+        <div class="container mx-auto px-6 py-6">
+            <div class="flex items-center justify-center gap-8">
+                <!-- Step 1: Scoreboard -->
+                <div class="flex items-center gap-3">
+                    <div data-step="1" class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">1</div>
+                    <span class="text-white font-medium">Scoreboard</span>
+                </div>
+                
+                <!-- Connector -->
+                <div data-connector="1" class="w-16 h-0.5 bg-purple-600"></div>
+                
+                <!-- Step 2: Stock Analysis -->
+                <div class="flex items-center gap-3">
+                    <div data-step="2" class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">2</div>
+                    <span class="text-white font-medium">Stock Analysis</span>
+                </div>
+                
+                <!-- Connector -->
+                <div data-connector="2" class="w-16 h-0.5 bg-gray-600"></div>
+                
+                <!-- Step 3: Strategy -->
+                <div class="flex items-center gap-3">
+                    <div data-step="3" class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold">3</div>
+                    <span class="text-gray-400 font-medium">Strategy</span>
+                </div>
+                
+                <!-- Connector -->
+                <div data-connector="3" class="w-16 h-0.5 bg-gray-600"></div>
+                
+                <!-- Step 4: Trade Details -->
+                <div class="flex items-center gap-3">
+                    <div data-step="4" class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold">4</div>
+                    <span class="text-gray-400 font-medium">Trade Details</span>
                 </div>
             </div>
         </div>
@@ -521,6 +562,76 @@
             document.getElementById('step4ProfitMatrix').style.display = 'block';
         }
 
+        // Update step progress indicators
+        function updateStepProgress(currentStep) {
+            const stepMap = { 'step2': 2, 'step3': 3, 'step4': 4 };
+            const activeStepId = stepMap[currentStep] || 2;
+            
+            // Update step 1 (always completed when on ticker page)
+            const step1 = document.querySelector('[data-step="1"]');
+            const step1Text = step1?.nextElementSibling;
+            if (step1 && step1Text) {
+                step1.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
+                step1Text.className = 'text-white font-medium';
+            }
+            
+            // Update connector 1
+            const connector1 = document.querySelector('[data-connector="1"]');
+            if (connector1) {
+                connector1.className = 'w-16 h-0.5 bg-purple-600';
+            }
+            
+            // Update steps 2-4
+            for (let i = 2; i <= 4; i++) {
+                const step = document.querySelector(`[data-step="${i}"]`);
+                const stepText = step?.nextElementSibling;
+                const connector = document.querySelector(`[data-connector="${i}"]`);
+                
+                if (step && stepText) {
+                    if (i <= activeStepId) {
+                        step.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
+                        stepText.className = 'text-white font-medium';
+                    } else {
+                        step.className = 'w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold';
+                        stepText.className = 'text-gray-400 font-medium';
+                    }
+                }
+                
+                if (connector && i < 4) {
+                    if (i < activeStepId) {
+                        connector.className = 'w-16 h-0.5 bg-purple-600';
+                    } else {
+                        connector.className = 'w-16 h-0.5 bg-gray-600';
+                    }
+                }
+            }
+        }
+
+        // Tab switching with step progress update
+        function switchTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content and activate tab
+            document.getElementById(tabName).style.display = 'block';
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // Update step progress
+            updateStepProgress(tabName);
+            
+            // Load step 3 data if needed
+            if (tabName === 'step3' && !spreadData) {
+                loadSpreadData();
+            }
+        }
+
         // Initialize application
         function init() {
             jwtToken = getJWTToken();
@@ -531,6 +642,8 @@
             }
             
             loadTickerData();
+            // Initialize step progress for step 2 (default)
+            updateStepProgress('step2');
         }
 
         // Start the application
