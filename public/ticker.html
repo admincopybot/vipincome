@@ -630,7 +630,7 @@
             
             const symbol = getSymbolFromURL();
             const strategies = [
-                { key: 'conservative', title: 'Passive Income', subtitle: `${symbol} Passive Income Strategy` },
+                { key: 'conservative', title: 'Conservative Income', subtitle: `${symbol} Conservative Income Strategy` },
                 { key: 'balanced', title: 'Steady Income', subtitle: `${symbol} Steady Income Strategy` },
                 { key: 'aggressive', title: 'Aggressive Income', subtitle: `${symbol} Aggressive Income Strategy` }
             ];
@@ -695,30 +695,31 @@
                             </div>
                         </div>
                         
-                        <button class="w-full mt-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 px-4 rounded-lg transition-all duration-200 font-semibold">
+                        <button class="w-full mt-6 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white py-3 px-4 rounded-lg transition-all duration-200 font-semibold">
                             Select ${title.split(' ')[0]} Strategy
                         </button>
                     </div>
                 `;
             }).join('');
             
-            displayProfitMatrix();
+            // Don't display profit matrix on Step 3 - only on Step 4 after strategy selection
         }
 
         // Select strategy
         function selectStrategy(strategy) {
             selectedStrategy = strategy;
-            document.getElementById('selectedStrategyName').textContent = strategy === 'conservative' ? 'conservative' : strategy;
             
-            // Update selected state
-            document.querySelectorAll('.strategy-card').forEach(card => card.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
+            // Navigate to Step 4 and show the selected strategy details
+            showStep(4);
             
+            // Update strategy name for Step 4 display
+            const strategyName = strategy === 'conservative' ? 'Conservative' : 
+                               strategy === 'balanced' ? 'Steady' : 'Aggressive';
+            document.getElementById('selectedStrategyName').textContent = strategyName;
+            
+            // Display profit matrix and trade details on Step 4
             displayProfitMatrix();
             displayTradeDetails();
-            
-            // Enable Step 4 navigation now that a strategy is selected
-            enableStep4Navigation();
         }
 
         // Display profit matrix
