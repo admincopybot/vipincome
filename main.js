@@ -248,7 +248,7 @@ app.post('/api/analyze/:symbol', validateJWT, async (req, res) => {
 });
 
 // Proxy endpoint for spread analysis to handle CORS
-app.post('/api/analyze_spread', async (req, res) => {
+app.post('/api/analyze_debit_spread', async (req, res) => {
   console.log('POST /api/analyze_spread called');
   console.log('Request body:', req.body);
   console.log('Request headers:', req.headers);

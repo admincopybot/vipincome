@@ -579,7 +579,7 @@
                 console.log(`Requesting spread analysis for ticker: ${symbol}`);
                 
                 // Use our proxy endpoint to avoid CORS issues
-                const response = await axios.post('/api/analyze_spread', {
+                const response = await axios.post('/api/analyze_debit_spread', {
                     ticker: symbol
                 }, {
                     headers: {
