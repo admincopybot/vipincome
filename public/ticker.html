@@ -210,6 +210,32 @@
             backdrop-filter: blur(16px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+        
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-step.active .w-8 {
+            background: linear-gradient(135deg, #b8a082, #d4c8a7);
+            color: white;
+            box-shadow: 0 4px 12px rgba(184, 160, 130, 0.3);
+        }
+        
+        .progress-step.active span {
+            color: #e8dcc6;
+        }
+        
+        .progress-step.completed .w-8 {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+        
+        .progress-step.completed span {
+            color: #22c55e;
+        }
     </style>
 </head>
 <body>
@@ -385,9 +411,27 @@
             <div class="space-y-8">
                 <div>
                     <h2 class="text-2xl font-bold main-title mb-6">Income Strategies</h2>
-                    <div id="strategiesLoading" class="flex justify-center items-center py-12">
-                        <div class="loading-spinner"></div>
-                        <span class="ml-4 text-white">The Income Machine is reviewing millions of option combinations to find the best opportunity – this may take up to 30 seconds</span>
+                    <div id="strategiesLoading" class="flex flex-col justify-center items-center py-12">
+                        <div class="loading-spinner mb-4"></div>
+                        <div class="text-center">
+                            <div id="loadingMessage" class="text-white mb-4">The Income Machine is reviewing millions of option combinations to find the best opportunity</div>
+                            <div id="progressIndicator" class="flex items-center justify-center gap-4">
+                                <div class="progress-step active" id="progress-1">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-500 flex items-center justify-center text-white font-bold">1</div>
+                                    <span class="text-stone-300 text-sm mt-1">Analysis Method 1</span>
+                                </div>
+                                <div class="w-8 h-0.5 bg-stone-600" id="connector-1"></div>
+                                <div class="progress-step" id="progress-2">
+                                    <div class="w-8 h-8 rounded-full bg-stone-600 flex items-center justify-center text-stone-400 font-bold">2</div>
+                                    <span class="text-stone-500 text-sm mt-1">Analysis Method 2</span>
+                                </div>
+                                <div class="w-8 h-0.5 bg-stone-600" id="connector-2"></div>
+                                <div class="progress-step" id="progress-3">
+                                    <div class="w-8 h-8 rounded-full bg-stone-600 flex items-center justify-center text-stone-400 font-bold">3</div>
+                                    <span class="text-stone-500 text-sm mt-1">Analysis Method 3</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div id="strategiesGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6" style="display: none;">
                         <!-- Strategy cards will be inserted here -->
@@ -786,11 +830,43 @@
             loadSpreadData(); // Retry the analysis
         }
 
+        // Progress indicator functions
+        function resetProgressIndicator() {
+            document.querySelectorAll('.progress-step').forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            document.getElementById('progress-1').classList.add('active');
+        }
+        
+        function updateProgressStep(stepNumber) {
+            // Mark previous steps as completed
+            for (let i = 1; i < stepNumber; i++) {
+                const step = document.getElementById(`progress-${i}`);
+                step.classList.remove('active');
+                step.classList.add('completed');
+            }
+            
+            // Mark current step as active
+            const currentStep = document.getElementById(`progress-${stepNumber}`);
+            currentStep.classList.remove('completed');
+            currentStep.classList.add('active');
+            
+            // Update loading message
+            const messages = {
+                1: 'Trying Primary Analysis Engine...',
+                2: 'Switching to Backup Analysis Engine...',
+                3: 'Using Advanced Analysis Engine...'
+            };
+            
+            document.getElementById('loadingMessage').textContent = messages[stepNumber] || 'Analyzing options...';
+        }
+
         // Load spread data
         async function loadSpreadData() {
             if (spreadData) return;
             
             document.getElementById('strategiesLoading').style.display = 'flex';
+            resetProgressIndicator();
             
             try {
                 const symbol = getSymbolFromURL();

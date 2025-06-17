@@ -256,6 +256,16 @@ app.post('/api/analyze/:symbol', validateJWT, async (req, res) => {
   }
 });
 
+// Store progress for each ticker
+const progressStore = new Map();
+
+// Progress endpoint for real-time updates
+app.get('/api/progress/:ticker', (req, res) => {
+  const { ticker } = req.params;
+  const progress = progressStore.get(ticker.toUpperCase()) || { step: 1, message: 'Starting analysis...' };
+  res.json(progress);
+});
+
 // Proxy endpoint for spread analysis to handle CORS
 app.post('/api/analyze_debit_spread', async (req, res) => {
   console.log('=== STEP 3 API ENDPOINT CALLED ===');
@@ -268,7 +278,11 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     return res.status(400).json({ error: 'Ticker is required' });
   }
   
-  console.log(`=== STARTING FAILOVER SEQUENCE FOR ${ticker} ===`);
+  const tickerUpper = ticker.toUpperCase();
+  console.log(`=== STARTING FAILOVER SEQUENCE FOR ${tickerUpper} ===`);
+  
+  // Initialize progress
+  progressStore.set(tickerUpper, { step: 1, message: 'Trying Primary Analysis Engine...' });
   
   // Primary and fallback endpoints
   const endpoints = [
@@ -282,6 +296,14 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
   // Try each endpoint in sequence
   for (let i = 0; i < endpoints.length; i++) {
     try {
+      // Update progress
+      const messages = [
+        'Trying Primary Analysis Engine...',
+        'Switching to Backup Analysis Engine...',
+        'Using Advanced Analysis Engine...'
+      ];
+      progressStore.set(tickerUpper, { step: i + 1, message: messages[i] });
+      
       console.log(`=== ATTEMPTING ENDPOINT ${i + 1}/${endpoints.length} ===`);
       console.log(`URL: ${endpoints[i]}`);
       console.log(`Payload: {"ticker": "${ticker.toUpperCase()}"}`);
@@ -320,6 +342,10 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
         
         console.log(`=== SUCCESS: ENDPOINT ${i + 1} PROVIDED VALID DATA ===`);
         console.log(`Strategies found: ${Object.keys(response.data.strategies || {}).length}`);
+        
+        // Clear progress on success
+        progressStore.delete(tickerUpper);
+        
         return res.json(response.data);
       } else {
         console.log(`=== ENDPOINT ${i + 1} FAILED: NON-200 STATUS ===`);
@@ -345,6 +371,9 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
   // All endpoints failed
   console.log('=== ALL ENDPOINTS FAILED ===');
   console.log(`Final error: ${lastError.message}`);
+  
+  // Clear progress on failure
+  progressStore.delete(tickerUpper);
   
   // Return appropriate error based on last failure
   if (lastError.code === 'ECONNABORTED' || lastError.message.includes('timeout')) {
