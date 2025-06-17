@@ -861,20 +861,14 @@
             document.getElementById('loadingMessage').textContent = messages[stepNumber] || 'Analyzing options...';
         }
         
-        function startProgressPolling(symbol) {
-            return setInterval(async () => {
-                try {
-                    const response = await axios.get(`/api/progress/${symbol}`);
-                    if (response.data && response.data.step) {
-                        updateProgressStep(response.data.step);
-                        if (response.data.message) {
-                            document.getElementById('loadingMessage').textContent = response.data.message;
-                        }
-                    }
-                } catch (error) {
-                    // Silently continue - progress polling is optional
-                }
-            }, 500); // Poll every 500ms for smooth updates
+        function simulateProgressSteps() {
+            // Simple time-based progress simulation without API calls
+            updateProgressStep(1);
+            
+            setTimeout(() => updateProgressStep(2), 8000);  // After 8 seconds, show step 2
+            setTimeout(() => updateProgressStep(3), 16000); // After 16 seconds, show step 3
+            
+            return null; // No interval to clear
         }
 
         // Load spread data
@@ -888,8 +882,8 @@
                 const symbol = getSymbolFromURL();
                 console.log(`Requesting spread analysis for ticker: ${symbol}`);
                 
-                // Start progress polling
-                const progressInterval = startProgressPolling(symbol);
+                // Start progress simulation
+                const progressInterval = simulateProgressSteps();
                 
                 // Use our proxy endpoint to avoid CORS issues
                 const response = await axios.post('/api/analyze_debit_spread', {

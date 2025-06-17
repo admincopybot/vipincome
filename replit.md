@@ -251,6 +251,7 @@ Changelog:
 - June 17, 2025: Added third failover endpoint for triple redundancy: income-machine-spread-check-try-3-daiadigitalco.replit.app
 - June 17, 2025: Updated failover endpoints to use new real endpoints: try-2-real and try-3-real for improved reliability
 - June 17, 2025: Implemented visual progress indicator showing 3-step analysis method progression during failover sequence with real-time updates
+- June 17, 2025: Optimized progress indicator to use time-based simulation instead of 500ms API polling for better server performance
 
 # User Preferences
 
