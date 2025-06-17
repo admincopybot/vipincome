@@ -326,6 +326,9 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     console.log(`Using API endpoint: ${selectedAPI}`);
     
     // Call external spread analysis API
+    console.log(`🚀 Making POST request to: ${selectedAPI}/api/analyze_debit_spread`);
+    console.log(`📦 Request payload: ${JSON.stringify({ ticker: ticker.toUpperCase() })}`);
+    
     const response = await axios.post(
       `${selectedAPI}/api/analyze_debit_spread`,
       { ticker: ticker.toUpperCase() },
@@ -334,6 +337,9 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
         headers: { 'Content-Type': 'application/json' }
       }
     );
+    
+    console.log(`✅ Response status: ${response.status}`);
+    console.log(`📊 Response data keys: ${Object.keys(response.data || {}).join(', ')}`);
     
     if (response.status === 200 && response.data.success) {
       // Cache for 3 minutes (180 seconds)
@@ -346,16 +352,38 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
       
       res.json(response.data);
     } else {
+      console.log(`❌ API response not successful. Status: ${response.status}, Success: ${response.data?.success}`);
+      console.log(`❌ Full response data:`, JSON.stringify(response.data, null, 2));
       res.status(500).json({ 
         error: 'Failed to analyze spreads',
         details: response.data 
       });
     }
   } catch (error) {
-    console.error('Spread analysis error:', error);
+    console.error('❌ Spread analysis error details:');
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Response status:', error.response?.status);
+    console.error('Response data:', error.response?.data);
     
     if (error.code === 'ECONNABORTED') {
-      return res.status(408).json({ error: 'Request timeout' });
+      return res.status(408).json({ error: 'Request timeout - API took too long to respond' });
+    }
+    
+    if (error.response) {
+      // API responded with error status
+      return res.status(error.response.status).json({ 
+        error: 'API error', 
+        details: error.response.data || error.message 
+      });
+    }
+    
+    if (error.request) {
+      // Network error - no response received
+      return res.status(503).json({ 
+        error: 'Network error - could not reach API', 
+        details: error.message 
+      });
     }
     
     res.status(500).json({ error: 'Internal server error', details: error.message });
