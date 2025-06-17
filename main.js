@@ -293,6 +293,12 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
         );
         
         if (response.status === 200) {
+          // Check if response is HTML (endpoint starting up) instead of JSON
+          if (typeof response.data === 'string' && response.data.includes('<html>')) {
+            console.log(`Endpoint ${i + 1} returned HTML startup page, treating as failure`);
+            throw new Error('Endpoint returning HTML startup page');
+          }
+          
           console.log(`Fresh spread analysis completed for ${ticker} from endpoint ${i + 1} - returning real-time data`);
           // Return response data directly without any caching
           return res.json(response.data);

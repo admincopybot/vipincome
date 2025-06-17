@@ -244,6 +244,7 @@ Changelog:
 - June 17, 2025: Fixed Step 4 option pricing to calculate realistic individual prices from authentic API spread cost data instead of showing $0.00
 - June 17, 2025: Updated Step 3 API endpoint to https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app for reliable JSON responses
 - June 17, 2025: Added failover system with backup endpoint https://income-machine-spread-check-fallback-daiadigitalco.replit.app for when primary endpoint is overloaded
+- June 17, 2025: Fixed failover detection to trigger when endpoint returns HTML startup page instead of JSON data
 
 # User Preferences
 
