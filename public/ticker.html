@@ -178,19 +178,22 @@
 </head>
 <body>
     <!-- Header -->
-    <div class="bg-slate-800/50 border-b border-purple-500/30 backdrop-blur-sm">
-        <div class="container mx-auto px-6 py-4">
+    <div class="bg-gradient-to-r from-slate-900/30 via-slate-800/20 to-slate-900/30 border-b border-stone-400/10 backdrop-blur-xl">
+        <div class="container mx-auto px-6 py-5">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <img src="/incomemachine_horizontallogo.png" alt="Income Machine" class="h-12 cursor-pointer" onclick="goBack()">
+                    <div class="relative">
+                        <img src="/incomemachine_horizontallogo.png" alt="Income Machine" class="h-14 cursor-pointer filter drop-shadow-lg" onclick="goToScoreboard()">
+                        <div class="absolute -top-2 -right-6 vip-badge text-xs">VIP</div>
+                    </div>
                 </div>
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-8">
                     <a href="https://oneclick.trading/" target="_blank" 
-                       class="text-gray-300 hover:text-white transition-colors">
+                       class="text-slate-400 hover:text-slate-200 transition-all duration-300 font-medium tracking-wide">
                         How to Use
                     </a>
                     <a href="https://oneclick.trading/" target="_blank" 
-                       class="text-gray-300 hover:text-white transition-colors">
+                       class="text-slate-400 hover:text-slate-200 transition-all duration-300 font-medium tracking-wide">
                         Trade Classes
                     </a>
                 </div>
