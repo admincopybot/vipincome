@@ -227,6 +227,10 @@ Changelog:
 - June 17, 2025: Resolved CORS issues by creating Flask proxy with full HTTP method support (GET, POST, PUT, DELETE, PATCH)
 - June 17, 2025: Successfully implemented working Step 3 spread analysis with Redis caching and complete strategy data display
 - June 17, 2025: Confirmed Redis caching fully operational - scoreboard data cached 60 seconds, debit spreads cached 3 minutes as requested
+- June 17, 2025: Added "How to Use" video modal with Vimeo tutorial integration for better user onboarding
+- June 17, 2025: Updated access screen with three buttons: UPGRADE (Prosperity Publishing), Proceed to PRO, and One Click Trading
+- June 17, 2025: Improved Step 3 error messages with friendly, conversational language and "Try Again" functionality
+- June 17, 2025: Removed problematic HSIC ticker from database to prevent external API pricing errors
 
 # User Preferences
 
