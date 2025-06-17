@@ -254,6 +254,7 @@ Changelog:
 - June 17, 2025: Optimized progress indicator to use time-based simulation instead of 500ms API polling for better server performance
 - June 17, 2025: Optimized homepage performance by using pre-calculated total_score column instead of real-time score computation in ORDER BY clause
 - June 17, 2025: Improved Redis scoreboard caching with single cache key and in-memory filtering for optimal homepage speed
+- June 17, 2025: Implemented comprehensive Redis caching on all endpoints: JWT validation (10min), ticker details (5min), spread analysis (3min), scoreboard (60s)
 
 # User Preferences
 

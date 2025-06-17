@@ -330,6 +330,20 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
   }
   
   const tickerUpper = ticker.toUpperCase();
+  const cacheKey = `spread_analysis:${tickerUpper}`;
+  
+  // Try Redis cache first (3 minutes TTL)
+  try {
+    const cachedDataStr = await redis.get(cacheKey);
+    if (cachedDataStr) {
+      const cachedData = JSON.parse(cachedDataStr);
+      console.log(`=== CACHE HIT: RETURNING CACHED SPREAD DATA FOR ${tickerUpper} ===`);
+      return res.json(cachedData);
+    }
+  } catch (redisError) {
+    console.log('Redis cache miss for spread analysis, proceeding with API calls');
+  }
+  
   console.log(`=== STARTING FAILOVER SEQUENCE FOR ${tickerUpper} ===`);
   
   // Primary and fallback endpoints
@@ -382,6 +396,14 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
         
         console.log(`=== SUCCESS: ENDPOINT ${i + 1} PROVIDED VALID DATA ===`);
         console.log(`Strategies found: ${Object.keys(response.data.strategies || {}).length}`);
+        
+        // Cache the successful response for 3 minutes
+        try {
+          await redis.setex(cacheKey, 180, JSON.stringify(response.data));
+          console.log(`=== CACHED SPREAD DATA FOR ${tickerUpper} (3 MIN TTL) ===`);
+        } catch (redisError) {
+          console.log('Failed to cache spread analysis:', redisError.message);
+        }
         
         return res.json(response.data);
       } else {
