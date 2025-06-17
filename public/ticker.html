@@ -386,34 +386,104 @@
 
         <!-- Step 4: Trade Details -->
         <div id="content-step4" class="tab-content" style="display: none;">
-            <div class="space-y-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-6">Trade Construction</h2>
-                    <div id="tradeDetailsLoading" class="flex justify-center items-center py-12">
-                        <div class="loading-spinner"></div>
-                        <span class="ml-4 text-white">Loading trade details...</span>
+            <div class="space-y-6">
+                <!-- Header -->
+                <div class="text-center">
+                    <h2 class="text-xl text-stone-300 mb-2">Comprehensive options trade analysis using real-time market data</h2>
+                </div>
+                
+                <!-- Current Price Display -->
+                <div class="bg-gradient-to-r from-stone-700 to-stone-800 p-6 rounded-lg border border-stone-600 text-center">
+                    <div class="text-3xl font-bold text-blue-400" id="currentPriceDisplay">
+                        Loading...
                     </div>
-                    <div id="tradeDetailsContent" style="display: none;">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div class="criteria-card">
-                                <h3 class="text-xl font-bold text-white mb-4">Trade Details</h3>
-                                <div id="tradeConstruction" class="space-y-4">
-                                    <!-- Trade construction will be inserted here -->
-                                </div>
+                    <div class="text-sm text-stone-400 mt-1" id="expirationDisplay">
+                        Expiration: Loading...
+                    </div>
+                </div>
+                
+                <!-- Trade Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Trade Construction -->
+                    <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-4 rounded-lg border border-stone-600">
+                        <h3 class="text-lg font-bold text-white mb-3">Trade Construction</h3>
+                        <div id="tradeConstruction" class="space-y-2 text-sm">
+                            <!-- Trade construction details -->
+                        </div>
+                    </div>
+                    
+                    <!-- Option Details -->
+                    <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-4 rounded-lg border border-stone-600">
+                        <h3 class="text-lg font-bold text-white mb-3">Option Details</h3>
+                        <div id="optionDetails" class="space-y-2 text-sm">
+                            <!-- Option details -->
+                        </div>
+                    </div>
+                    
+                    <!-- Spread Details -->
+                    <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-4 rounded-lg border border-stone-600">
+                        <h3 class="text-lg font-bold text-white mb-3">Spread Details</h3>
+                        <div id="spreadDetails" class="space-y-2 text-sm">
+                            <!-- Spread details -->
+                        </div>
+                    </div>
+                    
+                    <!-- Trade Info -->
+                    <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-4 rounded-lg border border-stone-600">
+                        <h3 class="text-lg font-bold text-white mb-3">Trade Info</h3>
+                        <div id="tradeInfo" class="space-y-2 text-sm">
+                            <!-- Trade info -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trade Summary -->
+                <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-6 rounded-lg border border-stone-600">
+                    <h3 class="text-xl font-bold text-white mb-4">Trade Summary</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-6 gap-4" id="tradeSummary">
+                        <!-- Trade summary items -->
+                    </div>
+                </div>
+                
+                <!-- Income Potential Calculator -->
+                <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-6 rounded-lg border border-stone-600">
+                    <h3 class="text-xl font-bold text-white mb-4">Income Potential Calculator</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                        <div>
+                            <label class="block text-stone-300 text-sm mb-2">NUMBER OF CONTRACTS:</label>
+                            <input type="number" id="contractsInput" value="1" min="1" max="100" 
+                                   class="w-full bg-stone-600 text-white p-3 rounded-lg border border-stone-500 focus:border-amber-500"
+                                   oninput="updateCalculator()">
+                        </div>
+                        <div>
+                            <label class="block text-stone-300 text-sm mb-2">TOTAL INVESTMENT</label>
+                            <div id="totalInvestment" class="bg-stone-600 text-white p-3 rounded-lg border border-stone-500 text-center font-bold">
+                                $0.00
                             </div>
-                            
-                            <div class="criteria-card">
-                                <h3 class="text-xl font-bold text-white mb-4">Risk/Reward Analysis</h3>
-                                <div id="riskRewardAnalysis" class="space-y-3">
-                                    <!-- Risk/reward analysis will be inserted here -->
-                                </div>
+                        </div>
+                        <div>
+                            <div class="bg-green-600 text-white p-3 rounded-lg text-center">
+                                <div class="text-xs text-green-200 mb-1">INCOME POTENTIAL</div>
+                                <div id="incomePotential" class="text-lg font-bold">$0.00</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="bg-green-600 text-white p-3 rounded-lg text-center">
+                                <div class="text-xs text-green-200 mb-1">ROI PER CONTRACT</div>
+                                <div id="roiPerContract" class="text-lg font-bold">0%</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div id="step4ProfitMatrix" style="display: none;">
-                    <!-- Profit matrix will be duplicated here for Step 4 -->
+                <!-- Stock Price Scenarios -->
+                <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-6 rounded-lg border border-stone-600">
+                    <h3 class="text-xl font-bold text-white mb-4">Stock Price Scenarios</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full" id="scenarioTable">
+                            <!-- Scenario table will be inserted here -->
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -758,62 +828,147 @@
 
         // Display trade details
         function displayTradeDetails() {
-            document.getElementById('tradeDetailsLoading').style.display = 'none';
+            if (!spreadData || !selectedStrategy) return;
             
-            if (!spreadData || !spreadData.strategies[selectedStrategy]?.found) {
-                document.getElementById('tradeDetailsContent').innerHTML = 
-                    '<div class="text-center py-12 text-gray-400">No trade details available for selected strategy</div>';
-                return;
-            }
+            const strategy = spreadData.strategies[selectedStrategy];
+            if (!strategy || !strategy.found) return;
             
-            document.getElementById('tradeDetailsContent').style.display = 'block';
+            // Current Price Display
+            document.getElementById('currentPriceDisplay').textContent = `$${spreadData.current_stock_price}`;
+            document.getElementById('expirationDisplay').textContent = `Expiration: ${strategy.spread_details?.expiration_date || 'N/A'}`;
             
-            const details = spreadData.strategies[selectedStrategy].spread_details;
-            const contracts = spreadData.strategies[selectedStrategy].contracts;
-            
-            // Trade construction
-            const expirationDate = new Date(details.expiration_date);
-            const formattedDate = expirationDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+            // Trade Construction
+            const details = strategy.spread_details;
+            const longStrike = details?.long_strike || 0;
+            const shortStrike = details?.short_strike || 0;
+            const spreadCost = details?.spread_cost || 0;
             
             document.getElementById('tradeConstruction').innerHTML = `
-                <div class="bg-green-900/30 border border-green-500/30 rounded-lg p-4">
-                    <div class="font-semibold text-green-400 mb-2">BUY (Long Position)</div>
-                    <div class="text-white">Buy the $${details.long_strike} ${formattedDate} Call</div>
-                    <div class="text-gray-300 text-sm">Contract: ${contracts.long_contract}</div>
+                <div class="text-stone-300">Buy the $${longStrike.toFixed(2)} ${strategy.spread_details?.expiration_date?.split('-')[1] || 'Jul'} ${strategy.spread_details?.expiration_date?.split('-')[2] || '25'} Call</div>
+                <div class="text-stone-300">Sell the $${shortStrike.toFixed(2)} ${strategy.spread_details?.expiration_date?.split('-')[1] || 'Jul'} ${strategy.spread_details?.expiration_date?.split('-')[2] || '25'} Call</div>
+                <div class="text-white font-bold">Net Debit: $${spreadCost.toFixed(2)}</div>
+            `;
+            
+            // Option Details
+            document.getElementById('optionDetails').innerHTML = `
+                <div class="text-stone-300">Long: ${strategy.contracts?.long_contract || 'N/A'} @ $${strategy.contracts?.long_price || '0.00'}</div>
+                <div class="text-stone-300">Short: ${strategy.contracts?.short_contract || 'N/A'} @ $${strategy.contracts?.short_price || '0.00'}</div>
+                <div class="text-white font-bold">Spread Width: $${details?.spread_width || '5.00'}</div>
+            `;
+            
+            // Spread Details
+            document.getElementById('spreadDetails').innerHTML = `
+                <div class="text-stone-300">Spread Cost: $${spreadCost.toFixed(2)}</div>
+                <div class="text-stone-300">Max Value: $${details?.max_profit || '0.00'}</div>
+            `;
+            
+            // Trade Info
+            const roi = details?.roi_percent || 0;
+            const breakeven = longStrike + spreadCost;
+            
+            document.getElementById('tradeInfo').innerHTML = `
+                <div class="text-stone-300">ROI: ${roi.toFixed(1)}%</div>
+                <div class="text-stone-300">Breakeven: $${breakeven.toFixed(2)}</div>
+            `;
+            
+            // Trade Summary
+            document.getElementById('tradeSummary').innerHTML = `
+                <div class="text-center">
+                    <div class="text-stone-400 text-xs mb-1">CURRENT STOCK PRICE</div>
+                    <div class="text-white font-bold">$${spreadData.current_stock_price}</div>
                 </div>
-                
-                <div class="bg-red-900/30 border border-red-500/30 rounded-lg p-4">
-                    <div class="font-semibold text-red-400 mb-2">SELL (Short Position)</div>
-                    <div class="text-white">Sell the $${details.short_strike} ${formattedDate} Call</div>
-                    <div class="text-gray-300 text-sm">Contract: ${contracts.short_contract}</div>
+                <div class="text-center">
+                    <div class="text-stone-400 text-xs mb-1">SPREAD COST</div>
+                    <div class="text-white font-bold">$${spreadCost.toFixed(2)}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-stone-400 text-xs mb-1">SPREAD POSITION</div>
+                    <div class="text-white font-bold">$${longStrike.toFixed(2)}/$${shortStrike.toFixed(2)} Debit</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-stone-400 text-xs mb-1">BREAKEVEN PRICE</div>
+                    <div class="text-white font-bold">$${breakeven.toFixed(2)}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-stone-400 text-xs mb-1">MAX PROFIT</div>
+                    <div class="text-white font-bold">$${details?.max_profit || '0.00'}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-stone-400 text-xs mb-1">RETURN ON INVESTMENT</div>
+                    <div class="text-white font-bold">${roi.toFixed(1)}%</div>
                 </div>
             `;
             
-            // Risk/reward analysis
-            document.getElementById('riskRewardAnalysis').innerHTML = `
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Spread Width:</span>
-                    <span class="text-white font-semibold">$${details.spread_width.toFixed(0)}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Spread Cost:</span>
-                    <span class="text-white font-semibold">$${details.spread_cost.toFixed(2)}</span>
-                </div>
-                <div class="flex justify-between" style="background: rgba(16, 185, 129, 0.1); padding: 8px; border-radius: 6px;">
-                    <span class="text-gray-400">Income Potential:</span>
-                    <span class="text-green-400 font-semibold">$${details.max_profit.toFixed(2)}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Max Loss:</span>
-                    <span class="text-red-400 font-semibold">$${details.max_loss.toFixed(2)}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Breakeven:</span>
-                    <span class="text-white font-semibold">$${details.breakeven_price.toFixed(2)}</span>
-                </div>
-                <div class="flex justify-between border-t border-slate-600 pt-3" style="background: rgba(16, 185, 129, 0.1); padding: 8px; border-radius: 6px;">
-                    <span class="text-gray-400">ROI Per Contract:</span>
-                    <span class="text-purple-400 font-bold text-lg">${details.roi_percent.toFixed(1)}%</span>
+            // Initialize calculator
+            updateCalculator();
+            
+            // Display scenarios table
+            displayScenariosTable();
+        }
+        
+        // Update calculator based on number of contracts
+        function updateCalculator() {
+            if (!spreadData || !selectedStrategy) return;
+            
+            const strategy = spreadData.strategies[selectedStrategy];
+            if (!strategy) return;
+            
+            const contracts = parseInt(document.getElementById('contractsInput').value) || 1;
+            const spreadCost = strategy.spread_details?.spread_cost || 0;
+            const maxProfit = strategy.spread_details?.max_profit || 0;
+            const roi = strategy.spread_details?.roi_percent || 0;
+            
+            const totalInvestment = contracts * spreadCost * 100; // Convert to actual dollar amount
+            const incomePotential = contracts * maxProfit * 100;
+            
+            document.getElementById('totalInvestment').textContent = `$${totalInvestment.toFixed(2)}`;
+            document.getElementById('incomePotential').textContent = `$${incomePotential.toFixed(2)}`;
+            document.getElementById('roiPerContract').textContent = `${roi.toFixed(1)}%`;
+        }
+        
+        // Display scenarios table
+        function displayScenariosTable() {
+            if (!spreadData || !selectedStrategy) return;
+            
+            const scenarios = spreadData.strategies[selectedStrategy]?.price_scenarios || [];
+            if (scenarios.length === 0) return;
+            
+            const table = document.getElementById('scenarioTable');
+            
+            // Create header row
+            let headerRow = `
+                <thead>
+                    <tr class="bg-purple-700">
+                        <th class="p-2 text-white text-xs">CHANGE</th>
+            `;
+            
+            scenarios.forEach(scenario => {
+                headerRow += `<th class="p-2 text-white text-xs">${scenario.price_change_percent >= 0 ? '+' : ''}${scenario.price_change_percent}%</th>`;
+            });
+            headerRow += `</tr></thead>`;
+            
+            // Create data rows
+            let stockPriceRow = '<tr><td class="p-2 bg-purple-600 text-white text-xs font-bold">STOCK PRICE</td>';
+            let roiRow = '<tr><td class="p-2 bg-purple-600 text-white text-xs font-bold">ROI %</td>';
+            let profitRow = '<tr><td class="p-2 bg-purple-600 text-white text-xs font-bold">PROFIT</td>';
+            let outcomeRow = '<tr><td class="p-2 bg-purple-600 text-white text-xs font-bold">OUTCOME</td>';
+            
+            scenarios.forEach(scenario => {
+                const bgColor = scenario.outcome === 'profit' ? 'bg-green-600' : 'bg-red-600';
+                
+                stockPriceRow += `<td class="p-2 ${bgColor} text-white text-xs text-center">$${scenario.future_stock_price.toFixed(2)}</td>`;
+                roiRow += `<td class="p-2 ${bgColor} text-white text-xs text-center">${scenario.roi_percent.toFixed(1)}%</td>`;
+                profitRow += `<td class="p-2 ${bgColor} text-white text-xs text-center">$${scenario.profit_loss.toFixed(2)}</td>`;
+                outcomeRow += `<td class="p-2 ${bgColor} text-white text-xs text-center">${scenario.outcome === 'profit' ? 'Win' : 'Loss'}</td>`;
+            });
+            
+            stockPriceRow += '</tr>';
+            roiRow += '</tr>';
+            profitRow += '</tr>';
+            outcomeRow += '</tr>';
+            
+            table.innerHTML = headerRow + `<tbody>${stockPriceRow}${roiRow}${profitRow}${outcomeRow}</tbody>`;
+        }
                 </div>
             `;
             
