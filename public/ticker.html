@@ -122,7 +122,7 @@
                 <div data-connector="2" class="w-16 h-0.5 bg-gray-600"></div>
                 
                 <!-- Step 3: Strategy -->
-                <div class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="switchTab('step3')">
+                <div id="step3Nav" class="flex items-center gap-3 cursor-not-allowed opacity-50">
                     <div data-step="3" class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold">3</div>
                     <span class="text-gray-400 font-medium">Strategy</span>
                 </div>
@@ -131,7 +131,7 @@
                 <div data-connector="3" class="w-16 h-0.5 bg-gray-600"></div>
                 
                 <!-- Step 4: Trade Details -->
-                <div class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="switchTab('step4')">
+                <div id="step4Nav" class="flex items-center gap-3 cursor-not-allowed opacity-50">
                     <div data-step="4" class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold">4</div>
                     <span class="text-gray-400 font-medium">Trade Details</span>
                 </div>
@@ -331,14 +331,23 @@
 
         function getJWTToken() {
             const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token') || localStorage.getItem('jwt_token');
+            const urlToken = urlParams.get('token');
+            const storedToken = sessionStorage.getItem('jwt_token') || localStorage.getItem('jwt_token');
             
-            // If we have a token from URL, store it for session persistence
-            if (urlParams.get('token')) {
-                localStorage.setItem('jwt_token', urlParams.get('token'));
+            // If we have a token from URL, store it securely and clean URL
+            if (urlToken) {
+                sessionStorage.setItem('jwt_token', urlToken);
+                localStorage.setItem('jwt_token', urlToken);
+                
+                // Remove token from URL for security
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('token');
+                window.history.replaceState({}, document.title, newUrl.toString());
+                
+                return urlToken;
             }
             
-            return token;
+            return storedToken;
         }
 
         // Alias for compatibility
@@ -465,16 +474,15 @@
             
             try {
                 const symbol = getSymbolFromURL();
-                const response = await axios.post(`/api/analyze/${symbol}`, {}, {
-                    headers: {
-                        'Authorization': `Bearer ${jwtToken}`
-                    }
-                });
+                const response = await axios.get(`/api/analyze_debit_spread?ticker=${symbol}&token=${jwtToken}`);
                 
                 if (response.status === 200) {
                     spreadData = response.data;
                     displayStrategies();
                     displayTradeDetails();
+                    
+                    // Enable Step 3 navigation now that spread data is loaded
+                    enableStep3Navigation();
                 }
             } catch (error) {
                 console.error('Failed to load spread data:', error);
@@ -653,7 +661,7 @@
             document.getElementById('step4ProfitMatrix').style.display = 'block';
         }
 
-        // Update step progress indicators
+        // Update step progress indicators with access control
         function updateStepProgress(currentStep) {
             const stepMap = { 'step2': 2, 'step3': 3, 'step4': 4 };
             const activeStepId = stepMap[currentStep] || 2;
@@ -672,19 +680,32 @@
                 connector1.className = 'w-16 h-0.5 bg-purple-600';
             }
             
-            // Update steps 2-4
+            // Update steps 2-4 with progressive access
             for (let i = 2; i <= 4; i++) {
                 const step = document.querySelector(`[data-step="${i}"]`);
                 const stepText = step?.nextElementSibling;
                 const connector = document.querySelector(`[data-connector="${i}"]`);
+                const navElement = document.getElementById(`step${i}Nav`);
                 
                 if (step && stepText) {
                     if (i <= activeStepId) {
                         step.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
                         stepText.className = 'text-white font-medium';
+                        
+                        // Enable navigation for completed/current steps
+                        if (navElement) {
+                            navElement.className = 'flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity';
+                            navElement.onclick = () => switchTab(`step${i}`);
+                        }
                     } else {
                         step.className = 'w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold';
                         stepText.className = 'text-gray-400 font-medium';
+                        
+                        // Disable navigation for future steps
+                        if (navElement) {
+                            navElement.className = 'flex items-center gap-3 cursor-not-allowed opacity-50';
+                            navElement.onclick = null;
+                        }
                     }
                 }
                 
@@ -698,11 +719,57 @@
             }
         }
 
+        // Function to enable Step 3 navigation after spread analysis completes
+        function enableStep3Navigation() {
+            const step3Nav = document.getElementById('step3Nav');
+            if (step3Nav) {
+                step3Nav.className = 'flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity';
+                step3Nav.onclick = () => switchTab('step3');
+                
+                // Update step 3 visual indicator
+                const step3 = document.querySelector('[data-step="3"]');
+                const step3Text = step3?.nextElementSibling;
+                if (step3 && step3Text) {
+                    step3.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
+                    step3Text.className = 'text-white font-medium';
+                }
+                
+                // Update connector 2
+                const connector2 = document.querySelector('[data-connector="2"]');
+                if (connector2) {
+                    connector2.className = 'w-16 h-0.5 bg-purple-600';
+                }
+            }
+        }
+        
+        // Function to enable Step 4 navigation after strategy selection
+        function enableStep4Navigation() {
+            const step4Nav = document.getElementById('step4Nav');
+            if (step4Nav) {
+                step4Nav.className = 'flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity';
+                step4Nav.onclick = () => switchTab('step4');
+                
+                // Update step 4 visual indicator
+                const step4 = document.querySelector('[data-step="4"]');
+                const step4Text = step4?.nextElementSibling;
+                if (step4 && step4Text) {
+                    step4.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
+                    step4Text.className = 'text-white font-medium';
+                }
+                
+                // Update connector 3
+                const connector3 = document.querySelector('[data-connector="3"]');
+                if (connector3) {
+                    connector3.className = 'w-16 h-0.5 bg-purple-600';
+                }
+            }
+        }
+
         // Go back to scoreboard (main dashboard)
         function goToScoreboard() {
             const token = getJWTFromURL();
             if (token) {
-                window.location.href = `/?token=${token}`;
+                window.location.href = `/`;
             } else {
                 window.location.href = '/';
             }
