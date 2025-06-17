@@ -781,14 +781,14 @@
             const step1 = document.querySelector('[data-step="1"]');
             const step1Text = step1?.nextElementSibling;
             if (step1 && step1Text) {
-                step1.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
+                step1.className = 'w-8 h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-500 flex items-center justify-center text-white font-bold shadow-lg';
                 step1Text.className = 'text-white font-medium';
             }
             
             // Update connector 1
             const connector1 = document.querySelector('[data-connector="1"]');
             if (connector1) {
-                connector1.className = 'w-16 h-0.5 bg-purple-600';
+                connector1.className = 'w-16 h-0.5 bg-gradient-to-r from-stone-400 to-stone-500';
             }
             
             // Update steps 2-4 with progressive access
@@ -800,7 +800,7 @@
                 
                 if (step && stepText) {
                     if (i <= activeStepId) {
-                        step.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
+                        step.className = 'w-8 h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-500 flex items-center justify-center text-white font-bold shadow-lg';
                         stepText.className = 'text-white font-medium';
                         
                         // Enable navigation for completed/current steps
@@ -822,7 +822,7 @@
                 
                 if (connector && i < 4) {
                     if (i < activeStepId) {
-                        connector.className = 'w-16 h-0.5 bg-purple-600';
+                        connector.className = 'w-16 h-0.5 bg-gradient-to-r from-stone-400 to-stone-500';
                     } else {
                         connector.className = 'w-16 h-0.5 bg-gray-600';
                     }
@@ -841,14 +841,14 @@
                 const step3 = document.querySelector('[data-step="3"]');
                 const step3Text = step3?.nextElementSibling;
                 if (step3 && step3Text) {
-                    step3.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
+                    step3.className = 'w-8 h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-500 flex items-center justify-center text-white font-bold shadow-lg';
                     step3Text.className = 'text-white font-medium';
                 }
                 
                 // Update connector 2
                 const connector2 = document.querySelector('[data-connector="2"]');
                 if (connector2) {
-                    connector2.className = 'w-16 h-0.5 bg-purple-600';
+                    connector2.className = 'w-16 h-0.5 bg-gradient-to-r from-stone-400 to-stone-500';
                 }
             }
         }
@@ -864,14 +864,14 @@
                 const step4 = document.querySelector('[data-step="4"]');
                 const step4Text = step4?.nextElementSibling;
                 if (step4 && step4Text) {
-                    step4.className = 'w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold';
+                    step4.className = 'w-8 h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-500 flex items-center justify-center text-white font-bold shadow-lg';
                     step4Text.className = 'text-white font-medium';
                 }
                 
                 // Update connector 3
                 const connector3 = document.querySelector('[data-connector="3"]');
                 if (connector3) {
-                    connector3.className = 'w-16 h-0.5 bg-purple-600';
+                    connector3.className = 'w-16 h-0.5 bg-gradient-to-r from-stone-400 to-stone-500';
                 }
             }
         }
