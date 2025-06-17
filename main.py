@@ -36,10 +36,30 @@ def proxy(path):
     """Proxy all requests to Node.js server"""
     try:
         url = f"http://localhost:5001/{path}"
-        resp = requests.get(url, params=request.args, timeout=10)
-        return Response(resp.content, status=resp.status_code, 
-                       headers=dict(resp.headers))
-    except requests.exceptions.RequestException:
+        
+        # Forward request with all parameters and headers
+        if request.method == 'GET':
+            resp = requests.get(url, 
+                              params=dict(request.args), 
+                              headers=dict(request.headers),
+                              timeout=10)
+        elif request.method == 'POST':
+            resp = requests.post(url,
+                               params=dict(request.args),
+                               json=request.get_json() if request.is_json else None,
+                               data=request.form if not request.is_json else None,
+                               headers=dict(request.headers),
+                               timeout=10)
+        
+        # Create response with proper headers
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in resp.headers.items()
+                  if name.lower() not in excluded_headers]
+        
+        return Response(resp.content, status=resp.status_code, headers=headers)
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Proxy error: {e}")
         return """
         <html><body>
         <h2>Starting Income Machine...</h2>
