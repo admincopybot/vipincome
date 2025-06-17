@@ -215,6 +215,11 @@ Changelog:
 - June 16, 2025: Built pure HTML/JavaScript frontend maintaining exact same look, logic, and user experience
 - June 16, 2025: Preserved all original features: JWT auth, Redis caching, external API integration, database queries
 - June 16, 2025: Achieved user-requested performance optimization by eliminating Python complexity while maintaining 100% feature parity
+- June 17, 2025: Fixed JWT authentication with correct OneClick Trading RS256 public key
+- June 17, 2025: Updated database queries to match actual schema (total_score, trading_volume_20_day)
+- June 17, 2025: Integrated professional Income Machine logo with Nate Tucci's branding
+- June 17, 2025: Updated UI design to match provided mockup with step navigation and centered ticker cards
+- June 17, 2025: Confirmed VIP access to all 212 tickers with unlimited search functionality
 
 # User Preferences
 
