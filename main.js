@@ -247,6 +247,36 @@ app.post('/api/analyze/:symbol', validateJWT, async (req, res) => {
   }
 });
 
+// Load balancing configuration for spread analysis APIs
+const SPREAD_APIS = [
+  'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app',
+  'https://income-machine-spread-check-2-daiadigitalco.replit.app'
+];
+
+// Check API status and select best endpoint
+async function selectBestSpreadAPI() {
+  for (const apiUrl of SPREAD_APIS) {
+    try {
+      const statusResponse = await axios.get(`${apiUrl}/api/status`, { timeout: 5000 });
+      const status = statusResponse.data.status || 0;
+      
+      console.log(`API ${apiUrl} status: ${status} concurrent requests`);
+      
+      // If status is less than 4, use this API
+      if (status < 4) {
+        return apiUrl;
+      }
+    } catch (error) {
+      console.log(`Failed to check status for ${apiUrl}:`, error.message);
+      // Continue to next API if this one fails
+    }
+  }
+  
+  // If all APIs are busy or failed, default to first one
+  console.log('All APIs busy or unavailable, defaulting to primary API');
+  return SPREAD_APIS[0];
+}
+
 // Proxy endpoint for spread analysis to handle CORS
 app.post('/api/analyze_debit_spread', async (req, res) => {
   console.log('POST /api/analyze_debit_spread called');
@@ -274,9 +304,13 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     
     console.log(`Fetching fresh spread analysis for ${ticker}...`);
     
+    // Select the best available API endpoint based on current load
+    const selectedAPI = await selectBestSpreadAPI();
+    console.log(`Using API endpoint: ${selectedAPI}`);
+    
     // Call external spread analysis API
     const response = await axios.post(
-      'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
+      `${selectedAPI}/api/analyze_debit_spread`,
       { ticker: ticker.toUpperCase() },
       {
         timeout: 30000,
