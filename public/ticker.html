@@ -576,9 +576,15 @@
             
             try {
                 const symbol = getSymbolFromURL();
-                const response = await axios.get(`/api/analyze_debit_spread?ticker=${symbol}&token=${jwtToken}`);
+                const response = await axios.post('https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread', {
+                    ticker: symbol
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
                 
-                if (response.status === 200) {
+                if (response.status === 200 && response.data.success) {
                     spreadData = response.data;
                     displayStrategies();
                     displayTradeDetails();
