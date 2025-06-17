@@ -247,53 +247,6 @@ app.post('/api/analyze/:symbol', validateJWT, async (req, res) => {
   }
 });
 
-// Load balancing configuration for spread analysis APIs
-const SPREAD_APIS = [
-  'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app',
-  'https://income-machine-spread-check-2-daiadigitalco.replit.app',
-  'https://income-machine-vip-spread-check-1-daiadigitalco.replit.app'
-];
-
-// Check API status and select best endpoint
-async function selectBestSpreadAPI() {
-  console.log('🔍 LOAD BALANCER: Checking status of all spread analysis APIs...');
-  
-  const statusPromises = SPREAD_APIS.map(async (apiUrl, index) => {
-    try {
-      console.log(`   📡 Checking API ${index + 1}: ${apiUrl}/api/status`);
-      const statusResponse = await axios.get(`${apiUrl}/api/status`, { timeout: 5000 });
-      const status = statusResponse.data.status || 0;
-      console.log(`   ✅ API ${index + 1} response: ${status} concurrent requests`);
-      return { apiUrl, status, available: true, index: index + 1 };
-    } catch (error) {
-      console.log(`   ❌ API ${index + 1} failed: ${error.message}`);
-      return { apiUrl, status: 999, available: false, index: index + 1 }; // High status for unavailable APIs
-    }
-  });
-  
-  // Wait for all status checks to complete
-  const apiStatuses = await Promise.all(statusPromises);
-  
-  console.log('📊 LOAD BALANCER: Status check results:');
-  apiStatuses.forEach(api => {
-    const statusText = api.available ? `${api.status} requests` : 'UNAVAILABLE';
-    console.log(`   API ${api.index}: ${statusText}`);
-  });
-  
-  // Sort by status (lowest first), prioritizing available APIs
-  apiStatuses.sort((a, b) => {
-    if (a.available && !b.available) return -1;
-    if (!a.available && b.available) return 1;
-    return a.status - b.status;
-  });
-  
-  const selectedAPI = apiStatuses[0];
-  console.log(`🎯 LOAD BALANCER: Selected API ${selectedAPI.index} with ${selectedAPI.status} concurrent requests`);
-  console.log(`   Using endpoint: ${selectedAPI.apiUrl}`);
-  
-  return selectedAPI.apiUrl;
-}
-
 // Proxy endpoint for spread analysis to handle CORS
 app.post('/api/analyze_debit_spread', async (req, res) => {
   console.log('POST /api/analyze_debit_spread called');
@@ -321,83 +274,37 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     
     console.log(`Fetching fresh spread analysis for ${ticker}...`);
     
-    // Try each API endpoint in sequence until one succeeds
-    let lastError = null;
-    
-    for (let attempt = 0; attempt < SPREAD_APIS.length; attempt++) {
-      const apiUrl = SPREAD_APIS[attempt];
-      
-      try {
-        console.log(`🚀 Attempt ${attempt + 1}: Making POST request to: ${apiUrl}/api/analyze_debit_spread`);
-        console.log(`📦 Request payload: ${JSON.stringify({ ticker: ticker.toUpperCase() })}`);
-        
-        const response = await axios.post(
-          `${apiUrl}/api/analyze_debit_spread`,
-          { ticker: ticker.toUpperCase() },
-          {
-            timeout: 20000, // Reduced timeout for faster failover
-            headers: { 'Content-Type': 'application/json' }
-          }
-        );
-        
-        console.log(`✅ Response status: ${response.status}`);
-        console.log(`📊 Response data keys: ${Object.keys(response.data || {}).join(', ')}`);
-        
-        if (response.status === 200 && response.data.success) {
-          // Cache for 3 minutes (180 seconds)
-          try {
-            await redis.setex(cacheKey, 180, JSON.stringify(response.data));
-            console.log(`Cached spread analysis for ${ticker} (3 min TTL)`);
-          } catch (cacheError) {
-            console.log('Cache set error:', cacheError.message);
-          }
-          
-          return res.json(response.data);
-        } else {
-          console.log(`❌ API ${attempt + 1} response not successful. Status: ${response.status}`);
-          lastError = { message: 'API returned unsuccessful response', response: response.data };
-        }
-        
-      } catch (error) {
-        console.log(`❌ API ${attempt + 1} failed: ${error.message}`);
-        lastError = error;
-        
-        // Continue to next API unless this was the last one
-        if (attempt < SPREAD_APIS.length - 1) {
-          console.log(`⏭️ Trying next API endpoint...`);
-          continue;
-        }
+    // Call external spread analysis API
+    const response = await axios.post(
+      'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
+      { ticker: ticker.toUpperCase() },
+      {
+        timeout: 30000,
+        headers: { 'Content-Type': 'application/json' }
       }
-    }
+    );
     
-    // If we get here, all APIs failed
-    console.log(`❌ All ${SPREAD_APIS.length} API endpoints failed`);
-    throw lastError || new Error('All spread analysis APIs unavailable');
+    if (response.status === 200 && response.data.success) {
+      // Cache for 3 minutes (180 seconds)
+      try {
+        await redis.setex(cacheKey, 180, JSON.stringify(response.data));
+        console.log(`Cached spread analysis for ${ticker} (3 min TTL)`);
+      } catch (cacheError) {
+        console.log('Cache set error:', cacheError.message);
+      }
+      
+      res.json(response.data);
+    } else {
+      res.status(500).json({ 
+        error: 'Failed to analyze spreads',
+        details: response.data 
+      });
+    }
   } catch (error) {
-    console.error('❌ Spread analysis error details:');
-    console.error('Error message:', error.message);
-    console.error('Error code:', error.code);
-    console.error('Response status:', error.response?.status);
-    console.error('Response data:', error.response?.data);
+    console.error('Spread analysis error:', error);
     
     if (error.code === 'ECONNABORTED') {
-      return res.status(408).json({ error: 'Request timeout - API took too long to respond' });
-    }
-    
-    if (error.response) {
-      // API responded with error status
-      return res.status(error.response.status).json({ 
-        error: 'API error', 
-        details: error.response.data || error.message 
-      });
-    }
-    
-    if (error.request) {
-      // Network error - no response received
-      return res.status(503).json({ 
-        error: 'Network error - could not reach API', 
-        details: error.message 
-      });
+      return res.status(408).json({ error: 'Request timeout' });
     }
     
     res.status(500).json({ error: 'Internal server error', details: error.message });
