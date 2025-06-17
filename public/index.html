@@ -315,6 +315,28 @@
         </div>
     </div>
 
+    <!-- Market Hours Modal -->
+    <div id="marketHoursModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" style="display: none;">
+        <div class="relative bg-gradient-to-br from-stone-800 to-stone-900 rounded-lg p-8 max-w-md w-full mx-4 border border-stone-600">
+            <button onclick="hideMarketHoursModal()" class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 z-10">
+                ×
+            </button>
+            <div class="text-center">
+                <div class="text-3xl mb-4">📈</div>
+                <h3 class="text-2xl font-bold text-white mb-4">Market is Currently Closed</h3>
+                <p class="text-stone-300 mb-6">The stock market is open Monday through Friday from 9:30 AM to 4:00 PM Eastern Time.</p>
+                <div class="bg-stone-700 rounded-lg p-4 mb-6">
+                    <div class="text-stone-200 text-sm">Current Time (ET)</div>
+                    <div id="currentTimeET" class="text-xl font-bold text-white"></div>
+                </div>
+                <button onclick="hideMarketHoursModal()" 
+                        class="bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-bold py-3 px-6 rounded-lg transition-all duration-300">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Video Modal -->
     <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" style="display: none;">
         <div class="relative bg-gray-900 rounded-lg p-6 max-w-4xl w-full mx-4">
@@ -554,8 +576,83 @@
             }
         });
 
+        // Market hours functions
+        function isMarketOpen() {
+            const now = new Date();
+            const etTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            
+            const day = etTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            const hour = etTime.getHours();
+            const minute = etTime.getMinutes();
+            
+            // Market is closed on weekends (Saturday = 6, Sunday = 0)
+            if (day === 0 || day === 6) {
+                return false;
+            }
+            
+            // Market hours: 9:30 AM - 4:00 PM ET (weekdays only)
+            const marketOpen = 9 * 60 + 30; // 9:30 AM in minutes
+            const marketClose = 16 * 60; // 4:00 PM in minutes
+            const currentTime = hour * 60 + minute;
+            
+            return currentTime >= marketOpen && currentTime < marketClose;
+        }
+
+        function updateCurrentTimeET() {
+            const now = new Date();
+            const etTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const timeString = etTime.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            document.getElementById('currentTimeET').textContent = timeString;
+        }
+
+        function showMarketHoursModal() {
+            const modal = document.getElementById('marketHoursModal');
+            updateCurrentTimeET();
+            
+            // Update time every second while modal is open
+            const timeInterval = setInterval(updateCurrentTimeET, 1000);
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Clear interval when modal is closed
+            modal.timeInterval = timeInterval;
+        }
+
+        function hideMarketHoursModal() {
+            const modal = document.getElementById('marketHoursModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Clear the time update interval
+            if (modal.timeInterval) {
+                clearInterval(modal.timeInterval);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('marketHoursModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideMarketHoursModal();
+            }
+        });
+
+        // Check market hours on page load
+        function checkMarketHours() {
+            if (!isMarketOpen()) {
+                // Show modal after a brief delay to let the page load
+                setTimeout(showMarketHoursModal, 1000);
+            }
+        }
+
         // Start the application
         init();
+        checkMarketHours();
     </script>
 </body>
 </html>
