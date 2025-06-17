@@ -258,75 +258,107 @@ app.post('/api/analyze/:symbol', validateJWT, async (req, res) => {
 
 // Proxy endpoint for spread analysis to handle CORS
 app.post('/api/analyze_debit_spread', async (req, res) => {
-  console.log('POST /api/analyze_debit_spread called');
+  console.log('=== STEP 3 API ENDPOINT CALLED ===');
   console.log('Request body:', req.body);
+  console.log('Request timestamp:', new Date().toISOString());
   
-  try {
-    const { ticker } = req.body;
-    if (!ticker) {
-      console.log('Missing ticker in request body');
-      return res.status(400).json({ error: 'Ticker is required' });
-    }
-    
-    console.log(`Making FRESH spread analysis API call for ${ticker} - NO CACHING`);
-    
-    // Primary and fallback endpoints
-    const endpoints = [
-      'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
-      'https://income-machine-spread-check-fallback-daiadigitalco.replit.app/api/analyze_debit_spread'
-    ];
-    
-    let lastError = null;
-    
-    // Try primary endpoint first, then fallback
-    for (let i = 0; i < endpoints.length; i++) {
-      try {
-        console.log(`Trying endpoint ${i + 1}/${endpoints.length}: ${endpoints[i]}`);
-        
-        const response = await axios.post(
-          endpoints[i],
-          { ticker: ticker.toUpperCase() },
-          {
-            timeout: 20000, // Reduced timeout to fail faster
-            headers: { 'Content-Type': 'application/json' }
-          }
-        );
-        
-        if (response.status === 200) {
-          // Check if response is HTML (endpoint starting up) instead of JSON
-          if (typeof response.data === 'string' && response.data.includes('<html>')) {
-            console.log(`Endpoint ${i + 1} returned HTML startup page, treating as failure`);
-            throw new Error('Endpoint returning HTML startup page');
-          }
-          
-          console.log(`Fresh spread analysis completed for ${ticker} from endpoint ${i + 1} - returning real-time data`);
-          // Return response data directly without any caching
-          return res.json(response.data);
+  const { ticker } = req.body;
+  if (!ticker) {
+    console.log('ERROR: Missing ticker in request body');
+    return res.status(400).json({ error: 'Ticker is required' });
+  }
+  
+  console.log(`=== STARTING FAILOVER SEQUENCE FOR ${ticker} ===`);
+  
+  // Primary and fallback endpoints
+  const endpoints = [
+    'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
+    'https://income-machine-spread-check-fallback-daiadigitalco.replit.app/api/analyze_debit_spread'
+  ];
+  
+  let lastError = null;
+  
+  // Try each endpoint in sequence
+  for (let i = 0; i < endpoints.length; i++) {
+    try {
+      console.log(`=== ATTEMPTING ENDPOINT ${i + 1}/${endpoints.length} ===`);
+      console.log(`URL: ${endpoints[i]}`);
+      console.log(`Payload: {"ticker": "${ticker.toUpperCase()}"}`);
+      console.log(`Timeout: 15 seconds`);
+      
+      const startTime = Date.now();
+      
+      const response = await axios.post(
+        endpoints[i],
+        { ticker: ticker.toUpperCase() },
+        {
+          timeout: 15000, // Reduced to 15 seconds for faster failover
+          headers: { 'Content-Type': 'application/json' }
         }
-      } catch (error) {
-        console.log(`Endpoint ${i + 1} failed:`, error.message);
-        lastError = error;
-        
-        // Continue to next endpoint if this one failed
-        if (i < endpoints.length - 1) {
-          console.log(`Trying fallback endpoint...`);
-          continue;
+      );
+      
+      const responseTime = Date.now() - startTime;
+      console.log(`=== ENDPOINT ${i + 1} RESPONSE RECEIVED ===`);
+      console.log(`Response time: ${responseTime}ms`);
+      console.log(`Status: ${response.status}`);
+      console.log(`Content-Type: ${response.headers['content-type']}`);
+      console.log(`Response preview: ${JSON.stringify(response.data).substring(0, 200)}...`);
+      
+      if (response.status === 200) {
+        // Check if response is HTML (endpoint starting up) instead of JSON
+        if (typeof response.data === 'string' && response.data.includes('<html>')) {
+          console.log(`=== ENDPOINT ${i + 1} FAILED: HTML STARTUP PAGE ===`);
+          throw new Error('Endpoint returning HTML startup page');
         }
+        
+        // Check if response has proper spread data structure
+        if (!response.data || !response.data.strategies) {
+          console.log(`=== ENDPOINT ${i + 1} FAILED: INVALID JSON STRUCTURE ===`);
+          throw new Error('Invalid JSON response structure');
+        }
+        
+        console.log(`=== SUCCESS: ENDPOINT ${i + 1} PROVIDED VALID DATA ===`);
+        console.log(`Strategies found: ${Object.keys(response.data.strategies || {}).length}`);
+        return res.json(response.data);
+      } else {
+        console.log(`=== ENDPOINT ${i + 1} FAILED: NON-200 STATUS ===`);
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+    } catch (error) {
+      console.log(`=== ENDPOINT ${i + 1} FAILED ===`);
+      console.log(`Error type: ${error.constructor.name}`);
+      console.log(`Error code: ${error.code}`);
+      console.log(`Error message: ${error.message}`);
+      
+      lastError = error;
+      
+      // Continue to next endpoint if available
+      if (i < endpoints.length - 1) {
+        console.log(`=== FAILING OVER TO ENDPOINT ${i + 2} ===`);
+        continue;
       }
     }
-    
-    // All endpoints failed
-    console.error('All spread analysis endpoints failed');
-    throw lastError;
-  } catch (error) {
-    console.error('Spread analysis error:', error);
-    
-    if (error.code === 'ECONNABORTED') {
-      return res.status(408).json({ error: 'Request timeout' });
-    }
-    
-    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
+  
+  // All endpoints failed
+  console.log('=== ALL ENDPOINTS FAILED ===');
+  console.log(`Final error: ${lastError.message}`);
+  
+  // Return appropriate error based on last failure
+  if (lastError.code === 'ECONNABORTED' || lastError.message.includes('timeout')) {
+    console.log('Returning timeout error');
+    return res.status(408).json({ 
+      error: 'All spread analysis services are currently overloaded. Please try again in a moment.',
+      code: 'TIMEOUT'
+    });
+  }
+  
+  console.log('Returning general error');
+  res.status(500).json({ 
+    error: 'Spread analysis services are temporarily unavailable. Please try again.',
+    details: lastError.message 
+  });
 });
 
 // Serve the main application
