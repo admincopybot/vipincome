@@ -15,6 +15,15 @@ const port = process.env.PORT || 5001;
 app.use(express.json());
 app.use(express.static('public'));
 
+// Explicit favicon routes for custom domains
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
+app.get('/favicon.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
+
 // Database connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
