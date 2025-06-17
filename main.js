@@ -276,7 +276,7 @@ app.post('/api/analyze_debit_spread', async (req, res) => {
     
     // Call external spread analysis API
     const response = await axios.post(
-      'https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/',
+      'https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
       { ticker: ticker.toUpperCase() },
       {
         timeout: 30000,
