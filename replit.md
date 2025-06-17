@@ -231,6 +231,8 @@ Changelog:
 - June 17, 2025: Updated access screen with three buttons: UPGRADE (Prosperity Publishing), Proceed to PRO, and One Click Trading
 - June 17, 2025: Improved Step 3 error messages with friendly, conversational language and "Try Again" functionality
 - June 17, 2025: Removed problematic HSIC ticker from database to prevent external API pricing errors
+- June 17, 2025: Added favicon to both HTML pages using generated-icon.png for consistent branding
+- June 17, 2025: Removed "Last updated X minutes ago" text from dashboard for cleaner interface
 
 # User Preferences
 
