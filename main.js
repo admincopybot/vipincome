@@ -74,13 +74,14 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
     
     let query = `
       SELECT 
-        symbol, current_price, score,
+        symbol, current_price, total_score as score,
         trend1_pass, trend1_current, trend1_threshold, trend1_description,
         trend2_pass, trend2_current, trend2_threshold, trend2_description,
         snapback_pass, snapback_current, snapback_threshold, snapback_description,
         momentum_pass, momentum_current, momentum_threshold, momentum_description,
         stabilizing_pass, stabilizing_current, stabilizing_threshold, stabilizing_description,
-        trading_volume, options_contracts_10_42_dte, last_updated
+        trading_volume_20_day as trading_volume, options_contracts_10_42_dte, 
+        calculation_timestamp as last_updated
       FROM etf_scores
     `;
     
@@ -114,13 +115,14 @@ app.get('/api/ticker/:symbol', validateJWT, async (req, res) => {
     
     const query = `
       SELECT 
-        symbol, current_price, score,
+        symbol, current_price, total_score as score,
         trend1_pass, trend1_current, trend1_threshold, trend1_description,
         trend2_pass, trend2_current, trend2_threshold, trend2_description,
         snapback_pass, snapback_current, snapback_threshold, snapback_description,
         momentum_pass, momentum_current, momentum_threshold, momentum_description,
         stabilizing_pass, stabilizing_current, stabilizing_threshold, stabilizing_description,
-        trading_volume, options_contracts_10_42_dte, last_updated
+        trading_volume_20_day as trading_volume, options_contracts_10_42_dte, 
+        calculation_timestamp as last_updated
       FROM etf_scores 
       WHERE symbol = $1
     `;
