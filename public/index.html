@@ -162,18 +162,22 @@
         // Load tickers data
         async function loadTickers() {
             try {
-                const response = await axios.get('/api/tickers', {
-                    headers: {
-                        'Authorization': `Bearer ${jwtToken}`
-                    }
-                });
+                const response = await axios.get(`/api/tickers?token=${jwtToken}`);
                 
                 allTickers = response.data;
+                console.log('Loaded tickers:', allTickers.length);
                 displayTickers(allTickers);
             } catch (error) {
                 console.error('Failed to load tickers:', error);
                 if (error.response?.status === 401) {
                     showAccessScreen();
+                } else {
+                    // Show error message in UI
+                    document.getElementById('loading').innerHTML = `
+                        <div class="text-center text-red-400">
+                            <p>Error loading data. Please refresh the page.</p>
+                        </div>
+                    `;
                 }
             }
         }
@@ -223,12 +227,8 @@
             ];
             
             return criteria.map(pass => `
-                <div class="w-6 h-6 rounded-full flex items-center justify-center ${
-                    pass ? 'bg-green-500' : 'bg-red-500'
-                }">
-                    <span class="text-white text-xs font-bold">${pass ? '✓' : '✗'}</span>
-                </div>
-            `).join('');
+                <span class="text-2xl ${pass ? 'text-green-400' : 'text-red-400'}">${pass ? '✓' : '✗'}</span>
+            `).join(' ');
         }
 
         // Open ticker details
