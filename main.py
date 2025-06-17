@@ -38,18 +38,21 @@ def proxy(path):
         url = f"http://localhost:5001/{path}"
         
         # Forward request with all parameters and headers
+        # Use longer timeout for spread analysis endpoints to allow failover
+        timeout = 45 if path == 'api/analyze_debit_spread' else 10
+        
         if request.method == 'GET':
             resp = requests.get(url, 
                               params=dict(request.args), 
                               headers=dict(request.headers),
-                              timeout=10)
+                              timeout=timeout)
         elif request.method == 'POST':
             resp = requests.post(url,
                                params=dict(request.args),
                                json=request.get_json() if request.is_json else None,
                                data=request.form if not request.is_json else None,
                                headers=dict(request.headers),
-                               timeout=10)
+                               timeout=timeout)
         else:
             # Handle other HTTP methods
             resp = requests.request(request.method, url,
@@ -57,7 +60,7 @@ def proxy(path):
                                   json=request.get_json() if request.is_json else None,
                                   data=request.form if not request.is_json else None,
                                   headers=dict(request.headers),
-                                  timeout=10)
+                                  timeout=timeout)
         
         # Create response with proper headers
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']

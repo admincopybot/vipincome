@@ -246,6 +246,7 @@ Changelog:
 - June 17, 2025: Added failover system with backup endpoint https://income-machine-spread-check-fallback-daiadigitalco.replit.app for when primary endpoint is overloaded
 - June 17, 2025: Fixed failover detection to trigger when endpoint returns HTML startup page instead of JSON data
 - June 17, 2025: Added comprehensive logging and improved timeout handling for Step 3 failover system
+- June 17, 2025: Fixed Flask proxy timeout (increased to 45s for spread analysis) to allow Node.js failover system to execute properly
 
 # User Preferences
 
