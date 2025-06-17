@@ -255,26 +255,32 @@ const SPREAD_APIS = [
 
 // Check API status and select best endpoint
 async function selectBestSpreadAPI() {
-  for (const apiUrl of SPREAD_APIS) {
+  const statusPromises = SPREAD_APIS.map(async (apiUrl) => {
     try {
       const statusResponse = await axios.get(`${apiUrl}/api/status`, { timeout: 5000 });
       const status = statusResponse.data.status || 0;
-      
       console.log(`API ${apiUrl} status: ${status} concurrent requests`);
-      
-      // If status is less than 4, use this API
-      if (status < 4) {
-        return apiUrl;
-      }
+      return { apiUrl, status, available: true };
     } catch (error) {
       console.log(`Failed to check status for ${apiUrl}:`, error.message);
-      // Continue to next API if this one fails
+      return { apiUrl, status: 999, available: false }; // High status for unavailable APIs
     }
-  }
+  });
   
-  // If all APIs are busy or failed, default to first one
-  console.log('All APIs busy or unavailable, defaulting to primary API');
-  return SPREAD_APIS[0];
+  // Wait for all status checks to complete
+  const apiStatuses = await Promise.all(statusPromises);
+  
+  // Sort by status (lowest first), prioritizing available APIs
+  apiStatuses.sort((a, b) => {
+    if (a.available && !b.available) return -1;
+    if (!a.available && b.available) return 1;
+    return a.status - b.status;
+  });
+  
+  const selectedAPI = apiStatuses[0];
+  console.log(`Selected API: ${selectedAPI.apiUrl} (status: ${selectedAPI.status})`);
+  
+  return selectedAPI.apiUrl;
 }
 
 // Proxy endpoint for spread analysis to handle CORS

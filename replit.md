@@ -233,6 +233,8 @@ Changelog:
 - June 17, 2025: Removed problematic HSIC ticker from database to prevent external API pricing errors
 - June 17, 2025: Added favicon to both HTML pages using generated-icon.png for consistent branding
 - June 17, 2025: Removed "Last updated X minutes ago" text from dashboard for cleaner interface
+- June 17, 2025: Implemented intelligent load balancing for Step 3 spread analysis with dual API endpoints
+- June 17, 2025: Added concurrent status checking that selects API with lowest load for optimal performance
 
 # User Preferences
 
