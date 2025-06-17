@@ -783,12 +783,26 @@
                 console.log('Spread analysis response:', response);
                 
                 if (response.status === 200) {
-                    console.log('Spread analysis response:', response.data);
+                    console.log('=== AUTHENTIC API RESPONSE ===');
+                    console.log('Full response object:', response.data);
+                    console.log('Response success:', response.data.success);
+                    console.log('Raw strategies data:', response.data.strategies);
                     
                     if (response.data.success) {
-                        // Successful spread analysis with data
+                        // Store ONLY authentic API response data
                         spreadData = response.data;
-                        console.log('Successfully loaded spread data:', spreadData);
+                        console.log('=== STORING AUTHENTIC SPREAD DATA ===');
+                        console.log('Strategies available:', Object.keys(spreadData.strategies || {}));
+                        
+                        // Log each strategy's authentic data
+                        Object.entries(spreadData.strategies || {}).forEach(([strategyName, strategyData]) => {
+                            console.log(`${strategyName.toUpperCase()} Strategy Data:`, strategyData);
+                            if (strategyData.found) {
+                                console.log(`${strategyName} spread_details:`, strategyData.spread_details);
+                                console.log(`${strategyName} contracts:`, strategyData.contracts);
+                            }
+                        });
+                        
                         displayStrategies();
                         displayTradeDetails();
                         
@@ -855,6 +869,10 @@
             document.getElementById('strategiesLoading').style.display = 'none';
             document.getElementById('strategiesGrid').style.display = 'grid';
             
+            console.log('=== DISPLAYING AUTHENTIC SPREAD DATA ===');
+            console.log('spreadData object:', spreadData);
+            console.log('Available strategies:', Object.keys(spreadData.strategies || {}));
+            
             const symbol = getSymbolFromURL();
             const strategies = [
                 { key: 'conservative', title: 'Conservative Income', subtitle: `${symbol} Conservative Income Strategy` },
@@ -867,7 +885,12 @@
             grid.innerHTML = strategies.map(({ key, title, subtitle }) => {
                 const strategyData = spreadData.strategies[key];
                 
+                console.log(`=== RENDERING ${key.toUpperCase()} STRATEGY ===`);
+                console.log(`Strategy found: ${strategyData?.found}`);
+                console.log(`Raw strategy data:`, strategyData);
+                
                 if (!strategyData?.found) {
+                    console.log(`No ${key} strategy found - showing unavailable card`);
                     return `
                         <div class="strategy-card">
                             <h3 class="text-xl font-bold text-white mb-4">${title}</h3>
@@ -876,14 +899,20 @@
                     `;
                 }
                 
-                // Extract data from strategy response
+                // Extract ONLY authentic API data - no fallbacks except N/A
                 const details = strategyData.spread_details || {};
+                console.log(`${key} spread_details from API:`, details);
+                
                 const dte = details.days_to_expiration ? details.days_to_expiration + 1 : 'N/A';
                 const targetROI = details.roi_percent ? `${details.roi_percent.toFixed(1)}%` : 'N/A';
                 const strikePrice = details.long_strike ? `$${details.long_strike.toFixed(2)}` : 'N/A';
-                const tradeWidth = details.spread_width ? `$${details.spread_width.toFixed(2)}` : '$5.00';
+                const tradeWidth = details.spread_width ? `$${details.spread_width.toFixed(2)}` : 'N/A';
                 const expiration = details.expiration_date || 'N/A';
                 const contractId = strategyData.contracts?.long_contract || 'N/A';
+                
+                console.log(`${key} extracted values:`, {
+                    dte, targetROI, strikePrice, tradeWidth, expiration, contractId
+                });
                 
                 return `
                     <div class="strategy-card ${selectedStrategy === key ? 'selected' : ''}" 
