@@ -11,6 +11,8 @@ export default async function handler(req, res) {
     return;
   }
 
+  let client;
+
   try {
     // Check environment variables
     const dbUrl = process.env.DATABASE_URL;
@@ -30,27 +32,54 @@ export default async function handler(req, res) {
       });
     }
 
-    // Try to connect to database
-    const client = new Client({
+    // Try to connect to NeonDB
+    client = new Client({
       connectionString: dbUrl,
-      ssl: nodeEnv === 'production' ? { rejectUnauthorized: false } : false
+      ssl: {
+        rejectUnauthorized: false
+      }
     });
     
-    console.log('Attempting database connection...');
+    console.log('Attempting NeonDB connection...');
     await client.connect();
-    console.log('Database connected successfully');
+    console.log('NeonDB connected successfully');
     
     // Test simple query
-    const result = await client.query('SELECT NOW() as current_time');
-    console.log('Query executed successfully');
+    const timeResult = await client.query('SELECT NOW() as current_time');
+    console.log('Time query executed successfully');
     
-    await client.end();
-    console.log('Database connection closed');
+    // Check if etf_scores table exists
+    const tableCheck = await client.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'etf_scores'
+      );
+    `);
+    
+    // If table exists, get sample data
+    let sampleData = null;
+    let rowCount = 0;
+    
+    if (tableCheck.rows[0].exists) {
+      const countResult = await client.query('SELECT COUNT(*) FROM etf_scores');
+      rowCount = parseInt(countResult.rows[0].count);
+      
+      if (rowCount > 0) {
+        const sampleResult = await client.query('SELECT symbol, total_score FROM etf_scores LIMIT 3');
+        sampleData = sampleResult.rows;
+      }
+    }
 
     res.status(200).json({
       success: true,
-      message: 'Database connection successful',
-      current_time: result.rows[0].current_time,
+      message: 'NeonDB connection successful',
+      current_time: timeResult.rows[0].current_time,
+      database_info: {
+        etf_scores_table_exists: tableCheck.rows[0].exists,
+        etf_scores_row_count: rowCount,
+        sample_data: sampleData
+      },
       env_check: {
         DATABASE_URL: !!dbUrl,
         NODE_ENV: nodeEnv
@@ -63,7 +92,17 @@ export default async function handler(req, res) {
       success: false,
       error: 'Database connection failed',
       details: error.message,
+      code: error.code,
       stack: error.stack
     });
+  } finally {
+    if (client) {
+      try {
+        await client.end();
+        console.log('NeonDB connection closed');
+      } catch (closeError) {
+        console.error('Error closing NeonDB connection:', closeError);
+      }
+    }
   }
 } 

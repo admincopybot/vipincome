@@ -1,0 +1,28 @@
+{
+  "name": "income-machine-vip",
+  "version": "1.0.0",
+  "description": "Income Machine VIP - Options Trading Analysis Platform",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "echo 'Serverless functions on Vercel'"
+  },
+  "dependencies": {
+    "pg": "^8.11.0",
+    "jsonwebtoken": "^9.0.0",
+    "axios": "^1.6.0",
+    "@upstash/redis": "^1.25.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "options",
+    "trading",
+    "finance",
+    "vercel"
+  ],
+  "author": "Income Machine VIP",
+  "license": "MIT"
+} 
