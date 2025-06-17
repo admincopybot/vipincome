@@ -233,7 +233,7 @@ Changelog:
 - June 17, 2025: Removed problematic HSIC ticker from database to prevent external API pricing errors
 - June 17, 2025: Added favicon to both HTML pages using generated-icon.png for consistent branding
 - June 17, 2025: Removed "Last updated X minutes ago" text from dashboard for cleaner interface
-- June 17, 2025: Updated Step 3 spread analysis to call endpoint: https://income-machine-options-calculation-daiadigitalco.replit.app/api/analyze_debit_spread
+- June 17, 2025: Updated Step 3 spread analysis to call endpoint: https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread
 - June 17, 2025: Added market hours popup that automatically displays when market is closed (outside 9:30 AM - 4:00 PM ET weekdays)
 - June 17, 2025: Enhanced error handling for "no spreads found" responses - displays detailed strategy-specific error messages with retry functionality
 - June 17, 2025: Updated error messages to show "No Spreads Found" with market hours context when market is closed (9:30 AM - 4:00 PM ET)
@@ -242,7 +242,7 @@ Changelog:
 - June 17, 2025: Removed ALL caching from spread analysis - Step 3 now makes fresh real-time API calls to external endpoint on every request
 - June 17, 2025: Fixed Step 3 loading state - eliminated premature "No Income Opportunities Found" display before API call completes
 - June 17, 2025: Fixed Step 4 option pricing to calculate realistic individual prices from authentic API spread cost data instead of showing $0.00
-- June 17, 2025: Updated Step 3 API endpoint to https://income-machine-options-calculation-daiadigitalco.replit.app for reliable JSON responses
+- June 17, 2025: Updated Step 3 API endpoint to https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app for reliable JSON responses
 
 # User Preferences
 
