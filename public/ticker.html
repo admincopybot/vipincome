@@ -113,7 +113,7 @@
                 <div data-connector="1" class="w-16 h-0.5 bg-purple-600"></div>
                 
                 <!-- Step 2: Stock Analysis -->
-                <div class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="switchTab('step2')">
+                <div id="step2Nav" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="switchTab('step2')">
                     <div data-step="2" class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">2</div>
                     <span class="text-white font-medium">Stock Analysis</span>
                 </div>
@@ -559,6 +559,9 @@
             
             displayProfitMatrix();
             displayTradeDetails();
+            
+            // Enable Step 4 navigation now that a strategy is selected
+            enableStep4Navigation();
         }
 
         // Display profit matrix
