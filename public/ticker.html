@@ -618,8 +618,16 @@
             document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
             document.getElementById(`content-${tabName}`).style.display = 'block';
             
-            // Load spread data if needed
+            // Handle Step 3/4 with proper loading state
             if ((tabName === 'step3' || tabName === 'step4') && !spreadData) {
+                // Show loading state immediately when switching to Step 3/4
+                document.getElementById('strategiesLoading').style.display = 'flex';
+                document.getElementById('strategiesGrid').style.display = 'none';
+                
+                // Clear any previous content that might show "No Income Opportunities Found"
+                document.getElementById('strategiesGrid').innerHTML = '';
+                
+                // Load spread data
                 loadSpreadData();
             }
         }
