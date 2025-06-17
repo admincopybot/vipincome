@@ -161,27 +161,97 @@
         <!-- Step 2: Analysis -->
         <div id="content-step2" class="tab-content">
             <div class="space-y-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-6">Technical Analysis</h2>
-                    <div id="criteriaGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Criteria cards will be inserted here -->
-                    </div>
+                <!-- Header -->
+                <div class="text-center">
+                    <h1 id="stockAnalysisTitle" class="text-3xl font-bold text-white mb-2">MRK - Stock Analysis</h1>
+                    <p class="text-gray-400">Review the selected stock details before choosing an income strategy.</p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="criteria-card">
-                        <h3 class="text-lg font-semibold text-white mb-2">Trading Volume</h3>
-                        <div id="tradingVolume" class="text-2xl font-bold text-purple-400"></div>
+                <!-- Two Column Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                    <!-- Left Column: Stock Details -->
+                    <div class="bg-slate-800/50 border border-purple-500/30 rounded-lg p-6">
+                        <h2 class="text-xl font-bold text-white mb-6">Stock Details</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Symbol -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Symbol:</span>
+                                <span id="stockSymbol" class="text-white font-semibold">MRK</span>
+                            </div>
+                            
+                            <!-- Current Price -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Current Price:</span>
+                                <span id="stockPrice" class="text-white font-semibold">$81.65</span>
+                            </div>
+                            
+                            <!-- Score -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Score:</span>
+                                <div class="flex items-center gap-2">
+                                    <span id="stockScore" class="text-white font-semibold">2/5</span>
+                                    <div class="w-20 h-2 bg-gray-700 rounded-full">
+                                        <div id="scoreProgress" class="h-2 bg-purple-600 rounded-full" style="width: 40%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Technical Indicators -->
+                        <div class="mt-8">
+                            <h3 class="text-lg font-bold text-white mb-4">Technical Indicators:</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Short Term Trend</span>
+                                    <div id="trend1Indicator" class="w-4 h-4 rounded-full bg-green-500"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Long Term Trend</span>
+                                    <div id="trend2Indicator" class="w-4 h-4 rounded-full bg-red-500"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Snapback Position</span>
+                                    <div id="snapbackIndicator" class="w-4 h-4 rounded-full bg-red-500"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Weekly Momentum</span>
+                                    <div id="momentumIndicator" class="w-4 h-4 rounded-full bg-red-500"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Stabilizing</span>
+                                    <div id="stabilizingIndicator" class="w-4 h-4 rounded-full bg-green-500"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="criteria-card">
-                        <h3 class="text-lg font-semibold text-white mb-2">Options Contracts</h3>
-                        <div id="optionsContracts" class="text-2xl font-bold text-purple-400"></div>
-                    </div>
-                    
-                    <div class="criteria-card">
-                        <h3 class="text-lg font-semibold text-white mb-2">Last Updated</h3>
-                        <div id="lastUpdated" class="text-lg text-purple-400"></div>
+                    <!-- Right Column: Income Potential -->
+                    <div class="bg-slate-800/50 border border-purple-500/30 rounded-lg p-6">
+                        <h2 class="text-xl font-bold text-white mb-6">Income Potential</h2>
+                        
+                        <div class="space-y-4 mb-8">
+                            <p class="text-gray-300 text-sm leading-relaxed">
+                                Based on the current score of <span id="incomeScore" class="text-white font-semibold">2/5</span>, 
+                                <span id="incomeSymbol" class="text-white font-semibold">MRK</span> could be a limited 
+                                candidate for generating options income.
+                            </p>
+                            
+                            <p class="text-gray-300 text-sm leading-relaxed">
+                                The score is calculated using 5 technical indicators, with 1 point awarded for 
+                                each condition met. Higher scores indicate more favorable market conditions 
+                                for income opportunities.
+                            </p>
+                            
+                            <p class="text-gray-300 text-sm leading-relaxed">
+                                Data is automatically refreshed every 15 minutes during market hours.
+                            </p>
+                        </div>
+                        
+                        <button onclick="switchTab('step3')" 
+                                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                            Choose Income Strategy →
+                        </button>
                     </div>
                 </div>
             </div>
@@ -321,20 +391,40 @@
 
         // Display ticker data
         function displayTickerData() {
-            document.getElementById('tickerSymbol').textContent = currentTicker.symbol;
-            document.getElementById('currentPrice').textContent = `$${currentTicker.current_price.toFixed(2)}`;
-            document.getElementById('tickerScore').textContent = `Score: ${currentTicker.score}/5`;
+            if (!currentTicker) return;
             
-            // Trading volume and options
-            document.getElementById('tradingVolume').textContent = currentTicker.trading_volume.toLocaleString();
-            document.getElementById('optionsContracts').textContent = 
-                currentTicker.options_contracts_10_42_dte === 0 ? 'Processing...' : 
-                currentTicker.options_contracts_10_42_dte.toLocaleString();
-            document.getElementById('lastUpdated').textContent = 
-                new Date(currentTicker.last_updated).toLocaleDateString();
+            // Calculate actual score from criteria
+            const actualScore = [
+                currentTicker.trend1_pass,
+                currentTicker.trend2_pass,
+                currentTicker.snapback_pass,
+                currentTicker.momentum_pass,
+                currentTicker.stabilizing_pass
+            ].filter(pass => pass === true).length;
             
-            // Criteria grid
-            renderCriteriaGrid();
+            // Update Step 2 Analysis page content
+            document.getElementById('stockAnalysisTitle').textContent = `${currentTicker.symbol} - Stock Analysis`;
+            document.getElementById('stockSymbol').textContent = currentTicker.symbol;
+            document.getElementById('stockPrice').textContent = `$${parseFloat(currentTicker.current_price).toFixed(2)}`;
+            document.getElementById('stockScore').textContent = `${actualScore}/5`;
+            document.getElementById('incomeScore').textContent = `${actualScore}/5`;
+            document.getElementById('incomeSymbol').textContent = currentTicker.symbol;
+            
+            // Update score progress bar
+            const scorePercentage = (actualScore / 5) * 100;
+            document.getElementById('scoreProgress').style.width = `${scorePercentage}%`;
+            
+            // Update technical indicators
+            document.getElementById('trend1Indicator').className = 
+                `w-4 h-4 rounded-full ${currentTicker.trend1_pass ? 'bg-green-500' : 'bg-red-500'}`;
+            document.getElementById('trend2Indicator').className = 
+                `w-4 h-4 rounded-full ${currentTicker.trend2_pass ? 'bg-green-500' : 'bg-red-500'}`;
+            document.getElementById('snapbackIndicator').className = 
+                `w-4 h-4 rounded-full ${currentTicker.snapback_pass ? 'bg-green-500' : 'bg-red-500'}`;
+            document.getElementById('momentumIndicator').className = 
+                `w-4 h-4 rounded-full ${currentTicker.momentum_pass ? 'bg-green-500' : 'bg-red-500'}`;
+            document.getElementById('stabilizingIndicator').className = 
+                `w-4 h-4 rounded-full ${currentTicker.stabilizing_pass ? 'bg-green-500' : 'bg-red-500'}`;
         }
 
         // Render criteria grid
