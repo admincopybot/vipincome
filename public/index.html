@@ -233,10 +233,10 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-8">
-                    <a href="https://app.oneclicktrading.com/landing/login" target="_blank" 
-                       class="text-slate-400 hover:text-slate-200 transition-all duration-300 font-medium tracking-wide">
+                    <button onclick="showVideoModal()" 
+                            class="text-slate-400 hover:text-slate-200 transition-all duration-300 font-medium tracking-wide bg-transparent border-none cursor-pointer">
                         How to Use
-                    </a>
+                    </button>
                     <a href="https://app.oneclicktrading.com/landing/login" target="_blank" 
                        class="text-slate-400 hover:text-slate-200 transition-all duration-300 font-medium tracking-wide">
                         Trade Classes
@@ -302,6 +302,21 @@
         </div>
     </div>
 
+    <!-- Video Modal -->
+    <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" style="display: none;">
+        <div class="relative bg-gray-900 rounded-lg p-6 max-w-4xl w-full mx-4">
+            <button onclick="hideVideoModal()" class="absolute top-4 right-4 text-white text-2xl hover:text-gray-300 z-10">
+                ×
+            </button>
+            <div class="aspect-video">
+                <div id="videoContainer" style="padding:56.25% 0 0 0;position:relative;">
+                    <iframe id="vimeoPlayer" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="How to Use Income Machine"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://player.vimeo.com/api/player.js"></script>
     <script>
         let allTickers = [];
         let jwtToken = null;
@@ -482,6 +497,36 @@
             setupSearch();
             loadTickers();
         }
+
+        // Video modal functions
+        function showVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('vimeoPlayer');
+            
+            // Set the Vimeo video URL
+            iframe.src = "https://player.vimeo.com/video/1093905452?h=a354ebce68&badge=0&autopause=0&player_id=0&app_id=58479";
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('vimeoPlayer');
+            
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Stop the video by clearing the src
+            iframe.src = '';
+        }
+
+        // Close modal when clicking outside the video
+        document.getElementById('videoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideVideoModal();
+            }
+        });
 
         // Start the application
         init();
