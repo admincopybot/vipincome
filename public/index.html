@@ -41,7 +41,7 @@
         
         .ticker-card {
             background: linear-gradient(145deg, rgba(20, 20, 28, 0.95), rgba(25, 25, 35, 0.9));
-            border: 1px solid rgba(160, 130, 200, 0.15);
+            border: 1px solid rgba(196, 161, 92, 0.15);
             border-radius: 16px;
             padding: 28px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -58,16 +58,16 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(160, 130, 200, 0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(196, 161, 92, 0.3), transparent);
             opacity: 0;
             transition: opacity 0.4s ease;
         }
         
         .ticker-card:hover {
-            border-color: rgba(160, 130, 200, 0.35);
+            border-color: rgba(196, 161, 92, 0.35);
             transform: translateY(-4px);
             box-shadow: 0 16px 40px rgba(15, 15, 25, 0.6), 
-                       0 8px 20px rgba(160, 130, 200, 0.08);
+                       0 8px 20px rgba(196, 161, 92, 0.08);
             background: linear-gradient(145deg, rgba(22, 22, 32, 0.98), rgba(28, 28, 40, 0.95));
         }
         
@@ -76,19 +76,19 @@
         }
         
         .score-badge {
-            background: linear-gradient(135deg, #6b5b95 0%, #8b7cb6 50%, #a599d1 100%);
-            color: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, #c4a15c 0%, #e8d4a0 50%, #f4e5b8 100%);
+            color: #1a1a1a;
             font-weight: 600;
             padding: 10px 18px;
             border-radius: 24px;
             font-size: 16px;
-            box-shadow: 0 3px 8px rgba(107, 91, 149, 0.3);
+            box-shadow: 0 3px 8px rgba(196, 161, 92, 0.3);
             letter-spacing: 0.3px;
         }
         
         .loading-spinner {
-            border: 3px solid rgba(160, 130, 200, 0.2);
-            border-top: 3px solid #a082c8;
+            border: 3px solid rgba(196, 161, 92, 0.2);
+            border-top: 3px solid #c4a15c;
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -108,7 +108,7 @@
         
         .search-input {
             background: linear-gradient(145deg, rgba(18, 18, 26, 0.95), rgba(22, 22, 32, 0.9));
-            border: 1px solid rgba(160, 130, 200, 0.2);
+            border: 1px solid rgba(196, 161, 92, 0.2);
             color: rgba(255, 255, 255, 0.9);
             padding: 16px 20px;
             border-radius: 16px;
@@ -122,8 +122,8 @@
         
         .search-input:focus {
             outline: none;
-            border-color: rgba(160, 130, 200, 0.4);
-            box-shadow: 0 0 0 4px rgba(160, 130, 200, 0.06),
+            border-color: rgba(196, 161, 92, 0.4);
+            box-shadow: 0 0 0 4px rgba(196, 161, 92, 0.06),
                        inset 0 2px 4px rgba(0, 0, 0, 0.15);
             background: linear-gradient(145deg, rgba(20, 20, 30, 0.98), rgba(25, 25, 35, 0.95));
         }
@@ -160,18 +160,18 @@
         }
         
         .rank-badge {
-            background: linear-gradient(135deg, #6b5b95 0%, #8b7cb6 50%, #a599d1 100%);
-            color: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, #c4a15c 0%, #e8d4a0 50%, #f4e5b8 100%);
+            color: #1a1a1a;
             font-weight: 600;
             font-size: 13px;
             padding: 8px 14px;
             border-radius: 24px;
-            box-shadow: 0 3px 8px rgba(107, 91, 149, 0.3);
+            box-shadow: 0 3px 8px rgba(196, 161, 92, 0.3);
             letter-spacing: 0.3px;
         }
         
         .score-progress {
-            background: rgba(160, 130, 200, 0.1);
+            background: rgba(196, 161, 92, 0.1);
             height: 6px;
             border-radius: 12px;
             overflow: hidden;
@@ -179,16 +179,16 @@
         }
         
         .score-fill {
-            background: linear-gradient(90deg, #6b5b95 0%, #8b7cb6 50%, #a599d1 100%);
+            background: linear-gradient(90deg, #c4a15c 0%, #e8d4a0 50%, #f4e5b8 100%);
             height: 100%;
             transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 8px rgba(139, 124, 182, 0.4);
+            box-shadow: 0 0 8px rgba(196, 161, 92, 0.4);
         }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <div class="bg-gradient-to-r from-slate-900/30 via-slate-800/20 to-slate-900/30 border-b border-purple-400/10 backdrop-blur-xl">
+    <div class="bg-gradient-to-r from-slate-900/30 via-slate-800/20 to-slate-900/30 border-b border-amber-400/10 backdrop-blur-xl">
         <div class="container mx-auto px-6 py-5">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
@@ -212,10 +212,10 @@
     <div class="container mx-auto px-6 py-8">
         <div class="flex justify-center items-center gap-12 mb-12">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-purple-500/80 to-purple-600/90 rounded-full flex items-center justify-center text-white font-semibold shadow-lg">1</div>
-                <span class="text-purple-300 font-medium tracking-wide">Scoreboard</span>
+                <div class="w-10 h-10 bg-gradient-to-br from-amber-500/80 to-amber-600/90 rounded-full flex items-center justify-center text-amber-900 font-semibold shadow-lg">1</div>
+                <span class="text-amber-300 font-medium tracking-wide">Scoreboard</span>
             </div>
-            <div class="w-16 h-px bg-gradient-to-r from-transparent via-slate-600/40 to-transparent"></div>
+            <div class="w-16 h-px bg-gradient-to-r from-transparent via-amber-600/40 to-transparent"></div>
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-slate-700/50 rounded-full flex items-center justify-center text-slate-500 font-semibold">2</div>
                 <span class="text-slate-500 font-medium tracking-wide">Stock Analysis</span>
