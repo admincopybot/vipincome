@@ -471,6 +471,76 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Redis cache testing endpoints
+app.get('/api/cache/test', async (req, res) => {
+  try {
+    const testKey = 'cache_test';
+    const testData = { message: 'Redis is working!', timestamp: new Date().toISOString() };
+    
+    // Set test data
+    await redis.setex(testKey, 60, JSON.stringify(testData));
+    
+    // Get test data
+    const retrieved = await redis.get(testKey);
+    const parsed = JSON.parse(retrieved);
+    
+    res.json({
+      success: true,
+      message: 'Redis cache test successful',
+      data: parsed
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Redis cache test failed',
+      details: error.message
+    });
+  }
+});
+
+app.get('/api/cache/stats', async (req, res) => {
+  try {
+    const keys = await redis.keys('*');
+    const cacheStats = {
+      total_keys: keys.length,
+      cache_keys: {
+        scoreboard: keys.filter(k => k.includes('scoreboard')).length,
+        jwt_validations: keys.filter(k => k.includes('jwt_validation')).length,
+        ticker_details: keys.filter(k => k.includes('ticker_details')).length,
+        spread_analysis: keys.filter(k => k.includes('spread_analysis')).length
+      },
+      all_keys: keys
+    };
+    
+    res.json(cacheStats);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to get cache stats',
+      details: error.message
+    });
+  }
+});
+
+app.delete('/api/cache/clear', async (req, res) => {
+  try {
+    const keys = await redis.keys('*');
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+    
+    res.json({
+      success: true,
+      message: `Cleared ${keys.length} cache entries`,
+      cleared_keys: keys
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to clear cache',
+      details: error.message
+    });
+  }
+});
+
 // Start server
 app.listen(port, '0.0.0.0', () => {
   console.log(`🚀 Income Machine Node.js server running on port ${port}`);
