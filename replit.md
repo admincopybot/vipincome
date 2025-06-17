@@ -233,7 +233,7 @@ Changelog:
 - June 17, 2025: Removed problematic HSIC ticker from database to prevent external API pricing errors
 - June 17, 2025: Added favicon to both HTML pages using generated-icon.png for consistent branding
 - June 17, 2025: Removed "Last updated X minutes ago" text from dashboard for cleaner interface
-- June 17, 2025: Updated Step 3 spread analysis to call new endpoint: https://income-machine-profree-spread-check-1-daiadigitalco.replit.app
+- June 17, 2025: Updated Step 3 spread analysis to call new endpoint: https://income-machine-profree-spread-check-1-daiadigitalco.replit.app/analyze_debit_spread
 
 # User Preferences
 
