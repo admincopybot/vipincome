@@ -116,13 +116,9 @@ app.get('/api/tickers', validateJWT, async (req, res) => {
     }
     
     query += ` ORDER BY 
-      (CASE WHEN trend1_pass THEN 1 ELSE 0 END + 
-       CASE WHEN trend2_pass THEN 1 ELSE 0 END + 
-       CASE WHEN snapback_pass THEN 1 ELSE 0 END + 
-       CASE WHEN momentum_pass THEN 1 ELSE 0 END + 
-       CASE WHEN stabilizing_pass THEN 1 ELSE 0 END) DESC, 
+      total_score DESC, 
       options_contracts_10_42_dte DESC, 
-      trading_volume DESC, 
+      trading_volume_20_day DESC, 
       symbol ASC`;
     
     if (limit) {
