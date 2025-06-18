@@ -153,7 +153,7 @@ class DebitSpreadAnalyzer {
 
       // Get options contracts
       console.log('STEP 2: Getting options contracts...');
-      const contracts = await this.getAllContracts(ticker);
+      const contracts = await this.getAllContracts(ticker, currentPrice);
       if (!contracts || contracts.length === 0) {
         console.log('❌ FAILED: No options contracts found');
         return {
@@ -248,7 +248,7 @@ class DebitSpreadAnalyzer {
     }
   }
 
-  async getAllContracts(symbol) {
+  async getAllContracts(symbol, currentPrice) {
     try {
       console.log(`=== FAST CONTRACT FETCH FOR ${symbol} ===`);
       
@@ -298,11 +298,11 @@ class DebitSpreadAnalyzer {
       const currentDate = new Date();
       
       if (!currentPrice) {
-        console.log(`❌ Could not get current price for ${symbol}`);
+        console.log(`❌ CRITICAL ERROR: currentPrice was not passed to getAllContracts for ${symbol}`);
         return [];
       }
       
-      console.log(`Current ${symbol} price: $${currentPrice}`);
+      console.log(`Using pre-fetched price for filtering: $${currentPrice}`);
 
       // Smart pre-filtering to reduce API calls
       const preFilteredContracts = data.results.filter(contract => {
@@ -343,7 +343,7 @@ class DebitSpreadAnalyzer {
         
         const batchPromises = batch.map(contract => 
           Promise.race([
-            this.processContract(contract, currentDate, currentPrice),
+            this.processContract(contract, currentDate),
             new Promise(resolve => setTimeout(() => resolve(null), 2500)) // 2.5s per contract
           ])
         );
@@ -385,7 +385,7 @@ class DebitSpreadAnalyzer {
     }
   }
 
-  async processContract(contract, currentDate, currentPrice) {
+  async processContract(contract, currentDate) {
     try {
       const expirationDate = new Date(contract.expiration_date);
       const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
