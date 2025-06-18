@@ -1,5 +1,28 @@
 import { Client } from 'pg';
 
+// Simple in-memory cache for 60 seconds
+const cache = new Map();
+const CACHE_TTL = 60 * 1000; // 60 seconds in milliseconds
+
+function getCachedData(key) {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  // Remove expired entry
+  if (cached) {
+    cache.delete(key);
+  }
+  return null;
+}
+
+function setCachedData(key, data) {
+  cache.set(key, {
+    data: data,
+    timestamp: Date.now()
+  });
+}
+
 export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,7 +49,20 @@ export default async function handler(req, res) {
     }
 
     const symbolUpper = symbol.toUpperCase();
-    console.log(`Fetching ticker details for ${symbolUpper} from database.`);
+    const cacheKey = `ticker-details:${symbolUpper}`;
+
+    // Check local cache first
+    const cachedResult = getCachedData(cacheKey);
+    if (cachedResult) {
+      console.log(`CACHE HIT for ${symbolUpper}`);
+      return res.status(200).json({
+        success: true,
+        data: cachedResult,
+        source: 'cache'
+      });
+    }
+
+    console.log(`CACHE MISS for ${symbolUpper}. Fetching from database.`);
     
     // Fetch from the database
     const client = new Client({
@@ -64,6 +100,10 @@ export default async function handler(req, res) {
     }
 
     const tickerData = result.rows[0];
+
+    // Save to local cache
+    setCachedData(cacheKey, tickerData);
+    console.log(`SAVED to cache: ${cacheKey}`);
     
     res.status(200).json({
       success: true,
