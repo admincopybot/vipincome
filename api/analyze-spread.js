@@ -1,6 +1,5 @@
 import { spawn } from 'child_process';
 import path from 'path';
-import redis from '../../lib/redis';
 
 // A list of your 20 load-balanced Replit instances for spread analysis.
 const SPREAD_ANALYZER_URLS = [
@@ -59,21 +58,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Ticker symbol is required' });
     }
     
-    const cacheKey = `spread-analysis:${ticker.toUpperCase()}`;
-
-    // 1. Check Redis for a cached result
-    try {
-      const cachedString = await redis.get(cacheKey);
-      if (cachedString) {
-        console.log(`CACHE HIT for spread analysis: ${cacheKey}`);
-        const cachedResult = JSON.parse(cachedString); // Parse the cached string
-        return res.status(200).json(cachedResult); // Send the parsed object
-      }
-    } catch (e) {
-      console.warn(`Redis GET/PARSE error for ${cacheKey}:`, e.message);
-    }
-
-    console.log(`CACHE MISS for spread analysis: ${cacheKey}. Proxying to Replit.`);
+    console.log(`Proxying spread analysis for ${ticker} to Replit.`);
 
     // 2. Randomly pick a base URL for load balancing
     const randomIndex = Math.floor(Math.random() * SPREAD_ANALYZER_URLS.length);
@@ -94,23 +79,10 @@ export default async function handler(req, res) {
       timeout: 28000 // 28-second timeout to avoid Vercel gateway timeouts
     });
 
-    // 4. Pipe the response back and cache it on success
+    // 4. Pipe the response back
     const responseBody = await proxyResponse.text();
-    
-    // Cache the successful result for 1 minute
-    if (proxyResponse.ok) {
-        try {
-            // Test if the response is valid JSON before caching
-            JSON.parse(responseBody); 
-            await redis.set(cacheKey, responseBody, { ex: 60 }); // Cache the valid JSON string
-            console.log(`SAVED to cache: ${cacheKey}`);
-        } catch (e) {
-            console.warn(`Redis SET error or invalid JSON from Replit for ${cacheKey}:`, e.message);
-        }
-    }
-    
-    // Send the original response from the server
     res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
+    
     res.status(proxyResponse.status).send(responseBody);
 
   } catch (error) {

@@ -692,8 +692,20 @@
                 
                 console.log('API Response:', response.data); // Debug log
                 
-                // The API now guarantees a consistent object, so we can simplify this.
-                currentTicker = response.data.data || response.data;
+                // Handle nested response structure and cached data
+                let rawData = response.data.data || response.data;
+                
+                // If data came from cache, it might be a JSON string. Parse it.
+                if (typeof rawData === 'string') {
+                    try {
+                        currentTicker = JSON.parse(rawData);
+                    } catch (e) {
+                        console.error('Failed to parse cached ticker data:', e);
+                        return;
+                    }
+                } else {
+                    currentTicker = rawData;
+                }
                 
                 if (!currentTicker) {
                     console.error('No ticker data received:', response.data);
