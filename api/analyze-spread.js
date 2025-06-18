@@ -252,7 +252,6 @@ class DebitSpreadAnalyzer {
     try {
       console.log(`=== FAST CONTRACT FETCH FOR ${symbol} ===`);
       
-      // Use correct TheTradeList API with proper parameters
       const url = 'https://api.thetradelist.com/v1/data/options-contracts';
       const params = new URLSearchParams({
         underlying_ticker: symbol,
@@ -261,9 +260,9 @@ class DebitSpreadAnalyzer {
       });
 
       console.log(`Contracts request URL: ${url}?underlying_ticker=${symbol}&limit=1000&apiKey=${this.apiKey ? 'HIDDEN' : 'MISSING'}`);
-      console.log(`Making contracts API call...`);
+      console.log(`Making contracts API call with a 25-second timeout...`);
       
-      const response = await fetch(`${url}?${params}`, { timeout: 15000 });
+      const response = await fetch(`${url}?${params}`, { timeout: 25000 }); // Increased timeout to 25 seconds
       
       console.log(`Contracts API response status: ${response.status}`);
       
