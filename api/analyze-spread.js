@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import path from 'path';
+import redis from '../../lib/redis';
 
 // A list of your 20 load-balanced Replit instances for spread analysis.
 const SPREAD_ANALYZER_URLS = [
@@ -57,8 +58,26 @@ export default async function handler(req, res) {
     if (!ticker) {
       return res.status(400).json({ error: 'Ticker symbol is required' });
     }
+    
+    const cacheKey = `spread-analysis:${ticker.toUpperCase()}`;
 
-    // 1. Randomly pick a base URL for load balancing
+    // 1. Check Redis for a cached result
+    try {
+      const cachedResult = await redis.get(cacheKey);
+      if (cachedResult) {
+        console.log(`CACHE HIT for spread analysis: ${cacheKey}`);
+        // Re-pipe the headers and body from the cached response
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send(cachedResult);
+        return;
+      }
+    } catch (e) {
+      console.warn(`Redis GET error for ${cacheKey}:`, e.message);
+    }
+
+    console.log(`CACHE MISS for spread analysis: ${cacheKey}. Proxying to Replit.`);
+
+    // 2. Randomly pick a base URL for load balancing
     const randomIndex = Math.floor(Math.random() * SPREAD_ANALYZER_URLS.length);
     const baseUrl = SPREAD_ANALYZER_URLS[randomIndex];
     const endpoint = '/api/analyze_debit_spread';
@@ -66,7 +85,7 @@ export default async function handler(req, res) {
 
     console.log(`Proxying spread analysis for ${ticker} to random Replit instance: #${randomIndex + 1} - ${targetUrl}`);
 
-    // 2. Make the proxied request to the chosen Replit server
+    // 3. Make the proxied request to the chosen Replit server
     const proxyResponse = await fetch(targetUrl, {
       method: 'POST',
       headers: {
@@ -77,9 +96,19 @@ export default async function handler(req, res) {
       timeout: 28000 // 28-second timeout to avoid Vercel gateway timeouts
     });
 
-    // 3. Pipe the response (status, headers, and body) back to the original client
-    res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
+    // 4. Pipe the response back and cache it on success
     const responseBody = await proxyResponse.text();
+    res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
+    
+    // Cache the successful result for 1 minute
+    if (proxyResponse.ok) {
+        try {
+            await redis.set(cacheKey, responseBody, { ex: 60 }); // 60-second expiration
+            console.log(`SAVED to cache: ${cacheKey}`);
+        } catch (e) {
+            console.warn(`Redis SET error for ${cacheKey}:`, e.message);
+        }
+    }
     
     res.status(proxyResponse.status).send(responseBody);
 
