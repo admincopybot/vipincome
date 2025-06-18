@@ -1001,7 +1001,7 @@
             const symbol = getSymbolFromURL();
             const strategies = [
                 { key: 'conservative', title: 'Conservative Income', subtitle: `${symbol} Conservative Income Strategy` },
-                { key: 'balanced', title: 'Steady Income', subtitle: `${symbol} Steady Income Strategy` },
+                { key: 'balanced', title: 'Balanced Income', subtitle: `${symbol} Balanced Income Strategy` },
                 { key: 'aggressive', title: 'Aggressive Income', subtitle: `${symbol} Aggressive Income Strategy` }
             ];
             
@@ -1098,7 +1098,7 @@
             
             // Update strategy name for Step 4 display
             const strategyName = strategy === 'conservative' ? 'Conservative' : 
-                               strategy === 'balanced' ? 'Steady' : 'Aggressive';
+                               strategy === 'balanced' ? 'Balanced' : 'Aggressive';
             document.getElementById('selectedStrategyName').textContent = strategyName;
             
             // Display profit matrix and trade details on Step 4
