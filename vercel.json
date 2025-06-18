@@ -23,6 +23,10 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/incomemachine_horizontallogo.png",
+      "destination": "/public/incomemachine_horizontallogo.png"
+    },
+    {
       "source": "/",
       "destination": "/public/index.html"
     }
@@ -31,11 +35,6 @@
     {
       "source": "/favicon.png",
       "destination": "/public/favicon.png",
-      "permanent": false
-    },
-    {
-      "source": "/incomemachine_horizontallogo.png", 
-      "destination": "/public/incomemachine_horizontallogo.png",
       "permanent": false
     }
   ],
