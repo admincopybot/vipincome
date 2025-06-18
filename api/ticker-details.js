@@ -36,7 +36,7 @@ export default async function handler(req, res) {
         console.log(`CACHE HIT for ${symbolUpper}`);
         return res.status(200).json({
           success: true,
-          data: JSON.parse(cachedResult),
+          data: cachedResult,
           source: 'cache'
         });
       }

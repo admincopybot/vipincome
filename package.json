@@ -9,10 +9,10 @@
     "start": "echo 'Serverless functions on Vercel'"
   },
   "dependencies": {
-    "pg": "^8.11.0",
-    "jsonwebtoken": "^9.0.0",
+    "@upstash/redis": "^1.35.0",
     "axios": "^1.6.0",
-    "@upstash/redis": "^1.25.0"
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.11.0"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -25,4 +25,4 @@
   ],
   "author": "Income Machine VIP",
   "license": "MIT"
-} 
+}
