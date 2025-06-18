@@ -57,7 +57,20 @@ export default async function handler(req, res) {
       );
     `);
     
-    // If table exists, get sample data
+    // Get table schema - show all columns
+    let tableSchema = null;
+    if (tableCheck.rows[0].exists) {
+      const schemaResult = await client.query(`
+        SELECT column_name, data_type, is_nullable 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'etf_scores'
+        ORDER BY ordinal_position;
+      `);
+      tableSchema = schemaResult.rows;
+    }
+    
+    // If table exists, get sample data with ALL columns
     let sampleData = null;
     let rowCount = 0;
     
@@ -66,8 +79,9 @@ export default async function handler(req, res) {
       rowCount = parseInt(countResult.rows[0].count);
       
       if (rowCount > 0) {
-        const sampleResult = await client.query('SELECT symbol, total_score FROM etf_scores LIMIT 3');
-        sampleData = sampleResult.rows;
+        // Get first row with ALL columns to see what data is available
+        const sampleResult = await client.query('SELECT * FROM etf_scores LIMIT 1');
+        sampleData = sampleResult.rows[0];
       }
     }
 
@@ -78,7 +92,8 @@ export default async function handler(req, res) {
       database_info: {
         etf_scores_table_exists: tableCheck.rows[0].exists,
         etf_scores_row_count: rowCount,
-        sample_data: sampleData
+        table_schema: tableSchema,
+        sample_row_data: sampleData
       },
       env_check: {
         DATABASE_URL: !!dbUrl,
