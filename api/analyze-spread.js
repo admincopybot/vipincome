@@ -156,101 +156,48 @@ class DebitSpreadAnalyzer {
 
   async getRealTimeStockPrice(symbol) {
     try {
-      console.log(`=== DETAILED PRICE FETCH FOR ${symbol} ===`);
-      
-      // Use TheTradeList snapshot API (same as Python version)
+      // Fast price fetch with timeout
       const url = 'https://api.thetradelist.com/v1/data/snapshot-locale';
       const params = new URLSearchParams({
         tickers: `${symbol},`,
         apiKey: this.apiKey
       });
 
-      console.log(`Making price API call to: ${url}?${params}`);
-      const response = await fetch(`${url}?${params}`, { timeout: 5000 });
-      
-      console.log(`Price API response status: ${response.status}`);
+      const response = await fetch(`${url}?${params}`, { timeout: 3000 });
       
       if (response.ok) {
         const data = await response.json();
-        console.log(`Price API response data:`, JSON.stringify(data, null, 2));
         
         if (data.status === 'OK' && data.tickers) {
-          console.log(`Found ${data.tickers.length} tickers in response`);
-          
           for (const tickerData of data.tickers) {
-            console.log(`Ticker: ${tickerData.ticker}, FMV: ${tickerData.fmv}`);
             if (tickerData.ticker === symbol && tickerData.fmv > 0) {
-              console.log(`SUCCESS: Found price for ${symbol}: $${tickerData.fmv}`);
               return parseFloat(tickerData.fmv);
             }
           }
         }
-      } else {
-        const errorText = await response.text();
-        console.error(`Price API error: ${response.status} - ${errorText}`);
       }
 
-      console.log(`Primary price API failed, trying scanner fallback...`);
-
-      // Fallback to scanner data
-      const scannerUrl = 'https://api.thetradelist.com/v1/data/get_trader_scanner_data.php';
-      const scannerParams = new URLSearchParams({
-        apiKey: this.apiKey,
-        returntype: 'json'
-      });
-
-      console.log(`Making scanner API call to: ${scannerUrl}?${scannerParams}`);
-      const scannerResponse = await fetch(`${scannerUrl}?${scannerParams}`, { timeout: 15000 });
-      
-      console.log(`Scanner API response status: ${scannerResponse.status}`);
-      
-      if (scannerResponse.ok) {
-        const scannerData = await scannerResponse.json();
-        console.log(`Scanner API returned ${scannerData.length} items`);
-        
-        for (const item of scannerData) {
-          if (item.symbol === symbol && item.price > 0) {
-            console.log(`SUCCESS: Found price via scanner for ${symbol}: $${item.price}`);
-            return parseFloat(item.price);
-          }
-        }
-        console.log(`No matching ticker found in scanner data for ${symbol}`);
-      } else {
-        const errorText = await scannerResponse.text();
-        console.error(`Scanner API error: ${scannerResponse.status} - ${errorText}`);
-      }
-
-      console.log(`FAILED: No price found for ${symbol} via any method`);
       return null;
     } catch (error) {
-      console.error(`=== PRICE FETCH ERROR FOR ${symbol} ===`);
-      console.error(`Error type: ${error.constructor.name}`);
-      console.error(`Error message: ${error.message}`);
-      console.error(`Error stack: ${error.stack}`);
+      console.error(`Price fetch error for ${symbol}: ${error.message}`);
       return null;
     }
   }
 
   async getAllContracts(symbol) {
     try {
-      console.log(`=== DETAILED OPTIONS CONTRACT FETCH FOR ${symbol} ===`);
+      console.log(`=== FAST CONTRACT FETCH FOR ${symbol} ===`);
       
       // Use correct TheTradeList API with proper parameters
       const url = 'https://api.thetradelist.com/v1/data/options-contracts';
       const params = new URLSearchParams({
-        underlying_ticker: symbol,  // CORRECT: use underlying_ticker, not symbol
+        underlying_ticker: symbol,
         limit: 1000,
         apiKey: this.apiKey
       });
 
-      console.log(`Making options API call to: ${url}?${params}`);
-      console.log(`API Key present: ${this.apiKey ? 'YES' : 'NO'}`);
-      console.log(`API Key length: ${this.apiKey?.length || 0}`);
-
+      console.log(`Fetching contracts...`);
       const response = await fetch(`${url}?${params}`, { timeout: 15000 });
-      
-      console.log(`Options API response status: ${response.status}`);
-      console.log(`Options API response headers:`, Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -259,90 +206,121 @@ class DebitSpreadAnalyzer {
       }
 
       const data = await response.json();
+      console.log(`API Status: ${data.status}, Total contracts: ${data.results?.length || 0}`);
       
-      console.log(`Raw API response for ${symbol}:`, JSON.stringify(data, null, 2));
-      console.log(`API response status: ${data.status}`);
-      console.log(`Results array exists: ${data.results ? 'YES' : 'NO'}`);  // CORRECT: check results, not contracts
-      console.log(`Total contracts returned: ${data.results?.length || 0}`);
+      if (data.status !== 'OK' || !data.results || data.results.length === 0) {
+        console.log(`No contracts available for ${symbol}`);
+        return [];
+      }
+
+      // PERFORMANCE OPTIMIZATION: Pre-filter contracts before fetching quotes
+      const currentDate = new Date();
+      const currentPrice = await this.getRealTimeStockPrice(symbol);
       
-      if (data.status === 'OK' && data.results && data.results.length > 0) {
-        console.log(`Sample contract structure:`, JSON.stringify(data.results[0], null, 2));
+      if (!currentPrice) {
+        console.log(`Could not get current price for ${symbol}`);
+        return [];
+      }
+      
+      console.log(`Current ${symbol} price: $${currentPrice}`);
+
+      // Smart pre-filtering to reduce API calls
+      const preFilteredContracts = data.results.filter(contract => {
+        const expirationDate = new Date(contract.expiration_date);
+        const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
+        const strike = parseFloat(contract.strike_price);
         
-        // Calculate days to expiration and filter contracts
-        const currentDate = new Date();
-        const filteredContracts = [];
+        return (
+          contract.contract_type === 'call' &&
+          daysToExpiration >= 7 && daysToExpiration <= 45 &&
+          strike >= currentPrice * 0.80 && strike <= currentPrice * 1.20  // Reasonable strike range
+        );
+      });
+
+      console.log(`Pre-filtered to ${preFilteredContracts.length} relevant contracts`);
+
+      // BATCH QUOTE FETCHING: Only get quotes for promising contracts
+      const validContracts = [];
+      const maxContracts = Math.min(preFilteredContracts.length, 50); // Limit to 50 most relevant
+      
+      // Sort by how close strike is to current price (most likely to have good spreads)
+      preFilteredContracts.sort((a, b) => {
+        const aDiff = Math.abs(a.strike_price - currentPrice);
+        const bDiff = Math.abs(b.strike_price - currentPrice);
+        return aDiff - bDiff;
+      });
+
+      console.log(`Processing top ${maxContracts} most relevant contracts...`);
+
+      // Process contracts in batches for speed
+      const batchSize = 10;
+      for (let i = 0; i < maxContracts; i += batchSize) {
+        const batch = preFilteredContracts.slice(i, i + batchSize);
+        const batchPromises = batch.map(contract => this.processContract(contract, currentDate, currentPrice));
         
-        for (const contract of data.results) {
-          // Calculate days to expiration
-          const expirationDate = new Date(contract.expiration_date);
-          const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
-          
-          const isCall = contract.contract_type === 'call';  // CORRECT: use contract_type
-          const validDTE = daysToExpiration >= 7 && daysToExpiration <= 45;
-          
-          console.log(`Contract ${contract.ticker}: type=${contract.contract_type}, DTE=${daysToExpiration}, isCall=${isCall}, validDTE=${validDTE}`);
-          
-          if (isCall && validDTE) {
-            // Get bid/ask quotes for this contract
-            const quotes = await this.getContractQuotes(contract.ticker);
-            if (quotes && quotes.bid > 0.05 && quotes.ask > 0.05) {
-              filteredContracts.push({
-                contract_symbol: contract.ticker,
-                type: contract.contract_type,
-                strike: contract.strike_price,
-                days_to_expiration: daysToExpiration,
-                expiration_date: contract.expiration_date,
-                bid: quotes.bid,
-                ask: quotes.ask
-              });
-            }
+        const batchResults = await Promise.all(batchPromises);
+        
+        // Add valid contracts from this batch
+        for (const result of batchResults) {
+          if (result) {
+            validContracts.push(result);
           }
         }
         
-        console.log(`Filtered contracts count: ${filteredContracts.length}`);
-        
-        if (filteredContracts.length > 0) {
-          console.log(`Sample filtered contract:`, JSON.stringify(filteredContracts[0], null, 2));
-        }
-        
-        return filteredContracts;
-      } else {
-        console.log(`No contracts found - API status: ${data.status}, results: ${data.results}`);
-        
-        // Check if it's an error response
-        if (data.error) {
-          console.error(`API error message: ${data.error}`);
-        }
-        
-        // Check if it's a different response structure
-        console.log(`Full response keys:`, Object.keys(data));
+        console.log(`Processed batch ${Math.floor(i/batchSize) + 1}, valid contracts so far: ${validContracts.length}`);
       }
+      
+      console.log(`✅ Final contracts with quotes: ${validContracts.length}`);
+      return validContracts;
 
-      return [];
     } catch (error) {
-      console.error(`=== CONTRACTS FETCH ERROR FOR ${symbol} ===`);
-      console.error(`Error type: ${error.constructor.name}`);
-      console.error(`Error message: ${error.message}`);
-      console.error(`Error stack: ${error.stack}`);
+      console.error(`Contract fetch error for ${symbol}: ${error.message}`);
       return [];
+    }
+  }
+
+  async processContract(contract, currentDate, currentPrice) {
+    try {
+      const expirationDate = new Date(contract.expiration_date);
+      const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
+      
+      // Get quotes with timeout
+      const quotes = await Promise.race([
+        this.getContractQuotes(contract.ticker),
+        new Promise(resolve => setTimeout(() => resolve(null), 3000)) // 3 second timeout
+      ]);
+      
+      if (quotes && quotes.bid > 0.05 && quotes.ask > 0.05) {
+        return {
+          contract_symbol: contract.ticker,
+          type: contract.contract_type,
+          strike: contract.strike_price,
+          days_to_expiration: daysToExpiration,
+          expiration_date: contract.expiration_date,
+          bid: quotes.bid,
+          ask: quotes.ask
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.log(`Error processing ${contract.ticker}: ${error.message}`);
+      return null;
     }
   }
 
   async getContractQuotes(contractTicker) {
     try {
-      console.log(`Fetching quotes for contract: ${contractTicker}`);
-      
       const url = 'https://api.thetradelist.com/v1/data/last-quote';
       const params = new URLSearchParams({
         ticker: contractTicker,
         apiKey: this.apiKey
       });
 
-      const response = await fetch(`${url}?${params}`, { timeout: 10000 });
+      const response = await fetch(`${url}?${params}`, { timeout: 5000 });
       
       if (response.ok) {
         const data = await response.json();
-        console.log(`Quote data for ${contractTicker}:`, JSON.stringify(data, null, 2));
         
         if (data.results && data.results.length > 0) {
           const quote = data.results[0];
@@ -351,14 +329,11 @@ class DebitSpreadAnalyzer {
             ask: parseFloat(quote.ask) || 0
           };
         }
-      } else {
-        console.log(`Quote API error for ${contractTicker}: ${response.status}`);
       }
       
       return null;
     } catch (error) {
-      console.error(`Quote fetch error for ${contractTicker}:`, error.message);
-      return null;
+      return null; // Fail silently for speed
     }
   }
 
