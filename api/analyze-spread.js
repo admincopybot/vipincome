@@ -126,6 +126,91 @@ export default async function handler(req, res) {
     const responseBody = await proxyResponse.text();
     console.log(`Response body (first 300 chars): ${responseBody.substring(0, 300)}`);
     
+    // STRICT VALIDATION: Reject any mock/demo data responses
+    const mockDataIndicators = [
+      'Simplified Spread Pricing',
+      'Restored Working Version',
+      'Demo',
+      'Mock',
+      'Test Data',
+      'Fake',
+      'Sample'
+    ];
+    
+    let responseData;
+    try {
+      responseData = JSON.parse(responseBody);
+    } catch (e) {
+      console.error(`Invalid JSON response from Replit instance #${randomIndex + 1}`);
+      throw new Error(`Invalid JSON response from analysis service`);
+    }
+    
+    // Check if this looks like mock data
+    const responseStr = JSON.stringify(responseData).toLowerCase();
+    const isMockData = mockDataIndicators.some(indicator => 
+      responseStr.includes(indicator.toLowerCase())
+    );
+    
+    if (isMockData) {
+      console.error(`🚨 MOCK DATA DETECTED from instance #${randomIndex + 1}! Response contains mock indicators.`);
+      console.error(`Mock response preview: ${responseBody.substring(0, 500)}`);
+      
+      // Try a different instance if we detect mock data
+      const retryIndex = (randomIndex + 1) % SPREAD_ANALYZER_URLS.length;
+      const retryUrl = `${SPREAD_ANALYZER_URLS[retryIndex]}/api/analyze_debit_spread`;
+      
+      console.log(`Retrying with instance #${retryIndex + 1}: ${retryUrl}`);
+      
+      const retryController = new AbortController();
+      const retryTimeoutId = setTimeout(() => {
+        console.log(`Aborting retry request due to timeout`);
+        retryController.abort();
+      }, 20000); // Shorter timeout for retry
+      
+      try {
+        const retryResponse = await fetch(retryUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ticker: ticker }),
+          signal: retryController.signal
+        });
+        
+        clearTimeout(retryTimeoutId);
+        
+        const retryBody = await retryResponse.text();
+        console.log(`Retry response (first 300 chars): ${retryBody.substring(0, 300)}`);
+        
+        // Check retry response for mock data too
+        const retryStr = retryBody.toLowerCase();
+        const isRetryMockData = mockDataIndicators.some(indicator => 
+          retryStr.includes(indicator.toLowerCase())
+        );
+        
+        if (isRetryMockData) {
+          console.error(`🚨 RETRY ALSO RETURNED MOCK DATA from instance #${retryIndex + 1}!`);
+          throw new Error(`Analysis service is returning mock data instead of real results`);
+        }
+        
+        // Retry was successful and real
+        if (retryResponse.ok) {
+          setCachedData(cacheKey, retryBody);
+          console.log(`SAVED REAL DATA to cache: ${cacheKey}`);
+        }
+        
+        res.setHeader('Content-Type', retryResponse.headers.get('Content-Type') || 'application/json');
+        res.status(retryResponse.status).send(retryBody);
+        return;
+        
+      } catch (retryError) {
+        clearTimeout(retryTimeoutId);
+        console.error(`Retry also failed: ${retryError.message}`);
+        throw new Error(`Both primary and retry instances failed. Primary returned mock data, retry failed: ${retryError.message}`);
+      }
+    }
+    
+    // Original response was real data
     res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
     
     // Cache successful results
@@ -147,11 +232,23 @@ export default async function handler(req, res) {
     } else {
       console.error(`Error in spread analysis: ${error.name} - ${error.message}`);
       console.error(`Error stack: ${error.stack}`);
-      res.status(502).json({ 
-        success: false,
-        error: 'Service error',
-        details: error.message 
-      });
+      
+      // Check if the error message indicates mock data was detected
+      if (error.message.includes('mock data') || error.message.includes('Mock data')) {
+        res.status(422).json({ 
+          success: false,
+          error: 'MOCK DATA DETECTED',
+          message: 'The analysis service returned test/demo data instead of real market data. This has been blocked to ensure data quality.',
+          details: error.message,
+          action_required: 'Please try again or contact support if this persists.'
+        });
+      } else {
+        res.status(502).json({ 
+          success: false,
+          error: 'Service error',
+          details: error.message 
+        });
+      }
     }
   }
 }
