@@ -911,14 +911,14 @@
                 // Start progress simulation
                 const progressInterval = simulateProgressSteps();
                 
-                // Call your Replit analysis endpoint directly
-                const response = await axios.post('https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread', {
+                // Use proxy endpoint to call Replit (avoids CORS issues)
+                const response = await axios.post('/api/analyze-spread', {
                     ticker: symbol
                 }, {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    timeout: 30000
+                    timeout: 45000
                 });
                 
                 // Stop progress polling

@@ -1,4 +1,4 @@
-const https = require('https');
+const axios = require('axios');
 
 // Spread analysis endpoints with failover
 const SPREAD_ENDPOINTS = [
@@ -75,62 +75,48 @@ export default async function handler(req, res) {
     if (!ticker) {
       return res.status(400).json({
         success: false,
-        error: 'Ticker symbol is required'
+        error: 'Ticker is required'
       });
     }
 
-    const tickerUpper = ticker.toUpperCase();
-    console.log(`=== SPREAD ANALYSIS REQUEST FOR ${tickerUpper} ===`);
-
-    let lastError = null;
-
-    // Try each endpoint with failover
-    for (let i = 0; i < SPREAD_ENDPOINTS.length; i++) {
-      const endpoint = SPREAD_ENDPOINTS[i];
-      console.log(`=== TRYING ENDPOINT ${i + 1}: ${endpoint} ===`);
-
-      try {
-        const response = await makeRequest(endpoint, { ticker: tickerUpper });
-        
-        if (response.status === 200) {
-          // Validate response structure
-          if (!response.data || !response.data.strategies) {
-            console.log(`=== ENDPOINT ${i + 1} FAILED: INVALID JSON STRUCTURE ===`);
-            throw new Error('Invalid JSON response structure');
-          }
-          
-          console.log(`=== SUCCESS: ENDPOINT ${i + 1} PROVIDED VALID DATA ===`);
-          console.log(`Strategies found: ${Object.keys(response.data.strategies || {}).length}`);
-          
-          return res.json(response.data);
-        } else {
-          console.log(`=== ENDPOINT ${i + 1} FAILED: NON-200 STATUS ===`);
-          throw new Error(`HTTP ${response.status}`);
-        }
-      } catch (error) {
-        console.log(`=== ENDPOINT ${i + 1} ERROR: ${error.message} ===`);
-        lastError = error;
-        
-        if (i === SPREAD_ENDPOINTS.length - 1) {
-          break;
-        }
-        
-        console.log(`=== FAILING OVER TO ENDPOINT ${i + 2} ===`);
-      }
-    }
+    console.log(`Proxying spread analysis request for ticker: ${ticker}`);
     
-    console.log('All endpoints failed, returning error');
-    res.status(500).json({ 
-      error: 'Spread analysis services are temporarily unavailable. Please try again.',
-      details: lastError.message 
-    });
-
+    // Forward the request to your Replit endpoint
+    const response = await axios.post(
+      'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
+      { ticker },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 45000 // 45 second timeout
+      }
+    );
+    
+    console.log(`Replit API response status: ${response.status}`);
+    console.log(`Replit API response data:`, response.data);
+    
+    // Forward the response from Replit
+    res.status(response.status).json(response.data);
+    
   } catch (error) {
-    console.error('Spread analysis error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      details: error.message
-    });
+    console.error('Error calling Replit analysis endpoint:', error.message);
+    
+    if (error.response) {
+      // Forward error response from Replit
+      console.error('Replit error response:', error.response.data);
+      res.status(error.response.status).json(error.response.data);
+    } else if (error.code === 'ECONNABORTED') {
+      res.status(408).json({
+        success: false,
+        error: 'Request timeout - analysis is taking longer than expected'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: 'Failed to analyze spreads',
+        details: error.message
+      });
+    }
   }
 }
