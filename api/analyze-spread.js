@@ -239,36 +239,59 @@ class DebitSpreadAnalyzer {
 
       console.log(`Pre-filtered to ${preFilteredContracts.length} relevant contracts`);
 
-      // BATCH QUOTE FETCHING: Only get quotes for promising contracts
-      const validContracts = [];
-      const maxContracts = Math.min(preFilteredContracts.length, 50); // Limit to 50 most relevant
-      
-      // Sort by how close strike is to current price (most likely to have good spreads)
-      preFilteredContracts.sort((a, b) => {
-        const aDiff = Math.abs(a.strike_price - currentPrice);
-        const bDiff = Math.abs(b.strike_price - currentPrice);
-        return aDiff - bDiff;
-      });
+             // BALANCED FAST PROCESSING: Speed + Reliability
+       const validContracts = [];
+       const maxContracts = Math.min(preFilteredContracts.length, 30); // Balanced: 30 contracts
+       
+       // Sort by how close strike is to current price (most likely to have good spreads)
+       preFilteredContracts.sort((a, b) => {
+         const aDiff = Math.abs(a.strike_price - currentPrice);
+         const bDiff = Math.abs(b.strike_price - currentPrice);
+         return aDiff - bDiff;
+       });
 
-      console.log(`Processing top ${maxContracts} most relevant contracts...`);
+       console.log(`BALANCED FAST: Processing top ${maxContracts} contracts...`);
 
-      // Process contracts in batches for speed
-      const batchSize = 10;
-      for (let i = 0; i < maxContracts; i += batchSize) {
-        const batch = preFilteredContracts.slice(i, i + batchSize);
-        const batchPromises = batch.map(contract => this.processContract(contract, currentDate, currentPrice));
-        
-        const batchResults = await Promise.all(batchPromises);
-        
-        // Add valid contracts from this batch
-        for (const result of batchResults) {
-          if (result) {
-            validContracts.push(result);
-          }
-        }
-        
-        console.log(`Processed batch ${Math.floor(i/batchSize) + 1}, valid contracts so far: ${validContracts.length}`);
-      }
+       // SMART PROCESSING: Process in small fast batches with early termination
+       const startTime = Date.now();
+       const batchSize = 6;
+       
+       for (let i = 0; i < maxContracts && validContracts.length < 20; i += batchSize) {
+         const batch = preFilteredContracts.slice(i, i + batchSize);
+         
+         const batchPromises = batch.map(contract => 
+           Promise.race([
+             this.processContract(contract, currentDate, currentPrice),
+             new Promise(resolve => setTimeout(() => resolve(null), 2500)) // 2.5s per contract
+           ])
+         );
+         
+         const batchResults = await Promise.all(batchPromises);
+         
+         // Add valid results from this batch
+         for (const result of batchResults) {
+           if (result && result.bid > 0.05 && result.ask > 0.05) {
+             validContracts.push(result);
+           }
+         }
+         
+         console.log(`Batch ${Math.floor(i/batchSize) + 1}: Found ${validContracts.length} valid contracts so far`);
+         
+         // Early termination if we have enough contracts
+         if (validContracts.length >= 15) {
+           console.log(`Early termination: Found sufficient contracts (${validContracts.length})`);
+           break;
+         }
+         
+         // Stop if we're taking too long
+         if (Date.now() - startTime > 12000) { // 12 second total limit
+           console.log(`Time limit reached: ${Date.now() - startTime}ms`);
+           break;
+         }
+       }
+       
+       const processingTime = Date.now() - startTime;
+       console.log(`Processing completed in ${processingTime}ms`);
       
       console.log(`✅ Final contracts with quotes: ${validContracts.length}`);
       return validContracts;
@@ -279,16 +302,16 @@ class DebitSpreadAnalyzer {
     }
   }
 
-  async processContract(contract, currentDate, currentPrice) {
-    try {
-      const expirationDate = new Date(contract.expiration_date);
-      const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
-      
-      // Get quotes with timeout
-      const quotes = await Promise.race([
-        this.getContractQuotes(contract.ticker),
-        new Promise(resolve => setTimeout(() => resolve(null), 3000)) // 3 second timeout
-      ]);
+     async processContract(contract, currentDate, currentPrice) {
+     try {
+       const expirationDate = new Date(contract.expiration_date);
+       const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
+       
+       // Get quotes with reasonable timeout
+       const quotes = await Promise.race([
+         this.getContractQuotes(contract.ticker),
+         new Promise(resolve => setTimeout(() => resolve(null), 2000)) // 2 second timeout per contract
+       ]);
       
       if (quotes && quotes.bid > 0.05 && quotes.ask > 0.05) {
         return {
@@ -317,7 +340,7 @@ class DebitSpreadAnalyzer {
         apiKey: this.apiKey
       });
 
-      const response = await fetch(`${url}?${params}`, { timeout: 5000 });
+      const response = await fetch(`${url}?${params}`, { timeout: 3000 });
       
       if (response.ok) {
         const data = await response.json();
