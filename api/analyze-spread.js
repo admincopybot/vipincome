@@ -235,7 +235,8 @@ class DebitSpreadAnalyzer {
     try {
       console.log(`=== DETAILED OPTIONS CONTRACT FETCH FOR ${symbol} ===`);
       
-      const url = 'https://api.thetradelist.com/v1/data/options';
+      // Use correct TheTradeList options endpoint from documentation
+      const url = 'https://api.thetradelist.com/v1/data/options-contracts';
       const params = new URLSearchParams({
         symbol: symbol,
         apiKey: this.apiKey
