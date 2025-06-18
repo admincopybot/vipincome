@@ -16,9 +16,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('=== ANALYZE SPREAD PROXY START ===');
+    console.log('Request method:', req.method);
+    console.log('Request body:', req.body);
+    console.log('Axios available:', typeof axios);
+    
     const { ticker } = req.body;
 
     if (!ticker) {
+      console.log('ERROR: No ticker provided');
       return res.status(400).json({
         success: false,
         error: 'Ticker is required'
@@ -26,6 +32,7 @@ export default async function handler(req, res) {
     }
 
     console.log(`Proxying spread analysis request for ticker: ${ticker}`);
+    console.log('Making request to Replit API...');
     
     // Forward the request to your Replit endpoint
     const response = await axios.post(
@@ -40,28 +47,35 @@ export default async function handler(req, res) {
     );
     
     console.log(`Replit API response status: ${response.status}`);
-    console.log(`Replit API response data:`, response.data);
+    console.log(`Replit API response data:`, JSON.stringify(response.data, null, 2));
     
     // Forward the response from Replit
     res.status(response.status).json(response.data);
     
   } catch (error) {
-    console.error('Error calling Replit analysis endpoint:', error.message);
+    console.error('=== ERROR IN ANALYZE SPREAD PROXY ===');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     
     if (error.response) {
       // Forward error response from Replit
-      console.error('Replit error response:', error.response.data);
+      console.error('Replit error status:', error.response.status);
+      console.error('Replit error data:', error.response.data);
       res.status(error.response.status).json(error.response.data);
     } else if (error.code === 'ECONNABORTED') {
+      console.error('Request timeout occurred');
       res.status(408).json({
         success: false,
         error: 'Request timeout - analysis is taking longer than expected'
       });
     } else {
+      console.error('Unknown error occurred');
       res.status(500).json({
         success: false,
         error: 'Failed to analyze spreads',
-        details: error.message
+        details: error.message,
+        errorType: error.constructor.name
       });
     }
   }
