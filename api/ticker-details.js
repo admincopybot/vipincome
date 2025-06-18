@@ -31,17 +31,18 @@ export default async function handler(req, res) {
 
     // 1. Check Redis cache first
     try {
-      const cachedResult = await redis.get(cacheKey);
-      if (cachedResult) {
+      const cachedString = await redis.get(cacheKey);
+      if (cachedString) {
         console.log(`CACHE HIT for ${symbolUpper}`);
+        const cachedResult = JSON.parse(cachedString); // Parse the cached string into an object
         return res.status(200).json({
           success: true,
-          data: cachedResult,
+          data: cachedResult, // Send the object
           source: 'cache'
         });
       }
     } catch (cacheError) {
-        console.warn(`Redis GET error for ${cacheKey}:`, cacheError.message);
+        console.warn(`Redis GET/PARSE error for ${cacheKey}:`, cacheError.message);
     }
 
     console.log(`CACHE MISS for ${symbolUpper}. Fetching from database.`);
@@ -85,7 +86,8 @@ export default async function handler(req, res) {
 
     // 3. Save the result to Redis with a 24-hour expiration
     try {
-        await redis.set(cacheKey, JSON.stringify(tickerData), { ex: 86400 }); // 24 hours
+        // We stringify the object here for storage
+        await redis.set(cacheKey, JSON.stringify(tickerData), { ex: 86400 });
         console.log(`SAVED to cache: ${cacheKey}`);
     } catch (cacheError) {
         console.warn(`Redis SET error for ${cacheKey}:`, cacheError.message);

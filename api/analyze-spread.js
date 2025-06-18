@@ -63,16 +63,14 @@ export default async function handler(req, res) {
 
     // 1. Check Redis for a cached result
     try {
-      const cachedResult = await redis.get(cacheKey);
-      if (cachedResult) {
+      const cachedString = await redis.get(cacheKey);
+      if (cachedString) {
         console.log(`CACHE HIT for spread analysis: ${cacheKey}`);
-        // Re-pipe the headers and body from the cached response
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).send(cachedResult);
-        return;
+        const cachedResult = JSON.parse(cachedString); // Parse the cached string
+        return res.status(200).json(cachedResult); // Send the parsed object
       }
     } catch (e) {
-      console.warn(`Redis GET error for ${cacheKey}:`, e.message);
+      console.warn(`Redis GET/PARSE error for ${cacheKey}:`, e.message);
     }
 
     console.log(`CACHE MISS for spread analysis: ${cacheKey}. Proxying to Replit.`);
@@ -98,18 +96,21 @@ export default async function handler(req, res) {
 
     // 4. Pipe the response back and cache it on success
     const responseBody = await proxyResponse.text();
-    res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
     
     // Cache the successful result for 1 minute
     if (proxyResponse.ok) {
         try {
-            await redis.set(cacheKey, responseBody, { ex: 60 }); // 60-second expiration
+            // Test if the response is valid JSON before caching
+            JSON.parse(responseBody); 
+            await redis.set(cacheKey, responseBody, { ex: 60 }); // Cache the valid JSON string
             console.log(`SAVED to cache: ${cacheKey}`);
         } catch (e) {
-            console.warn(`Redis SET error for ${cacheKey}:`, e.message);
+            console.warn(`Redis SET error or invalid JSON from Replit for ${cacheKey}:`, e.message);
         }
     }
     
+    // Send the original response from the server
+    res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
     res.status(proxyResponse.status).send(responseBody);
 
   } catch (error) {
