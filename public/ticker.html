@@ -911,8 +911,8 @@
                 // Start progress simulation
                 const progressInterval = simulateProgressSteps();
                 
-                // Use our proxy endpoint to avoid CORS issues
-                const response = await axios.post('/api/analyze_debit_spread', {
+                // Call your Replit analysis endpoint directly
+                const response = await axios.post('https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread', {
                     ticker: symbol
                 }, {
                     headers: {
@@ -1187,22 +1187,15 @@
                 <div class="text-white font-bold">Net Debit: $${spreadCost.toFixed(2)}</div>
             `;
             
-            // Calculate individual option prices from authentic API spread data
-            // For debit spreads: Net Debit = Long Option Price - Short Option Price
-            const spreadWidth = details?.spread_width || 1;
-            const currentPrice = parseFloat(spreadData.current_stock_price) || 0;
+            // Use actual option prices from your Replit API response
+            const contracts = strategy.contracts || {};
+            const longPrice = contracts.long_price || 0;
+            const shortPrice = contracts.short_price || 0;
             
-            // Calculate option intrinsic values based on stock price and strikes
-            const longIntrinsic = Math.max(0, currentPrice - longStrike);
-            const shortIntrinsic = Math.max(0, currentPrice - shortStrike);
-            
-            // Estimate time value based on spread cost and intrinsic values
-            const timeValueFactor = 0.3; // Typical time value component
-            const longTimeValue = spreadCost * timeValueFactor;
-            const shortTimeValue = longTimeValue * 0.5; // Short has less time value
-            
-            const longPrice = longIntrinsic + longTimeValue;
-            const shortPrice = shortIntrinsic + shortTimeValue;
+            console.log(`=== REPLIT API PRICING DATA ===`);
+            console.log(`Long contract: ${contracts.long_contract} @ $${longPrice}`);
+            console.log(`Short contract: ${contracts.short_contract} @ $${shortPrice}`);
+            console.log(`Spread cost: $${spreadCost}`);
             
             console.log(`=== STEP 4 AUTHENTIC PRICING ===`);
             console.log(`Spread cost from API: $${spreadCost}`);
@@ -1217,18 +1210,23 @@
             `;
             
             // Spread Details
+            const maxProfit = details?.max_profit || 0;
+            const maxLoss = details?.max_loss || 0;
+            
             document.getElementById('spreadDetails').innerHTML = `
                 <div class="text-stone-300">Spread Cost: $${spreadCost.toFixed(2)}</div>
-                <div class="text-stone-300">Max Value: $${details?.max_profit || '0.00'}</div>
+                <div class="text-stone-300">Max Profit: $${maxProfit.toFixed(2)}</div>
+                <div class="text-stone-300">Max Loss: $${maxLoss.toFixed(2)}</div>
             `;
             
             // Trade Info
             const roi = details?.roi_percent || 0;
-            const breakeven = longStrike + spreadCost;
+            const breakeven = details?.breakeven_price || (longStrike + spreadCost);
             
             document.getElementById('tradeInfo').innerHTML = `
                 <div class="text-stone-300">ROI: ${roi.toFixed(1)}%</div>
                 <div class="text-stone-300">Breakeven: $${breakeven.toFixed(2)}</div>
+                <div class="text-stone-300">Days to Expiration: ${details?.days_to_expiration || 'N/A'}</div>
             `;
             
             // Trade Summary
@@ -1251,7 +1249,7 @@
                 </div>
                 <div class="text-center">
                     <div class="text-stone-400 text-xs mb-1">MAX PROFIT</div>
-                    <div class="text-white font-bold">$${details?.max_profit || '0.00'}</div>
+                    <div class="text-white font-bold">$${maxProfit.toFixed(2)}</div>
                 </div>
                 <div class="text-center">
                     <div class="text-stone-400 text-xs mb-1">RETURN ON INVESTMENT</div>
@@ -1274,9 +1272,10 @@
             if (!strategy) return;
             
             const contracts = parseInt(document.getElementById('contractsInput').value) || 1;
-            const spreadCost = strategy.spread_details?.spread_cost || 0;
-            const maxProfit = strategy.spread_details?.max_profit || 0;
-            const roi = strategy.spread_details?.roi_percent || 0;
+            const details = strategy.spread_details || {};
+            const spreadCost = details.spread_cost || 0;
+            const maxProfit = details.max_profit || 0;
+            const roi = details.roi_percent || 0;
             
             const totalInvestment = contracts * spreadCost * 100; // Convert to actual dollar amount
             const incomePotential = contracts * maxProfit * 100;
