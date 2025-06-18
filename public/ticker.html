@@ -684,7 +684,7 @@
                 // Clear previous ticker data to prevent flash of old content
                 clearTickerDisplay();
                 
-                const response = await axios.get(`/api/ticker/${symbol}`, {
+                const response = await axios.get(`/api/ticker-data/${symbol}`, {
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`
                     }

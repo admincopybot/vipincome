@@ -3,20 +3,23 @@
   "functions": {
     "api/*.js": {
       "maxDuration": 30
+    },
+    "api/**/*.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
     {
-      "source": "/api/ticker/(.*)",
+      "source": "/ticker/([^/]+)",
+      "destination": "/api/ticker/$1"
+    },
+    {
+      "source": "/api/ticker-data/([^/]+)",
       "destination": "/api/ticker-details?symbol=$1"
     },
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
-    },
-    {
-      "source": "/ticker/(.*)",
-      "destination": "/public/ticker.html"
     },
     {
       "source": "/",
