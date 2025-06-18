@@ -259,10 +259,13 @@ class DebitSpreadAnalyzer {
         apiKey: this.apiKey
       });
 
-      console.log(`Contracts request URL: ${url}?underlying_ticker=${symbol}&limit=1000&apiKey=${this.apiKey ? 'HIDDEN' : 'MISSING'}`);
-      console.log(`Making contracts API call with a 25-second timeout...`);
+      const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
+      };
+
+      console.log(`Making contracts API call with User-Agent header and a 25-second timeout...`);
       
-      const response = await fetch(`${url}?${params}`, { timeout: 25000 }); // Increased timeout to 25 seconds
+      const response = await fetch(`${url}?${params}`, { headers: headers, timeout: 25000 });
       
       console.log(`Contracts API response status: ${response.status}`);
       
@@ -271,14 +274,23 @@ class DebitSpreadAnalyzer {
         console.error(`❌ Options API error: ${response.status} - ${errorText}`);
         throw new Error(`Options API returned ${response.status}: ${errorText}`);
       }
+      
+      const responseBodyText = await response.text(); // Get raw text first
+      let data;
+      try {
+        data = JSON.parse(responseBodyText);
+      } catch (e) {
+        console.error("❌ Failed to parse JSON response from options API.");
+        console.error("Raw Response Text:", responseBodyText);
+        throw new Error("Invalid JSON response from options API.");
+      }
 
-      const data = await response.json();
       console.log(`Contracts API response status: ${data.status}`);
       console.log(`Contracts found: ${data.results?.length || 0}`);
       
       if (data.status !== 'OK' || !data.results || data.results.length === 0) {
         console.log(`❌ No contracts available for ${symbol}`);
-        console.log(`Full API response:`, JSON.stringify(data, null, 2));
+        console.log(`Full API response (parsed):`, JSON.stringify(data, null, 2));
         return [];
       }
 
