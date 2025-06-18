@@ -416,7 +416,8 @@
             try {
                 const response = await axios.get(`/api/tickers?token=${jwtToken}`);
                 
-                allTickers = response.data;
+                // Fix: API returns data in response.data.data
+                allTickers = response.data.data || response.data;
                 console.log('Loaded tickers:', allTickers.length);
                 displayTickers(allTickers);
             } catch (error) {
@@ -455,18 +456,20 @@
                 
                 try {
                     grid.innerHTML = tickers.map((ticker) => {
-                        const price = parseFloat(ticker.current_price) || 0;
+                        const score = parseInt(ticker.total_score) || 0;
+                        const volume = ticker.trading_volume_20_day || 0;
+                        const contracts = ticker.options_contracts_10_42_dte || 0;
                         return `
                             <div class="ticker-card">
                                 <div class="text-center">
                                     <h3 class="text-2xl font-bold text-white mb-4">${ticker.symbol || 'N/A'}</h3>
-                                    <div class="text-green-400 text-3xl font-bold mb-6">$${price.toFixed(2)}</div>
+                                    <div class="score-badge mb-6">Score: ${score}</div>
                                     <button onclick="openTicker('${ticker.symbol}')" class="w-full bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-semibold py-3 px-6 rounded-lg transition-all duration-300 mb-6 shadow-lg hover:shadow-stone-500/25">
                                         Choose Opportunity
                                     </button>
-                                    <div class="text-sm text-gray-400 mb-3">${calculateCriteriaCount(ticker)}/5 Criteria Met</div>
-                                    <div class="flex justify-center gap-2">
-                                        ${renderCriteria(ticker)}
+                                    <div class="text-sm text-gray-400 mb-3">
+                                        <div>Volume: ${volume}</div>
+                                        <div>Options: ${contracts}</div>
                                     </div>
                                 </div>
                             </div>
