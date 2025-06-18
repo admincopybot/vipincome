@@ -1,4 +1,5 @@
-const { Client } = require('pg');
+import { Client } from 'pg';
+import redis from '../../lib/redis'; // Import our new Redis utility
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -26,8 +27,26 @@ export default async function handler(req, res) {
     }
 
     const symbolUpper = symbol.toUpperCase();
+    const cacheKey = `ticker-details:${symbolUpper}`;
 
-    // Connect to database
+    // 1. Check Redis cache first
+    try {
+      const cachedResult = await redis.get(cacheKey);
+      if (cachedResult) {
+        console.log(`CACHE HIT for ${symbolUpper}`);
+        return res.status(200).json({
+          success: true,
+          data: cachedResult,
+          source: 'cache'
+        });
+      }
+    } catch (cacheError) {
+        console.warn(`Redis GET error for ${cacheKey}:`, cacheError.message);
+    }
+
+    console.log(`CACHE MISS for ${symbolUpper}. Fetching from database.`);
+    
+    // 2. If not in cache, fetch from the database
     const client = new Client({
       connectionString: process.env.DATABASE_URL,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
@@ -62,11 +81,20 @@ export default async function handler(req, res) {
       });
     }
 
-    const ticker = result.rows[0];
+    const tickerData = result.rows[0];
 
+    // 3. Save the result to Redis with a 24-hour expiration
+    try {
+        await redis.set(cacheKey, JSON.stringify(tickerData), { ex: 86400 }); // 24 hours
+        console.log(`SAVED to cache: ${cacheKey}`);
+    } catch (cacheError) {
+        console.warn(`Redis SET error for ${cacheKey}:`, cacheError.message);
+    }
+    
     res.status(200).json({
       success: true,
-      data: ticker
+      data: tickerData,
+      source: 'database'
     });
 
   } catch (error) {
