@@ -1,59 +1,5 @@
 const axios = require('axios');
 
-// Spread analysis endpoints with failover
-const SPREAD_ENDPOINTS = [
-  'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread',
-  'https://income-machine-spread-check-try-2-real-daiadigitalco.replit.app/api/analyze_debit_spread',
-  'https://income-machine-spread-check-try-3-real-daiadigitalco.replit.app/api/analyze_debit_spread'
-];
-
-function makeRequest(url, data, timeout = 15000) {
-  return new Promise((resolve, reject) => {
-    const postData = JSON.stringify(data);
-    const urlObj = new URL(url);
-    
-    const options = {
-      hostname: urlObj.hostname,
-      port: urlObj.port || 443,
-      path: urlObj.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData)
-      },
-      timeout: timeout
-    };
-
-    const req = https.request(options, (res) => {
-      let body = '';
-      res.on('data', (chunk) => {
-        body += chunk;
-      });
-      
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(body);
-          resolve({ status: res.statusCode, data: parsed });
-        } catch (error) {
-          reject(new Error('Invalid JSON response'));
-        }
-      });
-    });
-
-    req.on('error', (error) => {
-      reject(error);
-    });
-
-    req.on('timeout', () => {
-      req.destroy();
-      reject(new Error('Request timeout'));
-    });
-
-    req.write(postData);
-    req.end();
-  });
-}
-
 export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
