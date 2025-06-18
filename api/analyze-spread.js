@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     // 1. Randomly pick a base URL for load balancing
     const randomIndex = Math.floor(Math.random() * SPREAD_ANALYZER_URLS.length);
     const baseUrl = SPREAD_ANALYZER_URLS[randomIndex];
-    const endpoint = '/api/debit_spread_analysis';
+    const endpoint = '/api/analyze_debit_spread';
     const targetUrl = baseUrl + endpoint;
 
     console.log(`Proxying spread analysis for ${ticker} to random Replit instance: #${randomIndex + 1} - ${targetUrl}`);
