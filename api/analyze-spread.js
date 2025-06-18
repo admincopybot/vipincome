@@ -24,7 +24,7 @@ function setCachedData(key, data) {
   });
 }
 
-// A list of your 20 load-balanced Replit instances for spread analysis.
+// A list of your 40 load-balanced Replit instances for spread analysis.
 const SPREAD_ANALYZER_URLS = [
   'https://income-machine-spread-machine-1-daiadigitalco.replit.app',
   'https://income-machine-spread-machine-2-daiadigitalco.replit.app',
@@ -45,7 +45,27 @@ const SPREAD_ANALYZER_URLS = [
   'https://income-machine-spread-machine-17-daiadigitalco.replit.app',
   'https://income-machine-spread-machine-18-daiadigitalco.replit.app',
   'https://income-machine-spread-machine-19-daiadigitalco.replit.app',
-  'https://income-machine-spread-machine-20-daiadigitalco.replit.app'
+  'https://income-machine-spread-machine-20-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-21-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-22-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-23-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-24-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-25-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-26-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-27-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-28-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-29-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-30-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-31-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-32-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-33-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-34-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-35-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-36-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-37-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-38-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-39-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-40-daiadigitalco.replit.app'
 ];
 
 export default async function handler(req, res) {
@@ -107,7 +127,7 @@ export default async function handler(req, res) {
     const timeoutId = setTimeout(() => {
       console.log(`Aborting request due to timeout`);
       controller.abort();
-    }, 25000); // 25 second timeout
+    }, 45000); // 45 second timeout
 
     const proxyResponse = await fetch(targetUrl, {
       method: 'POST',
@@ -165,7 +185,7 @@ export default async function handler(req, res) {
       const retryTimeoutId = setTimeout(() => {
         console.log(`Aborting retry request due to timeout`);
         retryController.abort();
-      }, 20000); // Shorter timeout for retry
+      }, 45000); // 45 second timeout for retry
       
       try {
         const retryResponse = await fetch(retryUrl, {
@@ -206,7 +226,56 @@ export default async function handler(req, res) {
       } catch (retryError) {
         clearTimeout(retryTimeoutId);
         console.error(`Retry also failed: ${retryError.message}`);
-        throw new Error(`Both primary and retry instances failed. Primary returned mock data, retry failed: ${retryError.message}`);
+        
+        // If retry also timed out, try one more instance
+        if (retryError.name === 'AbortError') {
+          const secondRetryIndex = (retryIndex + 1) % SPREAD_ANALYZER_URLS.length;
+          const secondRetryUrl = `${SPREAD_ANALYZER_URLS[secondRetryIndex]}/api/analyze_debit_spread`;
+          
+          console.log(`Second retry attempt with instance #${secondRetryIndex + 1}: ${secondRetryUrl}`);
+          
+          const secondRetryController = new AbortController();
+          const secondRetryTimeoutId = setTimeout(() => {
+            console.log(`Aborting second retry request due to timeout`);
+            secondRetryController.abort();
+          }, 30000); // Shorter timeout for final retry
+          
+          try {
+            const secondRetryResponse = await fetch(secondRetryUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ ticker: ticker }),
+              signal: secondRetryController.signal
+            });
+            
+            clearTimeout(secondRetryTimeoutId);
+            
+            const secondRetryBody = await secondRetryResponse.text();
+            console.log(`Second retry response (first 300 chars): ${secondRetryBody.substring(0, 300)}`);
+            
+            // Check second retry response for mock data too
+            const secondRetryStr = secondRetryBody.toLowerCase();
+            const isSecondRetryMockData = mockDataIndicators.some(indicator => 
+              secondRetryStr.includes(indicator.toLowerCase())
+            );
+            
+            if (!isSecondRetryMockData && secondRetryResponse.ok) {
+              setCachedData(cacheKey, secondRetryBody);
+              console.log(`SAVED REAL DATA from second retry to cache: ${cacheKey}`);
+              res.setHeader('Content-Type', secondRetryResponse.headers.get('Content-Type') || 'application/json');
+              res.status(secondRetryResponse.status).send(secondRetryBody);
+              return;
+            }
+            
+          } catch (secondRetryError) {
+            clearTimeout(secondRetryTimeoutId);
+            console.error(`Second retry also failed: ${secondRetryError.message}`);
+          }
+        }
+        
+        throw new Error(`Multiple instances failed. Primary returned mock data, retries failed or timed out. Please try again in a moment.`);
       }
     }
     
@@ -223,11 +292,62 @@ export default async function handler(req, res) {
 
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.error(`Request timed out after 25 seconds`);
+      console.error(`Primary request timed out after 45 seconds, trying fallback instance`);
+      
+      // Try a fallback instance on timeout
+      const fallbackIndex = Math.floor(Math.random() * SPREAD_ANALYZER_URLS.length);
+      const fallbackUrl = `${SPREAD_ANALYZER_URLS[fallbackIndex]}/api/analyze_debit_spread`;
+      
+      console.log(`Trying fallback instance #${fallbackIndex + 1}: ${fallbackUrl}`);
+      
+      const fallbackController = new AbortController();
+      const fallbackTimeoutId = setTimeout(() => {
+        console.log(`Aborting fallback request due to timeout`);
+        fallbackController.abort();
+      }, 30000); // Shorter timeout for fallback
+      
+      try {
+        const fallbackResponse = await fetch(fallbackUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ticker: ticker }),
+          signal: fallbackController.signal
+        });
+        
+        clearTimeout(fallbackTimeoutId);
+        
+        const fallbackBody = await fallbackResponse.text();
+        console.log(`Fallback response (first 300 chars): ${fallbackBody.substring(0, 300)}`);
+        
+        // Check fallback response for mock data
+        const fallbackStr = fallbackBody.toLowerCase();
+        const isFallbackMockData = mockDataIndicators.some(indicator => 
+          fallbackStr.includes(indicator.toLowerCase())
+        );
+        
+        if (!isFallbackMockData && fallbackResponse.ok) {
+          setCachedData(cacheKey, fallbackBody);
+          console.log(`SAVED REAL DATA from fallback to cache: ${cacheKey}`);
+          res.setHeader('Content-Type', fallbackResponse.headers.get('Content-Type') || 'application/json');
+          res.status(fallbackResponse.status).send(fallbackBody);
+          return;
+        } else if (isFallbackMockData) {
+          console.error(`🚨 FALLBACK ALSO RETURNED MOCK DATA from instance #${fallbackIndex + 1}!`);
+        }
+        
+      } catch (fallbackError) {
+        clearTimeout(fallbackTimeoutId);
+        console.error(`Fallback also failed: ${fallbackError.message}`);
+      }
+      
+      // If we get here, both primary and fallback failed
       res.status(504).json({ 
         success: false,
-        error: 'Request timed out',
-        details: 'The analysis service took too long to respond (>25 seconds)'
+        error: 'Multiple timeouts occurred',
+        details: 'The analysis service took too long to respond (>45 seconds) on multiple instances. This may indicate heavy market activity or system issues. Please try again in a moment.',
+        user_message: 'The system is experiencing high load. Please wait a moment and try again.'
       });
     } else {
       console.error(`Error in spread analysis: ${error.name} - ${error.message}`);
