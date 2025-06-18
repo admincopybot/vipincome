@@ -143,6 +143,23 @@ export default async function handler(req, res) {
     console.log(`Response status: ${proxyResponse.status}`);
     console.log(`Response headers: ${JSON.stringify(Object.fromEntries(proxyResponse.headers.entries()))}`);
 
+    // Handle non-200 status codes
+    if (!proxyResponse.ok) {
+      if (proxyResponse.status === 404) {
+        console.error(`404 Not Found from Replit instance #${randomIndex + 1}`);
+        throw new Error(`404 - Analysis service not found on instance #${randomIndex + 1}`);
+      } else if (proxyResponse.status === 500) {
+        console.error(`500 Internal Server Error from Replit instance #${randomIndex + 1}`);
+        throw new Error(`500 - Internal server error on analysis service`);
+      } else if (proxyResponse.status === 503) {
+        console.error(`503 Service Unavailable from Replit instance #${randomIndex + 1}`);
+        throw new Error(`503 - Analysis service temporarily unavailable`);
+      } else {
+        console.error(`HTTP ${proxyResponse.status} error from Replit instance #${randomIndex + 1}`);
+        throw new Error(`HTTP ${proxyResponse.status} - Analysis service error`);
+      }
+    }
+
     const responseBody = await proxyResponse.text();
     console.log(`Response body (first 300 chars): ${responseBody.substring(0, 300)}`);
     
@@ -199,6 +216,12 @@ export default async function handler(req, res) {
         
         clearTimeout(retryTimeoutId);
         
+        // Handle non-200 status codes for retry
+        if (!retryResponse.ok) {
+          console.error(`Retry failed with HTTP ${retryResponse.status} from instance #${retryIndex + 1}`);
+          throw new Error(`HTTP ${retryResponse.status} - Retry analysis service error`);
+        }
+        
         const retryBody = await retryResponse.text();
         console.log(`Retry response (first 300 chars): ${retryBody.substring(0, 300)}`);
         
@@ -250,10 +273,16 @@ export default async function handler(req, res) {
               signal: secondRetryController.signal
             });
             
-            clearTimeout(secondRetryTimeoutId);
-            
-            const secondRetryBody = await secondRetryResponse.text();
-            console.log(`Second retry response (first 300 chars): ${secondRetryBody.substring(0, 300)}`);
+                         clearTimeout(secondRetryTimeoutId);
+             
+             // Handle non-200 status codes for second retry
+             if (!secondRetryResponse.ok) {
+               console.error(`Second retry failed with HTTP ${secondRetryResponse.status} from instance #${secondRetryIndex + 1}`);
+               throw new Error(`HTTP ${secondRetryResponse.status} - Second retry analysis service error`);
+             }
+             
+             const secondRetryBody = await secondRetryResponse.text();
+             console.log(`Second retry response (first 300 chars): ${secondRetryBody.substring(0, 300)}`);
             
             // Check second retry response for mock data too
             const secondRetryStr = secondRetryBody.toLowerCase();
@@ -316,10 +345,16 @@ export default async function handler(req, res) {
           signal: fallbackController.signal
         });
         
-        clearTimeout(fallbackTimeoutId);
-        
-        const fallbackBody = await fallbackResponse.text();
-        console.log(`Fallback response (first 300 chars): ${fallbackBody.substring(0, 300)}`);
+                 clearTimeout(fallbackTimeoutId);
+         
+         // Handle non-200 status codes for fallback
+         if (!fallbackResponse.ok) {
+           console.error(`Fallback failed with HTTP ${fallbackResponse.status} from instance #${fallbackIndex + 1}`);
+           throw new Error(`HTTP ${fallbackResponse.status} - Fallback analysis service error`);
+         }
+         
+         const fallbackBody = await fallbackResponse.text();
+         console.log(`Fallback response (first 300 chars): ${fallbackBody.substring(0, 300)}`);
         
         // Check fallback response for mock data
         const fallbackStr = fallbackBody.toLowerCase();
@@ -333,22 +368,24 @@ export default async function handler(req, res) {
           res.setHeader('Content-Type', fallbackResponse.headers.get('Content-Type') || 'application/json');
           res.status(fallbackResponse.status).send(fallbackBody);
           return;
-        } else if (isFallbackMockData) {
-          console.error(`🚨 FALLBACK ALSO RETURNED MOCK DATA from instance #${fallbackIndex + 1}!`);
-        }
-        
-      } catch (fallbackError) {
-        clearTimeout(fallbackTimeoutId);
-        console.error(`Fallback also failed: ${fallbackError.message}`);
-      }
-      
-      // If we get here, both primary and fallback failed
-      res.status(504).json({ 
-        success: false,
-        error: 'Multiple timeouts occurred',
-        details: 'The analysis service took too long to respond (>45 seconds) on multiple instances. This may indicate heavy market activity or system issues. Please try again in a moment.',
-        user_message: 'The system is experiencing high load. Please wait a moment and try again.'
-      });
+                 } else if (isFallbackMockData) {
+           console.error(`🚨 FALLBACK ALSO RETURNED MOCK DATA from instance #${fallbackIndex + 1}!`);
+         }
+         
+       } catch (fallbackError) {
+         clearTimeout(fallbackTimeoutId);
+         console.error(`Fallback also failed: ${fallbackError.message}`);
+       }
+       
+       // If we get here, both primary and fallback failed
+       res.status(504).json({ 
+         success: false,
+         error: 'Multiple timeouts occurred',
+         message: 'Could not find any trades at this moment',
+         user_message: 'Could not find any trades at this moment. The system is experiencing high load. Please wait a moment and try again.',
+         details: 'The analysis service took too long to respond (>45 seconds) on multiple instances. This may indicate heavy market activity or system issues. Please try again in a moment.',
+         action_required: 'Please wait a moment and try again.'
+       });
     } else {
       console.error(`Error in spread analysis: ${error.name} - ${error.message}`);
       console.error(`Error stack: ${error.stack}`);
@@ -358,15 +395,46 @@ export default async function handler(req, res) {
         res.status(422).json({ 
           success: false,
           error: 'MOCK DATA DETECTED',
-          message: 'The analysis service returned test/demo data instead of real market data. This has been blocked to ensure data quality.',
-          details: error.message,
+          message: 'Could not find any trades at this moment',
+          user_message: 'Could not find any trades at this moment. Please try again in a few minutes.',
+          details: 'The analysis service returned test/demo data instead of real market data. This has been blocked to ensure data quality.',
           action_required: 'Please try again or contact support if this persists.'
+        });
+      } else if (error.message.includes('404') || error.message.includes('Not Found')) {
+        res.status(404).json({ 
+          success: false,
+          error: 'Service not found',
+          message: 'Could not find any trades at this moment',
+          user_message: 'Could not find any trades at this moment. The analysis service may be temporarily unavailable.',
+          details: error.message,
+          action_required: 'Please try again in a few minutes.'
+        });
+      } else if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+        res.status(504).json({ 
+          success: false,
+          error: 'Request timeout',
+          message: 'Could not find any trades at this moment',
+          user_message: 'Could not find any trades at this moment. The system is experiencing high load.',
+          details: error.message,
+          action_required: 'Please wait a moment and try again.'
+        });
+      } else if (error.message.includes('failed') || error.message.includes('Multiple instances')) {
+        res.status(503).json({ 
+          success: false,
+          error: 'Service temporarily unavailable',
+          message: 'Could not find any trades at this moment',
+          user_message: 'Could not find any trades at this moment. Multiple analysis servers are temporarily unavailable.',
+          details: error.message,
+          action_required: 'Please try again in a few minutes.'
         });
       } else {
         res.status(502).json({ 
           success: false,
           error: 'Service error',
-          details: error.message 
+          message: 'Could not find any trades at this moment',
+          user_message: 'Could not find any trades at this moment. There was an unexpected error with the analysis service.',
+          details: error.message,
+          action_required: 'Please try again or contact support if this persists.'
         });
       }
     }
