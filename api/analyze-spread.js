@@ -296,7 +296,6 @@ class DebitSpreadAnalyzer {
 
       // PERFORMANCE OPTIMIZATION: Pre-filter contracts before fetching quotes
       const currentDate = new Date();
-      const currentPrice = await this.getRealTimeStockPrice(symbol);
       
       if (!currentPrice) {
         console.log(`❌ Could not get current price for ${symbol}`);
@@ -417,32 +416,40 @@ class DebitSpreadAnalyzer {
  }
 
  async getContractQuotes(contractTicker) {
-   try {
-     const url = 'https://api.thetradelist.com/v1/data/last-quote';
-     const params = new URLSearchParams({
-       ticker: contractTicker,
-       apiKey: this.apiKey
-     });
+    try {
+      const url = 'https://api.thetradelist.com/v1/data/last-quote';
+      const params = new URLSearchParams({
+        ticker: contractTicker,
+        apiKey: this.apiKey
+      });
 
-     const response = await fetch(`${url}?${params}`, { timeout: 3000 });
-     
-     if (response.ok) {
-       const data = await response.json();
-       
-       if (data.results && data.results.length > 0) {
-         const quote = data.results[0];
-         return {
-           bid: parseFloat(quote.bid) || 0,
-           ask: parseFloat(quote.ask) || 0
-         };
-       }
-     }
-     
-     return null;
-   } catch (error) {
-     return null; // Fail silently for speed
-   }
- }
+      const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
+      };
+
+      const response = await fetch(`${url}?${params}`, { headers: headers, timeout: 3000 });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+          const quote = data.results[0];
+          return {
+            bid: parseFloat(quote.bid) || 0,
+            ask: parseFloat(quote.ask) || 0
+          };
+        }
+      } else {
+        const errorText = await response.text();
+        console.log(`⚠️ Quote fetch failed for ${contractTicker}: ${response.status} - ${errorText}`);
+      }
+      
+      return null;
+    } catch (error) {
+      console.log(`⚠️ Quote fetch error for ${contractTicker}: ${error.message}`);
+      return null; // Fail silently for speed, but after logging
+    }
+  }
 
   async findBestSpreads(symbol, currentPrice, contracts) {
     const strategies = {
