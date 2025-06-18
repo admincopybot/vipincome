@@ -7,6 +7,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/ticker/(.*)",
+      "destination": "/api/ticker-details?symbol=$1"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
