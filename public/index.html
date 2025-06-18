@@ -459,17 +459,31 @@
                         const score = parseInt(ticker.total_score) || 0;
                         const volume = ticker.trading_volume_20_day || 0;
                         const contracts = ticker.options_contracts_10_42_dte || 0;
+                        const currentPrice = ticker.current_price ? parseFloat(ticker.current_price).toFixed(2) : '0.00';
+                        
+                        // Calculate criteria met count
+                        const criteriaCount = calculateCriteriaCount(ticker);
+                        
                         return `
-                            <div class="ticker-card">
+                            <div class="ticker-card cursor-pointer" onclick="openTicker('${ticker.symbol}')">
                                 <div class="text-center">
-                                    <h3 class="text-2xl font-bold text-white mb-4">${ticker.symbol || 'N/A'}</h3>
-                                    <div class="score-badge mb-6">Score: ${score}</div>
-                                    <button onclick="openTicker('${ticker.symbol}')" class="w-full bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-semibold py-3 px-6 rounded-lg transition-all duration-300 mb-6 shadow-lg hover:shadow-stone-500/25">
+                                    <!-- Ticker Symbol -->
+                                    <h3 class="text-4xl font-bold text-white mb-4">${ticker.symbol || 'N/A'}</h3>
+                                    
+                                    <!-- Price -->
+                                    <div class="text-5xl font-bold text-emerald-400 mb-6">$${currentPrice}</div>
+                                    
+                                    <!-- Choose Opportunity Button -->
+                                    <button onclick="openTicker('${ticker.symbol}')" class="w-full bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] text-lg mb-6 shadow-lg hover:shadow-stone-500/25">
                                         Choose Opportunity
                                     </button>
-                                    <div class="text-sm text-gray-400 mb-3">
-                                        <div>Volume: ${volume}</div>
-                                        <div>Options: ${contracts}</div>
+                                    
+                                    <!-- Criteria Met -->
+                                    <div class="text-stone-300 text-lg font-medium mb-4">${criteriaCount}/5 Criteria Met</div>
+                                    
+                                    <!-- Criteria Icons -->
+                                    <div class="flex justify-center space-x-3 mb-4">
+                                        ${renderCriteria(ticker)}
                                     </div>
                                 </div>
                             </div>

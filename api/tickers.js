@@ -44,7 +44,31 @@ export default async function handler(req, res) {
     console.log('Connected to NeonDB successfully');
     
     const query = `
-      SELECT symbol, total_score, trading_volume_20_day, options_contracts_10_42_dte
+      SELECT 
+        symbol, 
+        total_score, 
+        trading_volume_20_day, 
+        options_contracts_10_42_dte,
+        -- Generate mock price based on symbol for display (you can replace this with real price data)
+        CASE 
+          WHEN symbol = 'CEG' THEN 308.01
+          WHEN symbol = 'NRG' THEN 95.50
+          WHEN symbol = 'NFLX' THEN 485.25
+          WHEN symbol = 'VST' THEN 42.80
+          WHEN symbol = 'MS' THEN 128.75
+          WHEN symbol = 'TSM' THEN 145.60
+          WHEN symbol = 'DIS' THEN 115.30
+          WHEN symbol = 'XOM' THEN 118.45
+          WHEN symbol = 'BAC' THEN 45.20
+          WHEN symbol = 'MSFT' THEN 420.85
+          ELSE (50 + (total_score * 20) + RANDOM() * 100)::decimal(10,2)
+        END as current_price,
+        -- Generate mock criteria based on total_score
+        CASE WHEN total_score >= 1 THEN true ELSE false END as trend1_pass,
+        CASE WHEN total_score >= 2 THEN true ELSE false END as trend2_pass,
+        CASE WHEN total_score >= 3 THEN true ELSE false END as snapback_pass,
+        CASE WHEN total_score >= 4 THEN true ELSE false END as momentum_pass,
+        CASE WHEN total_score >= 5 THEN true ELSE false END as stabilizing_pass
       FROM etf_scores 
       WHERE options_contracts_10_42_dte >= 100
       ORDER BY total_score DESC, options_contracts_10_42_dte DESC, trading_volume_20_day DESC, symbol ASC
