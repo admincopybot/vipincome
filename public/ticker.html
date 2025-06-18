@@ -690,7 +690,17 @@
                     }
                 });
                 
-                currentTicker = response.data;
+                console.log('API Response:', response.data); // Debug log
+                
+                // Handle nested response structure
+                currentTicker = response.data.data || response.data;
+                
+                if (!currentTicker) {
+                    console.error('No ticker data received:', response.data);
+                    return;
+                }
+                
+                console.log('Current Ticker Data:', currentTicker); // Debug log
                 displayTickerData();
             } catch (error) {
                 console.error('Failed to load ticker:', error);
@@ -716,7 +726,12 @@
 
         // Display ticker data
         function displayTickerData() {
-            if (!currentTicker) return;
+            if (!currentTicker) {
+                console.error('No currentTicker data available');
+                return;
+            }
+            
+            console.log('Displaying ticker data:', currentTicker);
             
             // Calculate actual score from criteria
             const actualScore = [
@@ -727,13 +742,24 @@
                 currentTicker.stabilizing_pass
             ].filter(pass => pass === true).length;
             
+            console.log('Calculated score:', actualScore, 'from criteria:', {
+                trend1_pass: currentTicker.trend1_pass,
+                trend2_pass: currentTicker.trend2_pass,
+                snapback_pass: currentTicker.snapback_pass,
+                momentum_pass: currentTicker.momentum_pass,
+                stabilizing_pass: currentTicker.stabilizing_pass
+            });
+            
             // Update Step 2 Analysis page content
-            document.getElementById('stockAnalysisTitle').textContent = `${currentTicker.symbol} - Stock Analysis`;
-            document.getElementById('stockSymbol').textContent = currentTicker.symbol;
-            document.getElementById('stockPrice').textContent = `$${parseFloat(currentTicker.current_price).toFixed(2)}`;
+            const symbol = currentTicker.symbol || 'Unknown';
+            const price = currentTicker.current_price ? parseFloat(currentTicker.current_price).toFixed(2) : 'N/A';
+            
+            document.getElementById('stockAnalysisTitle').textContent = `${symbol} - Stock Analysis`;
+            document.getElementById('stockSymbol').textContent = symbol;
+            document.getElementById('stockPrice').textContent = price !== 'N/A' ? `$${price}` : '$N/A';
             document.getElementById('stockScore').textContent = `${actualScore}/5`;
             document.getElementById('incomeScore').textContent = `${actualScore}/5`;
-            document.getElementById('incomeSymbol').textContent = currentTicker.symbol;
+            document.getElementById('incomeSymbol').textContent = symbol;
             
             // Update score progress bar
             const scorePercentage = (actualScore / 5) * 100;
