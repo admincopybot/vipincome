@@ -1,17 +1,39 @@
 import { spawn } from 'child_process';
 import path from 'path';
 
+// A list of your 20 load-balanced Replit instances for spread analysis.
+const SPREAD_ANALYZER_URLS = [
+  'https://income-machine-spread-machine-1-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-2-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-3-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-4-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-5-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-6-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-7-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-8-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-9-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-10-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-11-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-12-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-13-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-14-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-15-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-16-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-17-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-18-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-19-daiadigitalco.replit.app',
+  'https://income-machine-spread-machine-20-daiadigitalco.replit.app'
+];
+
 export default async function handler(req, res) {
-  // Enhanced CORS handling for Vercel serverless
+  // Set CORS headers for Vercel
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-  
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
   // Handle OPTIONS preflight request
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -19,96 +41,54 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('=== VERCEL INTEGRATED SPREAD ANALYSIS START ===');
-    console.log('Request method:', req.method);
-    console.log('Request headers:', req.headers);
-    console.log('Raw request body:', req.body);
-    
-    // Parse request body
     let requestData;
     if (typeof req.body === 'string') {
-      requestData = JSON.parse(req.body);
+        try {
+            requestData = JSON.parse(req.body);
+        } catch (e) {
+            return res.status(400).json({ error: 'Invalid JSON in request body' });
+        }
     } else {
-      requestData = req.body || {};
+        requestData = req.body || {};
     }
 
     const { ticker } = requestData;
-    
+
     if (!ticker) {
-      console.log('ERROR: No ticker provided');
-      return res.status(400).json({
-        error: 'Ticker symbol is required',
-        received: requestData
-      });
+      return res.status(400).json({ error: 'Ticker symbol is required' });
     }
 
-    console.log(`Running integrated spread analysis for ticker: ${ticker}`);
+    // 1. Randomly pick a base URL for load balancing
+    const randomIndex = Math.floor(Math.random() * SPREAD_ANALYZER_URLS.length);
+    const baseUrl = SPREAD_ANALYZER_URLS[randomIndex];
+    const endpoint = '/api/debit_spread_analysis';
+    const targetUrl = baseUrl + endpoint;
+
+    console.log(`Proxying spread analysis for ${ticker} to random Replit instance: #${randomIndex + 1} - ${targetUrl}`);
+
+    // 2. Make the proxied request to the chosen Replit server
+    const proxyResponse = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Vercel-Proxy/1.0',
+      },
+      body: JSON.stringify({ ticker: ticker }),
+      timeout: 28000 // 28-second timeout to avoid Vercel gateway timeouts
+    });
+
+    // 3. Pipe the response (status, headers, and body) back to the original client
+    res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
+    const responseBody = await proxyResponse.text();
     
-    // DETAILED ENVIRONMENT LOGGING
-    console.log('=== ENVIRONMENT CHECK ===');
-    console.log('TRADELIST_API_KEY exists:', !!process.env.TRADELIST_API_KEY);
-    console.log('TRADELIST_API_KEY length:', process.env.TRADELIST_API_KEY?.length || 0);
-    console.log('TRADELIST_API_KEY first 10 chars:', process.env.TRADELIST_API_KEY?.substring(0, 10) || 'NOT SET');
-    console.log('NODE_ENV:', process.env.NODE_ENV);
-    console.log('VERCEL:', process.env.VERCEL);
-    console.log('VERCEL_ENV:', process.env.VERCEL_ENV);
-    
-    // Check for required environment variable
-    if (!process.env.TRADELIST_API_KEY) {
-      console.error('TRADELIST_API_KEY environment variable not set');
-      return res.status(500).json({
-        error: 'Analysis service not configured',
-        message: 'Missing API configuration. Please contact support.',
-        ticker: ticker,
-        debug: {
-          env_vars_available: Object.keys(process.env).filter(k => k.includes('TRADE')),
-          all_env_count: Object.keys(process.env).length
-        }
-      });
-    }
-    
-    console.log('=== STARTING ANALYZER ===');
-    
-    // Run debit spread analysis directly in JavaScript
-    const analyzer = new DebitSpreadAnalyzer(process.env.TRADELIST_API_KEY);
-    const result = await analyzer.analyzeDebitSpread(ticker);
-    
-    console.log('=== FINAL ANALYSIS RESULT ===');
-    console.log('Analysis result:', JSON.stringify(result, null, 2));
-    
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(400).json(result);
-    }
-    
+    res.status(proxyResponse.status).send(responseBody);
+
   } catch (error) {
-    console.error('=== INTEGRATED ANALYSIS ERROR ===');
-    console.error('Error name:', error.name);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    
-    if (error.message.includes('timeout')) {
-      return res.status(408).json({
-        error: 'Analysis timeout',
-        message: 'The analysis is taking longer than expected. Please try again.',
-        ticker: req.body?.ticker || 'unknown',
-        debug: {
-          error_type: 'timeout',
-          error_message: error.message
-        }
-      });
-    }
-    
-    return res.status(500).json({
-      error: 'Analysis error',
-      message: 'An error occurred during spread analysis.',
-      details: error.message,
-      ticker: req.body?.ticker || 'unknown',
-      debug: {
-        error_name: error.name,
-        error_stack: error.stack
-      }
+    console.error(`Error proxying to spread analyzer: ${error.name} - ${error.message}`);
+    res.status(502).json({ 
+        success: false,
+        error: 'The analysis service failed to respond.',
+        details: error.message 
     });
   }
 }
@@ -319,11 +299,51 @@ class DebitSpreadAnalyzer {
 
       console.log(`Pre-filtered to ${preFilteredContracts.length} relevant contracts`);
 
-      // NEW STRATEGY: Fetch all quotes in a single bulk request for reliability
-      const contractsWithQuotes = await this.getQuotesInBulk(preFilteredContracts, currentPrice);
+      // Reverting to single-quote fetching which is the correct API, now with networking fixes.
+      const validContracts = [];
+      const maxContracts = Math.min(preFilteredContracts.length, 30); // Process a reasonable number
       
-      console.log(`✅ Final contracts with quotes: ${contractsWithQuotes.length}`);
-      return contractsWithQuotes;
+      preFilteredContracts.sort((a, b) => {
+        const aDiff = Math.abs(a.strike_price - currentPrice);
+        const bDiff = Math.abs(b.strike_price - currentPrice);
+        return aDiff - bDiff;
+      });
+
+      console.log(`Fetching quotes for the top ${maxContracts} contracts...`);
+
+      const startTime = Date.now();
+      const batchSize = 5; // Smaller batches for this more intense operation
+      
+      for (let i = 0; i < maxContracts; i += batchSize) {
+        const batch = preFilteredContracts.slice(i, i + batchSize);
+        
+        console.log(`Processing batch ${Math.floor(i/batchSize) + 1}...`);
+        
+        const batchPromises = batch.map(contract => 
+          this.processContract(contract, currentDate)
+        );
+        
+        const batchResults = await Promise.all(batchPromises);
+        
+        for (const result of batchResults) {
+          if (result && result.bid > 0.05 && result.ask > 0.05) {
+            validContracts.push(result);
+          }
+        }
+        
+        console.log(`Batch ${Math.floor(i/batchSize) + 1}: Found ${validContracts.length} valid contracts so far.`);
+        
+        if (Date.now() - startTime > 20000) { // More patient 20 second total limit
+          console.log(`⏰ Time limit reached: ${Date.now() - startTime}ms`);
+          break;
+        }
+      }
+      
+      const processingTime = Date.now() - startTime;
+      console.log(`✅ Quote processing completed in ${processingTime}ms`);
+     
+      console.log(`✅ Final contracts with quotes: ${validContracts.length}`);
+      return validContracts;
 
     } catch (error) {
       console.error(`❌ Contract fetch error for ${symbol}: ${error.message}`);
@@ -332,67 +352,66 @@ class DebitSpreadAnalyzer {
     }
   }
 
-  async getQuotesInBulk(contracts, currentPrice) {
-    console.log('Fetching quotes in bulk for', contracts.length, 'contracts');
-    if (contracts.length === 0) {
-      return [];
-    }
-    
-    // The API is more reliable with smaller bulk requests. Let's process in chunks of 50.
-    const validContracts = [];
-    const chunkSize = 50;
-    
-    for (let i = 0; i < contracts.length; i += chunkSize) {
-      const chunk = contracts.slice(i, i + chunkSize);
-      const contractTickers = chunk.map(c => c.ticker).join(',');
+  async processContract(contract, currentDate) {
+    try {
+      const expirationDate = new Date(contract.expiration_date);
+      const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
+      
+      const quotes = await this.getContractQuotes(contract.ticker);
+     
+     if (quotes && quotes.bid > 0.05 && quotes.ask > 0.05) {
+       return {
+         contract_symbol: contract.ticker,
+         type: contract.contract_type,
+         strike: contract.strike_price,
+         days_to_expiration: daysToExpiration,
+         expiration_date: contract.expiration_date,
+         bid: quotes.bid,
+         ask: quotes.ask
+       };
+     }
+     
+     return null;
+   } catch (error) {
+     console.log(`⚠️ Error processing ${contract.ticker}: ${error.message}`);
+     return null;
+   }
+ }
 
-      try {
-        const url = 'https://api.thetradelist.com/v1/data/snapshot-locale';
-        const params = new URLSearchParams({
-          tickers: contractTickers,
-          apiKey: this.apiKey
-        });
-        const headers = {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
-        };
+ async getContractQuotes(contractTicker) {
+   try {
+     const url = 'https://api.thetradelist.com/v1/data/last-quote';
+     const params = new URLSearchParams({
+       ticker: contractTicker,
+       apiKey: this.apiKey
+     });
 
-        console.log(`Requesting bulk quotes for chunk ${Math.floor(i/chunkSize) + 1}...`);
-        const response = await fetch(`${url}?${params}`, { headers: headers, timeout: 20000 });
+     const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
+     };
 
-        if (!response.ok) {
-          console.log(`⚠️ Bulk quote fetch failed for chunk ${Math.floor(i/chunkSize) + 1}. Status: ${response.status}`);
-          continue; // Skip this chunk
-        }
-
-        const data = await response.json();
-        
-        if (data && data.status === 'OK' && data.tickers) {
-          console.log(`Received ${data.tickers.length} quotes for chunk.`);
-          const quotesMap = new Map(data.tickers.map(t => [t.ticker, t]));
-
-          const currentDate = new Date();
-          for (const contract of chunk) {
-            const quote = quotesMap.get(contract.ticker);
-            if (quote && quote.lastQuote && quote.lastQuote.p > 0.05 && quote.lastQuote.P > 0.05) {
-              validContracts.push({
-                contract_symbol: contract.ticker,
-                type: contract.contract_type,
-                strike: contract.strike_price,
-                days_to_expiration: Math.ceil((new Date(contract.expiration_date) - currentDate) / (1000 * 60 * 60 * 24)),
-                expiration_date: contract.expiration_date,
-                bid: quote.lastQuote.p, // bid price
-                ask: quote.lastQuote.P  // ask price
-              });
-            }
-          }
-        }
-      } catch (error) {
-        console.log(`⚠️ Error fetching bulk quotes for chunk: ${error.message}`);
-      }
-    }
-    
-    return validContracts;
-  }
+     const response = await fetch(`${url}?${params}`, { headers: headers, timeout: 4000 }); // 4s timeout per quote
+     
+     if (response.ok) {
+       const data = await response.json();
+       
+       if (data.results && data.results.length > 0) {
+         const quote = data.results[0];
+         return {
+           bid: parseFloat(quote.bid) || 0,
+           ask: parseFloat(quote.ask) || 0
+         };
+       }
+     } else {
+       // Don't log here, too noisy. The lack of results is the signal.
+     }
+     
+     return null;
+   } catch (error) {
+     // Also silent for speed.
+     return null; 
+   }
+ }
 
   async findBestSpreads(symbol, currentPrice, contracts) {
     const strategies = {
