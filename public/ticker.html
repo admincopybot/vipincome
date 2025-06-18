@@ -968,9 +968,40 @@
                         // Enable Step 3 navigation now that spread data is loaded
                         enableStep3Navigation();
                     } else {
-                        // Handle "no spreads found" response
-                        console.log('No suitable spreads found:', response.data);
-                        handleNoSpreadsFound(response.data);
+                        // Handle "no spreads found" response or error responses with success: false
+                        console.log('API returned success: false:', response.data);
+                        
+                        // Stop progress polling
+                        clearInterval(progressInterval);
+                        
+                        // Check if this is our standardized error response
+                        if (response.data.message === 'Could not find any trades at this moment' || response.data.user_message) {
+                            document.getElementById('strategiesLoading').style.display = 'none';
+                            document.getElementById('strategiesGrid').style.display = 'block';
+                            document.getElementById('strategiesGrid').innerHTML = `
+                                <div class="col-span-3 text-center py-12">
+                                    <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-8 rounded-lg border border-stone-600">
+                                        <div class="text-amber-400 mb-4">
+                                            <svg class="w-16 h-16 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="text-2xl text-stone-300 mb-4">Could not find any trades at this moment</div>
+                                        <div class="text-stone-400 mb-6">${response.data.user_message || response.data.details || 'Please try again in a few minutes.'}</div>
+                                        <button onclick="retrySpreadAnalysis()" 
+                                                class="bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-bold py-3 px-6 rounded-lg transition-all duration-300">
+                                            Try Again
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Handle legacy "no spreads found" response
+                            handleNoSpreadsFound(response.data);
+                        }
+                        
+                        // Enable Step 3 navigation so users can see the error message
+                        enableStep3Navigation();
                     }
                 } else {
                     console.error('API returned non-200 status:', response.status);
@@ -997,7 +1028,11 @@
                     const apiError = error.response.data;
                     console.log('API Error Response:', apiError);
                     
-                    if (apiError.error === 'Analysis timeout') {
+                    // Check for the new standardized error responses first
+                    if (apiError.message === 'Could not find any trades at this moment' || apiError.user_message) {
+                        errorMessage = 'Could not find any trades at this moment';
+                        errorDetails = apiError.user_message || apiError.details || 'Please try again in a few minutes.';
+                    } else if (apiError.error === 'Analysis timeout') {
                         errorMessage = 'Analysis Taking Longer Than Expected';
                         errorDetails = apiError.message || 'The analysis is taking more time than usual. This sometimes happens during high market activity.';
                     } else if (apiError.error === 'External analysis service error') {
