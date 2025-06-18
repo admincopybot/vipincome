@@ -164,6 +164,15 @@
             100% { transform: rotate(360deg); }
         }
         
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .fast-loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
         .profit-row {
             transition: all 0.3s ease;
             border-radius: 8px;
@@ -681,16 +690,33 @@
             try {
                 const symbol = getSymbolFromURL();
                 
-                // Clear previous ticker data to prevent flash of old content
-                clearTickerDisplay();
+                // Show symbol immediately if we have it
+                if (symbol) {
+                    document.getElementById('stockSymbol').textContent = symbol.toUpperCase();
+                    document.getElementById('incomeSymbol').textContent = symbol.toUpperCase();
+                    document.getElementById('stockAnalysisTitle').innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span>${symbol.toUpperCase()} - Stock Analysis</span>
+                            <div class="loading-spinner" style="width: 24px; height: 24px; border-width: 2px;"></div>
+                        </div>
+                    `;
+                }
                 
-                const response = await axios.get(`/api/ticker-data/${symbol}`, {
+                // Clear previous data but keep symbol visible
+                clearTickerDisplay(symbol);
+                
+                console.log(`🚀 Starting fast ticker data fetch for ${symbol}...`);
+                const startTime = performance.now();
+                
+                const response = await axios.get(`/api/ticker-details?symbol=${symbol}`, {
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`
-                    }
+                    },
+                    timeout: 10000 // 10 second timeout for faster failure feedback
                 });
                 
-                console.log('API Response:', response.data); // Debug log
+                const loadTime = performance.now() - startTime;
+                console.log(`✅ Ticker data loaded in ${loadTime.toFixed(0)}ms`);
                 
                 // Handle nested response structure and cached data
                 let rawData = response.data.data || response.data;
@@ -701,6 +727,7 @@
                         currentTicker = JSON.parse(rawData);
                     } catch (e) {
                         console.error('Failed to parse cached ticker data:', e);
+                        showErrorState('Failed to parse ticker data');
                         return;
                     }
                 } else {
@@ -709,31 +736,80 @@
                 
                 if (!currentTicker) {
                     console.error('No ticker data received:', response.data);
+                    showErrorState('No ticker data received');
                     return;
                 }
                 
-                console.log('Current Ticker Data:', currentTicker); // Debug log
+                console.log('📊 Current Ticker Data:', currentTicker);
+                
+                // Remove loading states and display data
+                removeLoadingStates();
                 displayTickerData();
+                renderCriteriaGrid();
+                
             } catch (error) {
-                console.error('Failed to load ticker:', error);
+                console.error('❌ Failed to load ticker:', error);
+                removeLoadingStates();
+                
                 if (error.response?.status === 401) {
                     window.location.href = '/';
+                } else if (error.response?.status === 404) {
+                    showErrorState('Ticker not found in database');
+                } else if (error.code === 'ECONNABORTED') {
+                    showErrorState('Request timed out. Please try again.');
+                } else {
+                    showErrorState('Failed to load ticker data. Please try again.');
                 }
             }
         }
+        
+        // Remove loading states
+        function removeLoadingStates() {
+            const scoreCard = document.querySelector('[class*="criteria-card"]');
+            if (scoreCard) {
+                scoreCard.style.opacity = '1';
+                scoreCard.style.animation = 'none';
+            }
+        }
+        
+        // Show error state
+        function showErrorState(message) {
+            const stockTitle = document.getElementById('stockAnalysisTitle');
+            if (stockTitle) {
+                stockTitle.innerHTML = `
+                    <div class="flex items-center gap-3 text-red-400">
+                        <span>⚠️ ${message}</span>
+                        <button onclick="loadTickerData()" class="text-stone-400 hover:text-stone-300 underline text-sm">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // Reset indicators to neutral state
+            ['trend1Indicator', 'trend2Indicator', 'snapbackIndicator', 'momentumIndicator', 'stabilizingIndicator'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.className = 'w-4 h-4 rounded-full bg-gray-500';
+                }
+            });
+        }
 
-        // Clear ticker display to prevent flash of old content
-        function clearTickerDisplay() {
-            // Clear all ticker-related elements
-            document.getElementById('stockAnalysisTitle').textContent = 'Loading...';
-            document.getElementById('stockSymbol').textContent = '...';
+        // Enhanced clear ticker display that preserves symbol if provided
+        function clearTickerDisplay(preserveSymbol = null) {
+            if (!preserveSymbol) {
+                document.getElementById('stockSymbol').textContent = '...';
+                document.getElementById('incomeSymbol').textContent = '...';
+            }
+            
             document.getElementById('stockPrice').textContent = '...';
             document.getElementById('stockScore').textContent = '.../5';
             document.getElementById('incomeScore').textContent = '.../5';
-            document.getElementById('incomeSymbol').textContent = '...';
             
-            // Reset progress bar
-            document.getElementById('scoreProgress').style.width = '0%';
+            // Reset progress bar with subtle animation
+            const progressBar = document.getElementById('scoreProgress');
+            progressBar.style.transition = 'width 0.3s ease';
+            progressBar.style.width = '0%';
         }
 
         // Display ticker data
@@ -1508,7 +1584,7 @@
             }
         }
 
-        // Initialize application
+        // Initialize application (now faster)
         function init() {
             jwtToken = getJWTToken();
             
@@ -1522,7 +1598,11 @@
                 localStorage.setItem('jwt_token', jwtToken);
             }
             
-            loadTickerData();
+            // Only call loadTickerData if not already called by earlyInit
+            if (!currentTicker) {
+                loadTickerData();
+            }
+            
             // Initialize step progress for step 2 (default)
             updateStepProgress('step2');
         }
@@ -1631,9 +1711,67 @@
             }
         }
 
+        // Early initialization - start loading ticker data ASAP
+        function earlyInit() {
+            // Get JWT token immediately
+            jwtToken = getJWTToken();
+            
+            if (!jwtToken) {
+                window.location.href = '/';
+                return;
+            }
+            
+            // Store token in localStorage for session persistence
+            localStorage.setItem('jwt_token', jwtToken);
+            
+            // Show loading states immediately
+            showLoadingStates();
+            
+            // Start loading ticker data IMMEDIATELY (don't wait for page to fully load)
+            loadTickerData();
+        }
+        
+        // Show immediate loading states
+        function showLoadingStates() {
+            // Show loading spinners and skeleton states
+            const loadingHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="loading-spinner"></div>
+                    <span class="text-stone-400">Loading ticker analysis...</span>
+                </div>
+            `;
+            
+            // Update main elements with loading states
+            const stockTitle = document.getElementById('stockAnalysisTitle');
+            if (stockTitle) stockTitle.innerHTML = loadingHTML;
+            
+            // Add subtle loading animation to the score card
+            const scoreCard = document.querySelector('[class*="criteria-card"]');
+            if (scoreCard) {
+                scoreCard.style.opacity = '0.7';
+                scoreCard.style.animation = 'pulse 1.5s ease-in-out infinite';
+            }
+        }
+
         // Start the application
         init();
         checkMarketHours();
+        
+        // IMMEDIATE LOADING: Start as soon as DOM is ready (before full page load)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', earlyInit);
+        } else {
+            // DOM already loaded, start immediately
+            earlyInit();
+        }
+    </script>
+    
+    <!-- Immediate loading script - runs before page fully loads -->
+    <script>
+        // This runs immediately when parsed, before DOMContentLoaded
+        if (typeof earlyInit === 'function') {
+            earlyInit();
+        }
     </script>
 </body>
 </html>
