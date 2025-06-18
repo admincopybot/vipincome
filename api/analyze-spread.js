@@ -156,6 +156,8 @@ class DebitSpreadAnalyzer {
 
   async getRealTimeStockPrice(symbol) {
     try {
+      console.log(`=== DETAILED PRICE FETCH FOR ${symbol} ===`);
+      
       // Use TheTradeList snapshot API (same as Python version)
       const url = 'https://api.thetradelist.com/v1/data/snapshot-locale';
       const params = new URLSearchParams({
@@ -163,19 +165,32 @@ class DebitSpreadAnalyzer {
         apiKey: this.apiKey
       });
 
+      console.log(`Making price API call to: ${url}?${params}`);
       const response = await fetch(`${url}?${params}`, { timeout: 5000 });
+      
+      console.log(`Price API response status: ${response.status}`);
       
       if (response.ok) {
         const data = await response.json();
+        console.log(`Price API response data:`, JSON.stringify(data, null, 2));
         
         if (data.status === 'OK' && data.tickers) {
+          console.log(`Found ${data.tickers.length} tickers in response`);
+          
           for (const tickerData of data.tickers) {
+            console.log(`Ticker: ${tickerData.ticker}, FMV: ${tickerData.fmv}`);
             if (tickerData.ticker === symbol && tickerData.fmv > 0) {
+              console.log(`SUCCESS: Found price for ${symbol}: $${tickerData.fmv}`);
               return parseFloat(tickerData.fmv);
             }
           }
         }
+      } else {
+        const errorText = await response.text();
+        console.error(`Price API error: ${response.status} - ${errorText}`);
       }
+
+      console.log(`Primary price API failed, trying scanner fallback...`);
 
       // Fallback to scanner data
       const scannerUrl = 'https://api.thetradelist.com/v1/data/get_trader_scanner_data.php';
@@ -184,52 +199,108 @@ class DebitSpreadAnalyzer {
         returntype: 'json'
       });
 
+      console.log(`Making scanner API call to: ${scannerUrl}?${scannerParams}`);
       const scannerResponse = await fetch(`${scannerUrl}?${scannerParams}`, { timeout: 15000 });
+      
+      console.log(`Scanner API response status: ${scannerResponse.status}`);
       
       if (scannerResponse.ok) {
         const scannerData = await scannerResponse.json();
+        console.log(`Scanner API returned ${scannerData.length} items`);
         
         for (const item of scannerData) {
           if (item.symbol === symbol && item.price > 0) {
+            console.log(`SUCCESS: Found price via scanner for ${symbol}: $${item.price}`);
             return parseFloat(item.price);
           }
         }
+        console.log(`No matching ticker found in scanner data for ${symbol}`);
+      } else {
+        const errorText = await scannerResponse.text();
+        console.error(`Scanner API error: ${scannerResponse.status} - ${errorText}`);
       }
 
+      console.log(`FAILED: No price found for ${symbol} via any method`);
       return null;
     } catch (error) {
-      console.error(`Price fetch error for ${symbol}:`, error);
+      console.error(`=== PRICE FETCH ERROR FOR ${symbol} ===`);
+      console.error(`Error type: ${error.constructor.name}`);
+      console.error(`Error message: ${error.message}`);
+      console.error(`Error stack: ${error.stack}`);
       return null;
     }
   }
 
   async getAllContracts(symbol) {
     try {
+      console.log(`=== DETAILED OPTIONS CONTRACT FETCH FOR ${symbol} ===`);
+      
       const url = 'https://api.thetradelist.com/v1/data/options';
       const params = new URLSearchParams({
         symbol: symbol,
         apiKey: this.apiKey
       });
 
+      console.log(`Making options API call to: ${url}?${params}`);
+      console.log(`API Key present: ${this.apiKey ? 'YES' : 'NO'}`);
+      console.log(`API Key length: ${this.apiKey?.length || 0}`);
+
       const response = await fetch(`${url}?${params}`, { timeout: 15000 });
       
+      console.log(`Options API response status: ${response.status}`);
+      console.log(`Options API response headers:`, Object.fromEntries(response.headers.entries()));
+      
       if (!response.ok) {
-        throw new Error(`Options API returned ${response.status}`);
+        const errorText = await response.text();
+        console.error(`Options API error: ${response.status} - ${errorText}`);
+        throw new Error(`Options API returned ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
       
-      if (data.status === 'OK' && data.contracts) {
-        return data.contracts.filter(contract => 
-          contract.type === 'call' && 
-          contract.days_to_expiration >= 7 && 
-          contract.days_to_expiration <= 45
-        );
+      console.log(`Raw API response for ${symbol}:`, JSON.stringify(data, null, 2));
+      console.log(`API response status: ${data.status}`);
+      console.log(`Contracts array exists: ${data.contracts ? 'YES' : 'NO'}`);
+      console.log(`Total contracts returned: ${data.contracts?.length || 0}`);
+      
+      if (data.status === 'OK' && data.contracts && data.contracts.length > 0) {
+        console.log(`Sample contract structure:`, JSON.stringify(data.contracts[0], null, 2));
+        
+        // Filter contracts
+        const filteredContracts = data.contracts.filter(contract => {
+          const isCall = contract.type === 'call';
+          const validDTE = contract.days_to_expiration >= 7 && contract.days_to_expiration <= 45;
+          
+          console.log(`Contract ${contract.contract_symbol || 'unknown'}: type=${contract.type}, DTE=${contract.days_to_expiration}, isCall=${isCall}, validDTE=${validDTE}`);
+          
+          return isCall && validDTE;
+        });
+        
+        console.log(`Filtered contracts count: ${filteredContracts.length}`);
+        
+        if (filteredContracts.length > 0) {
+          console.log(`Sample filtered contract:`, JSON.stringify(filteredContracts[0], null, 2));
+        }
+        
+        return filteredContracts;
+      } else {
+        console.log(`No contracts found - API status: ${data.status}, contracts: ${data.contracts}`);
+        
+        // Check if it's an error response
+        if (data.error) {
+          console.error(`API error message: ${data.error}`);
+        }
+        
+        // Check if it's a different response structure
+        console.log(`Full response keys:`, Object.keys(data));
       }
 
       return [];
     } catch (error) {
-      console.error(`Contracts fetch error for ${symbol}:`, error);
+      console.error(`=== CONTRACTS FETCH ERROR FOR ${symbol} ===`);
+      console.error(`Error type: ${error.constructor.name}`);
+      console.error(`Error message: ${error.message}`);
+      console.error(`Error stack: ${error.stack}`);
       return [];
     }
   }
