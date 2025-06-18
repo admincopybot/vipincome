@@ -912,184 +912,79 @@
             return null; // No interval to clear
         }
 
-        // Load spread data
+        // BULLETPROOF Load spread data with simple error handling
         async function loadSpreadData() {
             if (spreadData) return;
             
+            const symbol = getSymbolFromURL();
+            console.log(`Requesting spread analysis for ticker: ${symbol}`);
+            
+            // Show loading
             document.getElementById('strategiesLoading').style.display = 'flex';
-            resetProgressIndicator();
+            document.getElementById('strategiesGrid').style.display = 'none';
+            
+            // Simple loading message
+            document.getElementById('loadingMessage').textContent = 'Analyzing options for income opportunities...';
             
             try {
-                const symbol = getSymbolFromURL();
-                console.log(`Requesting spread analysis for ticker: ${symbol}`);
-                
-                // Start progress simulation
-                const progressInterval = simulateProgressSteps();
-                
-                // Use proxy endpoint to call Replit (avoids CORS issues)
                 const response = await axios.post('/api/analyze-spread', {
                     ticker: symbol
                 }, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     timeout: 45000
                 });
                 
-                // Stop progress polling
-                clearInterval(progressInterval);
+                console.log('API Response:', response);
                 
-                console.log('Spread analysis response:', response);
-                
-                if (response.status === 200) {
-                    console.log('=== AUTHENTIC API RESPONSE ===');
-                    console.log('Full response object:', response.data);
-                    console.log('Response success:', response.data.success);
-                    console.log('Raw strategies data:', response.data.strategies);
+                // Check if we got valid spread data
+                if (response.data && response.data.success && response.data.strategies) {
+                    let hasValidStrategies = false;
                     
-                    if (response.data.success) {
-                        // Store ONLY authentic API response data
+                    // Check if any strategy has actual tradeable data
+                    Object.values(response.data.strategies).forEach(strategy => {
+                        if (strategy.found && strategy.spread_details && strategy.contracts) {
+                            hasValidStrategies = true;
+                        }
+                    });
+                    
+                    if (hasValidStrategies) {
+                        // SUCCESS - we have valid trades
                         spreadData = response.data;
-                        console.log('=== STORING AUTHENTIC SPREAD DATA ===');
-                        console.log('Strategies available:', Object.keys(spreadData.strategies || {}));
-                        
-                        // Log each strategy's authentic data
-                        Object.entries(spreadData.strategies || {}).forEach(([strategyName, strategyData]) => {
-                            console.log(`${strategyName.toUpperCase()} Strategy Data:`, strategyData);
-                            if (strategyData.found) {
-                                console.log(`${strategyName} spread_details:`, strategyData.spread_details);
-                                console.log(`${strategyName} contracts:`, strategyData.contracts);
-                            }
-                        });
-                        
+                        document.getElementById('strategiesLoading').style.display = 'none';
                         displayStrategies();
                         displayTradeDetails();
-                        
-                        // Enable Step 3 navigation now that spread data is loaded
                         enableStep3Navigation();
-                    } else {
-                        // Handle "no spreads found" response or error responses with success: false
-                        console.log('API returned success: false:', response.data);
-                        
-                        // Stop progress polling
-                        clearInterval(progressInterval);
-                        
-                        // *** EXTREME REASONING: ANY success: false response should show "No trades could be found at this moment" ***
-                        // This covers ALL possible error scenarios including the JSON format you provided
-                        console.log('SUCCESS IS FALSE - SHOWING ERROR MESSAGE TO USER');
-                        document.getElementById('strategiesLoading').style.display = 'none';
-                        document.getElementById('strategiesGrid').style.display = 'block';
-                        document.getElementById('strategiesGrid').innerHTML = `
-                            <div class="col-span-3 text-center py-12">
-                                <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-8 rounded-lg border border-stone-600">
-                                    <div class="text-amber-400 mb-4">
-                                        <svg class="w-16 h-16 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="text-2xl text-stone-300 mb-4">No trades could be found at this moment</div>
-                                    <div class="text-stone-400 mb-6">${response.data.user_message || response.data.error || response.data.details || 'Please try again in a few minutes.'}</div>
-                                    <button onclick="retrySpreadAnalysis()" 
-                                            class="bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-bold py-3 px-6 rounded-lg transition-all duration-300">
-                                        Try Again
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Enable Step 3 navigation so users can see the error message
-                        enableStep3Navigation();
+                        return;
                     }
-                } else {
-                    console.error('API returned non-200 status:', response.status);
-                    throw new Error('API request failed');
                 }
+                
+                // If we get here, treat it as an error
+                throw new Error('No valid trading strategies found');
+                
             } catch (error) {
-                // Stop progress polling on error
-                if (progressInterval) {
-                    clearInterval(progressInterval);
-                }
+                console.error('Error loading spread data:', error);
                 
-                console.error('=== FRONTEND ERROR HANDLING ===');
-                console.error('Error type:', error.name);
-                console.error('Error message:', error.message);
-                console.error('Error response:', error.response);
-                console.error('Full error object:', error);
-                
-                let errorMessage = 'Analysis Unavailable';
-                let errorDetails = '';
-                let retryButton = true;
-                
-                // Handle enhanced API error responses
-                if (error.response?.data) {
-                    const apiError = error.response.data;
-                    console.log('API Error Response:', apiError);
-                    
-                    // *** EXTREME REASONING: ALL API errors should show "No trades could be found at this moment" ***
-                    if (apiError.message === 'Could not find any trades at this moment' || apiError.user_message || apiError.error) {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = apiError.user_message || apiError.error || apiError.details || 'Please try again in a few minutes.';
-                    } else if (apiError.error === 'Analysis timeout') {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = apiError.message || 'The analysis is taking more time than usual. This sometimes happens during high market activity.';
-                    } else if (apiError.error === 'External analysis service error') {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = apiError.message || 'Our analysis service is temporarily unavailable. Please try again in a few moments.';
-                    } else if (apiError.error === 'Invalid JSON in request body') {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = 'There was a technical issue with the request. Please refresh the page and try again.';
-                    } else if (apiError.error === 'Ticker symbol is required') {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = 'The ticker symbol was not properly sent. Please refresh the page and try again.';
-                    } else if (error.response.status === 408) {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = 'The analysis request timed out. This can happen during high market activity or when the external service is busy.';
-                    } else {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = apiError.message || 'Unable to complete the analysis at this time.';
-                    }
-                } else {
-                    // Handle network and other errors
-                    const marketClosed = !isMarketOpen();
-                    
-                    if (error.code === 'ERR_NETWORK') {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = 'Unable to connect to the analysis service. Please check your internet connection and try again.';
-                    } else if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = 'The analysis request timed out. Please try again.';
-                    } else if (marketClosed) {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = 'The market is currently closed. Income opportunities are only available during market hours (9:30 AM - 4:00 PM ET, weekdays).';
-                    } else {
-                        errorMessage = 'No trades could be found at this moment';
-                        errorDetails = 'Unable to complete the spread analysis. This might be due to insufficient market data or temporary service issues.';
-                    }
-                }
-                
+                // ALWAYS hide loading and show error - NO EXCEPTIONS
                 document.getElementById('strategiesLoading').style.display = 'none';
                 document.getElementById('strategiesGrid').style.display = 'block';
                 document.getElementById('strategiesGrid').innerHTML = `
                     <div class="col-span-3 text-center py-12">
                         <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-8 rounded-lg border border-stone-600">
-                            <div class="text-red-400 mb-4">
+                            <div class="text-amber-400 mb-4">
                                 <svg class="w-16 h-16 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                 </svg>
                             </div>
                             <div class="text-2xl text-stone-300 mb-4">No trades could be found at this moment</div>
-                            <div class="text-stone-400 mb-6">${errorDetails}</div>
-                            ${retryButton ? `
-                                <button onclick="retrySpreadAnalysis()" 
-                                        class="bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-bold py-3 px-6 rounded-lg transition-all duration-300">
-                                    Try Again
-                                </button>
-                            ` : ''}
+                            <div class="text-stone-400 mb-6">Unable to find suitable income opportunities right now. Please try again in a few minutes.</div>
+                            <button onclick="retrySpreadAnalysis()" 
+                                    class="bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-bold py-3 px-6 rounded-lg transition-all duration-300">
+                                Try Again
+                            </button>
                         </div>
                     </div>
                 `;
                 
-                // Still enable Step 3 navigation so users can see the error message
                 enableStep3Navigation();
             }
         }
