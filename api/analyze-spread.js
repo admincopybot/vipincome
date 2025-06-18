@@ -94,31 +94,37 @@ export default async function handler(req, res) {
 
     console.log(`CACHE MISS for spread analysis: ${cacheKey}. Proxying to Replit.`);
 
-    // 2. Randomly pick a base URL for load balancing
+    // Pick a random Replit instance
     const randomIndex = Math.floor(Math.random() * SPREAD_ANALYZER_URLS.length);
     const baseUrl = SPREAD_ANALYZER_URLS[randomIndex];
-    const endpoint = '/api/analyze_debit_spread';
-    const targetUrl = baseUrl + endpoint;
+    const targetUrl = `${baseUrl}/api/analyze_debit_spread`;
 
-    console.log(`Proxying spread analysis for ${ticker} to random Replit instance: #${randomIndex + 1} - ${targetUrl}`);
+    console.log(`Proxying to: ${targetUrl}`);
+    console.log(`Request body: ${JSON.stringify({ ticker: ticker })}`);
 
-    // 3. Make the proxied request to the chosen Replit server
+    // Use AbortController for proper timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.log(`Aborting request due to timeout`);
+      controller.abort();
+    }, 25000); // 25 second timeout
+
     const proxyResponse = await fetch(targetUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'Vercel-Proxy/1.0',
       },
       body: JSON.stringify({ ticker: ticker }),
-      timeout: 28000 // 28-second timeout to avoid Vercel gateway timeouts
+      signal: controller.signal
     });
 
-    console.log(`Replit response status: ${proxyResponse.status}`);
-    console.log(`Replit response headers:`, Object.fromEntries(proxyResponse.headers.entries()));
+    clearTimeout(timeoutId);
+    
+    console.log(`Response status: ${proxyResponse.status}`);
+    console.log(`Response headers: ${JSON.stringify(Object.fromEntries(proxyResponse.headers.entries()))}`);
 
-    // 4. Pipe the response back and cache if successful
     const responseBody = await proxyResponse.text();
-    console.log(`Replit response body preview: ${responseBody.substring(0, 200)}...`);
+    console.log(`Response body (first 300 chars): ${responseBody.substring(0, 300)}`);
     
     res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
     
@@ -131,11 +137,21 @@ export default async function handler(req, res) {
     res.status(proxyResponse.status).send(responseBody);
 
   } catch (error) {
-    console.error(`Error proxying to spread analyzer: ${error.name} - ${error.message}`);
-    res.status(502).json({ 
+    if (error.name === 'AbortError') {
+      console.error(`Request timed out after 25 seconds`);
+      res.status(504).json({ 
         success: false,
-        error: 'The analysis service failed to respond.',
+        error: 'Request timed out',
+        details: 'The analysis service took too long to respond (>25 seconds)'
+      });
+    } else {
+      console.error(`Error in spread analysis: ${error.name} - ${error.message}`);
+      console.error(`Error stack: ${error.stack}`);
+      res.status(502).json({ 
+        success: false,
+        error: 'Service error',
         details: error.message 
-    });
+      });
+    }
   }
 }
