@@ -319,64 +319,11 @@ class DebitSpreadAnalyzer {
 
       console.log(`Pre-filtered to ${preFilteredContracts.length} relevant contracts`);
 
-      // BALANCED FAST PROCESSING: Speed + Reliability
-      const validContracts = [];
-      const maxContracts = Math.min(preFilteredContracts.length, 30); // Balanced: 30 contracts
+      // NEW STRATEGY: Fetch all quotes in a single bulk request for reliability
+      const contractsWithQuotes = await this.getQuotesInBulk(preFilteredContracts, currentPrice);
       
-      // Sort by how close strike is to current price (most likely to have good spreads)
-      preFilteredContracts.sort((a, b) => {
-        const aDiff = Math.abs(a.strike_price - currentPrice);
-        const bDiff = Math.abs(b.strike_price - currentPrice);
-        return aDiff - bDiff;
-      });
-
-      console.log(`BALANCED FAST: Processing top ${maxContracts} contracts...`);
-
-      // SMART PROCESSING: Process in small fast batches with early termination
-      const startTime = Date.now();
-      const batchSize = 6;
-      
-      for (let i = 0; i < maxContracts && validContracts.length < 20; i += batchSize) {
-        const batch = preFilteredContracts.slice(i, i + batchSize);
-        
-        console.log(`Processing batch ${Math.floor(i/batchSize) + 1}...`);
-        
-        const batchPromises = batch.map(contract => 
-          Promise.race([
-            this.processContract(contract, currentDate),
-            new Promise(resolve => setTimeout(() => resolve(null), 2500)) // 2.5s per contract
-          ])
-        );
-        
-        const batchResults = await Promise.all(batchPromises);
-        
-        // Add valid results from this batch
-        for (const result of batchResults) {
-          if (result && result.bid > 0.05 && result.ask > 0.05) {
-            validContracts.push(result);
-          }
-        }
-        
-        console.log(`Batch ${Math.floor(i/batchSize) + 1}: Found ${validContracts.length} valid contracts so far`);
-        
-        // Early termination if we have enough contracts
-        if (validContracts.length >= 15) {
-          console.log(`✅ Early termination: Found sufficient contracts (${validContracts.length})`);
-          break;
-        }
-        
-        // Stop if we're taking too long
-        if (Date.now() - startTime > 12000) { // 12 second total limit
-          console.log(`⏰ Time limit reached: ${Date.now() - startTime}ms`);
-          break;
-        }
-      }
-      
-      const processingTime = Date.now() - startTime;
-      console.log(`✅ Processing completed in ${processingTime}ms`);
-     
-      console.log(`✅ Final contracts with quotes: ${validContracts.length}`);
-      return validContracts;
+      console.log(`✅ Final contracts with quotes: ${contractsWithQuotes.length}`);
+      return contractsWithQuotes;
 
     } catch (error) {
       console.error(`❌ Contract fetch error for ${symbol}: ${error.message}`);
@@ -385,70 +332,66 @@ class DebitSpreadAnalyzer {
     }
   }
 
-  async processContract(contract, currentDate) {
-    try {
-      const expirationDate = new Date(contract.expiration_date);
-      const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
-      
-      // Get quotes with reasonable timeout
-      const quotes = await Promise.race([
-        this.getContractQuotes(contract.ticker),
-        new Promise(resolve => setTimeout(() => resolve(null), 2000)) // 2 second timeout per contract
-      ]);
-     
-     if (quotes && quotes.bid > 0.05 && quotes.ask > 0.05) {
-       return {
-         contract_symbol: contract.ticker,
-         type: contract.contract_type,
-         strike: contract.strike_price,
-         days_to_expiration: daysToExpiration,
-         expiration_date: contract.expiration_date,
-         bid: quotes.bid,
-         ask: quotes.ask
-       };
-     }
-     
-     return null;
-   } catch (error) {
-     console.log(`⚠️ Error processing ${contract.ticker}: ${error.message}`);
-     return null;
-   }
- }
+  async getQuotesInBulk(contracts, currentPrice) {
+    console.log('Fetching quotes in bulk for', contracts.length, 'contracts');
+    if (contracts.length === 0) {
+      return [];
+    }
+    
+    // The API is more reliable with smaller bulk requests. Let's process in chunks of 50.
+    const validContracts = [];
+    const chunkSize = 50;
+    
+    for (let i = 0; i < contracts.length; i += chunkSize) {
+      const chunk = contracts.slice(i, i + chunkSize);
+      const contractTickers = chunk.map(c => c.ticker).join(',');
 
- async getContractQuotes(contractTicker) {
-    try {
-      const url = 'https://api.thetradelist.com/v1/data/last-quote';
-      const params = new URLSearchParams({
-        ticker: contractTicker,
-        apiKey: this.apiKey
-      });
+      try {
+        const url = 'https://api.thetradelist.com/v1/data/snapshot-locale';
+        const params = new URLSearchParams({
+          tickers: contractTickers,
+          apiKey: this.apiKey
+        });
+        const headers = {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
+        };
 
-      const headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
-      };
+        console.log(`Requesting bulk quotes for chunk ${Math.floor(i/chunkSize) + 1}...`);
+        const response = await fetch(`${url}?${params}`, { headers: headers, timeout: 20000 });
 
-      const response = await fetch(`${url}?${params}`, { headers: headers, timeout: 3000 });
-      
-      if (response.ok) {
+        if (!response.ok) {
+          console.log(`⚠️ Bulk quote fetch failed for chunk ${Math.floor(i/chunkSize) + 1}. Status: ${response.status}`);
+          continue; // Skip this chunk
+        }
+
         const data = await response.json();
         
-        if (data.results && data.results.length > 0) {
-          const quote = data.results[0];
-          return {
-            bid: parseFloat(quote.bid) || 0,
-            ask: parseFloat(quote.ask) || 0
-          };
+        if (data && data.status === 'OK' && data.tickers) {
+          console.log(`Received ${data.tickers.length} quotes for chunk.`);
+          const quotesMap = new Map(data.tickers.map(t => [t.ticker, t]));
+
+          const currentDate = new Date();
+          for (const contract of chunk) {
+            const quote = quotesMap.get(contract.ticker);
+            if (quote && quote.lastQuote && quote.lastQuote.p > 0.05 && quote.lastQuote.P > 0.05) {
+              validContracts.push({
+                contract_symbol: contract.ticker,
+                type: contract.contract_type,
+                strike: contract.strike_price,
+                days_to_expiration: Math.ceil((new Date(contract.expiration_date) - currentDate) / (1000 * 60 * 60 * 24)),
+                expiration_date: contract.expiration_date,
+                bid: quote.lastQuote.p, // bid price
+                ask: quote.lastQuote.P  // ask price
+              });
+            }
+          }
         }
-      } else {
-        const errorText = await response.text();
-        console.log(`⚠️ Quote fetch failed for ${contractTicker}: ${response.status} - ${errorText}`);
+      } catch (error) {
+        console.log(`⚠️ Error fetching bulk quotes for chunk: ${error.message}`);
       }
-      
-      return null;
-    } catch (error) {
-      console.log(`⚠️ Quote fetch error for ${contractTicker}: ${error.message}`);
-      return null; // Fail silently for speed, but after logging
     }
+    
+    return validContracts;
   }
 
   async findBestSpreads(symbol, currentPrice, contracts) {
