@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 export default async function handler(req, res) {
   // Enhanced CORS handling for Vercel serverless
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,121 +16,92 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('=== VERCEL SERVERLESS SPREAD ANALYSIS START ===');
+    console.log('=== VERCEL PROXY TO REPLIT START ===');
     console.log('Request method:', req.method);
-    console.log('Raw request body type:', typeof req.body);
+    console.log('Request headers:', req.headers);
     console.log('Raw request body:', req.body);
     
-    // Parse request body manually (Vercel serverless requirement)
+    // Parse request body
     let requestData;
     if (typeof req.body === 'string') {
-      try {
-        requestData = JSON.parse(req.body);
-      } catch (parseError) {
-        console.error('JSON parse error:', parseError);
-        return res.status(400).json({ 
-          error: 'Invalid JSON in request body',
-          details: parseError.message 
-        });
-      }
-    } else if (req.body && typeof req.body === 'object') {
-      requestData = req.body;
+      requestData = JSON.parse(req.body);
     } else {
-      console.error('No request body found');
-      return res.status(400).json({ error: 'Request body is required' });
+      requestData = req.body || {};
     }
 
-    console.log('Parsed request data:', requestData);
-    
     const { ticker } = requestData;
     
     if (!ticker) {
-      console.log('ERROR: No ticker provided in request data');
+      console.log('ERROR: No ticker provided');
       return res.status(400).json({
         error: 'Ticker symbol is required',
         received: requestData
       });
     }
 
-    console.log(`Starting spread analysis for ticker: ${ticker}`);
+    console.log(`Proxying analysis request for ticker: ${ticker}`);
     
-    // External API call with proper timeout handling
-    const externalApiUrl = 'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread';
+    // Use native fetch instead of axios
+    const replitUrl = 'https://income-machine-20-bulk-spread-check-1-daiadigitalco.replit.app/api/analyze_debit_spread';
     
-    console.log('Making request to external API:', externalApiUrl);
+    console.log('Calling Replit API:', replitUrl);
     
-    const response = await axios.post(externalApiUrl, 
-      { ticker }, 
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 30000, // 30 second timeout (within Vercel's limits)
-        validateStatus: function (status) {
-          return status < 500; // Don't throw for 4xx errors
-        }
-      }
-    );
+    const response = await fetch(replitUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ticker }),
+      signal: AbortSignal.timeout(25000) // 25 second timeout
+    });
     
-    console.log(`External API response status: ${response.status}`);
-    console.log('External API response data:', JSON.stringify(response.data, null, 2));
+    console.log('Replit response status:', response.status);
+    console.log('Replit response headers:', Object.fromEntries(response.headers.entries()));
     
-    if (response.status >= 400) {
-      console.error(`External API error: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Replit API error:', response.status, errorText);
       return res.status(response.status).json({
-        error: 'External analysis service error',
+        error: 'Analysis service error',
         status: response.status,
-        message: response.data?.message || 'Analysis service unavailable',
+        message: errorText,
         ticker: ticker
       });
     }
     
-    // Validate response structure
-    const spreadData = response.data;
-    if (!spreadData || typeof spreadData !== 'object') {
-      console.error('Invalid response structure from external API');
-      return res.status(502).json({
-        error: 'Invalid response from analysis service',
-        ticker: ticker
-      });
-    }
+    const responseData = await response.json();
+    console.log('Replit response data:', JSON.stringify(responseData, null, 2));
     
-    console.log(`Successfully analyzed spread for ${ticker}`);
-    
-    // Return the spread analysis data
-    res.status(200).json(spreadData);
+    // Forward the response from Replit
+    res.status(200).json(responseData);
     
   } catch (error) {
-    console.error('=== VERCEL SERVERLESS ERROR ===');
-    console.error('Error type:', error.constructor.name);
+    console.error('=== PROXY ERROR ===');
+    console.error('Error name:', error.name);
     console.error('Error message:', error.message);
-    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
     
-    if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
-      console.error('Request timeout occurred');
+    if (error.name === 'AbortError' || error.name === 'TimeoutError') {
       return res.status(408).json({
-        error: 'Analysis timeout',
+        error: 'Request timeout',
         message: 'The analysis is taking longer than expected. Please try again.',
         ticker: req.body?.ticker || 'unknown'
       });
     }
     
-    if (error.response) {
-      console.error('External API error response:', error.response.status, error.response.data);
-      return res.status(error.response.status).json({
-        error: 'External analysis service error',
-        message: error.response.data?.message || 'Analysis service unavailable',
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      return res.status(502).json({
+        error: 'Unable to connect to analysis service',
+        message: 'Please try again in a few moments.',
         ticker: req.body?.ticker || 'unknown'
       });
     }
     
-    // Generic server error
-    console.error('Unknown error occurred:', error.stack);
     return res.status(500).json({
-      error: 'Unable to analyze spread at this time',
-      message: 'Please try again in a few moments',
-      ticker: req.body?.ticker || 'unknown',
-      errorType: error.constructor.name
+      error: 'Proxy error',
+      message: 'An error occurred while processing the request.',
+      details: error.message,
+      ticker: req.body?.ticker || 'unknown'
     });
   }
 }
