@@ -235,10 +235,11 @@ class DebitSpreadAnalyzer {
     try {
       console.log(`=== DETAILED OPTIONS CONTRACT FETCH FOR ${symbol} ===`);
       
-      // Use correct TheTradeList options endpoint from documentation
+      // Use correct TheTradeList API with proper parameters
       const url = 'https://api.thetradelist.com/v1/data/options-contracts';
       const params = new URLSearchParams({
-        symbol: symbol,
+        underlying_ticker: symbol,  // CORRECT: use underlying_ticker, not symbol
+        limit: 1000,
         apiKey: this.apiKey
       });
 
@@ -261,21 +262,42 @@ class DebitSpreadAnalyzer {
       
       console.log(`Raw API response for ${symbol}:`, JSON.stringify(data, null, 2));
       console.log(`API response status: ${data.status}`);
-      console.log(`Contracts array exists: ${data.contracts ? 'YES' : 'NO'}`);
-      console.log(`Total contracts returned: ${data.contracts?.length || 0}`);
+      console.log(`Results array exists: ${data.results ? 'YES' : 'NO'}`);  // CORRECT: check results, not contracts
+      console.log(`Total contracts returned: ${data.results?.length || 0}`);
       
-      if (data.status === 'OK' && data.contracts && data.contracts.length > 0) {
-        console.log(`Sample contract structure:`, JSON.stringify(data.contracts[0], null, 2));
+      if (data.status === 'OK' && data.results && data.results.length > 0) {
+        console.log(`Sample contract structure:`, JSON.stringify(data.results[0], null, 2));
         
-        // Filter contracts
-        const filteredContracts = data.contracts.filter(contract => {
-          const isCall = contract.type === 'call';
-          const validDTE = contract.days_to_expiration >= 7 && contract.days_to_expiration <= 45;
+        // Calculate days to expiration and filter contracts
+        const currentDate = new Date();
+        const filteredContracts = [];
+        
+        for (const contract of data.results) {
+          // Calculate days to expiration
+          const expirationDate = new Date(contract.expiration_date);
+          const daysToExpiration = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
           
-          console.log(`Contract ${contract.contract_symbol || 'unknown'}: type=${contract.type}, DTE=${contract.days_to_expiration}, isCall=${isCall}, validDTE=${validDTE}`);
+          const isCall = contract.contract_type === 'call';  // CORRECT: use contract_type
+          const validDTE = daysToExpiration >= 7 && daysToExpiration <= 45;
           
-          return isCall && validDTE;
-        });
+          console.log(`Contract ${contract.ticker}: type=${contract.contract_type}, DTE=${daysToExpiration}, isCall=${isCall}, validDTE=${validDTE}`);
+          
+          if (isCall && validDTE) {
+            // Get bid/ask quotes for this contract
+            const quotes = await this.getContractQuotes(contract.ticker);
+            if (quotes && quotes.bid > 0.05 && quotes.ask > 0.05) {
+              filteredContracts.push({
+                contract_symbol: contract.ticker,
+                type: contract.contract_type,
+                strike: contract.strike_price,
+                days_to_expiration: daysToExpiration,
+                expiration_date: contract.expiration_date,
+                bid: quotes.bid,
+                ask: quotes.ask
+              });
+            }
+          }
+        }
         
         console.log(`Filtered contracts count: ${filteredContracts.length}`);
         
@@ -285,7 +307,7 @@ class DebitSpreadAnalyzer {
         
         return filteredContracts;
       } else {
-        console.log(`No contracts found - API status: ${data.status}, contracts: ${data.contracts}`);
+        console.log(`No contracts found - API status: ${data.status}, results: ${data.results}`);
         
         // Check if it's an error response
         if (data.error) {
@@ -303,6 +325,40 @@ class DebitSpreadAnalyzer {
       console.error(`Error message: ${error.message}`);
       console.error(`Error stack: ${error.stack}`);
       return [];
+    }
+  }
+
+  async getContractQuotes(contractTicker) {
+    try {
+      console.log(`Fetching quotes for contract: ${contractTicker}`);
+      
+      const url = 'https://api.thetradelist.com/v1/data/last-quote';
+      const params = new URLSearchParams({
+        ticker: contractTicker,
+        apiKey: this.apiKey
+      });
+
+      const response = await fetch(`${url}?${params}`, { timeout: 10000 });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Quote data for ${contractTicker}:`, JSON.stringify(data, null, 2));
+        
+        if (data.results && data.results.length > 0) {
+          const quote = data.results[0];
+          return {
+            bid: parseFloat(quote.bid) || 0,
+            ask: parseFloat(quote.ask) || 0
+          };
+        }
+      } else {
+        console.log(`Quote API error for ${contractTicker}: ${response.status}`);
+      }
+      
+      return null;
+    } catch (error) {
+      console.error(`Quote fetch error for ${contractTicker}:`, error.message);
+      return null;
     }
   }
 
