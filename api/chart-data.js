@@ -73,13 +73,13 @@ export default async function handler(req, res) {
     
     console.log(`Date range - Start: ${formattedStartDate}, End: ${formattedEndDate}`);
 
-    // Build API URL with all parameters (matching working pattern)
+    // Build API URL with all parameters (30-day chart needs more data points)
     const apiParams = {
       ticker: ticker,
       range: '1/day',
       startdate: formattedStartDate,
       enddate: formattedEndDate,
-      limit: 10, // Use same limit as working pattern
+      limit: 35, // 30 days = ~22 trading days, use 35 to ensure we get all data
       next_url: '', // Add missing parameter from working pattern
       apiKey: TRADELIST_API_KEY
     };
