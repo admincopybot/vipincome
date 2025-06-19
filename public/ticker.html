@@ -1112,22 +1112,40 @@
                     timeout: 45000
                 });
                 
-                console.log('API Response:', response);
+                console.log('=== SPREAD ANALYSIS DEBUG ===');
+                console.log('Full axios response:', response);
+                console.log('Response data:', response.data);
+                console.log('Response data type:', typeof response.data);
+                console.log('Success flag:', response.data?.success);
+                console.log('Strategies object:', response.data?.strategies);
+                console.log('Strategies keys:', response.data?.strategies ? Object.keys(response.data.strategies) : 'NO STRATEGIES');
                 
                 // Check if we got valid spread data
-                if (response.success && response.strategies) {
+                if (response.data && response.data.success && response.data.strategies) {
                     let hasValidStrategies = false;
                     
                     // Check if any strategy has actual tradeable data
-                    Object.values(response.strategies).forEach(strategy => {
+                    Object.values(response.data.strategies).forEach((strategy, index) => {
+                        console.log(`=== STRATEGY ${index} VALIDATION ===`);
+                        console.log('Strategy object:', strategy);
+                        console.log('strategy.found:', strategy.found);
+                        console.log('strategy.spread_details:', !!strategy.spread_details);
+                        console.log('strategy.contracts:', !!strategy.contracts);
+                        
                         if (strategy.found && strategy.spread_details && strategy.contracts) {
+                            console.log('✅ STRATEGY PASSED VALIDATION');
                             hasValidStrategies = true;
+                        } else {
+                            console.log('❌ STRATEGY FAILED VALIDATION');
                         }
                     });
                     
+                    console.log('=== FINAL VALIDATION RESULT ===');
+                    console.log('hasValidStrategies:', hasValidStrategies);
+                    
                     if (hasValidStrategies) {
                         // SUCCESS - we have valid trades
-                        spreadData = response;
+                        spreadData = response.data;
                         document.getElementById('strategiesLoading').style.display = 'none';
                         displayStrategies();
                         displayTradeDetails();
