@@ -406,6 +406,22 @@
                         </button>
                     </div>
                 </div>
+                
+                <!-- 30-Day Price Chart -->
+                <div class="section-card p-6 max-w-6xl mx-auto">
+                    <h2 class="text-xl font-bold main-title mb-6">30-Day Price Chart</h2>
+                    <div id="chartContainer" class="relative">
+                        <div id="chartLoading" class="flex justify-center items-center py-12">
+                            <div class="loading-spinner mb-4"></div>
+                        </div>
+                        <div id="chartError" class="text-center py-12 text-gray-400" style="display: none;">
+                            Chart data temporarily unavailable
+                        </div>
+                        <div style="position: relative; height: 400px; width: 100%;">
+                            <canvas id="priceChart" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -609,6 +625,7 @@
     </div>
 
     <script src="https://player.vimeo.com/api/player.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let currentTicker = null;
         let spreadData = null;
@@ -791,6 +808,9 @@
                 `w-4 h-4 rounded-full ${currentTicker.momentum_pass ? 'bg-green-500' : 'bg-red-500'}`;
             document.getElementById('stabilizingIndicator').className = 
                 `w-4 h-4 rounded-full ${currentTicker.stabilizing_pass ? 'bg-green-500' : 'bg-red-500'}`;
+            
+            // Load the price chart after ticker data is displayed
+            loadPriceChart();
         }
 
         // Render criteria grid
@@ -819,6 +839,164 @@
                     <div class="text-gray-400 text-sm">${criterion.description}</div>
                 </div>
             `).join('');
+        }
+
+        // Load and render 30-day price chart
+        async function loadPriceChart() {
+            if (!currentTicker || !currentTicker.symbol) {
+                console.error('No ticker data available for chart');
+                return;
+            }
+
+            const symbol = currentTicker.symbol;
+            
+            // Show loading state
+            document.getElementById('chartLoading').style.display = 'flex';
+            document.getElementById('chartError').style.display = 'none';
+            document.getElementById('priceChart').style.display = 'none';
+
+            try {
+                // Calculate date range (30 days ago to today)
+                const endDate = new Date();
+                const startDate = new Date(endDate.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+                const response = await fetch('/api/chart-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken}`
+                    },
+                    body: JSON.stringify({
+                        ticker: symbol,
+                        startDate: startDate.toISOString().split('T')[0],
+                        endDate: endDate.toISOString().split('T')[0]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (!result.success || !result.data) {
+                    throw new Error('No chart data available');
+                }
+
+                // Render the chart
+                renderPriceChart(result.data);
+
+            } catch (error) {
+                console.error('Failed to load chart:', error);
+                
+                // Show error state
+                document.getElementById('chartLoading').style.display = 'none';
+                document.getElementById('chartError').style.display = 'block';
+                document.getElementById('priceChart').style.display = 'none';
+            }
+        }
+
+        // Render chart using Chart.js
+        let priceChartInstance = null;
+        
+        function renderPriceChart(chartData) {
+            const canvas = document.getElementById('priceChart');
+            const ctx = canvas.getContext('2d');
+
+            // Destroy existing chart if it exists
+            if (priceChartInstance) {
+                priceChartInstance.destroy();
+            }
+
+            // Hide loading, show chart
+            document.getElementById('chartLoading').style.display = 'none';
+            document.getElementById('chartError').style.display = 'none';
+            document.getElementById('priceChart').style.display = 'block';
+
+            // Create new chart
+            priceChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: `${currentTicker.symbol} Price`,
+                        data: chartData.datasets[0].data,
+                        borderColor: 'rgb(147, 51, 234)',
+                        backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: 'rgb(147, 51, 234)',
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: 'white',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgb(147, 51, 234)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Price: $${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                maxTicksLimit: 8
+                            }
+                        },
+                        y: {
+                            display: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                callback: function(value) {
+                                    return '$' + value.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    elements: {
+                        point: {
+                            hoverRadius: 8
+                        }
+                    }
+                }
+            });
         }
 
         // Handle "no spreads found" response
