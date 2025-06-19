@@ -71,7 +71,10 @@ export default async function handler(req, res) {
         snapback_pass,
         momentum_pass,
         stabilizing_pass,
-        data_age_hours
+        -- Optional timestamp fields from actual schema
+        price_updated,
+        criteria_updated,
+        options_updated
       FROM etf_scores 
       WHERE UPPER(symbol) = $1
     `;

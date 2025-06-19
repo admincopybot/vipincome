@@ -80,7 +80,11 @@ export default async function handler(req, res) {
         trend2_pass,
         snapback_pass,
         momentum_pass,
-        stabilizing_pass
+        stabilizing_pass,
+        -- Include timestamp fields from actual schema
+        price_updated,
+        criteria_updated,
+        options_updated
       FROM etf_scores 
       ORDER BY total_score DESC, options_contracts_10_42_dte DESC, symbol ASC
     `;
