@@ -793,6 +793,12 @@
             document.getElementById('incomeScore').textContent = `${actualScore}/5`;
             document.getElementById('incomeSymbol').textContent = symbol;
             
+            // Update Step 2 button text with actual symbol
+            const step3Button = document.querySelector('button[onclick="switchTab(\'step3\')"]');
+            if (step3Button) {
+                step3Button.textContent = `Income Strategies for ${symbol} →`;
+            }
+            
             // Update score progress bar
             const scorePercentage = (actualScore / 5) * 100;
             document.getElementById('scoreProgress').style.width = `${scorePercentage}%`;
