@@ -1115,11 +1115,11 @@
                 console.log('API Response:', response);
                 
                 // Check if we got valid spread data
-                if (response.data && response.data.success && response.data.strategies) {
+                if (response.success && response.strategies) {
                     let hasValidStrategies = false;
                     
                     // Check if any strategy has actual tradeable data
-                    Object.values(response.data.strategies).forEach(strategy => {
+                    Object.values(response.strategies).forEach(strategy => {
                         if (strategy.found && strategy.spread_details && strategy.contracts) {
                             hasValidStrategies = true;
                         }
@@ -1127,7 +1127,7 @@
                     
                     if (hasValidStrategies) {
                         // SUCCESS - we have valid trades
-                        spreadData = response.data;
+                        spreadData = response;
                         document.getElementById('strategiesLoading').style.display = 'none';
                         displayStrategies();
                         displayTradeDetails();
