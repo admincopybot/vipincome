@@ -66,11 +66,14 @@ export default async function handler(req, res) {
         trading_volume_20_day, 
         options_contracts_10_42_dte,
         current_price,
-        CASE WHEN trend1_pass = 'YES' THEN true ELSE false END as trend1_pass,
-        CASE WHEN trend2_pass = 'YES' THEN true ELSE false END as trend2_pass,
-        CASE WHEN snapback_pass = 'YES' THEN true ELSE false END as snapback_pass,
-        CASE WHEN momentum_pass = 'YES' THEN true ELSE false END as momentum_pass,
-        CASE WHEN stabilizing_pass = 'YES' THEN true ELSE false END as stabilizing_pass
+        -- Use boolean fields directly (no conversion needed!)
+        trend1_pass,
+        trend2_pass,
+        snapback_pass,
+        momentum_pass,
+        stabilizing_pass,
+        calculation_timestamp,
+        data_age_hours
       FROM etf_scores 
       WHERE UPPER(symbol) = $1
     `;
