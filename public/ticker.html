@@ -1130,19 +1130,32 @@
                 if (response.data && response.data.success && response.data.strategies) {
                     let hasValidStrategies = false;
                     
-                    // Check if any strategy has actual tradeable data
-                    Object.values(response.data.strategies).forEach((strategy, index) => {
-                        console.log(`=== STRATEGY ${index} VALIDATION ===`);
+                    console.log('=== STRATEGY VALIDATION WITH FLEXIBLE FIELD CHECKING ===');
+                    
+                    // Check if any strategy has actual tradeable data - flexible validation
+                    Object.entries(response.data.strategies).forEach(([strategyName, strategy]) => {
+                        console.log(`=== VALIDATING ${strategyName.toUpperCase()} STRATEGY ===`);
                         console.log('Strategy object:', strategy);
                         console.log('strategy.found:', strategy.found);
+                        
+                        // Check for either 'spread_details' or 'details' (flexible)
+                        const hasDetails = !!(strategy.spread_details || strategy.details);
                         console.log('strategy.spread_details:', !!strategy.spread_details);
+                        console.log('strategy.details:', !!strategy.details);
+                        console.log('hasDetails (either):', hasDetails);
+                        
+                        // Check for contracts
                         console.log('strategy.contracts:', !!strategy.contracts);
                         
-                        if (strategy.found && strategy.spread_details && strategy.contracts) {
+                        // More flexible validation
+                        if (strategy.found && hasDetails && strategy.contracts) {
                             console.log('✅ STRATEGY PASSED VALIDATION');
                             hasValidStrategies = true;
                         } else {
                             console.log('❌ STRATEGY FAILED VALIDATION');
+                            console.log('  - found:', strategy.found);
+                            console.log('  - hasDetails:', hasDetails);
+                            console.log('  - contracts:', !!strategy.contracts);
                         }
                     });
                     
@@ -1150,6 +1163,7 @@
                     console.log('hasValidStrategies:', hasValidStrategies);
                     
                     if (hasValidStrategies) {
+                        console.log('🎉 VALIDATION PASSED - DISPLAYING STRATEGIES');
                         // SUCCESS - we have valid trades
                         spreadData = response.data;
                         document.getElementById('strategiesLoading').style.display = 'none';
@@ -1157,7 +1171,14 @@
                         displayTradeDetails();
                         enableStep3Navigation();
                         return;
+                    } else {
+                        console.log('❌ NO VALID STRATEGIES FOUND - SHOWING ERROR');
                     }
+                } else {
+                    console.log('❌ INITIAL VALIDATION FAILED:');
+                    console.log('  - response.data exists:', !!response.data);
+                    console.log('  - response.data.success:', response.data?.success);
+                    console.log('  - response.data.strategies exists:', !!response.data?.strategies);
                 }
                 
                 // If we get here, treat it as an error
