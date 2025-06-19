@@ -116,9 +116,9 @@ export default async function handler(req, res) {
     
     console.log('Parsed API response:', JSON.stringify(apiData, null, 2));
     
-    console.log(`API Data validation - Success: ${apiData.success}, Data exists: ${!!apiData.data}, Data length: ${apiData.data ? apiData.data.length : 0}`);
+    console.log(`API Data validation - Status: ${apiData.status}, Results exists: ${!!apiData.results}, Results length: ${apiData.results ? apiData.results.length : 0}`);
     
-    if (!apiData.success || !apiData.data || apiData.data.length === 0) {
+    if (apiData.status !== 'OK' || !apiData.results || apiData.results.length === 0) {
       console.log('❌ ERROR: No chart data available');
       console.log('Full API response structure:', Object.keys(apiData));
       return res.status(404).json({ 
@@ -128,19 +128,19 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`✅ SUCCESS: Found ${apiData.data.length} data points`);
-    console.log('Sample data point:', JSON.stringify(apiData.data[0], null, 2));
+    console.log(`✅ SUCCESS: Found ${apiData.results.length} data points`);
+    console.log('Sample data point:', JSON.stringify(apiData.results[0], null, 2));
 
     // Transform data for Chart.js format
     console.log('Transforming data for Chart.js...');
     
     const chartData = {
-      labels: apiData.data.map(item => {
+      labels: apiData.results.map(item => {
         const date = new Date(item.t);
         return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
       }),
       datasets: [{
-        data: apiData.data.map(item => parseFloat(item.c)), // closing prices
+        data: apiData.results.map(item => parseFloat(item.c)), // closing prices
         borderColor: 'rgb(147, 51, 234)', // purple color matching design
         backgroundColor: 'rgba(147, 51, 234, 0.1)',
         borderWidth: 2,
