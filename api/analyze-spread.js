@@ -51,12 +51,19 @@ export default async function handler(req, res) {
       const cachedResult = await redis.get(cacheKey);
       if (cachedResult) {
         console.log(`✅ CACHE HIT for spread analysis: ${cacheKey}`);
+        // Parse cached result and add cached flag
+        let cachedData;
+        try {
+          cachedData = typeof cachedResult === 'string' ? JSON.parse(cachedResult) : cachedResult;
+        } catch (e) {
+          cachedData = cachedResult;
+        }
+        
+        // Add cached flag to the data and send as-is (no extra wrapping)
+        cachedData.cached = true;
+        
         res.setHeader('Content-Type', 'application/json');
-        res.status(200).json({
-          success: true,
-          data: cachedResult,
-          cached: true
-        });
+        res.status(200).json(cachedData);
         return;
       }
       console.log(`CACHE MISS for spread analysis: ${cacheKey}. Proxying to Replit.`);
