@@ -1,10 +1,7 @@
 // Vercel serverless function for 30-day price chart data
-// Follows existing patterns: JWT validation, Redis caching, TheTradeList API
+// Follows existing patterns: Redis caching, TheTradeList API (NO JWT like other working endpoints)
 
 import { Redis } from '@upstash/redis';
-
-// Use CommonJS require for jsonwebtoken to match working validate-jwt.js pattern
-const jwt = require('jsonwebtoken');
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
@@ -13,46 +10,22 @@ const redis = new Redis({
 
 const TRADELIST_API_KEY = process.env.TRADELIST_API_KEY;
 
-// OneClick Trading RS256 public key (copied from working validate-jwt.js)
-const OCT_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1NtjOd7kQqOjE3NDcyMj
-EONZUSlmV4cCl6MrcIMjOwNfQ3NX0V5Nh8ZRnlUPnKojinSqAiXl1GrW9hPAufH
-fRKRftSD79oi5x3XoFx0-acJlsu6OPUymMBof2mN121GW0bs_DFAZNS265c-3sfcK
-piGvq9x0qsx3qNYL88qRC553d0JP4PYMeXq6Yr60sL5Sl0tz_r25UAp17pgv4VdG
-w1yytgb8nAVjlvg4d1V2QykAdOMofruypllrimPvqH9WFph3czbQ-y4O9j73h4atz
-DabF1PaTAT6vKif8STJM5ThwBNdhFW7GglC5zs0WnyX4W_7qlnZ3cHpTDKdRMmW
-39Vm_XObq6tlkYdkXrZm4-dvPSdPgzfKjE5COvUg
------END PUBLIC KEY-----`;
-
 export default async function handler(req, res) {
+  // Enable CORS (matching pattern from other working endpoints)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  // Handle OPTIONS preflight request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Extract and validate JWT token
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No valid authorization token provided' });
-    }
-
-    const token = authHeader.substring(7);
-    
-    try {
-      const decoded = jwt.verify(token, OCT_PUBLIC_KEY, { 
-        algorithms: ['RS256'],
-        issuer: 'oneclick-trading'
-      });
-      console.log(`JWT validation successful for user: ${decoded.sub}`);
-    } catch (jwtError) {
-      console.error('JWT validation failed:', jwtError.message);
-      return res.status(401).json({ 
-        success: false,
-        error: 'Invalid or expired token',
-        details: jwtError.message 
-      });
-    }
-
     const { ticker, startDate, endDate } = req.body;
     
     if (!ticker) {
