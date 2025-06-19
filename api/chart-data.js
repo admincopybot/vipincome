@@ -2,7 +2,9 @@
 // Follows existing patterns: JWT validation, Redis caching, TheTradeList API
 
 import { Redis } from '@upstash/redis';
-import jwt from 'jsonwebtoken';
+
+// Use CommonJS require for jsonwebtoken to match working validate-jwt.js pattern
+const jwt = require('jsonwebtoken');
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
@@ -10,14 +12,16 @@ const redis = new Redis({
 });
 
 const TRADELIST_API_KEY = process.env.TRADELIST_API_KEY;
-const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyV9LlPMuRVPkK83jm3Zj
-o0s0x1KdYhKb0jT8lJiJIkp3TdKqLJdDKYcCr1jhA0x0O5oGvW4eN1gJQ7FKZJTA
-XhKSfqNfGJO4T5zJlJp5YgJG8nN8o0Fy8QxPpJI5qF3Q4K9ZeD0uV6FgVRz1C1k
-A5P3f6YcJk0JOqQsOnF0F5YyVP5c6jmqJ6VqRz3YQ3V8O4YJoQF1a2YMaQ0N5E1
-HxJ4h6yRdGJw5vXJwvN5aGgFWz1XS9o5pF0vN5VjN1Jw2CKS8wjJ5gXNPjJqy8v
-6O9OJzM3W8K4QoFG3fKJL2q8U9vV4cO7E4uOFNlFG8YGwFNSJ3M4hJl6VQKyRrF
-QIDAQAB
+
+// OneClick Trading RS256 public key (copied from working validate-jwt.js)
+const OCT_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1NtjOd7kQqOjE3NDcyMj
+EONZUSlmV4cCl6MrcIMjOwNfQ3NX0V5Nh8ZRnlUPnKojinSqAiXl1GrW9hPAufH
+fRKRftSD79oi5x3XoFx0-acJlsu6OPUymMBof2mN121GW0bs_DFAZNS265c-3sfcK
+piGvq9x0qsx3qNYL88qRC553d0JP4PYMeXq6Yr60sL5Sl0tz_r25UAp17pgv4VdG
+w1yytgb8nAVjlvg4d1V2QykAdOMofruypllrimPvqH9WFph3czbQ-y4O9j73h4atz
+DabF1PaTAT6vKif8STJM5ThwBNdhFW7GglC5zs0WnyX4W_7qlnZ3cHpTDKdRMmW
+39Vm_XObq6tlkYdkXrZm4-dvPSdPgzfKjE5COvUg
 -----END PUBLIC KEY-----`;
 
 export default async function handler(req, res) {
@@ -35,10 +39,18 @@ export default async function handler(req, res) {
     const token = authHeader.substring(7);
     
     try {
-      jwt.verify(token, PUBLIC_KEY, { algorithms: ['RS256'] });
+      const decoded = jwt.verify(token, OCT_PUBLIC_KEY, { 
+        algorithms: ['RS256'],
+        issuer: 'oneclick-trading'
+      });
+      console.log(`JWT validation successful for user: ${decoded.sub}`);
     } catch (jwtError) {
       console.error('JWT validation failed:', jwtError.message);
-      return res.status(401).json({ error: 'Invalid or expired token' });
+      return res.status(401).json({ 
+        success: false,
+        error: 'Invalid or expired token',
+        details: jwtError.message 
+      });
     }
 
     const { ticker, startDate, endDate } = req.body;
