@@ -1168,7 +1168,7 @@
                         spreadData = response.data;
                         document.getElementById('strategiesLoading').style.display = 'none';
                         displayStrategies();
-                        displayTradeDetails();
+                        // ✅ REMOVED: displayTradeDetails() - only call this on Step 4 when strategy is selected
                         enableStep3Navigation();
                         return;
                     } else {
@@ -1369,6 +1369,9 @@
             
             const strategy = spreadData.strategies[selectedStrategy];
             if (!strategy || !strategy.found) return;
+            
+            // ✅ FIX: Get symbol from spreadData to avoid 'symbol is not defined' error
+            const symbol = spreadData.ticker;
             
             // Current Price Display
             document.getElementById('currentPriceDisplay').textContent = `$${spreadData.current_stock_price}`;
