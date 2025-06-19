@@ -63,7 +63,6 @@ export default async function handler(req, res) {
       SELECT 
         symbol, 
         total_score, 
-        trading_volume_20_day, 
         options_contracts_10_42_dte,
         current_price,
         -- Use boolean fields directly (no conversion needed!)

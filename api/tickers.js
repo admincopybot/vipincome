@@ -73,7 +73,6 @@ export default async function handler(req, res) {
       SELECT 
         symbol, 
         total_score, 
-        trading_volume_20_day, 
         options_contracts_10_42_dte,
         current_price,
         -- Use boolean fields directly (no conversion needed!)
@@ -84,7 +83,7 @@ export default async function handler(req, res) {
         stabilizing_pass,
         calculation_timestamp
       FROM etf_scores 
-      ORDER BY total_score DESC, options_contracts_10_42_dte DESC, trading_volume_20_day DESC, symbol ASC
+      ORDER BY total_score DESC, options_contracts_10_42_dte DESC, symbol ASC
     `;
     
     console.log('Executing query...');
