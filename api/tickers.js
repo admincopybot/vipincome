@@ -80,8 +80,7 @@ export default async function handler(req, res) {
         trend2_pass,
         snapback_pass,
         momentum_pass,
-        stabilizing_pass,
-        calculation_timestamp
+        stabilizing_pass
       FROM etf_scores 
       ORDER BY total_score DESC, options_contracts_10_42_dte DESC, symbol ASC
     `;

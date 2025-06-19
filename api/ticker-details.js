@@ -71,7 +71,6 @@ export default async function handler(req, res) {
         snapback_pass,
         momentum_pass,
         stabilizing_pass,
-        calculation_timestamp,
         data_age_hours
       FROM etf_scores 
       WHERE UPPER(symbol) = $1
