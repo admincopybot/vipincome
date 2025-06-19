@@ -402,7 +402,7 @@
                         
                         <button onclick="switchTab('step3')" 
                                 class="w-full bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg">
-                            Choose Income Strategy →
+                            Income Strategies for ${symbol} →
                         </button>
                     </div>
                 </div>
@@ -1208,7 +1208,7 @@
                 
                 const dte = details.days_to_expiration ? details.days_to_expiration + 1 : 'N/A';
                 const targetROI = details.roi_percent ? `${details.roi_percent.toFixed(1)}%` : 'N/A';
-                const strikePrice = details.long_strike ? `$${details.long_strike.toFixed(2)}` : 'N/A';
+                const strikePrice = details.short_strike ? `$${details.short_strike.toFixed(2)}` : 'N/A';
                 const tradeWidth = details.spread_width ? `$${details.spread_width.toFixed(2)}` : 'N/A';
                 const expiration = details.expiration_date || 'N/A';
                 const contractId = strategyData.contracts?.long_contract || 'N/A';
@@ -1386,7 +1386,7 @@
             // Trade Summary
             document.getElementById('tradeSummary').innerHTML = `
                 <div class="text-center">
-                    <div class="text-stone-400 text-xs mb-1">CURRENT STOCK PRICE</div>
+                    <div class="text-stone-400 text-xs mb-1">${symbol} CURRENT PRICE</div>
                     <div class="text-white font-bold">$${spreadData.current_stock_price}</div>
                 </div>
                 <div class="text-center">
