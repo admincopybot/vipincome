@@ -1,27 +1,10 @@
 import { Client } from 'pg';
+import { Redis } from '@upstash/redis';
 
-// Simple in-memory cache for 60 seconds
-const cache = new Map();
-const CACHE_TTL = 60 * 1000; // 60 seconds in milliseconds
-
-function getCachedData(key) {
-  const cached = cache.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data;
-  }
-  // Remove expired entry
-  if (cached) {
-    cache.delete(key);
-  }
-  return null;
-}
-
-function setCachedData(key, data) {
-  cache.set(key, {
-    data: data,
-    timestamp: Date.now()
-  });
-}
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -49,20 +32,24 @@ export default async function handler(req, res) {
     }
 
     const symbolUpper = symbol.toUpperCase();
-    const cacheKey = `ticker-details:${symbolUpper}`;
+    const cacheKey = `ticker_details:${symbolUpper}`;
+    console.log(`Cache key: ${cacheKey}`);
 
-    // Check local cache first
-    const cachedResult = getCachedData(cacheKey);
-    if (cachedResult) {
-      console.log(`CACHE HIT for ${symbolUpper}`);
-      return res.status(200).json({
-        success: true,
-        data: cachedResult,
-        source: 'cache'
-      });
+    // Check Redis cache first (1-minute TTL)
+    try {
+      const cachedResult = await redis.get(cacheKey);
+      if (cachedResult) {
+        console.log(`✅ CACHE HIT for ${symbolUpper}`);
+        return res.status(200).json({
+          success: true,
+          data: cachedResult,
+          cached: true
+        });
+      }
+      console.log(`CACHE MISS for ${symbolUpper}. Fetching from database.`);
+    } catch (redisError) {
+      console.log('Redis cache error, proceeding with database query:', redisError.message);
     }
-
-    console.log(`CACHE MISS for ${symbolUpper}. Fetching from database.`);
     
     // Fetch from the database
     const client = new Client({
@@ -101,14 +88,18 @@ export default async function handler(req, res) {
 
     const tickerData = result.rows[0];
 
-    // Save to local cache
-    setCachedData(cacheKey, tickerData);
-    console.log(`SAVED to cache: ${cacheKey}`);
+    // Cache the result for 1 minute (60 seconds)
+    try {
+      await redis.setex(cacheKey, 60, JSON.stringify(tickerData));
+      console.log(`✅ Data cached successfully for ${symbolUpper} for 1 minute`);
+    } catch (redisError) {
+      console.log('Failed to cache ticker details:', redisError.message);
+    }
     
     res.status(200).json({
       success: true,
       data: tickerData,
-      source: 'database'
+      cached: false
     });
 
   } catch (error) {

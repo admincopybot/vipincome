@@ -153,10 +153,10 @@ export default async function handler(req, res) {
     console.log('Sample label:', chartData.labels[0]);
     console.log('Sample price:', chartData.datasets[0].data[0]);
 
-    // Cache the result for 5 minutes (300 seconds)
+    // Cache the result for 1 minute (60 seconds) - standardized TTL
     console.log(`Caching result with key: ${cacheKey}`);
-    await redis.setex(cacheKey, 300, JSON.stringify(chartData));
-    console.log('✅ Data cached successfully');
+    await redis.setex(cacheKey, 60, JSON.stringify(chartData));
+    console.log('✅ Data cached successfully for 1 minute');
 
     console.log('=== CHART DATA API CALL SUCCESS ===');
     return res.status(200).json({

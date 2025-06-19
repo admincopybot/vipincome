@@ -1,4 +1,10 @@
 const { Client } = require('pg');
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -21,6 +27,26 @@ export default async function handler(req, res) {
     // Get query parameters
     const { search = '', limit = '280' } = req.query;
     const limitNum = parseInt(limit);
+
+    // Create cache key based on search and limit parameters
+    const cacheKey = `scoreboard_data:${search}:${limit}`;
+    console.log(`Cache key: ${cacheKey}`);
+
+    // Check Redis cache first (1-minute TTL)
+    try {
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        console.log('✅ CACHE HIT - returning cached scoreboard data');
+        return res.status(200).json({
+          success: true,
+          data: cachedData,
+          cached: true
+        });
+      }
+      console.log('CACHE MISS - fetching from database');
+    } catch (redisError) {
+      console.log('Redis cache error, proceeding with database query:', redisError.message);
+    }
 
     // Check if DATABASE_URL exists
     if (!process.env.DATABASE_URL) {
@@ -80,10 +106,19 @@ export default async function handler(req, res) {
       tickers = tickers.slice(0, limitNum);
     }
 
+    // Cache the result for 1 minute (60 seconds)
+    try {
+      await redis.setex(cacheKey, 60, JSON.stringify(tickers));
+      console.log('✅ Data cached successfully for 1 minute');
+    } catch (redisError) {
+      console.log('Failed to cache scoreboard data:', redisError.message);
+    }
+
     res.status(200).json({
       success: true,
       data: tickers,
-      count: tickers.length
+      count: tickers.length,
+      cached: false
     });
 
   } catch (error) {

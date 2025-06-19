@@ -1,28 +1,11 @@
 import { spawn } from 'child_process';
 import path from 'path';
+import { Redis } from '@upstash/redis';
 
-// Simple in-memory cache for 60 seconds
-const cache = new Map();
-const CACHE_TTL = 60 * 1000; // 60 seconds in milliseconds
-
-function getCachedData(key) {
-  const cached = cache.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data;
-  }
-  // Remove expired entry
-  if (cached) {
-    cache.delete(key);
-  }
-  return null;
-}
-
-function setCachedData(key, data) {
-  cache.set(key, {
-    data: data,
-    timestamp: Date.now()
-  });
-}
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 // A list of your 15 load-balanced Replit instances for spread analysis.
 const SPREAD_ANALYZER_URLS = [
@@ -76,18 +59,26 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Ticker symbol is required' });
     }
     
-    const cacheKey = `spread-analysis:${ticker.toUpperCase()}`;
+    const cacheKey = `spread_analysis:${ticker.toUpperCase()}`;
+    console.log(`Cache key: ${cacheKey}`);
 
-    // Check local cache first
-    const cachedResult = getCachedData(cacheKey);
-    if (cachedResult) {
-      console.log(`CACHE HIT for spread analysis: ${cacheKey}`);
-      res.setHeader('Content-Type', 'application/json');
-      res.status(200).send(cachedResult);
-      return;
+    // Check Redis cache first (1-minute TTL)
+    try {
+      const cachedResult = await redis.get(cacheKey);
+      if (cachedResult) {
+        console.log(`✅ CACHE HIT for spread analysis: ${cacheKey}`);
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json({
+          success: true,
+          data: cachedResult,
+          cached: true
+        });
+        return;
+      }
+      console.log(`CACHE MISS for spread analysis: ${cacheKey}. Proxying to Replit.`);
+    } catch (redisError) {
+      console.log('Redis cache error, proceeding with API call:', redisError.message);
     }
-
-    console.log(`CACHE MISS for spread analysis: ${cacheKey}. Proxying to Replit.`);
 
     // Pick a random Replit instance
     const randomIndex = Math.floor(Math.random() * SPREAD_ANALYZER_URLS.length);
@@ -213,8 +204,12 @@ export default async function handler(req, res) {
         
         // Retry was successful and real
         if (retryResponse.ok) {
-          setCachedData(cacheKey, retryBody);
-          console.log(`SAVED REAL DATA to cache: ${cacheKey}`);
+          try {
+            await redis.setex(cacheKey, 60, retryBody);
+            console.log(`✅ SAVED REAL DATA from retry to cache: ${cacheKey} for 1 minute`);
+          } catch (redisError) {
+            console.log('Failed to cache retry data:', redisError.message);
+          }
         }
         
         res.setHeader('Content-Type', retryResponse.headers.get('Content-Type') || 'application/json');
@@ -266,8 +261,12 @@ export default async function handler(req, res) {
             );
             
             if (!isSecondRetryMockData && secondRetryResponse.ok) {
-              setCachedData(cacheKey, secondRetryBody);
-              console.log(`SAVED REAL DATA from second retry to cache: ${cacheKey}`);
+              try {
+                await redis.setex(cacheKey, 60, secondRetryBody);
+                console.log(`✅ SAVED REAL DATA from second retry to cache: ${cacheKey} for 1 minute`);
+              } catch (redisError) {
+                console.log('Failed to cache second retry data:', redisError.message);
+              }
               res.setHeader('Content-Type', secondRetryResponse.headers.get('Content-Type') || 'application/json');
               res.status(secondRetryResponse.status).send(secondRetryBody);
               return;
@@ -286,10 +285,14 @@ export default async function handler(req, res) {
     // Original response was real data
     res.setHeader('Content-Type', proxyResponse.headers.get('Content-Type') || 'application/json');
     
-    // Cache successful results
+    // Cache successful results for 1 minute (60 seconds)
     if (proxyResponse.ok) {
-      setCachedData(cacheKey, responseBody);
-      console.log(`SAVED to cache: ${cacheKey}`);
+      try {
+        await redis.setex(cacheKey, 60, responseBody);
+        console.log(`✅ SAVED spread analysis to cache: ${cacheKey} for 1 minute`);
+      } catch (redisError) {
+        console.log('Failed to cache spread analysis:', redisError.message);
+      }
     }
     
     res.status(proxyResponse.status).send(responseBody);
@@ -338,8 +341,12 @@ export default async function handler(req, res) {
         );
         
         if (!isFallbackMockData && fallbackResponse.ok) {
-          setCachedData(cacheKey, fallbackBody);
-          console.log(`SAVED REAL DATA from fallback to cache: ${cacheKey}`);
+          try {
+            await redis.setex(cacheKey, 60, fallbackBody);
+            console.log(`✅ SAVED REAL DATA from fallback to cache: ${cacheKey} for 1 minute`);
+          } catch (redisError) {
+            console.log('Failed to cache fallback data:', redisError.message);
+          }
           res.setHeader('Content-Type', fallbackResponse.headers.get('Content-Type') || 'application/json');
           res.status(fallbackResponse.status).send(fallbackBody);
           return;
