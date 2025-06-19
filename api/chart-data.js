@@ -141,8 +141,8 @@ export default async function handler(req, res) {
       }),
       datasets: [{
         data: apiData.results.map(item => parseFloat(item.c)), // closing prices
-        borderColor: 'rgb(147, 51, 234)', // purple color matching design
-        backgroundColor: 'rgba(147, 51, 234, 0.1)',
+        borderColor: 'rgb(30, 64, 175)', // dark blue color
+        backgroundColor: 'rgba(30, 64, 175, 0.1)',
         borderWidth: 2,
         fill: true,
         tension: 0.1
