@@ -24,8 +24,8 @@ export default async function handler(req, res) {
   let client;
   
   try {
-    // Get query parameters
-    const { search = '', limit = '280' } = req.query;
+    // Get query parameters - REMOVED DEFAULT LIMIT TO SHOW ALL RECORDS
+    const { search = '', limit = '0' } = req.query;
     const limitNum = parseInt(limit);
 
     // Create cache key based on search and limit parameters
@@ -84,7 +84,6 @@ export default async function handler(req, res) {
         stabilizing_pass,
         calculation_timestamp
       FROM etf_scores 
-      WHERE options_contracts_10_42_dte >= 100
       ORDER BY total_score DESC, options_contracts_10_42_dte DESC, trading_volume_20_day DESC, symbol ASC
     `;
     
@@ -102,10 +101,12 @@ export default async function handler(req, res) {
       );
     }
 
-    // Apply limit
+    // Apply limit ONLY if explicitly requested (limit > 0)
+    // Default behavior: Show ALL records (no limit)
     if (limitNum > 0) {
       tickers = tickers.slice(0, limitNum);
     }
+    // If limitNum is 0 or not specified, show ALL records without limit
 
     // Cache the result for 1 minute (60 seconds)
     try {
