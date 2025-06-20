@@ -7,8 +7,24 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-// Single dedicated spread analysis endpoint
-const SPREAD_ANALYZER_URL = 'https://spreads-analysis-73sq.vercel.app/api/analyze_debit_spread';
+// Redundant spread analysis endpoints pool
+const SPREAD_ANALYZER_ENDPOINTS = [
+  'https://spreads-analysis-gipn.vercel.app/api/analyze_debit_spread',
+  'https://spreads-analysis-4.vercel.app/api/analyze_debit_spread',
+  'https://spreads-analysis-3.vercel.app/api/analyze_debit_spread',
+  'https://spreads-analysis.vercel.app/api/analyze_debit_spread',
+  'https://spreads-analysis-73sq.vercel.app/api/analyze_debit_spread'
+];
+
+// Shuffle array and return a copy for random endpoint selection
+function shuffleEndpoints(endpoints) {
+  const shuffled = [...endpoints];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 export default async function handler(req, res) {
   // Set CORS headers for Vercel
@@ -71,34 +87,71 @@ export default async function handler(req, res) {
       console.log('Redis cache error, proceeding with API call:', redisError.message);
     }
 
-    console.log(`Calling spread analysis API: ${SPREAD_ANALYZER_URL}`);
+    // Redundant endpoint system with 3-try failover
+    const shuffledEndpoints = shuffleEndpoints(SPREAD_ANALYZER_ENDPOINTS);
+    const maxRetries = 3;
+    let lastError = null;
+    let proxyResponse = null;
+
+    console.log(`Starting redundant spread analysis with ${maxRetries} endpoint attempts`);
+    console.log(`Endpoint order: ${shuffledEndpoints.slice(0, maxRetries).join(' -> ')}`);
     console.log(`Request body: ${JSON.stringify({ ticker: ticker })}`);
 
-    // Use AbortController for proper timeout handling
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      console.log(`Aborting request due to timeout`);
-      controller.abort();
-    }, 30000); // 30 second timeout
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const currentEndpoint = shuffledEndpoints[attempt];
+      console.log(`\n🔄 ATTEMPT ${attempt + 1}/${maxRetries}: ${currentEndpoint}`);
 
-    const proxyResponse = await fetch(SPREAD_ANALYZER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ticker: ticker }),
-      signal: controller.signal
-    });
+      try {
+        // Use AbortController for proper timeout handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          console.log(`⏰ Aborting request to ${currentEndpoint} due to timeout`);
+          controller.abort();
+        }, 30000); // 30 second timeout
 
-    clearTimeout(timeoutId);
-    
-    console.log(`Response status: ${proxyResponse.status}`);
-    console.log(`Response headers: ${JSON.stringify(Object.fromEntries(proxyResponse.headers.entries()))}`);
+        proxyResponse = await fetch(currentEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ticker: ticker }),
+          signal: controller.signal
+        });
 
-    // Handle non-200 status codes
-    if (!proxyResponse.ok) {
-      console.error(`HTTP ${proxyResponse.status} error from spread analysis service`);
-      throw new Error(`HTTP ${proxyResponse.status} - Analysis service error`);
+        clearTimeout(timeoutId);
+        
+        console.log(`📊 Response from ${currentEndpoint}: ${proxyResponse.status}`);
+
+        // Handle non-200 status codes as failures to try next endpoint
+        if (!proxyResponse.ok) {
+          const errorText = await proxyResponse.text();
+          console.error(`❌ HTTP ${proxyResponse.status} error from ${currentEndpoint}: ${errorText}`);
+          lastError = new Error(`HTTP ${proxyResponse.status} - ${currentEndpoint}`);
+          continue; // Try next endpoint
+        }
+
+        // Success! Break out of retry loop
+        console.log(`✅ SUCCESS: ${currentEndpoint} responded successfully`);
+        break;
+
+      } catch (error) {
+        console.error(`❌ ERROR with ${currentEndpoint}: ${error.message}`);
+        lastError = error;
+        
+        if (attempt === maxRetries - 1) {
+          console.error(`💥 ALL ${maxRetries} ENDPOINTS FAILED`);
+          throw new Error(`All ${maxRetries} analysis endpoints failed. Last error: ${error.message}`);
+        }
+        
+        console.log(`🔄 Trying next endpoint...`);
+        continue; // Try next endpoint
+      }
+    }
+
+    // Check if we have a successful response
+    if (!proxyResponse || !proxyResponse.ok) {
+      console.error(`💥 No successful response after ${maxRetries} attempts`);
+      throw lastError || new Error('All endpoints failed');
     }
 
     const responseBody = await proxyResponse.text();
