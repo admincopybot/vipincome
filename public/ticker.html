@@ -236,6 +236,37 @@
         .progress-step.completed span {
             color: #22c55e;
         }
+        
+        /* Custom Slider Styles */
+        .slider-custom {
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, #dc2626 0%, #fbbf24 50%, #16a34a 100%);
+            outline: none;
+            border-radius: 8px;
+        }
+        
+        .slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e8dcc6, #d4c4a8);
+            cursor: pointer;
+            border: 2px solid #b8a082;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slider-custom::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e8dcc6, #d4c4a8);
+            cursor: pointer;
+            border: 2px solid #b8a082;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -461,6 +492,32 @@
                     <h3 class="text-xl font-bold text-white mb-4">Selected Strategy: <span id="selectedStrategyName">aggressive</span></h3>
                     <div class="criteria-card">
                         <h3 class="text-xl font-bold text-white mb-4">Profit Matrix at Expiration</h3>
+                        
+                        <!-- Dynamic Spread Cost Adjustment Slider -->
+                        <div class="bg-gradient-to-r from-stone-600 to-stone-700 p-4 rounded-lg mb-6 border border-stone-500">
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="text-white font-semibold">Adjust Spread Cost:</label>
+                                <div class="flex items-center gap-3">
+                                    <span id="adjustedCostDisplay" class="text-white font-bold">$0.00</span>
+                                    <div id="originalCostIndicator" class="text-xs text-stone-400 hidden">
+                                        (Original: <span id="originalCostValue">$0.00</span>)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="text-stone-300 text-sm">-20%</span>
+                                <input type="range" 
+                                       id="spreadCostSlider" 
+                                       min="-20" 
+                                       max="20" 
+                                       value="0" 
+                                       step="1"
+                                       class="flex-1 h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer slider-custom"
+                                       oninput="adjustSpreadCost(this.value)">
+                                <span class="text-stone-300 text-sm">+20%</span>
+                                <div id="adjustmentPercentage" class="text-stone-300 text-sm font-mono w-12">0%</div>
+                            </div>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
@@ -631,6 +688,10 @@
         let spreadData = null;
         let selectedStrategy = 'aggressive';
         let jwtToken = null;
+        
+        // Store original spread data for dynamic adjustments
+        let originalSpreadData = null;
+        let currentAdjustmentPercent = 0;
 
         // Get symbol from URL and JWT token
         function getSymbolFromURL() {
@@ -1316,6 +1377,10 @@
         function selectStrategy(strategy) {
             selectedStrategy = strategy;
             
+            // Reset spread cost adjustment for new strategy
+            originalSpreadData = null;
+            currentAdjustmentPercent = 0;
+            
             // Enable Step 4 navigation
             enableStep4Navigation();
             
@@ -1332,13 +1397,19 @@
             displayTradeDetails();
         }
 
-        // Display profit matrix
+        // Display profit matrix with dynamic cost adjustment
         function displayProfitMatrix() {
             if (!spreadData || !spreadData.strategies[selectedStrategy]?.price_scenarios) {
                 return;
             }
             
             document.getElementById('profitMatrix').style.display = 'block';
+            
+            // Initialize slider when showing profit matrix for first time
+            if (!originalSpreadData && spreadData.strategies[selectedStrategy]) {
+                initializeSpreadCostAdjustment();
+            }
+            
             const scenarios = spreadData.strategies[selectedStrategy].price_scenarios;
             const tableBody = document.getElementById('profitTableBody');
             
@@ -1467,6 +1538,93 @@
             
             // Display scenarios table
             displayScenariosTable();
+        }
+        
+        // Initialize spread cost adjustment slider
+        function initializeSpreadCostAdjustment() {
+            if (!spreadData || !selectedStrategy) return;
+            
+            // Store original data for calculations
+            originalSpreadData = JSON.parse(JSON.stringify(spreadData));
+            currentAdjustmentPercent = 0;
+            
+            const originalCost = originalSpreadData.strategies[selectedStrategy].spread_details?.spread_cost || 0;
+            
+            // Initialize slider display
+            document.getElementById('spreadCostSlider').value = 0;
+            document.getElementById('adjustmentPercentage').textContent = '0%';
+            document.getElementById('adjustedCostDisplay').textContent = `$${originalCost.toFixed(2)}`;
+            document.getElementById('originalCostValue').textContent = `$${originalCost.toFixed(2)}`;
+            document.getElementById('originalCostIndicator').classList.add('hidden');
+        }
+        
+        // Main function to adjust spread cost and recalculate everything
+        function adjustSpreadCost(percentage) {
+            if (!originalSpreadData || !selectedStrategy) return;
+            
+            currentAdjustmentPercent = parseInt(percentage);
+            const originalCost = originalSpreadData.strategies[selectedStrategy].spread_details?.spread_cost || 0;
+            const adjustedCost = originalCost * (1 + currentAdjustmentPercent / 100);
+            const costDifference = adjustedCost - originalCost;
+            
+            // Update display elements
+            document.getElementById('adjustmentPercentage').textContent = `${currentAdjustmentPercent >= 0 ? '+' : ''}${currentAdjustmentPercent}%`;
+            document.getElementById('adjustedCostDisplay').textContent = `$${adjustedCost.toFixed(2)}`;
+            
+            // Show/hide original cost indicator
+            if (currentAdjustmentPercent !== 0) {
+                document.getElementById('originalCostIndicator').classList.remove('hidden');
+                document.getElementById('adjustedCostDisplay').textContent = 
+                    `$${adjustedCost.toFixed(2)} (${costDifference >= 0 ? '+' : ''}$${costDifference.toFixed(2)})`;
+            } else {
+                document.getElementById('originalCostIndicator').classList.add('hidden');
+                document.getElementById('adjustedCostDisplay').textContent = `$${adjustedCost.toFixed(2)}`;
+            }
+            
+            // Recalculate all profit scenarios with adjusted cost
+            recalculateSpreadScenarios(adjustedCost);
+            
+            // Update all UI sections
+            displayProfitMatrix();
+            displayTradeDetails();
+            updateCalculator();
+            displayScenariosTable();
+        }
+        
+        // Recalculate all profit scenarios with new spread cost
+        function recalculateSpreadScenarios(newSpreadCost) {
+            if (!originalSpreadData || !selectedStrategy) return;
+            
+            const strategy = spreadData.strategies[selectedStrategy];
+            const originalStrategy = originalSpreadData.strategies[selectedStrategy];
+            
+            if (!strategy || !originalStrategy) return;
+            
+            // Update spread details with new cost
+            strategy.spread_details.spread_cost = newSpreadCost;
+            
+            // Recalculate max profit (spread width - new cost)
+            const spreadWidth = originalStrategy.spread_details?.spread_width || 5;
+            strategy.spread_details.max_profit = spreadWidth - newSpreadCost;
+            
+            // Recalculate ROI
+            strategy.spread_details.roi_percent = (strategy.spread_details.max_profit / newSpreadCost) * 100;
+            
+            // Recalculate all price scenarios
+            if (strategy.price_scenarios && originalStrategy.price_scenarios) {
+                strategy.price_scenarios = originalStrategy.price_scenarios.map(originalScenario => {
+                    const newProfitLoss = originalScenario.spread_value_at_expiration - newSpreadCost;
+                    const newROI = (newProfitLoss / newSpreadCost) * 100;
+                    const newOutcome = newProfitLoss >= 0 ? 'profit' : 'loss';
+                    
+                    return {
+                        ...originalScenario,
+                        profit_loss: newProfitLoss,
+                        roi_percent: newROI,
+                        outcome: newOutcome
+                    };
+                });
+            }
         }
         
         // Update calculator based on number of contracts
