@@ -429,7 +429,7 @@
         <div id="content-step3" class="tab-content" style="display: none;">
             <div class="space-y-8">
                 <div>
-                    <h2 class="text-2xl font-bold main-title mb-6">Income Strategies</h2>
+                    <h2 id="strategiesTitle" class="text-2xl font-bold main-title mb-6">Income Strategies</h2>
                     <div id="strategiesLoading" class="flex flex-col justify-center items-center py-12">
                         <div class="loading-spinner mb-4"></div>
                         <div class="text-center">
@@ -798,6 +798,9 @@
             if (step3Button) {
                 step3Button.textContent = `Income Strategies for ${symbol} →`;
             }
+            
+            // Update Step 3 strategies title with symbol
+            document.getElementById('strategiesTitle').textContent = `Income Strategies for ${symbol}`;
             
             // Update score progress bar
             const scorePercentage = (actualScore / 5) * 100;
@@ -1374,7 +1377,7 @@
             const symbol = spreadData.ticker;
             
             // Current Price Display
-            document.getElementById('currentPriceDisplay').textContent = `$${spreadData.current_stock_price}`;
+            document.getElementById('currentPriceDisplay').textContent = `${spreadData.ticker} $${spreadData.current_stock_price}`;
             document.getElementById('expirationDisplay').textContent = `Expiration: ${strategy.spread_details?.expiration_date || 'N/A'}`;
             
             // Trade Construction
