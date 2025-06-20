@@ -601,6 +601,32 @@
                     </div>
                 </div>
                 
+                <!-- Dynamic Spread Cost Adjustment Slider (Step 4) -->
+                <div class="bg-gradient-to-r from-stone-600 to-stone-700 p-4 rounded-lg mb-6 border border-stone-500">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-white font-semibold">Adjust Spread Cost:</label>
+                        <div class="flex items-center gap-3">
+                            <span id="adjustedCostDisplayStep4" class="text-white font-bold">$0.00</span>
+                            <div id="originalCostIndicatorStep4" class="text-xs text-stone-400 hidden">
+                                (Original: <span id="originalCostValueStep4">$0.00</span>)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-stone-300 text-sm">-20%</span>
+                        <input type="range" 
+                               id="spreadCostSliderStep4" 
+                               min="-20" 
+                               max="20" 
+                               value="0" 
+                               step="1"
+                               class="flex-1 h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer slider-custom"
+                               oninput="adjustSpreadCost(this.value)">
+                        <span class="text-stone-300 text-sm">+20%</span>
+                        <div id="adjustmentPercentageStep4" class="text-stone-300 text-sm font-mono w-12">0%</div>
+                    </div>
+                </div>
+
                 <!-- Income Potential Calculator -->
                 <div class="bg-gradient-to-br from-stone-700 to-stone-800 p-6 rounded-lg border border-stone-600">
                     <h3 class="text-xl font-bold text-white mb-4">Income Potential Calculator</h3>
@@ -1444,6 +1470,11 @@
             const strategy = spreadData.strategies[selectedStrategy];
             if (!strategy || !strategy.found) return;
             
+            // Initialize slider for Step 4 if not already done
+            if (!originalSpreadData && spreadData.strategies[selectedStrategy]) {
+                initializeSpreadCostAdjustment();
+            }
+            
             // ✅ FIX: Get symbol from spreadData to avoid 'symbol is not defined' error
             const symbol = spreadData.ticker;
             
@@ -1550,12 +1581,25 @@
             
             const originalCost = originalSpreadData.strategies[selectedStrategy].spread_details?.spread_cost || 0;
             
-            // Initialize slider display
-            document.getElementById('spreadCostSlider').value = 0;
-            document.getElementById('adjustmentPercentage').textContent = '0%';
-            document.getElementById('adjustedCostDisplay').textContent = `$${originalCost.toFixed(2)}`;
-            document.getElementById('originalCostValue').textContent = `$${originalCost.toFixed(2)}`;
-            document.getElementById('originalCostIndicator').classList.add('hidden');
+            // Initialize Step 3 slider display
+            const step3Slider = document.getElementById('spreadCostSlider');
+            if (step3Slider) {
+                step3Slider.value = 0;
+                document.getElementById('adjustmentPercentage').textContent = '0%';
+                document.getElementById('adjustedCostDisplay').textContent = `$${originalCost.toFixed(2)}`;
+                document.getElementById('originalCostValue').textContent = `$${originalCost.toFixed(2)}`;
+                document.getElementById('originalCostIndicator').classList.add('hidden');
+            }
+            
+            // Initialize Step 4 slider display
+            const step4Slider = document.getElementById('spreadCostSliderStep4');
+            if (step4Slider) {
+                step4Slider.value = 0;
+                document.getElementById('adjustmentPercentageStep4').textContent = '0%';
+                document.getElementById('adjustedCostDisplayStep4').textContent = `$${originalCost.toFixed(2)}`;
+                document.getElementById('originalCostValueStep4').textContent = `$${originalCost.toFixed(2)}`;
+                document.getElementById('originalCostIndicatorStep4').classList.add('hidden');
+            }
         }
         
         // Main function to adjust spread cost and recalculate everything
@@ -1567,18 +1611,42 @@
             const adjustedCost = originalCost * (1 + currentAdjustmentPercent / 100);
             const costDifference = adjustedCost - originalCost;
             
-            // Update display elements
-            document.getElementById('adjustmentPercentage').textContent = `${currentAdjustmentPercent >= 0 ? '+' : ''}${currentAdjustmentPercent}%`;
-            document.getElementById('adjustedCostDisplay').textContent = `$${adjustedCost.toFixed(2)}`;
+            // Sync both sliders
+            const step3Slider = document.getElementById('spreadCostSlider');
+            const step4Slider = document.getElementById('spreadCostSliderStep4');
+            if (step3Slider) step3Slider.value = percentage;
+            if (step4Slider) step4Slider.value = percentage;
             
-            // Show/hide original cost indicator
-            if (currentAdjustmentPercent !== 0) {
-                document.getElementById('originalCostIndicator').classList.remove('hidden');
-                document.getElementById('adjustedCostDisplay').textContent = 
-                    `$${adjustedCost.toFixed(2)} (${costDifference >= 0 ? '+' : ''}$${costDifference.toFixed(2)})`;
-            } else {
-                document.getElementById('originalCostIndicator').classList.add('hidden');
-                document.getElementById('adjustedCostDisplay').textContent = `$${adjustedCost.toFixed(2)}`;
+            // Update Step 3 display elements
+            const step3Percentage = document.getElementById('adjustmentPercentage');
+            const step3Display = document.getElementById('adjustedCostDisplay');
+            const step3Indicator = document.getElementById('originalCostIndicator');
+            
+            if (step3Percentage) step3Percentage.textContent = `${currentAdjustmentPercent >= 0 ? '+' : ''}${currentAdjustmentPercent}%`;
+            if (step3Display) {
+                if (currentAdjustmentPercent !== 0) {
+                    step3Display.textContent = `$${adjustedCost.toFixed(2)} (${costDifference >= 0 ? '+' : ''}$${costDifference.toFixed(2)})`;
+                    if (step3Indicator) step3Indicator.classList.remove('hidden');
+                } else {
+                    step3Display.textContent = `$${adjustedCost.toFixed(2)}`;
+                    if (step3Indicator) step3Indicator.classList.add('hidden');
+                }
+            }
+            
+            // Update Step 4 display elements
+            const step4Percentage = document.getElementById('adjustmentPercentageStep4');
+            const step4Display = document.getElementById('adjustedCostDisplayStep4');
+            const step4Indicator = document.getElementById('originalCostIndicatorStep4');
+            
+            if (step4Percentage) step4Percentage.textContent = `${currentAdjustmentPercent >= 0 ? '+' : ''}${currentAdjustmentPercent}%`;
+            if (step4Display) {
+                if (currentAdjustmentPercent !== 0) {
+                    step4Display.textContent = `$${adjustedCost.toFixed(2)} (${costDifference >= 0 ? '+' : ''}$${costDifference.toFixed(2)})`;
+                    if (step4Indicator) step4Indicator.classList.remove('hidden');
+                } else {
+                    step4Display.textContent = `$${adjustedCost.toFixed(2)}`;
+                    if (step4Indicator) step4Indicator.classList.add('hidden');
+                }
             }
             
             // Recalculate all profit scenarios with adjusted cost
