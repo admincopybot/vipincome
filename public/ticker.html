@@ -1526,9 +1526,9 @@
                 <div class="text-stone-300">Max Loss: $${maxLoss.toFixed(2)}</div>
             `;
             
-            // Trade Info
+            // Trade Info - always recalculate with current spread cost
             const roi = details?.roi_percent || 0;
-            const breakeven = details?.breakeven_price || (longStrike + spreadCost);
+            const breakeven = longStrike + spreadCost; // Always recalculate with adjusted cost
             
             document.getElementById('tradeInfo').innerHTML = `
                 <div class="text-stone-300">ROI: ${roi.toFixed(1)}%</div>
@@ -1552,7 +1552,7 @@
                 </div>
                 <div class="text-center">
                     <div class="text-stone-400 text-xs mb-1">BREAKEVEN PRICE</div>
-                    <div class="text-white font-bold">$${breakeven.toFixed(2)}</div>
+                    <div class="text-white font-bold">$${(longStrike + spreadCost).toFixed(2)}</div>
                 </div>
                 <div class="text-center">
                     <div class="text-stone-400 text-xs mb-1">MAX PROFIT</div>
