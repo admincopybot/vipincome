@@ -468,17 +468,17 @@
                             <div id="progressIndicator" class="flex items-center justify-center gap-4">
                                 <div class="progress-step active" id="progress-1">
                                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-500 flex items-center justify-center text-white font-bold">1</div>
-                                    <span class="text-stone-300 text-sm mt-1">Analysis Method 1</span>
+                                    <span class="text-stone-300 text-sm mt-1" id="progress-1-text">Analysis Method 1 running...</span>
                                 </div>
                                 <div class="w-8 h-0.5 bg-stone-600" id="connector-1"></div>
                                 <div class="progress-step" id="progress-2">
                                     <div class="w-8 h-8 rounded-full bg-stone-600 flex items-center justify-center text-stone-400 font-bold">2</div>
-                                    <span class="text-stone-500 text-sm mt-1">Analysis Method 2</span>
+                                    <span class="text-stone-500 text-sm mt-1" id="progress-2-text">Analysis Method 2</span>
                                 </div>
                                 <div class="w-8 h-0.5 bg-stone-600" id="connector-2"></div>
                                 <div class="progress-step" id="progress-3">
                                     <div class="w-8 h-8 rounded-full bg-stone-600 flex items-center justify-center text-stone-400 font-bold">3</div>
-                                    <span class="text-stone-500 text-sm mt-1">Analysis Method 3</span>
+                                    <span class="text-stone-500 text-sm mt-1" id="progress-3-text">Analysis Method 3</span>
                                 </div>
                             </div>
                         </div>
@@ -1142,6 +1142,7 @@
         // Retry spread analysis
         function retrySpreadAnalysis() {
             spreadData = null; // Clear any cached data
+            clearProgressSimulation(); // Clear any running simulation
             loadSpreadData(); // Retry the analysis
         }
 
@@ -1186,6 +1187,99 @@
             return null; // No interval to clear
         }
 
+        // Progress simulation variables
+        let progressSimulationTimer = null;
+        let currentProgressStep = 1;
+        
+        // Start progress simulation for redundant analysis attempts
+        function startProgressSimulation() {
+            console.log('🔄 Starting progress simulation for 3 analysis attempts');
+            currentProgressStep = 1;
+            
+            // Reset all progress indicators to initial state
+            resetProgressIndicators();
+            
+            // Set initial state: Method 1 active and running
+            updateProgressStep(1, 'running');
+            
+            // Schedule updates every 30 seconds
+            progressSimulationTimer = setInterval(() => {
+                currentProgressStep++;
+                
+                if (currentProgressStep === 2) {
+                    console.log('🔄 Simulating: Second analysis method running...');
+                    updateProgressStep(2, 'running');
+                } else if (currentProgressStep === 3) {
+                    console.log('🔄 Simulating: Third analysis method running...');
+                    updateProgressStep(3, 'running');
+                } else if (currentProgressStep > 3) {
+                    // After 90 seconds, stop simulation (will be cleared by actual response)
+                    clearProgressSimulation();
+                }
+            }, 30000); // 30 seconds per attempt
+        }
+        
+        // Clear progress simulation
+        function clearProgressSimulation() {
+            if (progressSimulationTimer) {
+                console.log('✅ Clearing progress simulation');
+                clearInterval(progressSimulationTimer);
+                progressSimulationTimer = null;
+            }
+        }
+        
+        // Reset all progress indicators to initial state
+        function resetProgressIndicators() {
+            // Reset all steps to inactive
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById(`progress-${i}`);
+                const text = document.getElementById(`progress-${i}-text`);
+                
+                if (step && text) {
+                    step.className = 'progress-step';
+                    step.querySelector('div').className = 'w-8 h-8 rounded-full bg-stone-600 flex items-center justify-center text-stone-400 font-bold';
+                    text.className = 'text-stone-500 text-sm mt-1';
+                    text.textContent = `Analysis Method ${i}`;
+                }
+            }
+        }
+        
+        // Update specific progress step
+        function updateProgressStep(stepNumber, status) {
+            const step = document.getElementById(`progress-${stepNumber}`);
+            const text = document.getElementById(`progress-${stepNumber}-text`);
+            
+            if (!step || !text) return;
+            
+            if (status === 'running') {
+                // Set current step as active
+                step.className = 'progress-step active';
+                step.querySelector('div').className = 'w-8 h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-500 flex items-center justify-center text-white font-bold';
+                text.className = 'text-stone-300 text-sm mt-1';
+                
+                if (stepNumber === 1) {
+                    text.textContent = 'Analysis Method 1 running...';
+                } else if (stepNumber === 2) {
+                    text.textContent = 'Second analysis method running...';
+                } else if (stepNumber === 3) {
+                    text.textContent = 'Third analysis method running...';
+                }
+                
+                // Update previous steps to inactive but keep them lit
+                for (let i = 1; i < stepNumber; i++) {
+                    const prevStep = document.getElementById(`progress-${i}`);
+                    const prevText = document.getElementById(`progress-${i}-text`);
+                    
+                    if (prevStep && prevText) {
+                        prevStep.className = 'progress-step';
+                        prevStep.querySelector('div').className = 'w-8 h-8 rounded-full bg-stone-600 flex items-center justify-center text-stone-400 font-bold';
+                        prevText.className = 'text-stone-500 text-sm mt-1';
+                        prevText.textContent = `Analysis Method ${i}`;
+                    }
+                }
+            }
+        }
+
         // BULLETPROOF Load spread data with simple error handling
         async function loadSpreadData() {
             if (spreadData) return;
@@ -1199,6 +1293,9 @@
             
             // Simple loading message
             document.getElementById('loadingMessage').textContent = 'Analyzing options for income opportunities...';
+            
+            // Start progress simulation for 3 attempts (30s each)
+            startProgressSimulation();
             
             try {
                 const response = await axios.post('/api/analyze-spread', {
@@ -1256,6 +1353,7 @@
                         console.log('🎉 VALIDATION PASSED - DISPLAYING STRATEGIES');
                         // SUCCESS - we have valid trades
                         spreadData = response.data;
+                        clearProgressSimulation(); // Clear simulation on success
                         document.getElementById('strategiesLoading').style.display = 'none';
                         displayStrategies();
                         // ✅ REMOVED: displayTradeDetails() - only call this on Step 4 when strategy is selected
@@ -1277,6 +1375,9 @@
             } catch (error) {
                 console.error('Error loading spread data:', error);
                 
+                // Clear simulation on error
+                clearProgressSimulation();
+                
                 // ALWAYS hide loading and show error - NO EXCEPTIONS
                 document.getElementById('strategiesLoading').style.display = 'none';
                 document.getElementById('strategiesGrid').style.display = 'block';
@@ -1288,8 +1389,8 @@
                                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                 </svg>
                             </div>
-                            <div class="text-2xl text-stone-300 mb-4">No trades could be found at this moment</div>
-                            <div class="text-stone-400 mb-6">Unable to find suitable income opportunities right now. Please try again in a few minutes.</div>
+                            <div class="text-2xl text-stone-300 mb-4">All analysis failed</div>
+                            <div class="text-stone-400 mb-6">All analysis methods were attempted but none succeeded. Please try again in a few minutes.</div>
                             <button onclick="retrySpreadAnalysis()" 
                                     class="bg-gradient-to-r from-stone-400 to-stone-500 hover:from-stone-500 hover:to-stone-600 text-stone-900 font-bold py-3 px-6 rounded-lg transition-all duration-300">
                                 Try Again

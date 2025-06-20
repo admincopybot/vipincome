@@ -138,9 +138,14 @@ export default async function handler(req, res) {
         console.error(`❌ ERROR with ${currentEndpoint}: ${error.message}`);
         lastError = error;
         
+        // Handle timeout errors - should retry next endpoint
+        if (error.name === 'AbortError') {
+          console.log(`⏰ TIMEOUT: ${currentEndpoint} timed out after 30s, trying next endpoint...`);
+        }
+        
         if (attempt === maxRetries - 1) {
           console.error(`💥 ALL ${maxRetries} ENDPOINTS FAILED`);
-          throw new Error(`All ${maxRetries} analysis endpoints failed. Last error: ${error.message}`);
+          throw new Error(`All analysis failed`);
         }
         
         console.log(`🔄 Trying next endpoint...`);
@@ -181,14 +186,14 @@ export default async function handler(req, res) {
     console.error(`Error in spread analysis: ${error.name} - ${error.message}`);
     console.error(`Error stack: ${error.stack}`);
     
-    if (error.name === 'AbortError') {
-      console.error(`Request timed out after 30 seconds`);
+    if (error.message === 'All analysis failed' || error.name === 'AbortError') {
+      console.error(`All analysis methods failed`);
       res.status(504).json({ 
         success: false,
-        error: 'Request timeout',
-        message: 'Could not find any trades at this moment',
-        user_message: 'Could not find any trades at this moment. The system is experiencing high load.',
-        details: 'The analysis service took too long to respond. Please try again in a moment.',
+        error: 'All analysis failed',
+        message: 'All analysis failed',
+        user_message: 'All analysis failed. Please try again in a moment.',
+        details: 'All analysis methods were attempted but none succeeded.',
         action_required: 'Please wait a moment and try again.'
       });
     } else if (error.message.includes('404') || error.message.includes('Not Found')) {
